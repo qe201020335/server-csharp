@@ -1,6 +1,5 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Context;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Launcher;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -17,6 +16,7 @@ namespace SPTarkov.Server.Core.Controllers;
 [Injectable]
 public class LauncherV2Controller(
     ISptLogger<LauncherV2Controller> _logger,
+    IReadOnlyList<SptMod> _loadedMods,
     HashUtil _hashUtil,
     TimeUtil _timeUtil,
     RandomUtil _randomUtil,
@@ -24,8 +24,7 @@ public class LauncherV2Controller(
     DatabaseService _databaseService,
     LocalisationService _localisationService,
     ConfigServer _configServer,
-    Watermark _watermark,
-    ApplicationContext _applicationContext
+    Watermark _watermark
 )
 {
     protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
@@ -158,10 +157,9 @@ public class LauncherV2Controller(
     /// <returns></returns>
     public Dictionary<string, AbstractModMetadata> LoadedMods()
     {
-        var mods = _applicationContext?.GetLatestValue(ContextVariableType.LOADED_MOD_ASSEMBLIES).GetValue<List<SptMod>>();
         var result = new Dictionary<string, AbstractModMetadata>();
 
-        foreach (var sptMod in mods)
+        foreach (var sptMod in _loadedMods)
         {
             result.Add(sptMod.ModMetadata.Name, sptMod.ModMetadata);
         }

@@ -167,8 +167,9 @@ public class RagfairOfferHelper(
     /// <returns>Matching RagfairOffer objects</returns>
     public List<RagfairOffer> GetOffersThatRequireItem(SearchRequestData searchRequest, PmcData pmcData)
     {
-        // Get all offers that require the desired item and filter out offers from non traders if player below ragifar unlock
+        // Get all offers that require the desired item and filter out offers from non traders if player below ragfair unlock
         var requiredOffers = _ragfairRequiredItemsService.GetRequiredItemsById(searchRequest.NeededSearchId);
+
         var tieredFlea = _ragfairConfig.TieredFlea;
         var tieredFleaLimitTypes = tieredFlea.UnlocksType;
         return requiredOffers.Where(offer =>
@@ -346,7 +347,7 @@ public class RagfairOfferHelper(
         bool playerIsFleaBanned = false)
     {
         var offerRootItem = offer.Items[0];
-        /** Currency offer is sold for */
+        // Currency offer is sold for
         var moneyTypeTpl = offer.Requirements[0].Template;
         var isTraderOffer = _databaseService.GetTraders().ContainsKey(offer.User.Id);
 

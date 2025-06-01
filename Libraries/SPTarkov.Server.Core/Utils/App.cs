@@ -1,5 +1,6 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
+using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
@@ -9,54 +10,38 @@ using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 namespace SPTarkov.Server.Core.Utils;
 
 [Injectable(InjectionType.Singleton)]
-public class App
+public class App(
+    IServiceProvider _serviceProvider,
+    ISptLogger<App> _logger,
+    TimeUtil _timeUtil,
+    RandomUtil _randomUtil,
+    LocalisationService _localisationService,
+    ConfigServer _configServer,
+    EncodingUtil _encodingUtil,
+    HttpServer _httpServer,
+    DatabaseService _databaseService,
+    IEnumerable<IOnLoad> _onLoadComponents,
+    IEnumerable<IOnUpdate> _onUpdateComponents,
+    HttpServerHelper _httpServerHelper
+)
 {
-    protected readonly RandomUtil _randomUtil;
-    protected ConfigServer _configServer;
-    protected CoreConfig _coreConfig;
-    protected DatabaseService _databaseService;
-    protected EncodingUtil _encodingUtil;
-    protected HttpServer _httpServer;
-    protected LocalisationService _localisationService;
-
-    protected ISptLogger<App> _logger;
-    protected IEnumerable<IOnLoad> _onLoad;
-    protected IEnumerable<IOnUpdate> _onUpdate;
+    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
     protected Dictionary<string, long> _onUpdateLastRun = new();
     protected Timer _timer;
-    protected TimeUtil _timeUtil;
 
-    public App(
-        ISptLogger<App> logger,
-        TimeUtil timeUtil,
-        RandomUtil randomUtil,
-        LocalisationService localisationService,
-        ConfigServer configServer,
-        EncodingUtil encodingUtil,
-        HttpServer httpServer,
-        DatabaseService databaseService,
-        IEnumerable<IOnLoad> onLoadComponents,
-        IEnumerable<IOnUpdate> onUpdateComponents
-    )
+    public async Task InitializeAsync()
     {
-        _logger = logger;
-        _timeUtil = timeUtil;
-        _randomUtil = randomUtil;
-        _localisationService = localisationService;
-        _configServer = configServer;
-        _encodingUtil = encodingUtil;
-        _httpServer = httpServer;
-        _databaseService = databaseService;
-        _onLoad = onLoadComponents;
-        _onUpdate = onUpdateComponents;
+        ServiceLocator.SetServiceProvider(_serviceProvider);
 
-        _coreConfig = configServer.GetConfig<CoreConfig>();
-    }
-
-    public async Task Run()
-    {
         // execute onLoad callbacks
         _logger.Info(_localisationService.GetText("executing_startup_callbacks"));
+
+        var isAlreadyRunning = _httpServerHelper.IsAlreadyRunning();
+        if (isAlreadyRunning)
+        {
+            _logger.Critical(_localisationService.GetText("webserver_already_running"));
+            await Task.Delay(Timeout.Infinite);
+        }
 
         if (_logger.IsLogEnabled(LogLevel.Debug))
         {
@@ -79,20 +64,25 @@ public class App
             }
         }
 
-        foreach (var onLoad in _onLoad)
+        foreach (var onLoad in _onLoadComponents)
         {
             await onLoad.OnLoad();
         }
 
-        _timer = new Timer(_ => Update(_onUpdate), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(5000));
+        _timer = new Timer(_ => Update(_onUpdateComponents), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(5000));
+    }
 
-        if (_httpServer.IsStarted())
+    public async Task StartAsync()
+    {
+        if(!_httpServer.IsStarted())
         {
             _logger.Success(_localisationService.GetText("started_webserver_success", _httpServer.ListeningUrl()));
             _logger.Success(_localisationService.GetText("websocket-started", _httpServer.ListeningUrl().Replace("https://", "wss://")));
         }
 
         _logger.Success(GetRandomisedStartMessage());
+
+       await _httpServer.StartAsync();
     }
 
     protected string GetRandomisedStartMessage()
@@ -117,8 +107,14 @@ public class App
 
             foreach (var updateable in onUpdateComponents)
             {
+                var updateableName = updateable.GetType().FullName;
+                if (string.IsNullOrEmpty(updateableName))
+                {
+                    updateableName = $"{updateable.GetType().Namespace}.{updateable.GetType().Name}";
+                }
+
                 var success = false;
-                if (!_onUpdateLastRun.TryGetValue(updateable.GetRoute(), out var lastRunTimeTimestamp))
+                if (!_onUpdateLastRun.TryGetValue(updateableName, out var lastRunTimeTimestamp))
                 {
                     lastRunTimeTimestamp = 0;
                 }
@@ -136,7 +132,7 @@ public class App
 
                 if (success)
                 {
-                    _onUpdateLastRun[updateable.GetRoute()] = _timeUtil.GetTimeStamp();
+                    _onUpdateLastRun[updateableName] = _timeUtil.GetTimeStamp();
                 }
                 else
                 {
@@ -147,7 +143,7 @@ public class App
                     {
                         if (_logger.IsLogEnabled(LogLevel.Debug))
                         {
-                            _logger.Debug(_localisationService.GetText("route_onupdate_no_response", updateable.GetRoute()));
+                            _logger.Debug(_localisationService.GetText("route_onupdate_no_response", updateableName));
                         }
                     }
                 }
@@ -162,7 +158,7 @@ public class App
 
     protected void LogUpdateException(Exception err, IOnUpdate updateable)
     {
-        _logger.Error(_localisationService.GetText("scheduled_event_failed_to_run", updateable.GetRoute()));
+        _logger.Error(_localisationService.GetText("scheduled_event_failed_to_run", updateable.GetType().FullName));
         _logger.Error(err.ToString());
     }
 }

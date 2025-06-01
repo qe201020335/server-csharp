@@ -1,7 +1,6 @@
 using System.Collections.Frozen;
 using SPTarkov.Server.Core.Constants;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Context;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Match;
@@ -24,7 +23,7 @@ public class BotGeneratorHelper(
     ItemHelper _itemHelper,
     InventoryHelper _inventoryHelper,
     ContainerHelper _containerHelper,
-    ApplicationContext _applicationContext,
+    ProfileActivityService _profileActivityService,
     LocalisationService _localisationService,
     ConfigServer _configServer
     ) : IOnLoad
@@ -49,11 +48,6 @@ public class BotGeneratorHelper(
         return Task.CompletedTask;
     }
 
-    public string GetRoute()
-    {
-        return "spt-botGeneratorHelper";
-    }
-
     /// <summary>
     ///     Adds properties to an item
     ///     e.g. Repairable / HasHinge / Foldable / MaxDurability
@@ -64,9 +58,7 @@ public class BotGeneratorHelper(
     public Upd GenerateExtraPropertiesForItem(TemplateItem? itemTemplate, string? botRole = null)
     {
         // Get raid settings, if no raid, default to day
-        var raidSettings = _applicationContext
-            .GetLatestValue(ContextVariableType.RAID_CONFIGURATION)
-            ?.GetValue<GetRaidConfigurationRequestData>();
+        var raidSettings = _profileActivityService.GetFirstProfileActivityRaidData()?.RaidConfiguration;
 
         RandomisedResourceDetails randomisationSettings = null;
         if (botRole is not null)
@@ -153,7 +145,7 @@ public class BotGeneratorHelper(
         if (itemTemplate?.Parent == BaseClasses.FLASHLIGHT)
         {
             // Get chance from botconfig for bot type
-            var lightLaserActiveChance = raidSettings.IsNightRaid
+            var lightLaserActiveChance = raidSettings?.IsNightRaid ?? false
                 ? GetBotEquipmentSettingFromConfig(botRole, "lightIsActiveNightChancePercent", 50)
                 : GetBotEquipmentSettingFromConfig(botRole, "lightIsActiveDayChancePercent", 25);
             itemProperties.Light = new UpdLight
@@ -182,7 +174,7 @@ public class BotGeneratorHelper(
         if (itemTemplate?.Parent == BaseClasses.NIGHTVISION)
         {
             // Get chance from botconfig for bot type
-            var nvgActiveChance = raidSettings.IsNightRaid
+            var nvgActiveChance = raidSettings?.IsNightRaid ?? false
                 ? GetBotEquipmentSettingFromConfig(botRole, "nvgIsActiveChanceNightPercent", 90)
                 : GetBotEquipmentSettingFromConfig(botRole, "nvgIsActiveChanceDayPercent", 15);
             itemProperties.Togglable = new UpdTogglable

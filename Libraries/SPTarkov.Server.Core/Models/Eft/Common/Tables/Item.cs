@@ -408,11 +408,12 @@ public record LockableComponent
     public LockableKeyComponent? KeyComponent { get; set; }
 }
 
+[EftEnumConverter]
 public enum PinLockState
 {
     Free,
-    Locked,
-    Pinned
+    Pinned,
+    Locked
 }
 
 public record UpdBuff

@@ -33,11 +33,6 @@ public class InsuranceCallbacks(
         return false;
     }
 
-    public string GetRoute()
-    {
-        return "spt-insurance";
-    }
-
     /// <summary>
     ///     Handle client/insurance/items/list/cost
     /// </summary>
@@ -45,9 +40,9 @@ public class InsuranceCallbacks(
     /// <param name="info"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
-    public string GetInsuranceCost(string url, GetInsuranceCostRequestData info, string sessionID)
+    public ValueTask<string> GetInsuranceCost(string url, GetInsuranceCostRequestData info, string sessionID)
     {
-        return _httpResponseUtil.GetBody(_insuranceController.Cost(info, sessionID));
+        return new ValueTask<string>(_httpResponseUtil.GetBody(_insuranceController.Cost(info, sessionID)));
     }
 
     /// <summary>

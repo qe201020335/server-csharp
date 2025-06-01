@@ -1,5 +1,4 @@
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Context;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Utils;
@@ -15,7 +14,6 @@ public class BackupService
     protected const string _profileDir = "./user/profiles";
 
     protected readonly List<string> _activeServerMods;
-    protected ApplicationContext _applicationContext;
     protected BackupConfig _backupConfig;
 
     // Runs Init() every x minutes
@@ -24,21 +22,22 @@ public class BackupService
     protected JsonUtil _jsonUtil;
     protected ISptLogger<BackupService> _logger;
     protected TimeUtil _timeUtil;
+    protected IReadOnlyList<SptMod> _loadedMods;
 
     public BackupService(
         ISptLogger<BackupService> logger,
+        IReadOnlyList<SptMod> loadedMods,
         JsonUtil jsonUtil,
         TimeUtil timeUtil,
         ConfigServer configServer,
-        FileUtil fileUtil,
-        ApplicationContext applicationContext
+        FileUtil fileUtil
     )
     {
         _logger = logger;
         _jsonUtil = jsonUtil;
         _timeUtil = timeUtil;
         _fileUtil = fileUtil;
-        _applicationContext = applicationContext;
+        _loadedMods = loadedMods;
 
         _activeServerMods = GetActiveServerMods();
         _backupConfig = configServer.GetConfig<BackupConfig>();
@@ -306,15 +305,9 @@ public class BackupService
     /// <returns> A List of mod names. </returns>
     protected List<string> GetActiveServerMods()
     {
-        var mods = _applicationContext?.GetLatestValue(ContextVariableType.LOADED_MOD_ASSEMBLIES)?.GetValue<List<SptMod>>();
-        if (mods == null)
-        {
-            return [];
-        }
-
         List<string> result = [];
 
-        foreach (var mod in mods)
+        foreach (var mod in _loadedMods)
         {
             result.Add($"{mod.ModMetadata.Author} - {mod.ModMetadata.Version ?? ""}");
         }

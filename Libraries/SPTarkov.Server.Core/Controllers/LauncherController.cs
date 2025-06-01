@@ -1,6 +1,5 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Context;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Launcher;
@@ -18,6 +17,7 @@ namespace SPTarkov.Server.Core.Controllers;
 [Injectable]
 public class LauncherController(
     ISptLogger<LauncherController> _logger,
+    IReadOnlyList<SptMod> _loadedMods,
     HashUtil _hashUtil,
     TimeUtil _timeUtil,
     RandomUtil _randomUtil,
@@ -26,8 +26,7 @@ public class LauncherController(
     ProfileHelper _profileHelper,
     DatabaseService _databaseService,
     LocalisationService _localisationService,
-    ConfigServer _configServer,
-    ApplicationContext _applicationContext
+    ConfigServer _configServer
 )
 {
     protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
@@ -242,13 +241,7 @@ public class LauncherController(
     /// <returns>Dictionary of mod name and mod details</returns>
     public Dictionary<string, AbstractModMetadata> GetLoadedServerMods()
     {
-        var mods = _applicationContext?.GetLatestValue(ContextVariableType.LOADED_MOD_ASSEMBLIES)?.GetValue<List<SptMod>>();
-        if (mods == null)
-        {
-            return [];
-        }
-
-        return mods.ToDictionary(sptMod => sptMod.ModMetadata?.Name ?? "UNKNOWN MOD", sptMod => sptMod.ModMetadata);
+        return _loadedMods.ToDictionary(sptMod => sptMod.ModMetadata?.Name ?? "UNKNOWN MOD", sptMod => sptMod.ModMetadata);
     }
 
     /// <summary>
