@@ -2,23 +2,11 @@ using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Helpers;
 
 [Injectable]
-public class DialogueHelper(
-    ISptLogger<DialogueHelper> _logger,
-    HashUtil _hashUtil,
-    DatabaseServer _databaseServer,
-    NotifierHelper _notifierHelper,
-    ProfileHelper _profileHelper,
-    NotificationSendHelper _notificationSendHelper,
-    LocalisationService _localisationService,
-    ItemHelper _itemHelper
-)
+public class DialogueHelper(ISptLogger<DialogueHelper> logger, ProfileHelper profileHelper)
 {
     /// <summary>
     ///     Get the preview contents of the last message in a dialogue.
@@ -57,57 +45,58 @@ public class DialogueHelper(
     /// <param name="messageID"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <param name="itemId">Item being moved to inventory</param>
-    /// <returns></returns>
+    /// <returns>Collection of items from message</returns>
     public List<Item> GetMessageItemContents(string messageID, string sessionID, string itemId)
     {
-        var fullProfile = _profileHelper.GetFullProfile(sessionID);
+        var fullProfile = profileHelper.GetFullProfile(sessionID);
         var dialogueData = fullProfile.DialogueRecords;
-        foreach (var dialogue in dialogueData)
+        foreach (var (dialogId, dialog) in dialogueData)
         {
-            var message = dialogueData[dialogue.Key]
-                .Messages.FirstOrDefault(x => x.Id == messageID);
+            var message = dialog.Messages?.FirstOrDefault(x => x.Id == messageID);
             if (message is null)
             {
                 continue;
             }
 
-            if (message.Id == messageID)
+            if (message.Id != messageID)
             {
-                var attachmentsNew = fullProfile.DialogueRecords[dialogue.Key].AttachmentsNew;
-                if (attachmentsNew > 0)
-                {
-                    fullProfile.DialogueRecords[dialogue.Key].AttachmentsNew = attachmentsNew - 1;
-                }
-
-                // Check reward count when item being moved isn't in reward list
-                // If count is 0, it means after this move occurs the reward array will be empty and all rewards collected
-                if (message.Items.Data is null)
-                {
-                    message.Items.Data = [];
-                }
-
-                var rewardItems = message.Items.Data?.Where(x => x.Id != itemId);
-                if (!rewardItems.Any())
-                {
-                    message.RewardCollected = true;
-                    message.HasRewards = false;
-                }
-
-                return message.Items.Data;
+                continue;
             }
+
+            var attachmentsNew = fullProfile.DialogueRecords[dialogId].AttachmentsNew;
+            if (attachmentsNew > 0)
+            {
+                fullProfile.DialogueRecords[dialogId].AttachmentsNew = attachmentsNew - 1;
+            }
+
+            // Check reward count when item being moved isn't in reward list
+            // If count is 0, it means after this move occurs the reward array will be empty and all rewards collected
+            if (message.Items.Data is null)
+            {
+                message.Items.Data = [];
+            }
+
+            var messageItems = message.Items.Data?.Where(x => x.Id != itemId);
+            if (messageItems is null || !messageItems.Any())
+            {
+                message.RewardCollected = true;
+                message.HasRewards = false;
+            }
+
+            return message.Items.Data;
         }
 
         return [];
     }
 
     /// <summary>
-    ///     Get the dialogs dictionary for a profile, create if doesn't exist
+    ///     Get the dialogs dictionary for a profile, create if it doesn't exist
     /// </summary>
     /// <param name="sessionId">Session/player id</param>
     /// <returns>Dialog dictionary</returns>
     public Dictionary<string, Models.Eft.Profile.Dialogue> GetDialogsForProfile(string sessionId)
     {
-        var profile = _profileHelper.GetFullProfile(sessionId);
+        var profile = profileHelper.GetFullProfile(sessionId);
         return profile.DialogueRecords
             ?? (profile.DialogueRecords = new Dictionary<string, Models.Eft.Profile.Dialogue>());
     }
@@ -126,7 +115,7 @@ public class DialogueHelper(
             return dialogue;
         }
 
-        _logger.Error($"Unable to find a dialogue with id: {dialogueId} in profile: {profileId}");
+        logger.Error($"Unable to find a dialogue with id: {dialogueId} in profile: {profileId}");
         return null;
     }
 }
