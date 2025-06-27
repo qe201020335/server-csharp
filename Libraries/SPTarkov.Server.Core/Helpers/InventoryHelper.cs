@@ -40,6 +40,7 @@ public class InventoryHelper(
     [
         BaseClasses.WEAPON,
         BaseClasses.FUNCTIONAL_MOD,
+        BaseClasses.MOD,
     ];
     protected InventoryConfig _inventoryConfig = _configServer.GetConfig<InventoryConfig>();
 
@@ -736,10 +737,17 @@ public class InventoryHelper(
             return [1, 1]; // Invalid input data, return defaults
         }
 
-        var rootItem = inventoryItemHash.ByItemId[itemId];
+        if (!inventoryItemHash.ByItemId.TryGetValue(itemId, out var rootItem))
+        {
+            _logger.Error(
+                $"Unable to get root item with Id: {itemId} from player inventory. Defaulting to 1x1"
+            );
+
+            return [1, 1]; // Invalid input data, return defaults
+        }
 
         // Does root item support being folded
-        var rootIsFoldable = itemTemplate.Properties.Foldable.GetValueOrDefault(false);
+        var rootCanBeFolded = itemTemplate.Properties.Foldable.GetValueOrDefault(false);
 
         // The slot that can be folded on root e.g. "mod_stock"
         var foldedSlot = itemTemplate.Properties.FoldedSlot;
@@ -758,8 +766,8 @@ public class InventoryHelper(
         // Is the root item actively folded
         var rootIsFolded = rootItem?.Upd?.Foldable?.Folded.GetValueOrDefault(false) ?? false;
 
-        // Root is collapsible and has been collapsed
-        if (rootIsFoldable && string.IsNullOrEmpty(foldedSlot) && rootIsFolded)
+        // Root can be collapsed and has been collapsed
+        if (rootCanBeFolded && string.IsNullOrEmpty(foldedSlot) && rootIsFolded)
         {
             // foldedSlot must be empty/null which means the root item itself is folded, not a sub child item...i think
             outX -= itemTemplate.Properties.SizeReduceRight.Value;
@@ -773,7 +781,7 @@ public class InventoryHelper(
             var toDo = new Queue<string>([itemId]);
             while (toDo.Count > 0)
             {
-                // Lookup parent in `todo` and get all of its children, then loop over them
+                // Lookup parent in `to do queue`, get all of its children, then loop over them
                 if (inventoryItemHash.ByParentId.TryGetValue(toDo.Peek(), out var children))
                 {
                     foreach (var childItem in children)
@@ -801,12 +809,14 @@ public class InventoryHelper(
                             );
                         }
 
-                        var childIsFoldable = template.Properties.Foldable.GetValueOrDefault(false);
+                        var childCanBeFolded = template.Properties.Foldable.GetValueOrDefault(
+                            false
+                        );
                         var childIsFolded =
                             childItem.Upd?.Foldable?.Folded.GetValueOrDefault(false) ?? false;
 
                         if (
-                            rootIsFoldable
+                            rootCanBeFolded
                             && foldedSlot == childItem.SlotId
                             && (rootIsFolded || childIsFolded)
                         )
@@ -815,7 +825,7 @@ public class InventoryHelper(
                         }
 
                         // Child mod can and is folded, don't include it in size calc
-                        if (childIsFoldable && rootIsFolded && childIsFolded)
+                        if (childCanBeFolded && rootIsFolded && childIsFolded)
                         {
                             continue;
                         }
@@ -879,14 +889,14 @@ public class InventoryHelper(
         var inventoryItemHash = GetInventoryItemHash(itemList);
 
         // Get subset of items that belong to the desired container
-        if (!inventoryItemHash.ByParentId.TryGetValue(containerId, out var containerItemHash))
+        if (!inventoryItemHash.ByParentId.TryGetValue(containerId, out var rootItemsInContainer))
         // No items in container, exit early
         {
             return containerYX;
         }
 
         // Check each item in container
-        foreach (var item in containerItemHash)
+        foreach (var item in rootItemsInContainer)
         {
             ItemLocation? itemLocation;
             if (item.Location is JsonElement element)
