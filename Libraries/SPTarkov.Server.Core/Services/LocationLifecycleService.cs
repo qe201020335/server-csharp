@@ -153,7 +153,8 @@ public class LocationLifecycleService
 
         var result = new StartLocalRaidResponseData
         {
-            ServerId = $"{request.Location}.{request.PlayerSide} {_timeUtil.GetTimeStamp()}", // TODO - does this need to be more verbose - investigate client?
+            // PVE_OFFLINE_xxxxxxxx_27_06_2025_20_20_44
+            ServerId = $"{request.Location}.{request.PlayerSide} {_timeUtil.GetTimeStamp()}", // Only used for metrics in client
             ServerSettings = _databaseService.GetLocationServices(), // TODO - is this per map or global?
             Profile = new ProfileInsuredItems
             {
@@ -194,7 +195,7 @@ public class LocationLifecycleService
             result.Transition.TransitionRaidId = transitionData.TransitionRaidId;
             result.Transition.TransitionCount += 1;
 
-            // Used by client to determine infil location) - client adds the map player is transiting to later
+            // Used by client to determine infil location - client adds the map player is transiting to later
             result.Transition.VisitedLocations.Add(transitionData.SptLastVisitedLocation);
 
             // Complete, clean up as no longer needed
@@ -789,7 +790,7 @@ public class LocationLifecycleService
     /// </summary>
     /// <param name="scavProfile"> Scav profile with quest progress post-raid </param>
     /// <param name="pmcProfile"> Server pmc profile to copy scav quest progress into </param>
-    private void MigrateScavQuestProgressToPmcProfile(PmcData scavProfile, PmcData pmcProfile)
+    protected void MigrateScavQuestProgressToPmcProfile(PmcData scavProfile, PmcData pmcProfile)
     {
         foreach (var scavQuest in scavProfile.Quests)
         {
