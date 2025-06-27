@@ -497,10 +497,10 @@ public class InsuranceController(
             _mathUtil,
             _cloner
         );
-        foreach (var attachmentTpl in weightedAttachmentByPrice)
+        foreach (var (itemTpl, price) in weightedAttachmentByPrice)
         {
             attachmentsProbabilityArray.Add(
-                new ProbabilityObject<string, double?>(attachmentTpl.Key, attachmentTpl.Value, null)
+                new ProbabilityObject<string, double?>(itemTpl, price, null)
             );
         }
 

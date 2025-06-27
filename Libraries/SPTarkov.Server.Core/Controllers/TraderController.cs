@@ -141,15 +141,15 @@ public class TraderController(
     {
         var traders = new List<TraderBase>();
         var pmcData = profileHelper.GetPmcProfile(sessionId);
-        foreach (var (traderId, _) in databaseService.GetTables().Traders)
+        foreach (var (traderId, trader) in databaseService.GetTables().Traders)
         {
-            var traderToAdd = traderHelper.GetTrader(traderId, sessionId);
-            if (traderToAdd is null)
+            traderHelper.GetTrader(traderId, sessionId);
+            if (trader.Base is null)
             {
                 logger.Warning($"No trader with id: {traderId} found, skipping");
                 continue;
             }
-            traders.Add(traderToAdd);
+            traders.Add(trader.Base);
 
             if (pmcData?.Info != null)
             {

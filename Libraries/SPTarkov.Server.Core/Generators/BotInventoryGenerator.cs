@@ -648,27 +648,24 @@ public class BotInventoryGenerator(
     )
     {
         var modPool = _botEquipmentModPoolService.GetModsForGearSlot(itemTpl);
-        foreach (var modSlot in modPool)
+        foreach (var (modSlot, modsForSlot) in modPool)
         {
             // Get blacklist
-            if (!equipmentBlacklist.TryGetValue(modSlot.Key, out var blacklistedMods))
+            if (!equipmentBlacklist.TryGetValue(modSlot, out var blacklistedMods))
             {
                 blacklistedMods = [];
             }
-            ;
 
             // Get mods not on blacklist
-            var filteredMods = modPool[modSlot.Key]
-                .Where(slotName => !blacklistedMods.Contains(slotName));
+            var filteredMods = modsForSlot.Where(slotName => !blacklistedMods.Contains(slotName));
             if (!filteredMods.Any())
             {
-                _logger.Warning(
-                    $"Filtering {modSlot.Key} pool resulting in 0 items, skipping filter"
-                );
+                _logger.Warning($"Filtering {modSlot} pool resulting in 0 items, skipping filter");
                 continue;
             }
 
-            modPool[modSlot.Key] = filteredMods.ToHashSet();
+            modsForSlot.Clear();
+            modsForSlot.UnionWith(filteredMods);
         }
 
         return modPool.ToDictionary();

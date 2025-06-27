@@ -965,20 +965,22 @@ public class HideoutController(
         // Validate that we have a matching production
         var productionDict = pmcData.Hideout.Production;
         string? prodId = null;
-        foreach (var production in productionDict)
+        foreach (var (productionId, production) in productionDict)
         {
             // Skip undefined production objects
-            if (production.Value is null)
+            if (production is null)
+            {
+                continue;
+            }
+
+            if (production.RecipeId != request.RecipeId)
             {
                 continue;
             }
 
             // Production or ScavCase
-            if (production.Value.RecipeId == request.RecipeId)
-            {
-                prodId = production.Key; // Set to objects key
-                break;
-            }
+            prodId = productionId; // Set to objects key
+            break;
         }
 
         // If we're unable to find the production, send an error to the client
@@ -1794,17 +1796,17 @@ public class HideoutController(
     /// </summary>
     public void Update()
     {
-        foreach (var sessionID in _saveServer.GetProfiles())
+        foreach (var (sessionId, profile) in _saveServer.GetProfiles())
         {
             if (
-                sessionID.Value.CharacterData.PmcData.Hideout is not null
+                profile.CharacterData.PmcData.Hideout is not null
                 && _profileActivityService.ActiveWithinLastMinutes(
-                    sessionID.Key,
+                    sessionId,
                     _hideoutConfig.UpdateProfileHideoutWhenActiveWithinMinutes
                 )
             )
             {
-                _hideoutHelper.UpdatePlayerHideout(sessionID.Key);
+                _hideoutHelper.UpdatePlayerHideout(sessionId);
             }
         }
     }

@@ -127,10 +127,9 @@ public class DialogueController(
     public virtual List<DialogueInfo> GenerateDialogueList(string sessionId)
     {
         var data = new List<DialogueInfo>();
-        foreach (var dialogueId in _dialogueHelper.GetDialogsForProfile(sessionId))
+        foreach (var (_, dialog) in _dialogueHelper.GetDialogsForProfile(sessionId))
         {
-            var dialogueInfo = GetDialogueInfo(dialogueId.Key, sessionId);
-
+            var dialogueInfo = GetDialogueInfo(dialog, sessionId);
             if (dialogueInfo is null)
             {
                 continue;
@@ -153,6 +152,17 @@ public class DialogueController(
         var dialogs = _dialogueHelper.GetDialogsForProfile(sessionId);
         var dialogue = dialogs!.GetValueOrDefault(dialogueId);
 
+        return GetDialogueInfo(dialogue, sessionId);
+    }
+
+    /// <summary>
+    ///     Get the content of a dialogue
+    /// </summary>
+    /// <param name="dialogue">Dialog</param>
+    /// <param name="sessionId">Session Id</param>
+    /// <returns>DialogueInfo</returns>
+    public virtual DialogueInfo? GetDialogueInfo(Dialogue dialogue, string sessionId)
+    {
         if (!dialogue.Messages.Any())
         {
             return null;
@@ -160,7 +170,7 @@ public class DialogueController(
 
         var result = new DialogueInfo
         {
-            Id = dialogueId,
+            Id = dialogue.Id,
             Type = dialogue?.Type ?? MessageType.NpcTraderMessage,
             Message = _dialogueHelper.GetMessagePreview(dialogue),
             New = dialogue?.New,
@@ -555,9 +565,9 @@ public class DialogueController(
     /// <param name="sessionId">Session id</param>
     protected void RemoveExpiredItemsFromMessages(string sessionId)
     {
-        foreach (var dialogueId in _dialogueHelper.GetDialogsForProfile(sessionId))
+        foreach (var (dialogId, _) in _dialogueHelper.GetDialogsForProfile(sessionId))
         {
-            RemoveExpiredItemsFromMessage(sessionId, dialogueId.Key);
+            RemoveExpiredItemsFromMessage(sessionId, dialogId);
         }
     }
 

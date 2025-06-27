@@ -51,7 +51,7 @@ public class AchievementController(
         )
         {
             var profilesHaveAchievement = 0;
-            foreach (var (profileId, profile) in profiles)
+            foreach (var (_, profile) in profiles)
             {
                 if (profile.CharacterData?.PmcData?.Achievements is null)
                 {

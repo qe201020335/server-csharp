@@ -103,11 +103,11 @@ public class HealthController(
         if (itemRemovesEffects && bodyPartToHeal.Effects is not null)
         {
             // Can remove effects and limb has effects to remove
-            foreach (var effectKvP in bodyPartToHeal.Effects)
+            foreach (var (effectId, _) in bodyPartToHeal.Effects)
             {
                 // Check enum has effectType
-                if (!Enum.TryParse<DamageEffectType>(effectKvP.Key, out var effect))
-                // Enum doesnt contain this key
+                if (!Enum.TryParse<DamageEffectType>(effectId, out var effect))
+                // Enum doesn't contain this key
                 {
                     continue;
                 }
@@ -126,7 +126,7 @@ public class HealthController(
 
                 // Adjust limb heal amount based on if it's fixing an effect (request.count is TOTAL cost of hp resource on heal item, NOT amount to heal limb)
                 amountToHealLimb -= (int)(matchingEffectFromHealingItem.Cost ?? 0);
-                bodyPartToHeal.Effects.Remove(effectKvP.Key);
+                bodyPartToHeal.Effects.Remove(effectId);
             }
         }
 

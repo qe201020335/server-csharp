@@ -209,14 +209,14 @@ public class CustomizationController(
         var traders = _databaseService.GetTraders();
         var result = new List<Suit>();
 
-        foreach (var trader in traders)
+        foreach (var (traderId, trader) in traders)
         {
             if (
-                trader.Value.Base?.CustomizationSeller is not null
-                && trader.Value.Base.CustomizationSeller.Value
+                trader.Base?.CustomizationSeller is not null
+                && trader.Base.CustomizationSeller.Value
             )
             {
-                result.AddRange(GetTraderSuits(trader.Key, sessionId));
+                result.AddRange(GetTraderSuits(traderId, sessionId));
             }
         }
 

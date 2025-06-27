@@ -412,26 +412,26 @@ public class GameController(
             }
 
             // Look for effects
-            foreach (var effectKvP in bodyPart.Effects)
+            foreach (var (effectId, effect) in bodyPart.Effects)
             {
                 // remove effects below 1, .e.g. bleeds at -1
-                if (effectKvP.Value.Time < 1)
+                if (effect.Time < 1)
                 {
                     // More than 30 minutes has passed
                     if (diffSeconds > 1800)
                     {
-                        bodyPart.Effects.Remove(effectKvP.Key);
+                        bodyPart.Effects.Remove(effectId);
                     }
 
                     continue;
                 }
 
                 // Decrement effect time value by difference between current time and time health was last updated
-                effectKvP.Value.Time -= diffSeconds;
-                if (effectKvP.Value.Time < 1)
+                effect.Time -= diffSeconds;
+                if (effect.Time < 1)
                 // Effect time was sub 1, set floor it can be
                 {
-                    effectKvP.Value.Time = 1;
+                    effect.Time = 1;
                 }
             }
         }
