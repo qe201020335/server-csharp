@@ -44,7 +44,7 @@ public class FenceService(
     /// </summary>
     protected TraderAssort? fenceDiscountAssort;
 
-    protected HashSet<string> fenceItemUpdCompareProperties =
+    protected readonly HashSet<string> fenceItemUpdCompareProperties =
     [
         "Buff",
         "Repairable",
@@ -62,7 +62,7 @@ public class FenceService(
     /// </summary>
     protected long nextPartialRefreshTimestamp;
 
-    protected TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
+    protected readonly TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
 
     /// <summary>
     ///     Replace main fence assort with new assort

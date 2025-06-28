@@ -17,7 +17,7 @@ public class BotWeaponModLimitService(
     ItemHelper _itemHelper
 )
 {
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
 
     /// <summary>
     ///     Initalise mod limits to be used when generating a weapon

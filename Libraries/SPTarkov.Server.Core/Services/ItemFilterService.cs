@@ -16,10 +16,10 @@ public class ItemFilterService(
     ConfigServer _configServer
 )
 {
-    protected HashSet<string>? _itemBlacklistCache = [];
-    protected ItemConfig _itemConfig = _configServer.GetConfig<ItemConfig>();
+    protected readonly HashSet<string>? _itemBlacklistCache = [];
+    protected readonly ItemConfig _itemConfig = _configServer.GetConfig<ItemConfig>();
 
-    protected HashSet<string>? _lootableItemBlacklistCache = [];
+    protected readonly HashSet<string>? _lootableItemBlacklistCache = [];
 
     /// <summary>
     ///     Check if the provided template id is blacklisted in config/item.json/blacklist

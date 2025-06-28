@@ -28,7 +28,7 @@ public class LauncherController(
     ConfigServer _configServer
 )
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
 
     /// <summary>
     ///     Handle launcher connecting to server

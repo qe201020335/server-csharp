@@ -34,7 +34,7 @@ public class RepairService(
     WeightedRandomHelper _weightedRandomHelper
 )
 {
-    protected RepairConfig _repairConfig = _configServer.GetConfig<RepairConfig>();
+    protected readonly RepairConfig _repairConfig = _configServer.GetConfig<RepairConfig>();
 
     /// <summary>
     ///     Use trader to repair an items durability

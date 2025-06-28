@@ -18,7 +18,7 @@ public class TraderPurchasePersisterService(
     ConfigServer _configServer
 )
 {
-    protected TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
+    protected readonly TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
 
     /// <summary>
     ///     Get the purchases made from a trader for this profile before the last trader reset

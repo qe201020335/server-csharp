@@ -14,7 +14,7 @@ public class AchievementController(
     ConfigServer configServer
 )
 {
-    protected CoreConfig coreConfig = configServer.GetConfig<CoreConfig>();
+    protected readonly CoreConfig coreConfig = configServer.GetConfig<CoreConfig>();
 
     /// <summary>
     ///     Get base achievements

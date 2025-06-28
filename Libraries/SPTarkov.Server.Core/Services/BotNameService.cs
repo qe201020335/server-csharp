@@ -21,8 +21,8 @@ public class BotNameService(
 )
 {
     protected readonly Lock _lockObject = new();
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected HashSet<string> _usedNameCache = new();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly HashSet<string> _usedNameCache = new();
 
     /// <summary>
     ///     Clear out any entries in Name Set

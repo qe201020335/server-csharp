@@ -21,7 +21,7 @@ public class TraderSptCommand(
     MailSendService _mailSendService
 ) : ISptCommand
 {
-    protected Regex _commandRegex = new(
+    protected readonly Regex _commandRegex = new(
         @"^spt trader (?<trader>[\w]+) (?<command>rep|spend) (?<quantity>(?!0+)[0-9]+)$"
     );
 

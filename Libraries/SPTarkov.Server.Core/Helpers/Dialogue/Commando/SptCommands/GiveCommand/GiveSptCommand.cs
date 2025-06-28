@@ -40,7 +40,7 @@ public class GiveSptCommand(
         ItemTpl.FLARE_RSP30_REACTIVE_SIGNAL_CARTRIDGE_YELLOW,
     ];
 
-    protected Dictionary<string, SavedCommand> _savedCommand = new();
+    protected readonly Dictionary<string, SavedCommand> _savedCommand = new();
 
     public string GetCommand()
     {

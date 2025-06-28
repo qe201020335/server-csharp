@@ -13,7 +13,7 @@ public class BotGenerationCacheService(
 )
 {
     protected Queue<BotBase> _activeBotsInRaid = [];
-    protected ConcurrentDictionary<string, List<BotBase>> _storedBots = new();
+    protected readonly ConcurrentDictionary<string, List<BotBase>> _storedBots = new();
 
     /// <summary>
     ///     Store list of bots in cache, shuffle results before storage

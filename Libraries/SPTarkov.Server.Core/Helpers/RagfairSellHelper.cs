@@ -18,7 +18,7 @@ public class RagfairSellHelper(
     ConfigServer _configServer
 )
 {
-    protected RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
+    protected readonly RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
 
     /// <summary>
     ///     Get the percent chance to sell an item based on its average listed price vs player chosen listing price

@@ -11,7 +11,7 @@ public class HttpServerHelper(ConfigServer configServer)
 {
     protected readonly HttpConfig _httpConfig = configServer.GetConfig<HttpConfig>();
 
-    protected Dictionary<string, string> mime = new()
+    protected readonly Dictionary<string, string> mime = new()
     {
         { "css", "text/css" },
         { "bin", "application/octet-stream" },

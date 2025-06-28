@@ -34,7 +34,7 @@ public class InsuranceService(
 {
     protected readonly InsuranceConfig _insuranceConfig =
         _configServer.GetConfig<InsuranceConfig>();
-    protected Dictionary<string, Dictionary<string, List<Item>>?> _insured = new();
+    protected readonly Dictionary<string, Dictionary<string, List<Item>>?> _insured = new();
 
     /// <summary>
     ///     Does player have insurance dictionary exists

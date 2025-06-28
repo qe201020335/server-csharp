@@ -16,7 +16,7 @@ public class OpenZoneService(
     ConfigServer _configServer
 )
 {
-    protected LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
+    protected readonly LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
 
     /// <summary>
     ///     Add open zone to specified map

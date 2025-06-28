@@ -18,7 +18,7 @@ public class CommandoDialogChatBot(
     IEnumerable<IChatCommand> chatCommands
 ) : AbstractDialogChatBot(logger, mailSendService, localisationService, chatCommands)
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
 
     public override UserDialogInfo GetChatBot()
     {

@@ -30,8 +30,8 @@ public class ProfileFixerService(
     InventoryHelper _inventoryHelper
 )
 {
-    protected List<string> _areas = ["hideout", "main"];
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly List<string> _areas = ["hideout", "main"];
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
 
     /// <summary>
     ///     Find issues in the pmc profile data that may cause issues and fix them

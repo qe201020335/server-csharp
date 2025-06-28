@@ -85,7 +85,7 @@ public class BotEquipmentModGenerator(
         "cartridges",
     ];
 
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
 
     /// <summary>
     ///     Check mods are compatible and add to array

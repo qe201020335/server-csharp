@@ -14,8 +14,8 @@ public abstract class AbstractDialogChatBot(
     IEnumerable<IChatCommand> chatCommands
 ) : IDialogueChatBot
 {
-    protected IDictionary<string, IChatCommand> _chatCommands = chatCommands.ToDictionary(command =>
-        command.GetCommandPrefix()
+    protected readonly IDictionary<string, IChatCommand> _chatCommands = chatCommands.ToDictionary(
+        command => command.GetCommandPrefix()
     );
 
     public abstract UserDialogInfo GetChatBot();

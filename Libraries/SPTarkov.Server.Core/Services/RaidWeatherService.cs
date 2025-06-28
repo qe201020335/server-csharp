@@ -18,8 +18,8 @@ public class RaidWeatherService(
     ConfigServer _configServer
 )
 {
-    protected WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
-    protected List<Weather> _weatherForecast = [];
+    protected readonly WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
+    protected readonly List<Weather> _weatherForecast = [];
 
     /// <summary>
     ///     Generate 24 hours of weather data starting from midnight today

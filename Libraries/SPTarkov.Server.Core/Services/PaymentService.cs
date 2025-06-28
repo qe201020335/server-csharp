@@ -29,7 +29,8 @@ public class PaymentService(
     ConfigServer _configServer
 )
 {
-    protected InventoryConfig _inventoryConfig = _configServer.GetConfig<InventoryConfig>();
+    protected readonly InventoryConfig _inventoryConfig =
+        _configServer.GetConfig<InventoryConfig>();
 
     /// <summary>
     ///     Take money and insert items into return to server request

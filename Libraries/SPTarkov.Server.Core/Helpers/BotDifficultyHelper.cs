@@ -21,7 +21,7 @@ public class BotDifficultyHelper(
     ICloner _cloner
 )
 {
-    protected PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
+    protected readonly PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
 
     /// <summary>
     ///     Get difficulty settings for desired bot type, if not found use assault bot types

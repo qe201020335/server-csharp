@@ -33,7 +33,7 @@ public class ScavCaseRewardGenerator(
 {
     protected List<TemplateItem> _dbAmmoItemsCache = [];
     protected List<TemplateItem> _dbItemsCache = [];
-    protected ScavCaseConfig _scavCaseConfig = _configServer.GetConfig<ScavCaseConfig>();
+    protected readonly ScavCaseConfig _scavCaseConfig = _configServer.GetConfig<ScavCaseConfig>();
 
     /// <summary>
     ///     Create an array of rewards that will be given to the player upon completing their scav case build

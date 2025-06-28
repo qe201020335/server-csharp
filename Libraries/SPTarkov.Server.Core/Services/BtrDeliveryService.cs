@@ -24,10 +24,11 @@ public class BtrDeliveryService(
     LocalisationService _localisationService
 )
 {
-    protected BtrDeliveryConfig _btrDeliveryConfig = _configServer.GetConfig<BtrDeliveryConfig>();
-    protected TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
+    protected readonly BtrDeliveryConfig _btrDeliveryConfig =
+        _configServer.GetConfig<BtrDeliveryConfig>();
+    protected readonly TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
 
-    protected static List<string> _transferTypes = new() { "btr", "transit" };
+    protected static readonly List<string> _transferTypes = new() { "btr", "transit" };
 
     /// <summary>
     ///     Check if player used BTR or transit item sending service and send items to player via mail if found

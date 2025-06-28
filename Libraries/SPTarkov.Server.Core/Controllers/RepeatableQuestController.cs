@@ -46,7 +46,7 @@ public class RepeatableQuestController(
 )
 {
     protected static readonly List<string> _questTypes = ["PickUp", "Exploration", "Elimination"];
-    protected QuestConfig QuestConfig = _configServer.GetConfig<QuestConfig>();
+    protected readonly QuestConfig QuestConfig = _configServer.GetConfig<QuestConfig>();
 
     /// <summary>
     ///     Handle the client accepting a repeatable quest and starting it

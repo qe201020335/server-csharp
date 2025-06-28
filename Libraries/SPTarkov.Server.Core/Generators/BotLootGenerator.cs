@@ -32,8 +32,8 @@ public class BotLootGenerator(
     ICloner _cloner
 )
 {
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
 
     /// <summary>
     /// </summary>

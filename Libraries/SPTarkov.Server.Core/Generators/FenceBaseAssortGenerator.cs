@@ -27,7 +27,7 @@ public class FenceBaseAssortGenerator(
     ICloner _cloner
 )
 {
-    protected TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
+    protected readonly TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
 
     /// <summary>
     ///     Create base fence assorts dynamically and store in memory

@@ -25,7 +25,7 @@ public class LauncherV2Controller(
     Watermark _watermark
 )
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
 
     /// <summary>
     ///     Returns a simple string of Pong!

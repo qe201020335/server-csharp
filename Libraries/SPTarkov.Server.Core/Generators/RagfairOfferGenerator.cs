@@ -40,12 +40,12 @@ public class RagfairOfferGenerator(
 )
 {
     protected List<TplWithFleaPrice>? allowedFleaPriceItemsForBarter;
-    protected BotConfig botConfig = configServer.GetConfig<BotConfig>();
+    protected readonly BotConfig botConfig = configServer.GetConfig<BotConfig>();
 
     /// Internal counter to ensure each offer created has a unique value for its intId property
     protected int offerCounter;
 
-    protected RagfairConfig ragfairConfig = configServer.GetConfig<RagfairConfig>();
+    protected readonly RagfairConfig ragfairConfig = configServer.GetConfig<RagfairConfig>();
 
     /// <summary>
     ///     Create a flea offer and store it in the Ragfair server offers array

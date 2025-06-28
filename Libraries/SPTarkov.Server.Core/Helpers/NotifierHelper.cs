@@ -8,7 +8,7 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable(InjectionType.Singleton)]
 public class NotifierHelper(HttpServerHelper httpServerHelper, HashUtil hashUtil)
 {
-    protected static WsPing ping = new();
+    protected static readonly WsPing ping = new();
 
     public WsNotificationEvent GetDefaultNotification()
     {

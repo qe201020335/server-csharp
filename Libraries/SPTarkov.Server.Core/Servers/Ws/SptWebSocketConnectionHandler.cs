@@ -20,8 +20,8 @@ public class SptWebSocketConnectionHandler(
     IEnumerable<ISptWebSocketMessageHandler> _messageHandlers
 ) : IWebSocketConnectionHandler
 {
-    protected Dictionary<string, Dictionary<string, WebSocket>> _sockets = new();
-    protected Lock _socketsLock = new();
+    protected readonly Dictionary<string, Dictionary<string, WebSocket>> _sockets = new();
+    protected readonly Lock _socketsLock = new();
 
     public string GetHookUrl()
     {

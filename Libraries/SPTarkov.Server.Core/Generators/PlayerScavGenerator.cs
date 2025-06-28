@@ -37,7 +37,8 @@ public class PlayerScavGenerator(
     TimeUtil _timeUtil
 )
 {
-    protected PlayerScavConfig _playerScavConfig = _configServer.GetConfig<PlayerScavConfig>();
+    protected readonly PlayerScavConfig _playerScavConfig =
+        _configServer.GetConfig<PlayerScavConfig>();
 
     /// <summary>
     ///     Update a player profile to include a new player scav profile

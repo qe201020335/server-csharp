@@ -44,7 +44,8 @@ public class InsuranceController(
     ICloner _cloner
 )
 {
-    protected InsuranceConfig _insuranceConfig = _configServer.GetConfig<InsuranceConfig>();
+    protected readonly InsuranceConfig _insuranceConfig =
+        _configServer.GetConfig<InsuranceConfig>();
 
     /// <summary>
     ///     Process insurance items of all profiles prior to being given back to the player through the mail service

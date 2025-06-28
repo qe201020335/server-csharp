@@ -24,14 +24,14 @@ public class PostDbLoadService(
     ICloner _cloner
 )
 {
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
-    protected HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
-    protected ItemConfig _itemConfig = _configServer.GetConfig<ItemConfig>();
-    protected LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
-    protected LootConfig _lootConfig = _configServer.GetConfig<LootConfig>();
-    protected PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
-    protected RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
+    protected readonly ItemConfig _itemConfig = _configServer.GetConfig<ItemConfig>();
+    protected readonly LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
+    protected readonly LootConfig _lootConfig = _configServer.GetConfig<LootConfig>();
+    protected readonly PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
+    protected readonly RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
 
     public void PerformPostDbLoadActions()
     {

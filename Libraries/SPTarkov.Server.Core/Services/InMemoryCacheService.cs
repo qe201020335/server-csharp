@@ -6,7 +6,7 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class InMemoryCacheService(ICloner _cloner)
 {
-    protected Dictionary<string, object?> _cacheData = new();
+    protected readonly Dictionary<string, object?> _cacheData = new();
 
     /// <summary>
     ///     Store data into an in-memory object

@@ -27,7 +27,7 @@ public class QuestRewardHelper(
     /// Value can be modified by modders by overriding this value with new traders.
     /// Ensure to add Lightkeeper's ID (638f541a29ffd1183d187f57) and BTR Driver's ID (656f0f98d80a697f855d34b1)
     /// </summary>
-    protected string[] InGameTraders = [Traders.LIGHTHOUSEKEEPER, Traders.BTR];
+    protected readonly string[] InGameTraders = [Traders.LIGHTHOUSEKEEPER, Traders.BTR];
 
     /// <summary>
     /// Give player quest rewards - Skills/exp/trader standing/items/assort unlocks - Returns reward items player earned

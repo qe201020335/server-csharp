@@ -31,7 +31,7 @@ public class RagfairOfferService(
 )
 {
     private bool _playerOffersLoaded;
-    protected RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
+    protected readonly RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
 
     /// <summary>
     ///     Get all offers

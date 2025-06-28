@@ -6,7 +6,7 @@ namespace SPTarkov.Server.Core.Utils;
 [Injectable]
 public class TimerUtil
 {
-    protected Stopwatch _stopwatch;
+    protected readonly Stopwatch _stopwatch;
 
     public TimerUtil()
     {

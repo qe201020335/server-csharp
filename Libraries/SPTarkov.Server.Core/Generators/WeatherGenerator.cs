@@ -19,7 +19,7 @@ public class WeatherGenerator(
     RandomUtil _randomUtil
 )
 {
-    protected WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
+    protected readonly WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
 
     /// <summary>
     ///     Get current + raid datetime and format into correct BSG format.

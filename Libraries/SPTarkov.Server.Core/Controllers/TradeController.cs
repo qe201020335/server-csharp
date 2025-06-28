@@ -38,8 +38,8 @@ public class TradeController(
     ConfigServer _configServer
 )
 {
-    protected RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
-    protected TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
+    protected readonly RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
+    protected readonly TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
 
     /// <summary>
     ///     Handle TradingConfirm event

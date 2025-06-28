@@ -19,7 +19,7 @@ public class RepeatableQuestHelper(
     ConfigServer configServer
 )
 {
-    protected QuestConfig QuestConfig = configServer.GetConfig<QuestConfig>();
+    protected readonly QuestConfig QuestConfig = configServer.GetConfig<QuestConfig>();
 
     /// <summary>
     ///     Get the relevant elimination config based on the current players PMC level

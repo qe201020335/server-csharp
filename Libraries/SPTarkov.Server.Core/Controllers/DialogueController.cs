@@ -27,8 +27,8 @@ public class DialogueController(
     IEnumerable<IDialogueChatBot> dialogueChatBots
 )
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
-    protected List<IDialogueChatBot> _dialogueChatBots = dialogueChatBots.ToList();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly List<IDialogueChatBot> _dialogueChatBots = dialogueChatBots.ToList();
 
     /// <summary>
     /// </summary>

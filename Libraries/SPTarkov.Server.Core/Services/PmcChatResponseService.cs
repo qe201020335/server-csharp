@@ -28,7 +28,8 @@ public class PmcChatResponseService(
 )
 {
     protected GiftsConfig _giftConfig = _configServer.GetConfig<GiftsConfig>();
-    protected PmcChatResponse _pmcResponsesConfig = _configServer.GetConfig<PmcChatResponse>();
+    protected readonly PmcChatResponse _pmcResponsesConfig =
+        _configServer.GetConfig<PmcChatResponse>();
 
     /// <summary>
     ///     For each PMC victim of the player, have a chance to send a message to the player, can be positive or negative

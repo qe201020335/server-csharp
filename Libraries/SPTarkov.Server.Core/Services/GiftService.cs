@@ -22,7 +22,7 @@ public class GiftService(
     ConfigServer _configServer
 )
 {
-    protected GiftsConfig _giftConfig = _configServer.GetConfig<GiftsConfig>();
+    protected readonly GiftsConfig _giftConfig = _configServer.GetConfig<GiftsConfig>();
 
     /// <summary>
     ///     Does a gift with a specific ID exist in db

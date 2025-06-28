@@ -34,7 +34,8 @@ public class ProfileHelper(
         "edge_of_darkness",
         "unheard_edition",
     ];
-    protected InventoryConfig _inventoryConfig = _configServer.GetConfig<InventoryConfig>();
+    protected readonly InventoryConfig _inventoryConfig =
+        _configServer.GetConfig<InventoryConfig>();
 
     /// <summary>
     ///     Remove/reset a completed quest condtion from players profile quest data

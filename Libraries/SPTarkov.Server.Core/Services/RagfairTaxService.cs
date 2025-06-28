@@ -21,7 +21,10 @@ public class RagfairTaxService(
     ICloner _cloner
 )
 {
-    protected Dictionary<string, StorePlayerOfferTaxAmountRequestData> _playerOfferTaxCache = new();
+    protected readonly Dictionary<
+        string,
+        StorePlayerOfferTaxAmountRequestData
+    > _playerOfferTaxCache = new();
 
     public void StoreClientOfferTaxValue(
         string sessionId,

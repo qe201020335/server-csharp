@@ -84,13 +84,18 @@ public class SeasonalEventService(
         ItemTpl.RANDOMLOOTCONTAINER_PUMPKIN_RAND_LOOT_CONTAINER,
     ];
 
-    protected HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
-    protected LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
-    protected HashSet<string> _lootContainersToFilter = ["Backpack", "Pockets", "TacticalVest"];
-    protected QuestConfig _questConfig = _configServer.GetConfig<QuestConfig>();
-    protected SeasonalEventConfig _seasonalEventConfig =
+    protected readonly HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
+    protected readonly LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
+    protected readonly HashSet<string> _lootContainersToFilter =
+    [
+        "Backpack",
+        "Pockets",
+        "TacticalVest",
+    ];
+    protected readonly QuestConfig _questConfig = _configServer.GetConfig<QuestConfig>();
+    protected readonly SeasonalEventConfig _seasonalEventConfig =
         _configServer.GetConfig<SeasonalEventConfig>();
-    protected WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
+    protected readonly WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
 
     /// <summary>
     ///     Get an array of christmas items found in bots inventories as loot

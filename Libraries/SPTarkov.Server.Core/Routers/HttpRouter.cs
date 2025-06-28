@@ -6,8 +6,8 @@ namespace SPTarkov.Server.Core.Routers;
 [Injectable]
 public class HttpRouter
 {
-    protected IEnumerable<DynamicRouter> _dynamicRoutes;
-    protected IEnumerable<StaticRouter> _staticRouters;
+    protected readonly IEnumerable<DynamicRouter> _dynamicRoutes;
+    protected readonly IEnumerable<StaticRouter> _staticRouters;
 
     public HttpRouter(
         IEnumerable<StaticRouter> staticRouters,

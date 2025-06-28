@@ -29,8 +29,8 @@ public class SaveServer(
     protected readonly Dictionary<string, Func<SptProfile, SptProfile>> onBeforeSaveCallbacks =
         new();
 
-    protected ConcurrentDictionary<string, SptProfile> profiles = new();
-    protected ConcurrentDictionary<string, string> saveMd5 = new();
+    protected readonly ConcurrentDictionary<string, SptProfile> profiles = new();
+    protected readonly ConcurrentDictionary<string, string> saveMd5 = new();
 
     /// <summary>
     ///     Add callback to occur prior to saving profile changes
