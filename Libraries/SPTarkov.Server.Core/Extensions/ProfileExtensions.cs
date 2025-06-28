@@ -73,5 +73,27 @@ namespace SPTarkov.Server.Core.Extensions
         {
             return profile?.Skills?.Common?.FirstOrDefault(s => s.Id == skill);
         }
+
+        /// <summary>
+        ///     Get the scav karma level for a profile
+        ///     Is also the fence trader rep level
+        /// </summary>
+        /// <param name="pmcData">pmc profile</param>
+        /// <returns>karma level</returns>
+        public static double GetScavKarmaLevel(this PmcData pmcData)
+        {
+            // can be empty during profile creation
+            if (!pmcData.TradersInfo.TryGetValue(Traders.FENCE, out var fenceInfo))
+            {
+                return 0;
+            }
+
+            if (fenceInfo.Standing > 6)
+            {
+                return 6;
+            }
+
+            return Math.Floor(fenceInfo.Standing ?? 0);
+        }
     }
 }

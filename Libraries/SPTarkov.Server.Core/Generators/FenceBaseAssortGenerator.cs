@@ -236,7 +236,7 @@ public class FenceBaseAssortGenerator(
     ///     Get the penetration power value of an ammo, works with ammo boxes and raw ammos
     /// </summary>
     /// <param name="rootItemDb"> Ammo box or ammo item from items.db </param>
-    /// <returns> Penetration power of passed in item, undefined if it doesnt have a power </returns>
+    /// <returns> Penetration power of passed in item, undefined if it doesn't have a power </returns>
     protected double? GetAmmoPenetrationPower(TemplateItem rootItemDb)
     {
         if (itemHelper.IsOfBaseclass(rootItemDb.Id, BaseClasses.AMMO_BOX))

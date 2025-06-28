@@ -1,5 +1,6 @@
 using System.Globalization;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -51,7 +52,7 @@ public class PlayerScavGenerator(
         var pmcDataClone = _cloner.Clone(profileCharactersClone.PmcData);
         var existingScavDataClone = _cloner.Clone(profileCharactersClone.ScavData);
 
-        var scavKarmaLevel = GetScavKarmaLevel(pmcDataClone);
+        var scavKarmaLevel = pmcDataClone.GetScavKarmaLevel();
 
         // use karma level to get correct karmaSettings
         if (
@@ -193,31 +194,6 @@ public class PlayerScavGenerator(
                 }
             }
         }
-    }
-
-    /// <summary>
-    ///     Get the scav karama level for a profile
-    ///     Is also the fence trader rep level
-    /// </summary>
-    /// <param name="pmcData">pmc profile</param>
-    /// <returns>karma level</returns>
-    protected double GetScavKarmaLevel(PmcData pmcData)
-    {
-        // can be empty during profile creation
-        if (!pmcData.TradersInfo.TryGetValue(Traders.FENCE, out var fenceInfo))
-        {
-            _logger.Warning(
-                _localisationService.GetText("scav-missing_karma_level_getting_default")
-            );
-            return 0;
-        }
-
-        if (fenceInfo.Standing > 6)
-        {
-            return 6;
-        }
-
-        return Math.Floor(fenceInfo.Standing ?? 0);
     }
 
     /// <summary>

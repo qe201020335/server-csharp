@@ -12,7 +12,6 @@ using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
-using SPTarkov.Server.Core.Utils.Cloners;
 using SPTarkov.Server.Core.Utils.Json;
 using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
@@ -26,22 +25,15 @@ public class GameController(
     DatabaseService _databaseService,
     TimeUtil _timeUtil,
     HttpServerHelper _httpServerHelper,
-    InventoryHelper _inventoryHelper,
-    RandomUtil _randomUtil,
     HideoutHelper _hideoutHelper,
     ProfileHelper _profileHelper,
     ProfileFixerService _profileFixerService,
     LocalisationService _localisationService,
     PostDbLoadService _postDbLoadService,
-    CustomLocationWaveService _customLocationWaveService,
-    OpenZoneService _openZoneService,
     SeasonalEventService _seasonalEventService,
-    ItemBaseClassService _itemBaseClassService,
     GiftService _giftService,
     RaidTimeAdjustmentService _raidTimeAdjustmentService,
-    ProfileActivityService _profileActivityService,
-    CreateProfileService _createProfileService,
-    ICloner _cloner
+    ProfileActivityService _profileActivityService
 )
 {
     protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
@@ -49,7 +41,6 @@ public class GameController(
     protected double _deviation = 0.0001;
     protected HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
     protected HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
-    protected RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
 
     /// <summary>
     ///     Handle client/game/start

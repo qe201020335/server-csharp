@@ -73,12 +73,7 @@ public class TraderStore(
     /// <returns></returns>
     public ITrader? GetTraderById(string traderId)
     {
-        if (_traders.TryGetValue(traderId, out var trader))
-        {
-            return trader;
-        }
-
-        return null;
+        return _traders.GetValueOrDefault(traderId);
     }
 
     /// <summary>
