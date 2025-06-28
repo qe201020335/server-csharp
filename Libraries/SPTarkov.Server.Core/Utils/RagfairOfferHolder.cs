@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
@@ -293,17 +294,6 @@ public class RagfairOfferHolder(
     }
 
     /// <summary>
-    ///     Is the passed in offer stale - end time > passed in time
-    /// </summary>
-    /// <param name="offer">Offer to check</param>
-    /// <param name="time">Time to check offer against</param>
-    /// <returns>True - offer is stale</returns>
-    protected bool IsStale(RagfairOffer offer, long time)
-    {
-        return offer.EndTime < time || (offer.Quantity ?? 0) < 1;
-    }
-
-    /// <summary>
     ///     Add a stale offers id to _expiredOfferIds collection for later processing
     /// </summary>
     /// <param name="staleOfferId">Id of offer to add to stale collection</param>
@@ -394,7 +384,7 @@ public class RagfairOfferHolder(
                     continue;
                 }
 
-                if (IsStale(offer, timestamp))
+                if (offer.IsStale(timestamp))
                 {
                     if (!_expiredOfferIds.Add(offer.Id))
                     {
