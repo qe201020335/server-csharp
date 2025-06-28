@@ -713,53 +713,6 @@ public class ItemHelper(
     }
 
     /// <summary>
-    /// A variant of FindAndReturnChildren where the output is list of item objects instead of their ids.
-    /// </summary>
-    /// <param name="items">List of items (item + possible children)</param>
-    /// <param name="baseItemId">Parent item's id</param>
-    /// <param name="modsOnly">OPTIONAL - Include only mod items, exclude items stored inside root item</param>
-    /// <returns>list of Item objects</returns>
-    public List<Item> FindAndReturnChildrenAsItems(
-        IEnumerable<Item> items,
-        string baseItemId,
-        bool modsOnly = false
-    )
-    {
-        // Use dictionary to make key lookup faster, convert to list before being returned
-        OrderedDictionary<string, Item> result = [];
-        foreach (var childItem in items)
-        {
-            // Include itself
-            if (string.Equals(childItem.Id, baseItemId, StringComparison.Ordinal))
-            {
-                // Root item MUST be at 0 index for things like flea market offers
-                result.Insert(0, childItem.Id, childItem);
-                continue;
-            }
-
-            // Is stored in parent and disallowed
-            if (modsOnly && childItem.Location is not null)
-            {
-                continue;
-            }
-
-            // Items parentId matches root item AND returned items doesn't contain current child
-            if (
-                !result.ContainsKey(childItem.Id)
-                && string.Equals(childItem.ParentId, baseItemId, StringComparison.Ordinal)
-            )
-            {
-                foreach (var item in FindAndReturnChildrenAsItems(items, childItem.Id))
-                {
-                    result.Add(item.Id, item);
-                }
-            }
-        }
-
-        return result.Values.ToList();
-    }
-
-    /// <summary>
     /// Find children of the item in a given assort (weapons parts for example, need recursive loop function)
     /// </summary>
     /// <param name="itemIdToFind">Template id of item to check for</param>
@@ -1402,7 +1355,7 @@ public class ItemHelper(
         var forcedLeft = 0;
         var forcedRight = 0;
 
-        var children = FindAndReturnChildrenAsItems(items, rootItemId);
+        var children = items.FindAndReturnChildrenAsItems(rootItemId);
         foreach (var ci in children)
         {
             var itemTemplate = GetItem(ci.Template).Value;

@@ -508,10 +508,7 @@ public class InventoryHelper(
         }
 
         // Get children of item, they get deleted too
-        var itemAndChildrenToRemove = _itemHelper.FindAndReturnChildrenAsItems(
-            profile.Inventory.Items,
-            itemId
-        );
+        var itemAndChildrenToRemove = profile.Inventory.Items.FindAndReturnChildrenAsItems(itemId);
         if (!itemAndChildrenToRemove.Any())
         {
             if (_logger.IsLogEnabled(LogLevel.Debug))
@@ -591,11 +588,10 @@ public class InventoryHelper(
             if (messageWithReward is not null)
             {
                 // Find item + any possible children and remove them from mails items array
-                var itemWithChildern = _itemHelper.FindAndReturnChildrenAsItems(
-                    messageWithReward.Items.Data,
+                var itemWithChildren = messageWithReward.Items.Data.FindAndReturnChildrenAsItems(
                     removeRequest.Item
                 );
-                foreach (var itemToDelete in itemWithChildern)
+                foreach (var itemToDelete in itemWithChildren)
                 {
                     // Get index of item to remove from reward array + remove it
                     var indexOfItemToRemove = messageWithReward.Items.Data.IndexOf(itemToDelete);
@@ -649,10 +645,7 @@ public class InventoryHelper(
         }
 
         // Goal is to keep removing items until we can remove part of an items stack
-        var itemsToReduce = _itemHelper.FindAndReturnChildrenAsItems(
-            pmcData.Inventory.Items,
-            itemId
-        );
+        var itemsToReduce = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(itemId);
         var remainingCount = countToRemove;
         foreach (var itemToReduce in itemsToReduce)
         {

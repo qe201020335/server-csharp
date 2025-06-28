@@ -678,10 +678,7 @@ public class ProfileHelper(
         foreach (var itemId in profile.Inventory?.FavoriteItems ?? [])
         {
             // When viewing another users profile, the client expects a full item with children, so get that
-            var itemAndChildren = _itemHelper.FindAndReturnChildrenAsItems(
-                profile.Inventory.Items,
-                itemId
-            );
+            var itemAndChildren = profile.Inventory.Items.FindAndReturnChildrenAsItems(itemId);
             if (itemAndChildren?.Count > 0)
             {
                 // To get the client to actually see the items, we set the main item's parent to null, so it's treated as a root item

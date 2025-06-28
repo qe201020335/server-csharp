@@ -649,8 +649,7 @@ public class RagfairController
 
         // multi-offers are all the same item,
         // Get first item and its children and use as template
-        var inventoryItems = _itemHelper.FindAndReturnChildrenAsItems(
-            pmcData.Inventory.Items,
+        var inventoryItems = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(
             firstOfferItemId // Choose first item as they're all the same item
         );
 
@@ -766,9 +765,8 @@ public class RagfairController
 
         // multi-offers are all the same item,
         // Get first item and its children and use as template
-        var firstInventoryItemAndChildren = _itemHelper.FindAndReturnChildrenAsItems(
-            pmcData.Inventory.Items,
-            offerRequest.Items[0]
+        var firstInventoryItemAndChildren = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(
+            offerRequest.Items.FirstOrDefault()
         );
 
         // Find items to be listed on flea (+ children) from player inventory
@@ -1147,9 +1145,7 @@ public class RagfairController
 
             rootItem.FixItemStackCount();
 
-            itemsToReturn.Add(
-                _itemHelper.FindAndReturnChildrenAsItems(pmcData.Inventory.Items, itemId)
-            );
+            itemsToReturn.Add(pmcData.Inventory.Items.FindAndReturnChildrenAsItems(itemId));
         }
 
         if (itemsToReturn?.Count == 0)

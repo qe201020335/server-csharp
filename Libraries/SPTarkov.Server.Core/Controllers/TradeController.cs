@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -367,7 +368,7 @@ public class TradeController(
         TraderBase traderDetails
     )
     {
-        var itemWithChildren = _itemHelper.FindAndReturnChildrenAsItems(items, parentItemId);
+        var itemWithChildren = items.FindAndReturnChildrenAsItems(parentItemId);
 
         var totalPrice = 0;
         foreach (var itemToSell in itemWithChildren)

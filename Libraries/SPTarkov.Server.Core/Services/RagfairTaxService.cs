@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -168,10 +169,7 @@ public class RagfairTaxService(
         if (isRootItem)
         {
             // Since we get a flat list of all child items, we only want to recurse from parent item
-            var itemChildren = _itemHelper.FindAndReturnChildrenAsItems(
-                pmcData.Inventory.Items,
-                item.Id
-            );
+            var itemChildren = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(item.Id);
             if (itemChildren.Count > 1)
             {
                 var itemChildrenClone = _cloner.Clone(itemChildren); // Clone is expensive, only run if necessary

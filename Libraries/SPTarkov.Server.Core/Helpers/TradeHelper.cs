@@ -152,10 +152,7 @@ public class TradeHelper(
                     return;
                 }
 
-                offerItems = _itemHelper.FindAndReturnChildrenAsItems(
-                    fenceItems,
-                    buyRequestData.ItemId
-                );
+                offerItems = fenceItems.FindAndReturnChildrenAsItems(buyRequestData.ItemId);
             }
             else
             {
@@ -223,10 +220,7 @@ public class TradeHelper(
                     .Items;
 
                 // Get item + children for purchase
-                var relevantItems = _itemHelper.FindAndReturnChildrenAsItems(
-                    traderItems,
-                    buyRequestData.ItemId
-                );
+                var relevantItems = traderItems.FindAndReturnChildrenAsItems(buyRequestData.ItemId);
                 if (relevantItems.Count == 0)
                 {
                     _logger.Error(

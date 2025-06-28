@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -1145,7 +1146,7 @@ public class LocationLootGenerator(
         {
             // Also used by armors to get child mods
             // Get item + children and add into array we return
-            var itemWithChildren = _itemHelper.FindAndReturnChildrenAsItems(items, chosenItem.Id);
+            var itemWithChildren = items.FindAndReturnChildrenAsItems(chosenItem.Id);
 
             // Ensure all IDs are unique
             itemWithChildren = _itemHelper.ReplaceIDs(_cloner.Clone(itemWithChildren));

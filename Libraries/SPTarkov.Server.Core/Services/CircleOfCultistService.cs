@@ -332,8 +332,7 @@ public class CircleOfCultistService(
         List<Item> sacrificedItems = [];
         foreach (var rootItem in inventoryRootItemsInCultistGrid)
         {
-            var rootItemWithChildren = _itemHelper.FindAndReturnChildrenAsItems(
-                pmcData.Inventory.Items,
+            var rootItemWithChildren = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(
                 rootItem.Id
             );
             sacrificedItems.AddRange(rootItemWithChildren);

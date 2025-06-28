@@ -276,5 +276,52 @@ namespace SPTarkov.Server.Core.Extensions
             // Ensure item has 'StackObjectsCount' property
             item.Upd.StackObjectsCount ??= 1;
         }
+
+        /// <summary>
+        /// A variant of FindAndReturnChildren where the output is list of item objects instead of their ids.
+        /// </summary>
+        /// <param name="items">List of items (item + possible children)</param>
+        /// <param name="baseItemId">Parent item's id</param>
+        /// <param name="modsOnly">OPTIONAL - Include only mod items, exclude items stored inside root item</param>
+        /// <returns>list of Item objects</returns>
+        public static List<Item> FindAndReturnChildrenAsItems(
+            this IEnumerable<Item> items,
+            string baseItemId,
+            bool modsOnly = false
+        )
+        {
+            // Use dictionary to make key lookup faster, convert to list before being returned
+            OrderedDictionary<string, Item> result = [];
+            foreach (var childItem in items)
+            {
+                // Include itself
+                if (string.Equals(childItem.Id, baseItemId, StringComparison.Ordinal))
+                {
+                    // Root item MUST be at 0 index for things like flea market offers
+                    result.Insert(0, childItem.Id, childItem);
+                    continue;
+                }
+
+                // Is stored in parent and disallowed
+                if (modsOnly && childItem.Location is not null)
+                {
+                    continue;
+                }
+
+                // Items parentId matches root item AND returned items doesn't contain current child
+                if (
+                    !result.ContainsKey(childItem.Id)
+                    && string.Equals(childItem.ParentId, baseItemId, StringComparison.Ordinal)
+                )
+                {
+                    foreach (var item in FindAndReturnChildrenAsItems(items, childItem.Id))
+                    {
+                        result.Add(item.Id, item);
+                    }
+                }
+            }
+
+            return result.Values.ToList();
+        }
     }
 }

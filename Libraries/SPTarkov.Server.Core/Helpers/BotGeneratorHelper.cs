@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Bots;
@@ -800,10 +801,7 @@ public class BotGeneratorHelper(
         {
             // Check item in container for children, store for later insertion into `containerItemsToCheck`
             // (used later when figuring out how much space weapon takes up)
-            var itemWithChildItems = _itemHelper.FindAndReturnChildrenAsItems(
-                itemsWithoutLocation,
-                rootItem.Id
-            );
+            var itemWithChildItems = itemsWithoutLocation.FindAndReturnChildrenAsItems(rootItem.Id);
 
             // Item had children, replace existing data with item + its children
             result.Add(rootItem);

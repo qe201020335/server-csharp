@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -310,8 +311,7 @@ public class ProfileController(
         foreach (var rootItems in hideoutRootItems)
         {
             // Check each root items for children and add
-            var itemWithChildren = _itemHelper.FindAndReturnChildrenAsItems(
-                profileToViewPmc.Inventory.Items,
+            var itemWithChildren = profileToViewPmc.Inventory.Items.FindAndReturnChildrenAsItems(
                 rootItems.Id
             );
             itemsToReturn.AddRange(itemWithChildren);

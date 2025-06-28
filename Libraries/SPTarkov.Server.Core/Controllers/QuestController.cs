@@ -335,8 +335,7 @@ public class QuestController(
                         // element `location` properties of the parent so they are sequential, while retaining order
                         if (removedItem.Location?.GetType() == typeof(int))
                         {
-                            var childItems = _itemHelper.FindAndReturnChildrenAsItems(
-                                pmcData.Inventory.Items,
+                            var childItems = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(
                                 removedItem.ParentId
                             );
                             childItems.RemoveAt(0); // Remove the parent

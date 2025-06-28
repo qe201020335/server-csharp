@@ -407,13 +407,12 @@ public class InsuranceController(
             if (itemRoll ?? false)
             {
                 // Check to see if this item is a parent in the parentAttachmentsMap. If so, do a look-up for *all* of
-                // its children and mark them for deletion as well. Additionally remove the parent (and its children)
+                // its children and mark them for deletion as well. Also remove parent (and its children)
                 // from the parentAttachmentsMap so that it's children are not rolled for later in the process.
                 if (parentAttachmentsMap.ContainsKey(insuredItem.Id))
                 {
                     // This call will also return the parent item itself, queueing it for deletion as well.
-                    var itemAndChildren = _itemHelper.FindAndReturnChildrenAsItems(
-                        insured.Items,
+                    var itemAndChildren = insured.Items.FindAndReturnChildrenAsItems(
                         insuredItem.Id
                     );
                     foreach (var item in itemAndChildren)
