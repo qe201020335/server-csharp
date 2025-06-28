@@ -44,11 +44,7 @@ public class EventOutputHolder(
     {
         var pmcProfile = profileHelper.GetPmcProfile(sessionId);
 
-        if (_outputStore.ContainsKey(sessionId))
-        {
-            // Dict contains existing output object, purge it
-            _outputStore.Remove(sessionId);
-        }
+        _outputStore.Remove(sessionId);
 
         // Create fresh output object
         _outputStore.Add(
@@ -246,7 +242,7 @@ public class EventOutputHolder(
 
     private void ResetMoneyTransferLimit(MoneyTransferLimits limit)
     {
-        if (limit.NextResetTime < _timeUtil.GetTimeStamp())
+        if (limit.NextResetTime < timeUtil.GetTimeStamp())
         {
             limit.NextResetTime += limit.ResetInterval;
             limit.RemainingLimit = limit.TotalLimit;
