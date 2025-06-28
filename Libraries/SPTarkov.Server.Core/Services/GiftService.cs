@@ -75,7 +75,7 @@ public class GiftService(
 
         var maxGiftsToSendCount = giftData.MaxToSendPlayer ?? 1;
 
-        if (_profileHelper.PlayerHasRecievedMaxNumberOfGift(playerId, giftId, maxGiftsToSendCount))
+        if (_profileHelper.PlayerHasReceivedMaxNumberOfGift(playerId, giftId, maxGiftsToSendCount))
         {
             if (_logger.IsLogEnabled(LogLevel.Debug))
             {
@@ -249,7 +249,7 @@ public class GiftService(
 
         if (giftId is not null)
         {
-            if (!_profileHelper.PlayerHasRecievedMaxNumberOfGift(sessionId, giftId, 1))
+            if (!_profileHelper.PlayerHasReceivedMaxNumberOfGift(sessionId, giftId, 1))
             {
                 SendGiftToPlayer(sessionId, giftId);
             }
@@ -264,7 +264,7 @@ public class GiftService(
     /// <param name="giftCount"> Optional, how many to send </param>
     public void SendGiftWithSilentReceivedCheck(string giftId, string? sessionId, int giftCount)
     {
-        if (!_profileHelper.PlayerHasRecievedMaxNumberOfGift(sessionId, giftId, giftCount))
+        if (!_profileHelper.PlayerHasReceivedMaxNumberOfGift(sessionId, giftId, giftCount))
         {
             SendGiftToPlayer(sessionId, giftId);
         }

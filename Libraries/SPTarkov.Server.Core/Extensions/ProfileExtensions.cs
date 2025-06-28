@@ -164,5 +164,12 @@ namespace SPTarkov.Server.Core.Extensions
             // Sum all bonuses found above
             return bonuses?.Sum(bonus => bonus?.Value ?? 0) ?? 0;
         }
+
+        public static bool PlayerIsFleaBanned(this PmcData pmcProfile, long currentTimestamp)
+        {
+            return pmcProfile?.Info?.Bans?.Any(b =>
+                    b.BanType == BanType.RagFair && currentTimestamp < b.DateTime
+                ) ?? false;
+        }
     }
 }

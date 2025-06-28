@@ -1269,7 +1269,7 @@ public class SeasonalEventService(
     {
         var giftData = _giftService.GetGiftById(giftKey);
         if (
-            !_profileHelper.PlayerHasRecievedMaxNumberOfGift(
+            !_profileHelper.PlayerHasReceivedMaxNumberOfGift(
                 playerId,
                 giftKey,
                 giftData.MaxToSendPlayer ?? 5

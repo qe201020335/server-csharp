@@ -22,14 +22,13 @@ public class ProfileHelper(
     SaveServer _saveServer,
     DatabaseService _databaseService,
     Watermark _watermark,
-    ItemHelper _itemHelper,
     TimeUtil _timeUtil,
     LocalisationService _localisationService,
     HashUtil _hashUtil,
     ConfigServer _configServer
 )
 {
-    protected static readonly FrozenSet<string> gameEditionsWithFreeRefresh =
+    protected static readonly FrozenSet<string> _gameEditionsWithFreeRefresh =
     [
         "edge_of_darkness",
         "unheard_edition",
@@ -38,7 +37,7 @@ public class ProfileHelper(
         _configServer.GetConfig<InventoryConfig>();
 
     /// <summary>
-    ///     Remove/reset a completed quest condtion from players profile quest data
+    ///     Remove/reset a completed quest condition from players profile quest data
     /// </summary>
     /// <param name="sessionID">Session id</param>
     /// <param name="questConditionId">Quest with condition to remove</param>
@@ -213,9 +212,9 @@ public class ProfileHelper(
         return new Spt
         {
             Version = _watermark.GetVersionTag(true),
-            Mods = new List<ModDetails>(),
-            ReceivedGifts = new List<ReceivedGift>(),
-            BlacklistedItemTemplates = new HashSet<string>(),
+            Mods = [],
+            ReceivedGifts = [],
+            BlacklistedItemTemplates = [],
             FreeRepeatableRefreshUsedCount = new Dictionary<string, int>(),
             Migrations = new Dictionary<string, long>(),
             CultistRewards = new Dictionary<string, AcceptedCultistReward>(),
@@ -239,12 +238,12 @@ public class ProfileHelper(
     /// </summary>
     /// <param name="accountId">Account ID to find</param>
     /// <returns></returns>
-    public SptProfile? GetFullProfileByAccountId(string accountID)
+    public SptProfile? GetFullProfileByAccountId(string accountId)
     {
-        var check = int.TryParse(accountID, out var aid);
+        var check = int.TryParse(accountId, out var aid);
         if (!check)
         {
-            _logger.Error($"Account {accountID} does not exist");
+            _logger.Error($"Account {accountId} does not exist");
         }
 
         return _saveServer
@@ -298,9 +297,7 @@ public class ProfileHelper(
     /// <returns>PmcData object</returns>
     public PmcData? GetPmcProfile(string sessionID)
     {
-        var fullProfile = GetFullProfile(sessionID);
-
-        return fullProfile?.CharacterData?.PmcData;
+        return GetFullProfile(sessionID)?.CharacterData?.PmcData;
     }
 
     /// <summary>
@@ -334,16 +331,16 @@ public class ProfileHelper(
         {
             Eft = new EftStats
             {
-                CarriedQuestItems = new List<string>(),
+                CarriedQuestItems = [],
                 DamageHistory = new DamageHistory
                 {
                     LethalDamagePart = "Head",
                     LethalDamage = null,
                     BodyParts = new BodyPartsDamageHistory(),
                 },
-                DroppedItems = new List<DroppedItem>(),
+                DroppedItems = [],
                 ExperienceBonusMult = 0,
-                FoundInRaidItems = new List<FoundInRaidItem>(),
+                FoundInRaidItems = [],
                 LastPlayerState = null,
                 LastSessionDate = 0,
                 OverallCounters = new OverallCounters { Items = [] },
@@ -352,7 +349,7 @@ public class ProfileHelper(
                 SurvivorClass = "Unknown",
                 TotalInGameTime = 0,
                 TotalSessionExperience = 0,
-                Victims = new List<Victim>(),
+                Victims = [],
             },
         };
     }
@@ -362,7 +359,7 @@ public class ProfileHelper(
     /// </summary>
     /// <param name="sessionID">Profile id</param>
     /// <returns>True if profile is to be wiped of data/progress</returns>
-    /// TODO: logic doesnt feel right to have IsWiped being nullable
+    /// TODO: logic doesn't feel right to have IsWiped being nullable
     protected bool IsWiped(string sessionID)
     {
         return _saveServer.GetProfile(sessionID)?.ProfileInfo?.IsWiped ?? false;
@@ -395,7 +392,7 @@ public class ProfileHelper(
 
     /// <summary>
     ///     Flag a profile as having received a gift
-    ///     Store giftid in profile spt object
+    ///     Store giftId in profile spt object
     /// </summary>
     /// <param name="playerId">Player to add gift flag to</param>
     /// <param name="giftId">Gift player received</param>
@@ -403,7 +400,7 @@ public class ProfileHelper(
     public void FlagGiftReceivedInProfile(string playerId, string giftId, int maxCount)
     {
         var profileToUpdate = GetFullProfile(playerId);
-        profileToUpdate.SptData.ReceivedGifts ??= new List<ReceivedGift>();
+        profileToUpdate.SptData.ReceivedGifts ??= [];
 
         var giftData = profileToUpdate.SptData.ReceivedGifts.FirstOrDefault(g =>
             g.GiftId == giftId
@@ -427,13 +424,13 @@ public class ProfileHelper(
     }
 
     /// <summary>
-    ///     Check if profile has recieved a gift by id
+    ///     Check if profile has received a gift by id
     /// </summary>
     /// <param name="playerId">Player profile to check for gift</param>
     /// <param name="giftId">Gift to check for</param>
     /// <param name="maxGiftCount">Max times gift can be given to player</param>
-    /// <returns>True if player has recieved gift previously</returns>
-    public bool PlayerHasRecievedMaxNumberOfGift(string playerId, string giftId, int maxGiftCount)
+    /// <returns>True if player has received gift previously</returns>
+    public bool PlayerHasReceivedMaxNumberOfGift(string playerId, string giftId, int maxGiftCount)
     {
         var profile = GetFullProfile(playerId);
         if (profile == null)
@@ -446,12 +443,7 @@ public class ProfileHelper(
             return false;
         }
 
-        if (profile.SptData.ReceivedGifts == null)
-        {
-            return false;
-        }
-
-        var giftDataFromProfile = profile.SptData.ReceivedGifts.FirstOrDefault(g =>
+        var giftDataFromProfile = profile.SptData.ReceivedGifts?.FirstOrDefault(g =>
             g.GiftId == giftId
         );
         if (giftDataFromProfile == null)
@@ -506,17 +498,15 @@ public class ProfileHelper(
     /// </summary>
     /// <param name="pmcProfile">Player profile with skill</param>
     /// <param name="skill">Skill to add points to</param>
-    /// <param name="pointsToAdd">Points to add</param>
+    /// <param name="pointsToAddToSkill">Points to add</param>
     /// <param name="useSkillProgressRateMultiplier">Skills are multiplied by a value in globals, default is off to maintain compatibility with legacy code</param>
     public void AddSkillPointsToPlayer(
         PmcData pmcProfile,
         SkillTypes skill,
-        double? pointsToAdd,
+        double? pointsToAddToSkill,
         bool useSkillProgressRateMultiplier = false
     )
     {
-        var pointsToAddToSkill = pointsToAdd;
-
         if (pointsToAddToSkill < 0D)
         {
             _logger.Warning(
@@ -532,7 +522,7 @@ public class ProfileHelper(
         if (profileSkills == null)
         {
             _logger.Warning(
-                $"Unable to add {pointsToAddToSkill} points to {skill}, Profile has no skills"
+                $"Unable to add: {pointsToAddToSkill} points to {skill}, Profile has no skills"
             );
             return;
         }
@@ -621,7 +611,7 @@ public class ProfileHelper(
     public double GetBonusValueFromProfile(PmcData pmcProfile, BonusType desiredBonus)
     {
         var bonuses = pmcProfile?.Bonuses?.Where(b => b.Type == desiredBonus);
-        if (!bonuses.Any())
+        if (bonuses is null || !bonuses.Any())
         {
             return 0;
         }
@@ -630,17 +620,9 @@ public class ProfileHelper(
         return bonuses?.Sum(bonus => bonus?.Value ?? 0) ?? 0;
     }
 
-    public bool PlayerIsFleaBanned(PmcData pmcProfile)
-    {
-        var currentTimestamp = _timeUtil.GetTimeStamp();
-        return pmcProfile?.Info?.Bans?.Any(b =>
-                b.BanType == BanType.RagFair && currentTimestamp < b.DateTime
-            ) ?? false;
-    }
-
     public bool HasAccessToRepeatableFreeRefreshSystem(PmcData pmcProfile)
     {
-        return gameEditionsWithFreeRefresh.Contains(pmcProfile.Info.GameVersion);
+        return _gameEditionsWithFreeRefresh.Contains(pmcProfile.Info.GameVersion);
     }
 
     /// <summary>

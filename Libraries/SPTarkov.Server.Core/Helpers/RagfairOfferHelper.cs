@@ -1,5 +1,6 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
@@ -59,7 +60,7 @@ public class RagfairOfferHelper(
         PmcData pmcData
     )
     {
-        var playerIsFleaBanned = _profileHelper.PlayerIsFleaBanned(pmcData);
+        var playerIsFleaBanned = pmcData.PlayerIsFleaBanned(_timeUtil.GetTimeStamp());
         var tieredFlea = _ragfairConfig.TieredFlea;
         var tieredFleaLimitTypes = tieredFlea.UnlocksType;
         return _ragfairOfferService
@@ -226,7 +227,7 @@ public class RagfairOfferHelper(
     {
         var offersMap = new Dictionary<string, List<RagfairOffer>>();
         var offersToReturn = new List<RagfairOffer>();
-        var playerIsFleaBanned = _profileHelper.PlayerIsFleaBanned(pmcData);
+        var playerIsFleaBanned = pmcData.PlayerIsFleaBanned(_timeUtil.GetTimeStamp());
         var tieredFlea = _ragfairConfig.TieredFlea;
         var tieredFleaLimitTypes = tieredFlea.UnlocksType;
 

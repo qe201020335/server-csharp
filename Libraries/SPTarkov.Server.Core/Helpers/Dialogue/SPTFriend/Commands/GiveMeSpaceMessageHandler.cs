@@ -40,7 +40,7 @@ public class GiveMeSpaceMessageHandler(
         var maxGiftsToSendCount =
             _coreConfig.Features.ChatbotFeatures.CommandUseLimits[stashRowGiftId] ?? 5;
         if (
-            _profileHelper.PlayerHasRecievedMaxNumberOfGift(
+            _profileHelper.PlayerHasReceivedMaxNumberOfGift(
                 sessionId,
                 stashRowGiftId,
                 maxGiftsToSendCount
