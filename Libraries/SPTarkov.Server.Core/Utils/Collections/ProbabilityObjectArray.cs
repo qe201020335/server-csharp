@@ -90,7 +90,7 @@ public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>
     /// <returns>ProbabilityObjectArray without the dropped element</returns>
     public ProbabilityObjectArray<K, V> Drop(K key)
     {
-        return (ProbabilityObjectArray<K, V>) this.Where(r => !r.Key?.Equals(key) ?? false);
+        return (ProbabilityObjectArray<K, V>)this.Where(r => !r.Key?.Equals(key) ?? false);
     }
 
     /// <summary>

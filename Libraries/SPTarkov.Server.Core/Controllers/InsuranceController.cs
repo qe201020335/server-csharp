@@ -504,7 +504,7 @@ public class InsuranceController(
 
         // Draw x attachments from weighted array to remove from parent, remove from pool after being picked
         var attachmentIdsToRemove = attachmentsProbabilityArray.Draw(
-            (int) countOfAttachmentsToRemove,
+            (int)countOfAttachmentsToRemove,
             false
         );
         foreach (var attachmentId in attachmentIdsToRemove)
