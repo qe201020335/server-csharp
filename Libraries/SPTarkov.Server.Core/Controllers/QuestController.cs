@@ -5,14 +5,11 @@ using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
 using SPTarkov.Server.Core.Models.Eft.Quests;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Routers;
-using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
-using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
 namespace SPTarkov.Server.Core.Controllers;
 
@@ -22,24 +19,14 @@ public class QuestController(
     TimeUtil _timeUtil,
     HttpResponseUtil _httpResponseUtil,
     EventOutputHolder _eventOutputHolder,
-    DatabaseService _databaseService,
     ItemHelper _itemHelper,
-    DialogueHelper _dialogueHelper,
     MailSendService _mailSendService,
-    ProfileHelper _profileHelper,
-    TraderHelper _traderHelper,
     QuestHelper _questHelper,
     QuestRewardHelper _questRewardHelper,
-    QuestConditionHelper _questConditionHelper,
-    PlayerService _playerService,
-    LocaleService _localeService,
     LocalisationService _localisationService,
-    ConfigServer _configServer,
     ICloner _cloner
 )
 {
-    protected QuestConfig _questConfig = _configServer.GetConfig<QuestConfig>();
-
     /// <summary>
     ///     Handle client/quest/list
     ///     Get all quests visible to player
