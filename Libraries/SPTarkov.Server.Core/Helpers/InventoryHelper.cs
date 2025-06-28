@@ -1182,7 +1182,7 @@ public class InventoryHelper(
         HandleCartridges(sourceItems, request);
 
         // Get all children item has, they need to move with item
-        var idsToMove = _itemHelper.FindAndReturnChildrenByItems(sourceItems, request.Item);
+        var idsToMove = sourceItems.FindAndReturnChildrenByItems(request.Item);
         foreach (var itemId in idsToMove)
         {
             var itemToMove = sourceItems.FirstOrDefault(item => item.Id == itemId);

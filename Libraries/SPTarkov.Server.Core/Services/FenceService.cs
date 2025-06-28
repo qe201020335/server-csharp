@@ -1,5 +1,6 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -1497,9 +1498,7 @@ public class FenceService(
                 }
 
                 // Remove item and its sub-items to prevent orphans
-                toDelete.UnionWith(
-                    itemHelper.FindAndReturnChildrenByItems(itemAndMods, itemMod.Id)
-                );
+                toDelete.UnionWith(itemAndMods.FindAndReturnChildrenByItems(itemMod.Id));
             }
         }
 

@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -378,8 +379,7 @@ public class ProfileHelper(
         if (secureContainer is not null)
         {
             // Find and remove container + children
-            var childItemsInSecureContainer = _itemHelper.FindAndReturnChildrenByItems(
-                items,
+            var childItemsInSecureContainer = items.FindAndReturnChildrenByItems(
                 secureContainer.Id
             );
 

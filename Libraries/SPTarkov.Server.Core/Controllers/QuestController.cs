@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -311,8 +312,7 @@ public class QuestController(
             else
             {
                 // Remove item with children
-                var toRemove = _itemHelper.FindAndReturnChildrenByItems(
-                    pmcData.Inventory.Items,
+                var toRemove = pmcData.Inventory.Items.FindAndReturnChildrenByItems(
                     itemHandover.Id
                 );
                 var index = pmcData.Inventory.Items.Count;

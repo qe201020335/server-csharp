@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -182,7 +183,7 @@ public class AssortHelper(
         assort.LoyalLevelItems.Remove(itemId);
 
         // The item being removed may have children linked to it, find and remove them too
-        var idsToRemove = _itemHelper.FindAndReturnChildrenByItems(assort.Items, itemId);
+        var idsToRemove = assort.Items.FindAndReturnChildrenByItems(itemId);
         assort.Items.RemoveAll(item => idsToRemove.Contains(item.Id));
 
         return assort;

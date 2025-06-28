@@ -729,29 +729,6 @@ public class ItemHelper(
     }
 
     /// <summary>
-    /// Recursive function that looks at every item from parameter and gets their children's Ids + includes parent item in results
-    /// </summary>
-    /// <param name="items">List of items (item + possible children)</param>
-    /// <param name="baseItemId">Parent item's id</param>
-    /// <returns>list of child item ids</returns>
-    public List<string> FindAndReturnChildrenByItems(IEnumerable<Item> items, string baseItemId)
-    {
-        List<string> list = [];
-
-        foreach (var childItem in items)
-        {
-            if (string.Equals(childItem.ParentId, baseItemId, StringComparison.OrdinalIgnoreCase))
-            {
-                list.AddRange(FindAndReturnChildrenByItems(items, childItem.Id));
-            }
-        }
-
-        list.Add(baseItemId); // Required, push original item id onto array
-
-        return list;
-    }
-
-    /// <summary>
     /// A variant of FindAndReturnChildren where the output is list of item objects instead of their ids.
     /// </summary>
     /// <param name="items">List of items (item + possible children)</param>
