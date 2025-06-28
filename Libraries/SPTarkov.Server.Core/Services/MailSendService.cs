@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -195,7 +196,7 @@ public class MailSendService(
         {
             var rootItemParentId = _hashUtil.Generate();
 
-            details.Items.AddRange(_itemHelper.AdoptOrphanedItems(rootItemParentId, items));
+            details.Items.AddRange(items.AdoptOrphanedItems(rootItemParentId));
             details.ItemsMaxStorageLifetimeSeconds = maxStorageTimeSeconds;
         }
 

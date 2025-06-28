@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -88,10 +89,7 @@ public class ProfileFixerService(
 
                 // Otherwise we need to generate a new unique stash ID for this message's attachments
                 message.Items.Stash = _hashUtil.Generate();
-                message.Items.Data = _itemHelper.AdoptOrphanedItems(
-                    message.Items.Stash,
-                    message.Items.Data
-                );
+                message.Items.Data = message.Items.Data.AdoptOrphanedItems(message.Items.Stash);
 
                 // Because `adoptOrphanedItems` sets the slotId to `hideout`, we need to re-set it to `main` to work with mail
                 foreach (var item in message.Items.Data.Where(item => item.SlotId == "hideout"))

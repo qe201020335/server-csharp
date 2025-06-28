@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -420,7 +421,7 @@ public class RepairService(
             .Intellect
             .RepairPointsCostReduction;
         var profileIntellectLevel =
-            _profileHelper.GetSkillFromProfile(pmcData, SkillTypes.Intellect)?.Progress ?? 0;
+            pmcData.GetSkillFromProfile(SkillTypes.Intellect)?.Progress ?? 0;
         var intellectPointReduction =
             intellectRepairPointsPerLevel * Math.Truncate(profileIntellectLevel / 100);
 
@@ -629,8 +630,7 @@ public class RepairService(
         // Skill < level 10 + repairing weapon
         if (
             itemSkillType == SkillTypes.WeaponTreatment
-            && _profileHelper.GetSkillFromProfile(pmcData, SkillTypes.WeaponTreatment)?.Progress
-                < 1000
+            && pmcData.GetSkillFromProfile(SkillTypes.WeaponTreatment)?.Progress < 1000
         )
         {
             return false;
@@ -641,7 +641,7 @@ public class RepairService(
             new HashSet<SkillTypes> { SkillTypes.LightVests, SkillTypes.HeavyVests }.Contains(
                 itemSkillType.Value
             )
-            && _profileHelper.GetSkillFromProfile(pmcData, itemSkillType.Value)?.Progress < 1000
+            && pmcData.GetSkillFromProfile(itemSkillType.Value)?.Progress < 1000
         )
         {
             return false;
@@ -670,7 +670,7 @@ public class RepairService(
         var receivedDurabilityMaxPercent = buffSettings.ReceivedDurabilityMaxPercent;
 
         var skillLevel = Math.Truncate(
-            (_profileHelper.GetSkillFromProfile(pmcData, itemSkillType.Value)?.Progress ?? 0) / 100
+            (pmcData.GetSkillFromProfile(itemSkillType.Value)?.Progress ?? 0) / 100
         );
 
         if (repairDetails.RepairPoints is null)

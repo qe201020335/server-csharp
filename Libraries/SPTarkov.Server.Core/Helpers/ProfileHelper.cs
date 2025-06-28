@@ -566,25 +566,6 @@ public class ProfileHelper(
     }
 
     /// <summary>
-    ///     Get a specific common skill from supplied profile
-    /// </summary>
-    /// <param name="pmcData">Player profile</param>
-    /// <param name="skill">Skill to look up and return value from</param>
-    /// <returns>Common skill object from desired profile</returns>
-    public CommonSkill? GetSkillFromProfile(PmcData pmcData, SkillTypes skill)
-    {
-        var skillToReturn = pmcData?.Skills?.Common.FirstOrDefault(s => s.Id == skill);
-        if (skillToReturn == null)
-        {
-            _logger.Warning(
-                $"Profile {pmcData.SessionId} does not have a skill named: {skill.ToString()}"
-            );
-        }
-
-        return skillToReturn;
-    }
-
-    /// <summary>
     ///     Is the provided session id for a developer account
     /// </summary>
     /// <param name="sessionID">Profile id to check</param>

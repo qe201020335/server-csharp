@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -21,7 +22,6 @@ public class InsuranceService(
     DatabaseService _databaseService,
     RandomUtil _randomUtil,
     ItemHelper _itemHelper,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     SaveServer _saveServer,
     TraderHelper _traderHelper,
@@ -32,7 +32,8 @@ public class InsuranceService(
     ICloner _cloner
 )
 {
-    protected InsuranceConfig _insuranceConfig = _configServer.GetConfig<InsuranceConfig>();
+    protected readonly InsuranceConfig _insuranceConfig =
+        _configServer.GetConfig<InsuranceConfig>();
     protected Dictionary<string, Dictionary<string, List<Item>>?> _insured = new();
 
     /// <summary>
@@ -302,13 +303,13 @@ public class InsuranceService(
     /// <returns>True if item</returns>
     protected bool ItemCannotBeLostOnDeath(Item lostItem, List<Item> inventoryItems)
     {
-        if (lostItem.SlotId?.ToLower().StartsWith("specialslot") ?? false)
+        if (lostItem.SlotId?.StartsWith("specialslot", StringComparison.OrdinalIgnoreCase) ?? false)
         {
             return true;
         }
 
         // We check secure container items even tho they are omitted from lostInsuredItems, just in case
-        if (_itemHelper.ItemIsInsideContainer(lostItem, "SecuredContainer", inventoryItems))
+        if (lostItem.ItemIsInsideContainer("SecuredContainer", inventoryItems))
         {
             return true;
         }

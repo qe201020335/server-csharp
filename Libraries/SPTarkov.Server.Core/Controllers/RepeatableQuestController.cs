@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators.RepeatableQuestGeneration;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -222,8 +223,7 @@ public class RepeatableQuestController(
             var traderOfReplacedQuest = pmcData.TradersInfo[replacedQuestTraderId];
             traderOfReplacedQuest.Standing -= previousChangeRequirement.ChangeStandingCost;
 
-            var charismaBonus =
-                _profileHelper.GetSkillFromProfile(pmcData, SkillTypes.Charisma)?.Progress ?? 0;
+            var charismaBonus = pmcData.GetSkillFromProfile(SkillTypes.Charisma)?.Progress ?? 0;
             foreach (var cost in previousChangeRequirement.ChangeCost)
             {
                 // Not free, Charge player + apply charisma bonus to cost of replacement

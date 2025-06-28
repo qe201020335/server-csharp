@@ -305,7 +305,7 @@ public class GameController(
     /// <param name="pmcProfile">Player profile</param>
     protected void WarnOnActiveBotReloadSkill(PmcData pmcProfile)
     {
-        var botReloadSkill = _profileHelper.GetSkillFromProfile(pmcProfile, SkillTypes.BotReload);
+        var botReloadSkill = pmcProfile.GetSkillFromProfile(SkillTypes.BotReload);
         if (botReloadSkill?.Progress > 0)
         {
             _logger.Warning(

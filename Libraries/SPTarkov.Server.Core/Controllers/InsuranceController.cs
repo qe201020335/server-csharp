@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -123,7 +124,7 @@ public class InsuranceController(
             var rootItemParentId = _hashUtil.Generate();
 
             // Update the insured items to have the new root parent ID for root/orphaned items
-            insured.Items = _itemHelper.AdoptOrphanedItems(rootItemParentId, insured.Items);
+            insured.Items = insured.Items.AdoptOrphanedItems(rootItemParentId);
 
             var simulateItemsBeingTaken = _insuranceConfig.SimulateItemsBeingTaken;
             if (simulateItemsBeingTaken)
@@ -135,7 +136,7 @@ public class InsuranceController(
                 RemoveItemsFromInsurance(insured, itemsToDelete);
 
                 // There's a chance we've orphaned weapon attachments, so adopt any orphaned items again
-                insured.Items = _itemHelper.AdoptOrphanedItems(rootItemParentId, insured.Items);
+                insured.Items = insured.Items.AdoptOrphanedItems(rootItemParentId);
             }
 
             SendMail(sessionId, insured);
@@ -192,7 +193,7 @@ public class InsuranceController(
 
         // Populate a Map object of items for quick lookup by their ID and use it to populate a Map of main-parent items
         // and each of their attachments. For example, a gun mapped to each of its attachments.
-        var itemsMap = _itemHelper.GenerateItemsMap(insured.Items);
+        var itemsMap = insured.Items.GenerateItemsMap();
         var parentAttachmentsMap = PopulateParentAttachmentsMap(
             rootItemParentId,
             insured,

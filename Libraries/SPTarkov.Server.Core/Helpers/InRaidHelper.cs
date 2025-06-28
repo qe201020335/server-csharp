@@ -1,5 +1,6 @@
 ﻿using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -25,8 +26,9 @@ public class InRaidHelper(
         "pocket3",
         "pocket4",
     ];
-    protected InRaidConfig _inRaidConfig = _configServer.GetConfig<InRaidConfig>();
-    protected LostOnDeathConfig _lostOnDeathConfig = _configServer.GetConfig<LostOnDeathConfig>();
+    protected readonly InRaidConfig _inRaidConfig = _configServer.GetConfig<InRaidConfig>();
+    protected readonly LostOnDeathConfig _lostOnDeathConfig =
+        _configServer.GetConfig<LostOnDeathConfig>();
 
     /// <summary>
     ///     Deprecated. Reset the skill points earned in a raid to 0, ready for next raid.
@@ -116,7 +118,7 @@ public class InRaidHelper(
                 && !(dbItems[item.Template].Properties.QuestItem ?? false)
                 && !(
                     _inRaidConfig.KeepFiRSecureContainerOnDeath
-                    && _itemHelper.ItemIsInsideContainer(item, "SecuredContainer", items)
+                    && item.ItemIsInsideContainer("SecuredContainer", items)
                 );
         });
 
@@ -201,13 +203,7 @@ public class InRaidHelper(
             )
         )
         {
-            if (
-                _itemHelper.ItemIsInsideContainer(
-                    inventoryItem,
-                    secureContainerSlotId,
-                    pmcData.Inventory.Items
-                )
-            )
+            if (inventoryItem.ItemIsInsideContainer(secureContainerSlotId, pmcData.Inventory.Items))
             {
                 itemsInsideContainer.Add(inventoryItem);
             }

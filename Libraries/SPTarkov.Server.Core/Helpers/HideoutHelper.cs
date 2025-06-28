@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
@@ -1349,10 +1350,7 @@ public class HideoutHelper(
     /// <returns>Consumption bonus</returns>
     protected double? GetHideoutManagementConsumptionBonus(PmcData pmcData)
     {
-        var hideoutManagementSkill = _profileHelper.GetSkillFromProfile(
-            pmcData,
-            SkillTypes.HideoutManagement
-        );
+        var hideoutManagementSkill = pmcData.GetSkillFromProfile(SkillTypes.HideoutManagement);
         if (hideoutManagementSkill is null || hideoutManagementSkill.Progress == 0)
         {
             return 0;
@@ -1384,7 +1382,7 @@ public class HideoutHelper(
         double valuePerLevel
     )
     {
-        var profileSkill = _profileHelper.GetSkillFromProfile(pmcData, skill);
+        var profileSkill = pmcData.GetSkillFromProfile(skill);
         if (profileSkill is null || profileSkill.Progress == 0)
         {
             return 0;
@@ -1563,10 +1561,7 @@ public class HideoutHelper(
             .ToList();
 
         // Calculate bonus percent (apply hideoutManagement bonus)
-        var hideoutManagementSkill = _profileHelper.GetSkillFromProfile(
-            pmcData,
-            SkillTypes.HideoutManagement
-        );
+        var hideoutManagementSkill = pmcData.GetSkillFromProfile(SkillTypes.HideoutManagement);
         var hideoutManagementSkillBonusPercent = 1 + hideoutManagementSkill.Progress / 10000; // 5100 becomes 0.51, add 1 to it, 1.51
         var bonus =
             GetDogtagCombatSkillBonusPercent(pmcData, activeDogtags)

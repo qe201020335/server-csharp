@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
@@ -27,7 +28,6 @@ public class InventoryHelper(
     HttpResponseUtil _httpResponseUtil,
     DialogueHelper _dialogueHelper,
     ContainerHelper _containerHelper,
-    DatabaseServer _databaseServer,
     EventOutputHolder _eventOutputHolder,
     ProfileHelper _profileHelper,
     ItemHelper _itemHelper,
@@ -42,7 +42,8 @@ public class InventoryHelper(
         BaseClasses.FUNCTIONAL_MOD,
         BaseClasses.MOD,
     ];
-    protected InventoryConfig _inventoryConfig = _configServer.GetConfig<InventoryConfig>();
+    protected readonly InventoryConfig _inventoryConfig =
+        _configServer.GetConfig<InventoryConfig>();
 
     /// <summary>
     ///     Add multiple items to player stash (assuming they all fit)
@@ -655,7 +656,7 @@ public class InventoryHelper(
         var remainingCount = countToRemove;
         foreach (var itemToReduce in itemsToReduce)
         {
-            var itemStackSize = _itemHelper.GetItemStackSize(itemToReduce);
+            var itemStackSize = itemToReduce.GetItemStackSize();
 
             // Remove whole stack
             if (remainingCount >= itemStackSize)

@@ -1,5 +1,6 @@
 ﻿using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -114,7 +115,7 @@ public class BtrDeliveryCallbacks(
             var rootItemParentId = _hashUtil.Generate();
 
             // Update the delivery items to have the new root parent ID for root/orphaned items
-            package.Items = _itemHelper.AdoptOrphanedItems(rootItemParentId, package.Items);
+            package.Items = package.Items.AdoptOrphanedItems(rootItemParentId);
 
             _btrDeliveryService.SendBTRDelivery(sessionId, package.Items);
 

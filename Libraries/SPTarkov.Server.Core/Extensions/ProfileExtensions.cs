@@ -62,5 +62,16 @@ namespace SPTarkov.Server.Core.Extensions
 
             return profile.TaskConditionCounters.Count > 0;
         }
+
+        /// <summary>
+        ///     Get a specific common skill from supplied profile
+        /// </summary>
+        /// <param name="profile">Player profile</param>
+        /// <param name="skill">Skill to look up and return value from</param>
+        /// <returns>Common skill object from desired profile</returns>
+        public static CommonSkill? GetSkillFromProfile(this PmcData profile, SkillTypes skill)
+        {
+            return profile?.Skills?.Common?.FirstOrDefault(s => s.Id == skill);
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -178,98 +179,7 @@ public class ItemHelper(
                 return false;
             }
 
-            if (!IsSameItem(itemOf1, itemOf2, compareUpdProperties))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// This method will compare two items and see if they are equivalent
-    /// This method will NOT compare IDs on the items
-    /// </summary>
-    /// <param name="item1">first item to compare</param>
-    /// <param name="item2">second item to compare</param>
-    /// <param name="compareUpdProperties">Upd properties to compare between the items</param>
-    /// <returns>true if they are the same</returns>
-    public bool IsSameItem(Item item1, Item item2, HashSet<string>? compareUpdProperties = null)
-    {
-        // Different tpl == different item
-        if (item1.Template != item2.Template)
-        {
-            return false;
-        }
-
-        // Both lack upd object + same tpl = same
-        if (item1.Upd is null && item2.Upd is null)
-        {
-            return true;
-        }
-
-        // item1 lacks upd, item2 has one
-        if (item1.Upd is null && item2.Upd is not null)
-        {
-            return false;
-        }
-
-        // item1 has upd, item2 lacks one
-        if (item1.Upd is not null && item2.Upd is null)
-        {
-            return false;
-        }
-
-        // key = Upd property Type as string, value = comparison function that returns bool
-        var comparers = new Dictionary<string, Func<Upd, Upd, bool>>
-        {
-            { "Key", (upd1, upd2) => upd1.Key?.NumberOfUsages == upd2.Key?.NumberOfUsages },
-            {
-                "Buff",
-                (upd1, upd2) =>
-                    upd1.Buff?.Value == upd2.Buff?.Value
-                    && upd1.Buff?.BuffType == upd2.Buff?.BuffType
-            },
-            {
-                "CultistAmulet",
-                (upd1, upd2) =>
-                    upd1.CultistAmulet?.NumberOfUsages == upd2.CultistAmulet?.NumberOfUsages
-            },
-            { "Dogtag", (upd1, upd2) => upd1.Dogtag?.ProfileId == upd2.Dogtag?.ProfileId },
-            { "FaceShield", (upd1, upd2) => upd1.FaceShield?.Hits == upd2.FaceShield?.Hits },
-            {
-                "Foldable",
-                (upd1, upd2) =>
-                    upd1.Foldable?.Folded.GetValueOrDefault(false)
-                    == upd2.Foldable?.Folded.GetValueOrDefault(false)
-            },
-            { "FoodDrink", (upd1, upd2) => upd1.FoodDrink?.HpPercent == upd2.FoodDrink?.HpPercent },
-            { "MedKit", (upd1, upd2) => upd1.MedKit?.HpResource == upd2.MedKit?.HpResource },
-            {
-                "RecodableComponent",
-                (upd1, upd2) =>
-                    upd1.RecodableComponent?.IsEncoded == upd2.RecodableComponent?.IsEncoded
-            },
-            { "RepairKit", (upd1, upd2) => upd1.RepairKit?.Resource == upd2.RepairKit?.Resource },
-            {
-                "Resource",
-                (upd1, upd2) => upd1.Resource?.UnitsConsumed == upd2.Resource?.UnitsConsumed
-            },
-        };
-
-        // Choose above keys or passed in keys to compare items with
-        var valuesToCompare =
-            compareUpdProperties?.Count > 0 ? compareUpdProperties : comparers.Keys.ToHashSet();
-        foreach (var propertyName in valuesToCompare)
-        {
-            if (!comparers.TryGetValue(propertyName, out var comparer))
-            // Key not found, skip
-            {
-                continue;
-            }
-
-            if (!comparer(item1.Upd, item2.Upd))
+            if (!itemOf1.IsSameItem(itemOf2, compareUpdProperties))
             {
                 return false;
             }
@@ -1710,37 +1620,6 @@ public class ItemHelper(
     }
 
     /// <summary>
-    /// Check if item is stored inside a container
-    /// </summary>
-    /// <param name="itemToCheck">Item to check is inside of container</param>
-    /// <param name="desiredContainerSlotId">Name of slot to check item is in e.g. SecuredContainer/Backpack</param>
-    /// <param name="items">Inventory with child parent items to check</param>
-    /// <returns>True when item is in container</returns>
-    public bool ItemIsInsideContainer(
-        Item itemToCheck,
-        string desiredContainerSlotId,
-        List<Item> items
-    )
-    {
-        // Get items parent
-        var parent = items.FirstOrDefault(item =>
-            item.Id.Equals(itemToCheck.ParentId, StringComparison.OrdinalIgnoreCase)
-        );
-        if (parent is null)
-        // No parent, end of line, not inside container
-        {
-            return false;
-        }
-
-        if (parent.SlotId == desiredContainerSlotId)
-        {
-            return true;
-        }
-
-        return ItemIsInsideContainer(parent, desiredContainerSlotId, items);
-    }
-
-    /// <summary>
     /// Add child items (cartridges) to a magazine
     /// </summary>
     /// <param name="magazine">Magazine to add child items to</param>
@@ -1985,21 +1864,6 @@ public class ItemHelper(
             Location = location,
             Upd = new Upd { StackObjectsCount = stackCount },
         };
-    }
-
-    /// <summary>
-    ///     Get the size of a stack, return 1 if no stack object count property found
-    /// </summary>
-    /// <param name="item">Item to get stack size of</param>
-    /// <returns>size of stack</returns>
-    public int GetItemStackSize(Item item)
-    {
-        if (item.Upd?.StackObjectsCount is not null)
-        {
-            return (int)item.Upd.StackObjectsCount;
-        }
-
-        return 1;
     }
 
     /// <summary>
@@ -2256,45 +2120,6 @@ public class ItemHelper(
         return newId;
     }
 
-    // Adopts orphaned items by resetting them as root "hideout" items. Helpful in situations where a parent has been
-    // deleted from a group of items and there are children still referencing the missing parent. This method will
-    // remove the reference from the children to the parent and set item properties to root values.
-    //
-    // The ID of the "root" of the container.
-    // Array of Items that should be adjusted.
-    // Returns Array of Items that have been adopted.
-    public List<Item> AdoptOrphanedItems(string rootId, List<Item> items)
-    {
-        foreach (var item in items)
-        {
-            // Check if the item's parent exists.
-            var parentExists = items.Any(parentItem =>
-                parentItem.Id.Equals(item.ParentId, StringComparison.OrdinalIgnoreCase)
-            );
-
-            // If the parent does not exist and the item is not already a 'hideout' item, adopt the orphaned item by
-            // setting the parent ID to the PMCs inventory equipment ID, the slot ID to 'hideout', and remove the location.
-            if (!parentExists && item.ParentId != rootId && item.SlotId != "hideout")
-            {
-                item.ParentId = rootId;
-                item.SlotId = "hideout";
-                item.Location = null;
-            }
-        }
-
-        return items;
-    }
-
-    // Populate a Map object of items for quick lookup using their ID.
-    //
-    // An array of Items that should be added to a Map.
-    // Returns A Map where the keys are the item IDs and the values are the corresponding Item objects.
-    public Dictionary<string, Item> GenerateItemsMap(List<Item> items)
-    {
-        // Convert list to dictionary, keyed by items Id
-        return items.ToDictionary(item => item.Id);
-    }
-
     // Add a blank upd object to passed in item if it does not exist already
     // item to add upd to
     // text to write to log when upd object was not found
@@ -2370,19 +2195,6 @@ public class ItemHelper(
         }
 
         return null;
-    }
-
-    // Remove FiR status from passed in items
-    // Items to update FiR status of
-    public void RemoveSpawnedInSessionPropertyFromItems(List<Item> items)
-    {
-        foreach (var item in items)
-        {
-            if (item.Upd is not null)
-            {
-                item.Upd.SpawnedInSession = null;
-            }
-        }
     }
 
     /// <summary>
