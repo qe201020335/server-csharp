@@ -12,7 +12,7 @@ public class BotGenerationCacheService(
     LocalisationService _localisationService
 )
 {
-    protected Queue<BotBase> _activeBotsInRaid = [];
+    protected readonly Queue<BotBase> _activeBotsInRaid = [];
     protected readonly ConcurrentDictionary<string, List<BotBase>> _storedBots = new();
 
     /// <summary>
@@ -96,7 +96,7 @@ public class BotGenerationCacheService(
     public void ClearStoredBots()
     {
         _storedBots.Clear();
-        _activeBotsInRaid = [];
+        _activeBotsInRaid.Clear();
     }
 
     /// <summary>
