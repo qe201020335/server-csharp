@@ -59,16 +59,6 @@ public class BotHelper(
         return _pmcTypeIds.Contains(botRole?.ToLower());
     }
 
-    /// <summary>
-    ///     Is the passed in bot role a PMC (USEC/Bear/PMC)
-    /// </summary>
-    /// <param name="botRole">bot role to check</param>
-    /// <returns>true if is pmc</returns>
-    public bool IsBotPmc(WildSpawnType botRole)
-    {
-        return botRole is WildSpawnType.pmcBEAR or WildSpawnType.pmcUSEC;
-    }
-
     public bool IsBotBoss(string botRole)
     {
         return !IsBotFollower(botRole)
@@ -167,17 +157,6 @@ public class BotHelper(
         return botEquipConfig?.Randomisation?.FirstOrDefault(randDetails =>
             botLevel >= randDetails.LevelRange.Min && botLevel <= randDetails.LevelRange.Max
         );
-    }
-
-    /// <summary>
-    ///     Choose between pmcBEAR and pmcUSEC at random based on the % defined in pmcConfig.isUsec
-    /// </summary>
-    /// <returns>pmc role</returns>
-    public string GetRandomizedPmcRole()
-    {
-        return _randomUtil.GetChance100(_pmcConfig.IsUsec)
-            ? _pmcConfig.UsecType
-            : _pmcConfig.BearType;
     }
 
     /// <summary>

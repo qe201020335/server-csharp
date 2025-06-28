@@ -64,7 +64,7 @@ public class BotLootGenerator(
     /// <param name="sessionId">Session id</param>
     /// <param name="botJsonTemplate">Clone of Base JSON db file for the bot having its loot generated</param>
     /// <param name="isPmc">Will bot be a pmc</param>
-    /// <param name="botRole">Role of bot, e.g. asssult</param>
+    /// <param name="botRole">Role of bot, e.g. assault</param>
     /// <param name="botInventory">Inventory to add loot to</param>
     /// <param name="botLevel">Level of bot</param>
     public void GenerateLoot(

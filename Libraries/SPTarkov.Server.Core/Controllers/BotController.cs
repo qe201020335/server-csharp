@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json.Serialization;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -136,8 +137,8 @@ public class BotController(
         foreach (var botType in botTypes)
         {
             // If bot is usec/bear, swap to different name
-            var botTypeLower = _botHelper.IsBotPmc(botType)
-                ? _botHelper.GetPmcSideByRole(botType).ToLower()
+            var botTypeLower = botType.IsPmc()
+                ? (botType.GetPmcSideByRole() ?? "usec").ToLower()
                 : botType.ToString().ToLower();
 
             // Get details from db
