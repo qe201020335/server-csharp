@@ -157,18 +157,14 @@ public class BotHelper(
     /// <param name="botLevel">level of bot</param>
     /// <param name="botEquipConfig">bot equipment json</param>
     /// <returns>RandomisationDetails</returns>
-    public RandomisationDetails GetBotRandomizationDetails(
+    public RandomisationDetails? GetBotRandomizationDetails(
         int botLevel,
         EquipmentFilters botEquipConfig
     )
     {
         // No randomisation details found, skip
-        if (botEquipConfig is null || botEquipConfig.Randomisation is null)
-        {
-            return null;
-        }
 
-        return botEquipConfig.Randomisation.FirstOrDefault(randDetails =>
+        return botEquipConfig?.Randomisation?.FirstOrDefault(randDetails =>
             botLevel >= randDetails.LevelRange.Min && botLevel <= randDetails.LevelRange.Max
         );
     }
