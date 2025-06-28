@@ -132,13 +132,13 @@ public class BotController(
             return result;
         }
         //Get all bot types as sting array
-        var botTypes = Enum.GetValues<WildSpawnType>().Select(item => item.ToString()).ToList();
+        var botTypes = Enum.GetValues<WildSpawnType>();
         foreach (var botType in botTypes)
         {
             // If bot is usec/bear, swap to different name
             var botTypeLower = _botHelper.IsBotPmc(botType)
                 ? _botHelper.GetPmcSideByRole(botType).ToLower()
-                : botType.ToLower();
+                : nameof(botType).ToLower();
 
             // Get details from db
             if (!botTypesDb.TryGetValue(botTypeLower, out var botDetails))
@@ -148,7 +148,7 @@ public class BotController(
                 if (_logger.IsLogEnabled(LogLevel.Debug))
                 {
                     _logger.Debug(
-                        $"Unable to find bot: {botTypeLower} in db, copying '{Roles.Assault}'"
+                        $"Unable to find bot: {botTypeLower} in db, copying: '{Roles.Assault}'"
                     );
                 }
 
@@ -164,7 +164,7 @@ public class BotController(
                 continue;
             }
 
-            var botNameKey = botType.ToLower();
+            var botNameKey = nameof(botType).ToLower();
             foreach (var (difficultyName, _) in botDetails.BotDifficulty)
             {
                 // Bot doesn't exist in result, add
@@ -173,7 +173,7 @@ public class BotController(
                     result.TryAdd(botNameKey, new Dictionary<string, DifficultyCategories>());
                 }
 
-                // Store all difficulty values in dict keyed by difficulty type e.g. easy/normal/impossible
+                // Store all difficulty values in dict keyed by difficulty type e.g. easy/normal/hard/impossible
                 result[botNameKey]
                     .Add(
                         difficultyName,

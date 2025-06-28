@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
@@ -56,6 +57,16 @@ public class BotHelper(
     public bool IsBotPmc(string? botRole)
     {
         return _pmcTypeIds.Contains(botRole?.ToLower());
+    }
+
+    /// <summary>
+    ///     Is the passed in bot role a PMC (USEC/Bear/PMC)
+    /// </summary>
+    /// <param name="botRole">bot role to check</param>
+    /// <returns>true if is pmc</returns>
+    public bool IsBotPmc(WildSpawnType botRole)
+    {
+        return botRole is WildSpawnType.pmcBEAR or WildSpawnType.pmcUSEC;
     }
 
     public bool IsBotBoss(string botRole)
@@ -191,6 +202,24 @@ public class BotHelper(
         }
 
         return GetRandomizedPmcSide();
+    }
+
+    /// <summary>
+    ///     Get the corresponding side when pmcBEAR or pmcUSEC is passed in
+    /// </summary>
+    /// <param name="botRole">role to get side for</param>
+    /// <returns>side (usec/bear)</returns>
+    public string GetPmcSideByRole(WildSpawnType botRole)
+    {
+        switch (botRole)
+        {
+            case WildSpawnType.pmcBEAR:
+                return Sides.Bear;
+            case WildSpawnType.pmcUSEC:
+                return Sides.Usec;
+            default:
+                return GetRandomizedPmcSide();
+        }
     }
 
     /// <summary>
