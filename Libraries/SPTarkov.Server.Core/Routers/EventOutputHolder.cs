@@ -10,28 +10,16 @@ using SPTarkov.Server.Core.Utils.Cloners;
 namespace SPTarkov.Server.Core.Routers;
 
 [Injectable]
-public class EventOutputHolder
+public class EventOutputHolder(
+    ISptLogger<EventOutputHolder> logger,
+    ProfileHelper profileHelper,
+    TimeUtil timeUtil,
+    ICloner cloner
+)
 {
-    protected Dictionary<string, Dictionary<string, bool>> _clientActiveSessionStorage = new();
-    protected ICloner _cloner;
-    protected ISptLogger<EventOutputHolder> _logger;
-
-    protected Dictionary<string, ItemEventRouterResponse> _outputStore = new();
-    protected ProfileHelper _profileHelper;
-    protected TimeUtil _timeUtil;
-
-    public EventOutputHolder(
-        ISptLogger<EventOutputHolder> logger,
-        ProfileHelper profileHelper,
-        TimeUtil timeUtil,
-        ICloner cloner
-    )
-    {
-        _logger = logger;
-        _profileHelper = profileHelper;
-        _timeUtil = timeUtil;
-        _cloner = cloner;
-    }
+    protected readonly Dictionary<string, Dictionary<string, bool>> _clientActiveSessionStorage =
+        new();
+    protected readonly Dictionary<string, ItemEventRouterResponse> _outputStore = new();
 
     /// <summary>
     /// Get a fresh/empty response to send to the client
@@ -54,7 +42,7 @@ public class EventOutputHolder
 
     public void ResetOutput(string sessionId)
     {
-        var pmcProfile = _profileHelper.GetPmcProfile(sessionId);
+        var pmcProfile = profileHelper.GetPmcProfile(sessionId);
 
         if (_outputStore.ContainsKey(sessionId))
         {
@@ -93,7 +81,7 @@ public class EventOutputHolder
                                 Mastering = [],
                                 Points = 0,
                             },
-                            Health = _cloner.Clone(pmcProfile.Health),
+                            Health = cloner.Clone(pmcProfile.Health),
                             TraderRelations = new Dictionary<string, TraderData>(),
                             QuestsStatus = [],
                         }
@@ -110,20 +98,20 @@ public class EventOutputHolder
     /// <param name="sessionId"> Session id </param>
     public void UpdateOutputProperties(string sessionId)
     {
-        var pmcData = _profileHelper.GetPmcProfile(sessionId);
+        var pmcData = profileHelper.GetPmcProfile(sessionId);
         var profileChanges = _outputStore[sessionId].ProfileChanges[sessionId];
 
         profileChanges.Experience = pmcData.Info.Experience;
-        profileChanges.Health = _cloner.Clone(pmcData.Health);
-        profileChanges.Skills.Common = _cloner.Clone(pmcData.Skills.Common); // Always send skills for Item event route response
-        profileChanges.Skills.Mastering = _cloner.Clone(pmcData.Skills.Mastering);
+        profileChanges.Health = cloner.Clone(pmcData.Health);
+        profileChanges.Skills.Common = cloner.Clone(pmcData.Skills.Common); // Always send skills for Item event route response
+        profileChanges.Skills.Mastering = cloner.Clone(pmcData.Skills.Mastering);
 
         // Clone productions to ensure we preseve the profile jsons data
         profileChanges.Production = GetProductionsFromProfileAndFlagComplete(
-            _cloner.Clone(pmcData.Hideout.Production),
+            cloner.Clone(pmcData.Hideout.Production),
             sessionId
         );
-        profileChanges.Improvements = _cloner.Clone(
+        profileChanges.Improvements = cloner.Clone(
             GetImprovementsFromProfileAndFlagComplete(pmcData)
         );
         profileChanges.TraderRelations = ConstructTraderRelations(pmcData.TradersInfo);
@@ -157,7 +145,7 @@ public class EventOutputHolder
                 // Water collector / Bitcoin etc
                 production.Value.SptIsComplete = false;
                 production.Value.Progress = 0;
-                production.Value.StartTimestamp = _timeUtil.GetTimeStamp();
+                production.Value.StartTimestamp = timeUtil.GetTimeStamp();
             }
             else if (!production.Value.InProgress ?? false)
             {
@@ -186,7 +174,7 @@ public class EventOutputHolder
                 continue;
             }
 
-            if (improvement.ImproveCompleteTimestamp < _timeUtil.GetTimeStamp())
+            if (improvement.ImproveCompleteTimestamp < timeUtil.GetTimeStamp())
             {
                 improvement.Completed = true;
             }
