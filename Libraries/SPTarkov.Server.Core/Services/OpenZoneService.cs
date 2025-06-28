@@ -43,7 +43,9 @@ public class OpenZoneService(
         {
             if (!dbLocations.ContainsKey(mapKvP.Key))
             {
-                _logger.Error(_serverLocalisationService.GetText("openzone-unable_to_find_map", mapKvP));
+                _logger.Error(
+                    _serverLocalisationService.GetText("openzone-unable_to_find_map", mapKvP)
+                );
 
                 continue;
             }

@@ -44,7 +44,9 @@ public class ClientLogCallbacks(
         data.BetaDisclaimerAcceptText = _serverLocalisationService.GetText(
             "release-beta-disclaimer-accept"
         );
-        data.ServerModsLoadedText = _serverLocalisationService.GetText("release-server-mods-loaded");
+        data.ServerModsLoadedText = _serverLocalisationService.GetText(
+            "release-server-mods-loaded"
+        );
         data.ServerModsLoadedDebugText = _serverLocalisationService.GetText(
             "release-server-mods-debug-message"
         );

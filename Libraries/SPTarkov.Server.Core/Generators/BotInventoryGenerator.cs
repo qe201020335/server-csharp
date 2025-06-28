@@ -531,7 +531,10 @@ public class BotInventoryGenerator(
                 if (!dbResult.Key)
                 {
                     _logger.Error(
-                        _serverLocalisationService.GetText("bot-missing_item_template", chosenItemTpl)
+                        _serverLocalisationService.GetText(
+                            "bot-missing_item_template",
+                            chosenItemTpl
+                        )
                     );
                     if (_logger.IsLogEnabled(LogLevel.Debug))
                     {

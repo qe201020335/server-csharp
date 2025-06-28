@@ -41,7 +41,9 @@ public class ForceSummerMessageHandler(
         _mailSendService.SendUserMessageToPlayer(
             sessionId,
             sptFriendUser,
-            _randomUtil.GetArrayValue([_serverLocalisationService.GetText("chatbot-summer_enabled")]),
+            _randomUtil.GetArrayValue(
+                [_serverLocalisationService.GetText("chatbot-summer_enabled")]
+            ),
             [],
             null
         );

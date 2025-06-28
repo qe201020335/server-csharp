@@ -54,7 +54,10 @@ public class CustomizationController(
         if (matchingSuits == null)
         {
             throw new Exception(
-                _serverLocalisationService.GetText("customisation-unable_to_get_trader_suits", traderId)
+                _serverLocalisationService.GetText(
+                    "customisation-unable_to_get_trader_suits",
+                    traderId
+                )
             );
         }
 
@@ -149,7 +152,10 @@ public class CustomizationController(
         if (foundSuit is null)
         {
             _logger.Error(
-                _serverLocalisationService.GetText("customisation-unable_to_find_suit_with_id", offerId)
+                _serverLocalisationService.GetText(
+                    "customisation-unable_to_find_suit_with_id",
+                    offerId
+                )
             );
         }
 
