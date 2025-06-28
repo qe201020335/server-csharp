@@ -81,5 +81,30 @@
         {
             return date.FormatToBsgTime().Replace("-", ":").Replace("-", ":");
         }
+
+        /// <summary>
+        ///     Does the provided date fit between the two defined dates?
+        ///     Excludes year
+        ///     Inclusive of end date up to 23 hours 59 minutes
+        /// </summary>
+        /// <param name="dateToCheck">Date to check is between 2 dates</param>
+        /// <param name="startMonth">Lower bound for month</param>
+        /// <param name="startDay">Lower bound for day</param>
+        /// <param name="endMonth">Upper bound for month</param>
+        /// <param name="endDay">Upper bound for day</param>
+        /// <returns>True when inside date range</returns>
+        public static bool DateIsBetweenTwoDates(
+            this DateTime dateToCheck,
+            int startMonth,
+            int startDay,
+            int endMonth,
+            int endDay
+        )
+        {
+            var eventStartDate = new DateTime(dateToCheck.Year, startMonth, startDay);
+            var eventEndDate = new DateTime(dateToCheck.Year, endMonth, endDay, 23, 59, 0);
+
+            return dateToCheck >= eventStartDate && dateToCheck <= eventEndDate;
+        }
     }
 }

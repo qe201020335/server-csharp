@@ -1,5 +1,6 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -304,8 +305,7 @@ public class SeasonalEventService(
             }
 
             if (
-                DateIsBetweenTwoDates(
-                    currentDate,
+                currentDate.DateIsBetweenTwoDates(
                     events.StartMonth,
                     events.StartDay,
                     events.EndMonth,
@@ -333,8 +333,7 @@ public class SeasonalEventService(
         foreach (var seasonRange in _weatherConfig.SeasonDates)
         {
             if (
-                DateIsBetweenTwoDates(
-                    currentDate,
+                currentDate.DateIsBetweenTwoDates(
                     seasonRange.StartMonth ?? 0,
                     seasonRange.StartDay ?? 0,
                     seasonRange.EndMonth ?? 0,
@@ -349,31 +348,6 @@ public class SeasonalEventService(
         _logger.Warning(_localisationService.GetText("season-no_matching_season_found_for_date"));
 
         return Season.SUMMER;
-    }
-
-    /// <summary>
-    ///     Does the provided date fit between the two defined dates?
-    ///     Excludes year
-    ///     Inclusive of end date upto 23 hours 59 minutes
-    /// </summary>
-    /// <param name="dateToCheck">Date to check is between 2 dates</param>
-    /// <param name="startMonth">Lower bound for month</param>
-    /// <param name="startDay">Lower bound for day</param>
-    /// <param name="endMonth">Upper bound for month</param>
-    /// <param name="endDay">Upper bound for day</param>
-    /// <returns>True when inside date range</returns>
-    private bool DateIsBetweenTwoDates(
-        DateTime dateToCheck,
-        int startMonth,
-        int startDay,
-        int endMonth,
-        int endDay
-    )
-    {
-        var eventStartDate = new DateTime(dateToCheck.Year, startMonth, startDay);
-        var eventEndDate = new DateTime(dateToCheck.Year, endMonth, endDay, 23, 59, 0);
-
-        return dateToCheck >= eventStartDate && dateToCheck <= eventEndDate;
     }
 
     /// <summary>
