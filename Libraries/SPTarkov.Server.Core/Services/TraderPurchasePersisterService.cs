@@ -33,17 +33,7 @@ public class TraderPurchasePersisterService(
     {
         var profile = _profileHelper.GetFullProfile(sessionId);
 
-        if (profile.TraderPurchases is null)
-        {
-            return null;
-        }
-
-        if (profile.TraderPurchases.ContainsKey(traderId))
-        {
-            return profile.TraderPurchases[traderId];
-        }
-
-        return null;
+        return profile?.TraderPurchases?.GetValueOrDefault(traderId);
     }
 
     /// <summary>
@@ -97,7 +87,7 @@ public class TraderPurchasePersisterService(
                 continue;
             }
 
-            // Skip if no trader-speicifc purchases
+            // Skip if no trader-specific purchases
             if (!profile.Value.TraderPurchases.TryGetValue(traderId, out _))
             {
                 continue;

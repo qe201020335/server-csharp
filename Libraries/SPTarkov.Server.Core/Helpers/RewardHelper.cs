@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
@@ -81,7 +82,9 @@ public class RewardHelper(
                         int.Parse(reward.Value.ToString())
                     ); // this must occur first as the output object needs to take the modified profile exp value
                     // Recalculate level in event player leveled up
-                    pmcProfile.Info.Level = _playerService.CalculateLevel(pmcProfile);
+                    pmcProfile.Info.Level = pmcProfile.CalculateLevel(
+                        _databaseService.GetGlobals().Configuration.Exp.Level.ExperienceTable
+                    );
                     break;
                 case RewardType.TraderStanding:
                     _traderHelper.AddStandingToTrader(sessionId, reward.Target, reward.Value.Value);

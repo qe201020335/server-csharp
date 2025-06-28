@@ -336,7 +336,9 @@ public class TraderHelper(
         var loyaltyLevels = _databaseService.GetTrader(traderID).Base.LoyaltyLevels;
 
         // Level up player
-        pmcData.Info.Level = _playerService.CalculateLevel(pmcData);
+        pmcData.Info.Level = pmcData.CalculateLevel(
+            _databaseService.GetGlobals().Configuration.Exp.Level.ExperienceTable
+        );
 
         // Level up traders
         var targetLevel = 0;
