@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Utils;
@@ -90,7 +91,7 @@ public class TraderAssortHelper(
                 if (_logger.IsLogEnabled(LogLevel.Debug))
                 {
                     _logger.Debug(
-                        $"Unable to adjust assort {assortToAdjust.Id} item: {assortToAdjust.Template} BuyRestrictionCurrent value, assort has a null upd object"
+                        $"Unable to adjust assort: {assortToAdjust.Id} item: {assortToAdjust.Template} BuyRestrictionCurrent value, assort has a null upd object"
                     );
                 }
 
@@ -113,27 +114,10 @@ public class TraderAssortHelper(
         // Filter out root assorts that are blacklisted for this profile
         if (fullProfile.SptData.BlacklistedItemTemplates?.Count > 0)
         {
-            RemoveItemsFromAssort(traderClone.Assort, fullProfile.SptData.BlacklistedItemTemplates);
+            traderClone.Assort.RemoveItemsFromAssort(fullProfile.SptData.BlacklistedItemTemplates);
         }
 
         return traderClone.Assort;
-    }
-
-    /// <summary>
-    ///     Given the blacklist provided, remove root items from assort
-    /// </summary>
-    /// <param name="assortToFilter">Trader assort to modify</param>
-    /// <param name="itemsTplsToRemove">Item TPLs the assort should not have</param>
-    protected void RemoveItemsFromAssort(
-        TraderAssort assortToFilter,
-        HashSet<string> itemsTplsToRemove
-    )
-    {
-        assortToFilter.Items = assortToFilter
-            .Items.Where(item =>
-                item.ParentId == "hideout" && itemsTplsToRemove.Contains(item.Template)
-            )
-            .ToList();
     }
 
     /// <summary>
