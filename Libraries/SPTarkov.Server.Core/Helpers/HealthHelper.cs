@@ -58,8 +58,7 @@ public class HealthHelper(
         var defaultTemperature =
             matchingSide?.Character?.Health?.Temperature ?? new CurrentMinMax { Current = 36.6 };
 
-        StoreHydrationEnergyTempInProfile(
-            fullProfile,
+        fullProfile.StoreHydrationEnergyTempInProfile(
             postRaidHealth.Hydration.Current ?? 0,
             postRaidHealth.Energy.Current ?? 0,
             defaultTemperature.Current ?? 0 // Reset profile temp to the default to prevent very cold/hot temps persisting into next raid
@@ -102,18 +101,6 @@ public class HealthHelper(
 
         // Update last edited timestamp
         pmcData.Health.UpdateTime = _timeUtil.GetTimeStamp();
-    }
-
-    protected void StoreHydrationEnergyTempInProfile(
-        SptProfile fullProfile,
-        double hydration,
-        double energy,
-        double temperature
-    )
-    {
-        fullProfile.VitalityData.Hydration = hydration;
-        fullProfile.VitalityData.Energy = energy;
-        fullProfile.VitalityData.Temperature = temperature;
     }
 
     /// <summary>
@@ -269,7 +256,6 @@ public class HealthHelper(
     ///     Add effect to body part in profile
     /// </summary>
     /// <param name="pmcData">Player profile</param>
-    /// <param name="effectBodyPart">Body part to edit</param>
     /// <param name="effectType">Effect to add to body part</param>
     /// <param name="duration">How long the effect has left in seconds (-1 by default, no duration).</param>
     protected void AddEffect(
