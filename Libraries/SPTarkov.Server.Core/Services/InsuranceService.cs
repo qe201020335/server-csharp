@@ -105,8 +105,8 @@ public class InsuranceService(
 
             var systemData = new SystemData
             {
-                Date = _timeUtil.GetDateMailFormat(),
-                Time = _timeUtil.GetTimeMailFormat(),
+                Date = _timeUtil.GetBsgDateMailFormat(),
+                Time = _timeUtil.GetBsgTimeMailFormat(),
                 Location = mapId,
             };
 
