@@ -105,7 +105,7 @@ public class PlayerScavGenerator(
         // Persist previous scav data into new scav
         scavData.Id = existingScavDataClone.Id ?? pmcDataClone.Savage;
         scavData.SessionId = existingScavDataClone.SessionId ?? pmcDataClone.SessionId;
-        scavData.Skills = GetScavSkills(existingScavDataClone);
+        scavData.Skills = existingScavDataClone.GetSkillsOrDefault();
         scavData.Stats = GetScavStats(existingScavDataClone);
         scavData.Info.Level = GetScavLevel(existingScavDataClone);
         scavData.Info.Experience = GetScavExperience(existingScavDataClone);
@@ -374,26 +374,6 @@ public class PlayerScavGenerator(
                 equipmentDict.Remove(itemToRemove);
             }
         }
-    }
-
-    protected Skills GetScavSkills(PmcData scavProfile)
-    {
-        if (scavProfile?.Skills != null)
-        {
-            return scavProfile.Skills;
-        }
-
-        return GetDefaultScavSkills();
-    }
-
-    protected Skills GetDefaultScavSkills()
-    {
-        return new Skills
-        {
-            Common = [],
-            Mastering = [],
-            Points = 0,
-        };
     }
 
     protected Stats GetScavStats(PmcData scavProfile)

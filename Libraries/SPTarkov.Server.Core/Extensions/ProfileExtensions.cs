@@ -95,5 +95,20 @@ namespace SPTarkov.Server.Core.Extensions
 
             return Math.Floor(fenceInfo.Standing ?? 0);
         }
+
+        public static Skills GetSkillsOrDefault(this PmcData profile)
+        {
+            return profile?.Skills ?? GetDefaultSkills();
+        }
+
+        private static Skills GetDefaultSkills()
+        {
+            return new Skills
+            {
+                Common = [],
+                Mastering = [],
+                Points = 0,
+            };
+        }
     }
 }
