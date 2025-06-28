@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -39,7 +40,7 @@ public class ExternalInventoryMagGen(
         var magazineTpl = magTemplate.Id;
         var weapon = inventoryMagGen.GetWeaponTemplate();
         List<string> attemptedMagBlacklist = [];
-        var defaultMagazineTpl = _botWeaponGeneratorHelper.GetWeaponsDefaultMagazineTpl(weapon);
+        var defaultMagazineTpl = weapon.GetWeaponsDefaultMagazineTpl();
         var isShotgun = _itemHelper.IsOfBaseclass(weapon.Id, BaseClasses.SHOTGUN);
 
         var randomizedMagazineCount = _botWeaponGeneratorHelper.GetRandomizedMagazineCount(

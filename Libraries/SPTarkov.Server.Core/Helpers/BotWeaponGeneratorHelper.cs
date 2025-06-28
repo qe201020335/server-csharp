@@ -117,7 +117,7 @@ public class BotWeaponGeneratorHelper(
         string ammoTpl,
         int cartridgeCount,
         BotBaseInventory inventory,
-        HashSet<EquipmentSlots> equipmentSlotsToAddTo
+        HashSet<EquipmentSlots>? equipmentSlotsToAddTo = null
     )
     {
         if (equipmentSlotsToAddTo is null)
@@ -157,15 +157,5 @@ public class BotWeaponGeneratorHelper(
                 }
             }
         }
-    }
-
-    /// <summary>
-    ///     Get a weapons default magazine template id
-    /// </summary>
-    /// <param name="weaponTemplate">Weapon to get default magazine for</param>
-    /// <returns>Tpl of magazine</returns>
-    public string? GetWeaponsDefaultMagazineTpl(TemplateItem weaponTemplate)
-    {
-        return weaponTemplate.Properties.DefMagType;
     }
 }

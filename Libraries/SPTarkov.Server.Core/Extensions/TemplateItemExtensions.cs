@@ -37,5 +37,15 @@ namespace SPTarkov.Server.Core.Extensions
 
             return false;
         }
+
+        /// <summary>
+        ///     Get a weapons default magazine template id
+        /// </summary>
+        /// <param name="weaponTemplate">Weapon to get default magazine for</param>
+        /// <returns>Tpl of magazine</returns>
+        public static string? GetWeaponsDefaultMagazineTpl(this TemplateItem weaponTemplate)
+        {
+            return weaponTemplate.Properties.DefMagType;
+        }
     }
 }
