@@ -138,7 +138,7 @@ public class BotController(
             // If bot is usec/bear, swap to different name
             var botTypeLower = _botHelper.IsBotPmc(botType)
                 ? _botHelper.GetPmcSideByRole(botType).ToLower()
-                : nameof(botType).ToLower();
+                : botType.ToString().ToLower();
 
             // Get details from db
             if (!botTypesDb.TryGetValue(botTypeLower, out var botDetails))
@@ -164,7 +164,7 @@ public class BotController(
                 continue;
             }
 
-            var botNameKey = nameof(botType).ToLower();
+            var botNameKey = botType.ToString().ToLower();
             foreach (var (difficultyName, _) in botDetails.BotDifficulty)
             {
                 // Bot doesn't exist in result, add
@@ -175,7 +175,7 @@ public class BotController(
 
                 // Store all difficulty values in dict keyed by difficulty type e.g. easy/normal/hard/impossible
                 result[botNameKey]
-                    .Add(
+                    .TryAdd(
                         difficultyName,
                         GetBotDifficulty(string.Empty, botNameKey, difficultyName, true)
                     );
