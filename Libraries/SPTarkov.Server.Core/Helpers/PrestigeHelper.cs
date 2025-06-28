@@ -1,4 +1,5 @@
 ﻿using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
@@ -176,11 +177,7 @@ public class PrestigeHelper
                 }
                 case RewardType.ExtraDailyQuest:
                 {
-                    _profileHelper.AddExtraRepeatableQuest(
-                        newProfile,
-                        reward.Target,
-                        (double)reward.Value
-                    );
+                    newProfile.AddExtraRepeatableQuest(reward.Target, (double)reward.Value);
                     break;
                 }
                 default:

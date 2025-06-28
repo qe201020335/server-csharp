@@ -1495,32 +1495,6 @@ public class HideoutHelper(
     }
 
     /// <summary>
-    ///     Upgrade hideout wall from starting level to interactable level if necessary stations have been upgraded
-    /// </summary>
-    /// <param name="profileData">Profile to upgrade wall in</param>
-    public void UnlockHideoutWallInProfile(PmcData profileData)
-    {
-        var profileHideoutAreas = profileData.Hideout.Areas;
-        var waterCollector = profileHideoutAreas.FirstOrDefault(x =>
-            x.Type == HideoutAreas.WaterCollector
-        );
-        var medStation = profileHideoutAreas.FirstOrDefault(x => x.Type == HideoutAreas.MedStation);
-        var wall = profileHideoutAreas.FirstOrDefault(x => x.Type == HideoutAreas.EmergencyWall);
-
-        // No collector or med station, skip
-        if (waterCollector is null && medStation is null)
-        {
-            return;
-        }
-
-        // If med-station > level 1 AND water collector > level 1 AND wall is level 0
-        if (waterCollector?.Level >= 1 && medStation?.Level >= 1 && wall?.Level <= 0)
-        {
-            wall.Level = 3;
-        }
-    }
-
-    /// <summary>
     ///     Hideout improvement is flagged as complete
     /// </summary>
     /// <param name="improvement">hideout improvement object</param>

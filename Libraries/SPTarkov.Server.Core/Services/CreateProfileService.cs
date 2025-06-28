@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -122,9 +123,9 @@ public class CreateProfileService(
             CustomisationUnlocks = [],
         };
 
-        AddCustomisationUnlocksToProfile(profileDetails);
+        profileDetails.AddCustomisationUnlocksToProfile();
 
-        _traderHelper.AddSuitsToProfile(profileDetails, profileTemplateClone.Suits);
+        profileDetails.AddSuitsToProfile(profileTemplateClone.Suits);
 
         _profileFixerService.CheckForAndFixPmcProfileIssues(profileDetails.CharacterData.PmcData);
 
@@ -336,173 +337,6 @@ public class CreateProfileService(
                     Template = ItemTpl.STASH_QUESTRAID,
                 }
             );
-        }
-    }
-
-    /// <summary>
-    ///     Add customisations to game profiles based on game edition
-    /// </summary>
-    /// <param name="fullProfile">Profile to add customisations to</param>
-    public void AddCustomisationUnlocksToProfile(SptProfile fullProfile)
-    {
-        // Some game versions have additional customisation unlocks
-        var gameEdition = GetGameEdition(fullProfile);
-        if (gameEdition is null)
-        {
-            _logger.Error(
-                $"Unable to get Game edition of profile: {fullProfile.ProfileInfo.ProfileId}, skipping customisation unlocks"
-            );
-            return;
-        }
-
-        switch (gameEdition)
-        {
-            case GameEditions.EDGE_OF_DARKNESS:
-                // Gets EoD tags
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "6746fd09bafff85008048838",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "67471938bafff850080488b7",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-
-                break;
-            case GameEditions.UNHEARD:
-                // Gets EoD+Unheard tags
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "6746fd09bafff85008048838",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "67471938bafff850080488b7",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "67471928d17d6431550563b5",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "6747193f170146228c0d2226",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-
-                // Unheard Clothing (Cultist Hood)
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "666841a02537107dc508b704",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.SUITE,
-                    }
-                );
-
-                // Unheard background
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "675850ba33627edb710b0592",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.ENVIRONMENT,
-                    }
-                );
-
-                break;
-        }
-
-        var pretigeLevel = fullProfile?.CharacterData?.PmcData?.Info?.PrestigeLevel;
-        if (pretigeLevel is not null)
-        {
-            if (pretigeLevel >= 1)
-            {
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "674dbf593bee1152d407f005",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-            }
-
-            if (pretigeLevel >= 2)
-            {
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = "675dcfea7ae1a8792107ca99",
-                        Source = CustomisationSource.DEFAULT,
-                        Type = CustomisationType.DOG_TAG,
-                    }
-                );
-            }
-        }
-
-        // Dev profile additions
-        if (fullProfile.ProfileInfo.Edition.ToLower().Contains("developer"))
-        // CyberTark background
-        {
-            fullProfile.CustomisationUnlocks.Add(
-                new CustomisationStorage
-                {
-                    Id = "67585108def253bd97084552",
-                    Source = CustomisationSource.DEFAULT,
-                    Type = CustomisationType.ENVIRONMENT,
-                }
-            );
-        }
-    }
-
-    /// <summary>
-    ///     Get the game edition of a profile chosen on creation in Launcher
-    /// </summary>
-    private string? GetGameEdition(SptProfile profile)
-    {
-        var edition = profile.CharacterData?.PmcData?.Info?.GameVersion;
-        if (edition is not null)
-        {
-            return edition;
-        }
-
-        // Edge case - profile not created yet, fall back to what launcher has set
-        var launcherEdition = profile.ProfileInfo.Edition;
-        switch (launcherEdition.ToLower())
-        {
-            case "edge of darkness":
-                return GameEditions.EDGE_OF_DARKNESS;
-            case "unheard":
-                return GameEditions.UNHEARD;
-            default:
-                return GameEditions.STANDARD;
         }
     }
 

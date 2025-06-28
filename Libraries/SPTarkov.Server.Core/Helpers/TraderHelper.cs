@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -192,7 +193,7 @@ public class TraderHelper(
             if (clothing?.Count > 0)
             // Force suit ids into profile
             {
-                AddSuitsToProfile(fullProfile, clothing.Select(suit => suit.SuiteId).ToList());
+                fullProfile.AddSuitsToProfile(clothing.Select(suit => suit.SuiteId).ToList());
             }
         }
 
@@ -244,36 +245,6 @@ public class TraderHelper(
         }
 
         return rawProfileTemplate.InitialStanding["default"];
-    }
-
-    /// <summary>
-    ///     Add a list of suit ids to a profiles suit list, no duplicates
-    /// </summary>
-    /// <param name="fullProfile">Profile to add clothing to</param>
-    /// <param name="clothingIds">Clothing Ids to add to profile</param>
-    public void AddSuitsToProfile(SptProfile fullProfile, List<string> clothingIds)
-    {
-        fullProfile.CustomisationUnlocks ??= [];
-
-        foreach (var suitId in clothingIds)
-        {
-            if (
-                !fullProfile.CustomisationUnlocks.Exists(customisation =>
-                    customisation.Id == suitId
-                )
-            )
-            {
-                // Clothing item doesn't exist in profile, add it
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = suitId,
-                        Source = CustomisationSource.UNLOCKED_IN_GAME,
-                        Type = CustomisationType.SUITE,
-                    }
-                );
-            }
-        }
     }
 
     /// <summary>

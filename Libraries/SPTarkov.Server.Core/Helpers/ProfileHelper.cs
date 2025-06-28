@@ -686,18 +686,6 @@ public class ProfileHelper(
     }
 
     /// <summary>
-    ///     Return all quest items current in the supplied profile
-    /// </summary>
-    /// <param name="profile">Profile to get quest items from</param>
-    /// <returns>List of item objects</returns>
-    public List<Item> GetQuestItemsInProfile(PmcData profile)
-    {
-        return profile
-            ?.Inventory?.Items.Where(i => i.ParentId == profile.Inventory.QuestRaidItems)
-            .ToList();
-    }
-
-    /// <summary>
     ///     Return a favorites list in the format expected by the GetOtherProfile call
     /// </summary>
     /// <param name="profile"></param>
@@ -787,26 +775,6 @@ public class ProfileHelper(
             }
 
             fullProfile.CustomisationUnlocks.Add(rewardToStore);
-        }
-    }
-
-    /// <summary>
-    ///     Add the given number of extra repeatable quests for the given type of repeatable to the users profile
-    /// </summary>
-    /// <param name="fullProfile">Profile to add the extra repeatable to</param>
-    /// <param name="repeatableId">The ID of the type of repeatable to increase</param>
-    /// <param name="rewardValue">The number of extra repeatables to add</param>
-    public void AddExtraRepeatableQuest(
-        SptProfile fullProfile,
-        string repeatableId,
-        double rewardValue
-    )
-    {
-        fullProfile.SptData.ExtraRepeatableQuests ??= new Dictionary<string, double>();
-
-        if (!fullProfile.SptData.ExtraRepeatableQuests.TryAdd(repeatableId, 0))
-        {
-            fullProfile.SptData.ExtraRepeatableQuests[repeatableId] += rewardValue;
         }
     }
 

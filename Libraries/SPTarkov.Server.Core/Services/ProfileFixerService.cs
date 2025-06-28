@@ -3,6 +3,7 @@ using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+using SPTarkov.Server.Core.Models.Eft.Hideout;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -961,10 +962,12 @@ public class ProfileFixerService(
     ///     Iterate over players hideout areas and find what's built, look for missing bonuses those areas give and add them if missing
     /// </summary>
     /// <param name="pmcProfile"> Profile to update </param>
-    public void AddMissingHideoutBonusesToProfile(PmcData pmcProfile)
+    /// <param name="dbHideoutAreas"></param>
+    public void AddMissingHideoutBonusesToProfile(
+        PmcData pmcProfile,
+        List<HideoutArea>? dbHideoutAreas
+    )
     {
-        var dbHideoutAreas = _databaseService.GetHideout().Areas;
-
         foreach (var profileArea in pmcProfile.Hideout?.Areas ?? [])
         {
             var areaType = profileArea.Type;

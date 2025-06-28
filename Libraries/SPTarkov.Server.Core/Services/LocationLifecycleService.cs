@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -763,7 +764,7 @@ public class LocationLifecycleService
         // Copy scav fence values to PMC profile
         pmcProfile.TradersInfo[Traders.FENCE] = scavProfile.TradersInfo[Traders.FENCE];
 
-        if (ProfileHasConditionCounters(scavProfile))
+        if (scavProfile.ProfileHasConditionCounters())
         // Scav quest progress needs to be moved to pmc so player can see it in menu / hand them in
         {
             MigrateScavQuestProgressToPmcProfile(scavProfile, pmcProfile);
@@ -877,21 +878,6 @@ public class LocationLifecycleService
     }
 
     /// <summary>
-    ///     Does the provided profile contain any condition counters
-    /// </summary>
-    /// <param name="profile"> Profile to check for condition counters </param>
-    /// <returns> Profile has condition counters </returns>
-    protected bool ProfileHasConditionCounters(PmcData profile)
-    {
-        if (profile.TaskConditionCounters is null)
-        {
-            return false;
-        }
-
-        return profile.TaskConditionCounters.Count > 0;
-    }
-
-    /// <summary>
     ///     Handles PMC Profile after the raid
     /// </summary>
     /// <param name="sessionId"> Player id </param>
@@ -919,7 +905,7 @@ public class LocationLifecycleService
 
         // MUST occur BEFORE inventory actions (setInventory()) occur
         // Player died, get quest items they lost for use later
-        var lostQuestItems = _profileHelper.GetQuestItemsInProfile(postRaidProfile);
+        var lostQuestItems = postRaidProfile.GetQuestItemsInProfile();
 
         // Update inventory
         _inRaidHelper.SetInventory(sessionId, pmcProfile, postRaidProfile, isSurvived, isTransfer);

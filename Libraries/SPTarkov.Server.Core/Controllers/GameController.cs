@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Game;
@@ -135,9 +136,12 @@ public class GameController(
 
         if (pmcProfile.Hideout is not null)
         {
-            _profileFixerService.AddMissingHideoutBonusesToProfile(pmcProfile);
+            _profileFixerService.AddMissingHideoutBonusesToProfile(
+                pmcProfile,
+                _databaseService.GetHideout().Areas
+            );
             _hideoutHelper.SetHideoutImprovementsToCompleted(pmcProfile);
-            _hideoutHelper.UnlockHideoutWallInProfile(pmcProfile);
+            pmcProfile.UnlockHideoutWallInProfile();
 
             // Handle if player has been inactive for a long time, catch up on hideout update before the user goes to his hideout
             if (
