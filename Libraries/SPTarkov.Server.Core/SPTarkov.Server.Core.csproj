@@ -32,22 +32,11 @@
     <!--  BuildType options - LOCAL, DEBUG, RELEASE, BLEEDING_EDGE, BLEEDING_EDGE_MODS - *must be all caps*-->
   </PropertyGroup>
   <Target Name="AfterEverythingDone" AfterTargets="PostBuildEvent">
-    <Exec
-      ConsoleToMsBuild="true"
-      Condition="'$(IsPublish)' == 'true'"
-      Command="dotnet build -c $(Configuration) $(MSBuildProjectDirectory)/../../Patches/Ceciler.Virtualizer/Ceciler.Virtualizer.csproj"
-    />
-    <Exec
-      ConsoleToMsBuild="true"
-      Command="dotnet &quot;$(MSBuildProjectDirectory)/../../Ceciler/Ceciler.Launcher.dll&quot; &quot;$(OutDir)SPTarkov.Server.Core.dll&quot; &quot;$(MSBuildProjectDirectory)/../../Patches/Ceciler.Virtualizer/bin/$(Configuration)/$(TargetFramework)/Ceciler.Virtualizer.dll&quot;"
-    />
+    <Exec ConsoleToMsBuild="true" Condition="'$(IsPublish)' == 'true'" Command="dotnet build -c $(Configuration) $(MSBuildProjectDirectory)/../../Patches/Ceciler.Virtualizer/Ceciler.Virtualizer.csproj" />
+    <Exec ConsoleToMsBuild="true" Command="dotnet &quot;$(MSBuildProjectDirectory)/../../Ceciler/Ceciler.Launcher.dll&quot; &quot;$(OutDir)SPTarkov.Server.Core.dll&quot; &quot;$(MSBuildProjectDirectory)/../../Patches/Ceciler.Virtualizer/bin/$(Configuration)/$(TargetFramework)/Ceciler.Virtualizer.dll&quot;" />
   </Target>
   <!--  Generates the ProgramStatics class with the build information -->
   <Target Name="GenerateProgramStatics" BeforeTargets="BeforeBuild">
-    <WriteLinesToFile
-      File="Utils/ProgramStatics.Generated.cs"
-      Lines="&#xD;&#xA;using SPTarkov.Server.Core.Models.Enums%3B&#xD;&#xA;&#xD;&#xA;namespace SPTarkov.Server.Core.Utils%3B&#xD;&#xA;&#xD;&#xA;public static partial class ProgramStatics&#xD;&#xA;{&#xD;&#xA;    private static string? _sptVersion = &quot;$(SptVersion)&quot;%3B&#xD;&#xA;    private static string? _commit = &quot;$(SptCommit)&quot;%3B&#xD;&#xA;    private static double? _buildTime = $(SptBuildTime)%3B&#xD;&#xA;    private static EntryType? BuildType = EntryType.$(SptBuildType)%3B&#xD;&#xA;}&#xD;&#xA;"
-      Overwrite="true"
-    />
+    <WriteLinesToFile File="Utils/ProgramStatics.Generated.cs" Lines="&#xD;&#xA;using SPTarkov.Server.Core.Models.Enums%3B&#xD;&#xA;&#xD;&#xA;namespace SPTarkov.Server.Core.Utils%3B&#xD;&#xA;&#xD;&#xA;public static partial class ProgramStatics&#xD;&#xA;{&#xD;&#xA;    private static string? _sptVersion = &quot;$(SptVersion)&quot;%3B&#xD;&#xA;    private static string? _commit = &quot;$(SptCommit)&quot;%3B&#xD;&#xA;    private static double? _buildTime = $(SptBuildTime)%3B&#xD;&#xA;    private static EntryType? BuildType = EntryType.$(SptBuildType)%3B&#xD;&#xA;}&#xD;&#xA;" Overwrite="true" />
   </Target>
 </Project>

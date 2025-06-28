@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -6,7 +7,6 @@ using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Utils;
 using BodyPartHealth = SPTarkov.Server.Core.Models.Eft.Common.Tables.BodyPartHealth;
-using Vitality = SPTarkov.Server.Core.Models.Eft.Profile.Vitality;
 
 namespace SPTarkov.Server.Core.Helpers;
 
@@ -18,7 +18,7 @@ public class HealthHelper(
     ConfigServer _configServer
 )
 {
-    protected HealthConfig _healthConfig = _configServer.GetConfig<HealthConfig>();
+    protected readonly HealthConfig _healthConfig = _configServer.GetConfig<HealthConfig>();
 
     /// <summary>
     ///     Resets the profiles vitality/health and vitality/effects properties to their defaults
@@ -29,80 +29,9 @@ public class HealthHelper(
     {
         var profile = _saveServer.GetProfile(sessionID);
 
-        DefaultVitality(profile.VitalityData);
+        profile.VitalityData.SetDefaults();
 
         return profile;
-    }
-
-    public void DefaultVitality(Vitality? vitality)
-    {
-        vitality ??= new Vitality
-        {
-            Health = null,
-            Energy = 0,
-            Temperature = 0,
-            Hydration = 0,
-        };
-
-        vitality.Health = new Dictionary<string, BodyPartHealth>
-        {
-            {
-                "Head",
-                new BodyPartHealth
-                {
-                    Health = new CurrentMinMax { Current = 0 },
-                    Effects = new Dictionary<string, BodyPartEffectProperties>(),
-                }
-            },
-            {
-                "Chest",
-                new BodyPartHealth
-                {
-                    Health = new CurrentMinMax { Current = 0 },
-                    Effects = new Dictionary<string, BodyPartEffectProperties>(),
-                }
-            },
-            {
-                "Stomach",
-                new BodyPartHealth
-                {
-                    Health = new CurrentMinMax { Current = 0 },
-                    Effects = new Dictionary<string, BodyPartEffectProperties>(),
-                }
-            },
-            {
-                "LeftArm",
-                new BodyPartHealth
-                {
-                    Health = new CurrentMinMax { Current = 0 },
-                    Effects = new Dictionary<string, BodyPartEffectProperties>(),
-                }
-            },
-            {
-                "RightArm",
-                new BodyPartHealth
-                {
-                    Health = new CurrentMinMax { Current = 0 },
-                    Effects = new Dictionary<string, BodyPartEffectProperties>(),
-                }
-            },
-            {
-                "LeftLeg",
-                new BodyPartHealth
-                {
-                    Health = new CurrentMinMax { Current = 0 },
-                    Effects = new Dictionary<string, BodyPartEffectProperties>(),
-                }
-            },
-            {
-                "RightLeg",
-                new BodyPartHealth
-                {
-                    Health = new CurrentMinMax { Current = 0 },
-                    Effects = new Dictionary<string, BodyPartEffectProperties>(),
-                }
-            },
-        };
     }
 
     /// <summary>
