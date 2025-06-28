@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -1309,11 +1310,7 @@ public class RagfairController
             Action = "TradingConfirm",
             SchemeItems =
             [
-                new IdWithCount
-                {
-                    Id = _paymentHelper.GetCurrency(currency),
-                    Count = Math.Round(value),
-                },
+                new IdWithCount { Id = currency.GetCurrencyTpl(), Count = Math.Round(value) },
             ],
             Type = "",
             ItemId = "",

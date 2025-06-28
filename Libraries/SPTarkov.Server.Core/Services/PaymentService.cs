@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -122,7 +123,7 @@ public class PaymentService(
                 // Convert the amount to the trader's currency and update the sales sum.
                 var costOfPurchaseInCurrency = _handbookHelper.FromRUB(
                     _handbookHelper.InRUB(currencyAmount ?? 0, currencyTpl),
-                    _paymentHelper.GetCurrency(trader.Currency)
+                    trader.Currency.Value.GetCurrencyTpl()
                 );
 
                 // Only update traders
@@ -138,7 +139,7 @@ public class PaymentService(
             // Convert the handbook price to the trader's currency and update the sales sum.
             var costOfPurchaseInCurrency = _handbookHelper.FromRUB(
                 GetTraderItemHandbookPriceRouble(request.ItemId, request.TransactionId) ?? 0,
-                _paymentHelper.GetCurrency(trader.Currency)
+                trader.Currency.Value.GetCurrencyTpl()
             );
 
             pmcData.TradersInfo[request.TransactionId].SalesSum += costOfPurchaseInCurrency;
@@ -211,7 +212,7 @@ public class PaymentService(
             return;
         }
 
-        var currencyTpl = _paymentHelper.GetCurrency(trader.Currency);
+        var currencyTpl = trader.Currency.Value.GetCurrencyTpl();
         var calcAmount = _handbookHelper.FromRUB(
             _handbookHelper.InRUB(amountToSend ?? 0, currencyTpl),
             currencyTpl
