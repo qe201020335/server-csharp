@@ -37,40 +37,40 @@ public class HealthHelper(
     /// <summary>
     ///     Update player profile vitality values with changes from client request object
     /// </summary>
-    /// <param name="pmcData">Player profile</param>
-    /// <param name="postRaidHealth">Post raid data</param>
     /// <param name="sessionID">Session id</param>
-    /// <param name="isDead">Is player dead</param>
-    public void UpdateProfileHealthPostRaid(
-        PmcData pmcData,
-        BotBaseHealth postRaidHealth,
+    /// <param name="pmcProfileToUpdate">Player profile to apply changes to</param>
+    /// <param name="healthChanges">Changes to apply </param>
+    /// <param name="isDead">OPTIONAL - Is player dead</param>
+    public void ApplyHealthChangesToProfile(
         string sessionID,
-        bool isDead
+        PmcData pmcProfileToUpdate,
+        BotBaseHealth healthChanges,
+        bool isDead = false
     )
     {
         var fullProfile = _saveServer.GetProfile(sessionID);
         var profileEdition = fullProfile.ProfileInfo.Edition;
         var profileSide = fullProfile.CharacterData.PmcData.Info.Side;
 
-        // Get matching 'side e.g. USEC
+        // Get matching 'side' e.g. USEC
         var matchingSide = _profileHelper.GetProfileTemplateForSide(profileEdition, profileSide);
 
         var defaultTemperature =
             matchingSide?.Character?.Health?.Temperature ?? new CurrentMinMax { Current = 36.6 };
 
         fullProfile.StoreHydrationEnergyTempInProfile(
-            postRaidHealth.Hydration.Current ?? 0,
-            postRaidHealth.Energy.Current ?? 0,
+            healthChanges.Hydration.Current ?? 0,
+            healthChanges.Energy.Current ?? 0,
             defaultTemperature.Current ?? 0 // Reset profile temp to the default to prevent very cold/hot temps persisting into next raid
         );
 
         // Store limb effects from post-raid in profile
-        foreach (var bodyPart in postRaidHealth.BodyParts)
+        foreach (var bodyPart in healthChanges.BodyParts)
         {
             // Effects
-            if (postRaidHealth.BodyParts[bodyPart.Key].Effects is not null)
+            if (healthChanges.BodyParts[bodyPart.Key].Effects is not null)
             {
-                fullProfile.VitalityData.Health[bodyPart.Key].Effects = postRaidHealth
+                fullProfile.VitalityData.Health[bodyPart.Key].Effects = healthChanges
                     .BodyParts[bodyPart.Key]
                     .Effects;
             }
@@ -80,75 +80,77 @@ public class HealthHelper(
             // Player alive, not is limb alive
             {
                 fullProfile.VitalityData.Health[bodyPart.Key].Health.Current =
-                    postRaidHealth.BodyParts[bodyPart.Key].Health.Current ?? 0;
+                    healthChanges.BodyParts[bodyPart.Key].Health.Current ?? 0;
             }
             else
             {
                 fullProfile.VitalityData.Health[bodyPart.Key].Health.Current =
-                    pmcData.Health.BodyParts[bodyPart.Key].Health.Maximum
+                    pmcProfileToUpdate.Health.BodyParts[bodyPart.Key].Health.Maximum
                         * _healthConfig.HealthMultipliers.Death
                     ?? 0;
             }
         }
-
-        TransferPostRaidLimbEffectsToProfile(postRaidHealth.BodyParts, pmcData);
+        // Alter saved profiles Health with values from post-raid client data
+        ModifyProfileHeathProperties(
+            healthChanges.BodyParts,
+            pmcProfileToUpdate,
+            ["Dehydration", "Exhaustion"]
+        );
 
         // Adjust hydration/energy/temp and limb hp using temp storage hydrated above
-        SaveHealth(pmcData, sessionID);
+        SaveHealth(pmcProfileToUpdate, sessionID);
 
         // Reset temp storage
         ResetVitality(sessionID);
 
         // Update last edited timestamp
-        pmcData.Health.UpdateTime = _timeUtil.GetTimeStamp();
+        pmcProfileToUpdate.Health.UpdateTime = _timeUtil.GetTimeStamp();
     }
 
     /// <summary>
-    ///     Take body part effects from client profile and apply to server profile
+    ///     Apply Health values to profile
     /// </summary>
-    /// <param name="postRaidBodyParts">Post-raid body part data</param>
-    /// <param name="profileData">Player profile on server</param>
-    protected void TransferPostRaidLimbEffectsToProfile(
-        Dictionary<string, BodyPartHealth> postRaidBodyParts,
-        PmcData profileData
+    /// <param name="bodyPartChanges">Changes to apply</param>
+    /// <param name="profileToAdjust">Player profile on server</param>
+    /// <param name="effectsToSkip"></param>
+    protected void ModifyProfileHeathProperties(
+        Dictionary<string, BodyPartHealth> bodyPartChanges,
+        PmcData profileToAdjust,
+        HashSet<string>? effectsToSkip = null
     )
     {
-        // Iterate over each body part
-        HashSet<string> effectsToIgnore = ["Dehydration", "Exhaustion"];
-        foreach (var bodyPartId in postRaidBodyParts)
+        foreach (var (partName, partProperties) in bodyPartChanges)
         {
-            // Get effects on body part from profile
-            var bodyPartEffects = postRaidBodyParts[bodyPartId.Key].Effects;
-            foreach (var (key, effectDetails) in bodyPartEffects)
+            // Process each effect for each part
+            foreach (var (key, effectDetails) in partProperties.Effects)
             {
                 // Null guard
-                profileData.Health.BodyParts[bodyPartId.Key].Effects ??=
-                    new Dictionary<string, BodyPartEffectProperties>();
+                var matchingProfilePart = profileToAdjust.Health.BodyParts[partName];
+                matchingProfilePart.Effects ??= new Dictionary<string, BodyPartEffectProperties>();
 
                 // Effect already exists on limb in server profile, skip
-                var profileBodyPartEffects = profileData.Health.BodyParts[bodyPartId.Key].Effects;
-                if (profileBodyPartEffects.ContainsKey(key))
+                if (matchingProfilePart.Effects.ContainsKey(key))
                 {
-                    if (effectsToIgnore.Contains(key))
-                    // Get rid of certain effects we don't want to persist out of raid
+                    // Edge case - effect already exists at destination, but we don't want to overwrite details
+                    if (effectsToSkip is not null && effectsToSkip.Contains(key))
                     {
-                        profileBodyPartEffects[key] = null;
+                        matchingProfilePart.Effects[key] = null;
                     }
 
                     continue;
                 }
 
-                if (effectsToIgnore.Contains(key))
-                // Do not pass some effects to out of raid profile
+                if (effectsToSkip is not null && effectsToSkip.Contains(key))
+                // Do not pass skipped effect into profile
                 {
                     continue;
                 }
 
                 var effectToAdd = new BodyPartEffectProperties { Time = effectDetails.Time ?? -1 };
                 // Add effect to server profile
-                if (profileBodyPartEffects.TryAdd(key, effectToAdd))
+                if (matchingProfilePart.Effects.TryAdd(key, effectToAdd))
                 {
-                    profileBodyPartEffects[key] = effectToAdd;
+                    matchingProfilePart.Effects[key] = effectToAdd;
                 }
             }
         }
@@ -187,22 +189,21 @@ public class HealthHelper(
         pmcData.Health.Energy.Current = Math.Round(profileHealth.Energy ?? 0);
         pmcData.Health.Temperature.Current = Math.Round(profileHealth.Temperature ?? 0);
 
-        foreach (var bodyPart in pmcData.Health.BodyParts)
+        foreach (var (partName, partProperties) in pmcData.Health.BodyParts)
         {
-            if (profileHealth.Health[bodyPart.Key].Health.Maximum > bodyPart.Value.Health.Maximum)
+            var matchingProfilePart = profileHealth.Health[partName];
+            if (matchingProfilePart.Health.Maximum > partProperties.Health.Maximum)
             {
-                profileHealth.Health[bodyPart.Key].Health.Maximum = bodyPart.Value.Health.Maximum;
+                matchingProfilePart.Health.Maximum = partProperties.Health.Maximum;
             }
 
-            if (profileHealth.Health[bodyPart.Key].Health.Current == 0)
+            if (matchingProfilePart.Health.Current == 0)
             {
-                profileHealth.Health[bodyPart.Key].Health.Current =
-                    bodyPart.Value.Health.Maximum * _healthConfig.HealthMultipliers.Blacked;
+                matchingProfilePart.Health.Current =
+                    partProperties.Health.Maximum * _healthConfig.HealthMultipliers.Blacked;
             }
 
-            bodyPart.Value.Health.Current = Math.Round(
-                profileHealth.Health[bodyPart.Key].Health.Current ?? 0
-            );
+            partProperties.Health.Current = Math.Round(matchingProfilePart.Health.Current ?? 0);
         }
     }
 

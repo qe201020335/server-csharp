@@ -459,7 +459,7 @@ public class LocationLifecycleService
         {
             // Manually store the map player just left
             request.LocationTransit.SptLastVisitedLocation = locationName;
-            // TODO - Persist each players last visited location history over multiple transits, e.g using InMemoryCacheService, need to take care to not let data get stored forever
+            // TODO - Persist each players last visited location history over multiple transits, e.g. using InMemoryCacheService, need to take care to not let data get stored forever
             // Store transfer data for later use in `startLocalRaid()` when next raid starts
             request.LocationTransit.SptExitName = request.Results.ExitName;
             _profileActivityService.GetProfileActivityRaidData(sessionId).LocationTransit =
@@ -881,7 +881,7 @@ public class LocationLifecycleService
     ///     Handles PMC Profile after the raid
     /// </summary>
     /// <param name="sessionId"> Player id </param>
-    /// <param name="fullProfile"> Pmc profile </param>
+    /// <param name="fullServerProfile"> Pmc profile from server</param>
     /// <param name="scavProfile"> Scav profile </param>
     /// <param name="isDead"> Player died/got left behind in raid </param>
     /// <param name="isSurvived"> Not same as opposite of `isDead`, specific status </param>
@@ -890,7 +890,7 @@ public class LocationLifecycleService
     /// <param name="locationName"> Current finished Raid location </param>
     protected void HandlePostRaidPmc(
         string sessionId,
-        SptProfile fullProfile,
+        SptProfile fullServerProfile,
         PmcData scavProfile,
         bool isDead,
         bool isSurvived,
@@ -899,78 +899,84 @@ public class LocationLifecycleService
         string locationName
     )
     {
-        var pmcProfile = fullProfile.CharacterData.PmcData;
+        var serverPmcProfile = fullServerProfile.CharacterData.PmcData;
         var postRaidProfile = request.Results.Profile;
-        var preRaidProfileQuestDataClone = _cloner.Clone(pmcProfile.Quests);
+        var preRaidProfileQuestDataClone = _cloner.Clone(serverPmcProfile.Quests);
 
         // MUST occur BEFORE inventory actions (setInventory()) occur
         // Player died, get quest items they lost for use later
         var lostQuestItems = postRaidProfile.GetQuestItemsInProfile();
 
         // Update inventory
-        _inRaidHelper.SetInventory(sessionId, pmcProfile, postRaidProfile, isSurvived, isTransfer);
+        _inRaidHelper.SetInventory(
+            sessionId,
+            serverPmcProfile,
+            postRaidProfile,
+            isSurvived,
+            isTransfer
+        );
 
-        pmcProfile.Info.Level = postRaidProfile.Info.Level;
-        pmcProfile.Skills = postRaidProfile.Skills;
-        pmcProfile.Stats.Eft = postRaidProfile.Stats.Eft;
-        pmcProfile.Encyclopedia = postRaidProfile.Encyclopedia;
-        pmcProfile.TaskConditionCounters = postRaidProfile.TaskConditionCounters;
-        pmcProfile.SurvivorClass = postRaidProfile.SurvivorClass;
+        serverPmcProfile.Info.Level = postRaidProfile.Info.Level;
+        serverPmcProfile.Skills = postRaidProfile.Skills;
+        serverPmcProfile.Stats.Eft = postRaidProfile.Stats.Eft;
+        serverPmcProfile.Encyclopedia = postRaidProfile.Encyclopedia;
+        serverPmcProfile.TaskConditionCounters = postRaidProfile.TaskConditionCounters;
+        serverPmcProfile.SurvivorClass = postRaidProfile.SurvivorClass;
 
         // MUST occur prior to profile achievements being overwritten by post-raid achievements
-        ProcessAchievementRewards(fullProfile, postRaidProfile.Achievements);
+        ProcessAchievementRewards(fullServerProfile, postRaidProfile.Achievements);
 
-        pmcProfile.Achievements = postRaidProfile.Achievements;
-        pmcProfile.Quests = ProcessPostRaidQuests(postRaidProfile.Quests);
+        serverPmcProfile.Achievements = postRaidProfile.Achievements;
+        serverPmcProfile.Quests = ProcessPostRaidQuests(postRaidProfile.Quests);
 
         // Handle edge case - must occur AFTER processPostRaidQuests()
         LightkeeperQuestWorkaround(
             sessionId,
             postRaidProfile.Quests,
             preRaidProfileQuestDataClone,
-            pmcProfile
+            serverPmcProfile
         );
 
-        pmcProfile.WishList = postRaidProfile.WishList;
+        serverPmcProfile.WishList = postRaidProfile.WishList;
 
-        pmcProfile.Info.Experience = postRaidProfile.Info.Experience;
+        serverPmcProfile.Info.Experience = postRaidProfile.Info.Experience;
 
-        ApplyTraderStandingAdjustments(pmcProfile.TradersInfo, postRaidProfile.TradersInfo);
+        ApplyTraderStandingAdjustments(serverPmcProfile.TradersInfo, postRaidProfile.TradersInfo);
 
         // Must occur AFTER experience is set and stats copied over
-        pmcProfile.Stats.Eft.TotalSessionExperience = 0;
+        serverPmcProfile.Stats.Eft.TotalSessionExperience = 0;
 
         const string fenceId = Traders.FENCE;
 
         // Clamp fence standing
         var currentFenceStanding = postRaidProfile.TradersInfo[fenceId].Standing;
-        pmcProfile.TradersInfo[fenceId].Standing = Math.Min(
+        serverPmcProfile.TradersInfo[fenceId].Standing = Math.Min(
             Math.Max((double)currentFenceStanding, -7),
             15
         ); // Ensure it stays between -7 and 15
 
         // Copy fence values to Scav
-        scavProfile.TradersInfo[fenceId] = pmcProfile.TradersInfo[fenceId];
+        scavProfile.TradersInfo[fenceId] = serverPmcProfile.TradersInfo[fenceId];
 
         // MUST occur AFTER encyclopedia updated
-        MergePmcAndScavEncyclopedias(pmcProfile, scavProfile);
+        MergePmcAndScavEncyclopedias(serverPmcProfile, scavProfile);
 
         // Handle temp, hydration, limb hp/effects
-        _healthHelper.UpdateProfileHealthPostRaid(
-            pmcProfile,
-            postRaidProfile.Health,
+        _healthHelper.ApplyHealthChangesToProfile(
             sessionId,
+            serverPmcProfile,
+            postRaidProfile.Health,
             isDead
         );
 
         if (isTransfer)
         {
             // Adjust limb hp and effects while transiting
-            UpdateLimbValuesAfterTransit(pmcProfile.Health);
+            UpdateLimbValuesAfterTransit(serverPmcProfile.Health);
         }
 
         // This must occur _BEFORE_ `deleteInventory`, as that method clears insured items
-        HandleInsuredItemLostEvent(sessionId, pmcProfile, request, locationName);
+        HandleInsuredItemLostEvent(sessionId, serverPmcProfile, request, locationName);
 
         if (isDead)
         {
@@ -978,7 +984,11 @@ public class LocationLifecycleService
             // MUST occur AFTER quests have post raid quest data has been merged "processPostRaidQuests()"
             // Player is dead + had quest items, check and fix any broken find item quests
             {
-                CheckForAndFixPickupQuestsAfterDeath(sessionId, lostQuestItems, pmcProfile.Quests);
+                CheckForAndFixPickupQuestsAfterDeath(
+                    sessionId,
+                    lostQuestItems,
+                    serverPmcProfile.Quests
+                );
             }
 
             if (postRaidProfile.Stats.Eft.Aggressor is not null)
@@ -987,16 +997,16 @@ public class LocationLifecycleService
                 postRaidProfile.Stats.Eft.Aggressor.ProfileId = request.Results.KillerId;
                 _pmcChatResponseService.SendKillerResponse(
                     sessionId,
-                    pmcProfile,
+                    serverPmcProfile,
                     postRaidProfile.Stats.Eft.Aggressor
                 );
             }
 
-            _inRaidHelper.DeleteInventory(pmcProfile, sessionId);
+            _inRaidHelper.DeleteInventory(serverPmcProfile, sessionId);
 
             _inRaidHelper.RemoveFiRStatusFromItemsInContainer(
                 sessionId,
-                pmcProfile,
+                serverPmcProfile,
                 "SecuredContainer"
             );
         }
@@ -1012,7 +1022,7 @@ public class LocationLifecycleService
         if (victims?.Count > 0)
         // Player killed PMCs, send some mail responses to them
         {
-            _pmcChatResponseService.SendVictimResponse(sessionId, victims, pmcProfile);
+            _pmcChatResponseService.SendVictimResponse(sessionId, victims, serverPmcProfile);
         }
     }
 
