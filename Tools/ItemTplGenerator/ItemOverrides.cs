@@ -94,6 +94,14 @@ public class ItemOverrides
             { "66da1b49099cf6adcc07a36b", "Airdrop technical supply crate event 1" },
             { "66da1b546916142b3b022777", "Airdrop technical supply crate event 2" },
             { "61a89e5445a2672acf66c877", "Airdrop technical supply crate event 3" },
+            // Containers
+            { "5d6fd45b86f774317075ed43", "LOOTCONTAINER_TECHNICAL_SUPPLY_CRATE_5X5_2" },
+            { "5909d50c86f774659e6aaebe", "LOOTCONTAINER_TOOLBOX_4X3_2" },
+            { "5909d45286f77465a8136dc6", "LOOTCONTAINER_WOODEN_AMMO_BOX_3X3_2" },
+            { "5909d36d86f774660f0bb900", "LOOTCONTAINER_GRENADE_BOX_3X2_2" },
+            { "67adf4a95247ac91530fcec7", "LOOTCONTAINER_JACKET_2X2_2" },
+            { "67adf4db515e3dd542077a1d", "LOOTCONTAINER_WOODEN_CRATE_5X2_2" },
+            { "67adf5752fc5ee84020a9940", "LOOTCONTAINER_DEAD_SCAV_4X4_2" },
             // Posters
             { "6759e7a44ff23436160d7ff5", "Girl poster 4" },
             { "6759e8b1c3102563bd01c985", "Girl poster 5" },
@@ -101,6 +109,7 @@ public class ItemOverrides
             { "675a046b8f547d6cae01922e", "Arena poster 2" },
             { "6759e61067c8eb5cd10352f1", "Girl poster 2" },
             { "6759e6c39422e1708e0e9b81", "Girl poster 3" },
+            { "675a04c01474133a0d0bb212", "Arena poster 3" },
             // Keys
             { "63a71f1a0aa9fb29da61c537", "City key 26" },
             { "590de52486f774226a0c24c2", "Machinery tech key" },
@@ -112,6 +121,10 @@ public class ItemOverrides
             { "675dc9d37ae1a8792107ca96", "Dogtag BEAR Prestige 1" },
             { "675dcb0545b1a2d108011b2b", "Dogtag BEAR Prestige 2" },
             { "6764202ae307804338014c1a", "Dogtag USEC Prestige 2" },
+            // Face masks
+            { "6176a40f0b8c0312ac75a3d3", "FACECOVER_GHOUL_MASK_2" },
+            { "5bd06f5d86f77427101ad47c", "FACECOVER_SLENDER_MASK_2" },
+            { "635267ab3c89e2112001f826", "FACECOVER_SPOOKY_SKULL_MASK_2" },
         }
     );
 }
