@@ -24,13 +24,13 @@ public class ItemTplGenerator(
 )
 {
     private readonly HashSet<string> collidedEnumKeys = [];
-    private string enumDir;
-    private IDictionary<string, string> itemOverrides;
-    private Dictionary<string, TemplateItem> items;
+    private string _enumDir;
+    private IDictionary<string, string> _itemOverrides;
+    private Dictionary<string, TemplateItem> _items;
 
     public async Task Run()
     {
-        itemOverrides = ItemOverrides.ItemOverridesDictionary;
+        _itemOverrides = ItemOverrides.ItemOverridesDictionary;
         // Load all onload components, this gives us access to most of SPTs injections
         foreach (var onLoad in _onLoadComponents)
         {
@@ -44,21 +44,21 @@ public class ItemTplGenerator(
 
         // Figure out our source and target directories
         var projectDir = Directory.GetParent("./").Parent.Parent.Parent.Parent.Parent;
-        enumDir = Path.Combine(
+        _enumDir = Path.Combine(
             projectDir.FullName,
             "Libraries",
             "SPTarkov.Server.Core",
             "Models",
             "Enums"
         );
-        items = _databaseServer.GetTables().Templates.Items;
+        _items = _databaseServer.GetTables().Templates.Items;
 
         // Generate an object containing all item name to ID associations
         var orderedItemsObject = GenerateItemsObject();
 
         // Log any changes to enum values, so the source can be updated as required
         LogEnumValueChanges(orderedItemsObject, "ItemTpl", typeof(ItemTpl));
-        var itemTplOutPath = Path.Combine(enumDir, "ItemTpl.cs");
+        var itemTplOutPath = Path.Combine(_enumDir, "ItemTpl.cs");
         WriteEnumsToFile(
             itemTplOutPath,
             new Dictionary<string, Dictionary<string, string>>
@@ -70,7 +70,7 @@ public class ItemTplGenerator(
         // Handle the weapon type enums
         var weaponsObject = GenerateWeaponsObject();
         LogEnumValueChanges(weaponsObject, "Weapons", typeof(Weapons));
-        var weaponTypeOutPath = Path.Combine(enumDir, "Weapons.cs");
+        var weaponTypeOutPath = Path.Combine(_enumDir, "Weapons.cs");
         WriteEnumsToFile(
             weaponTypeOutPath,
             new Dictionary<string, Dictionary<string, string>>
@@ -89,7 +89,7 @@ public class ItemTplGenerator(
     private Dictionary<string, string> GenerateItemsObject()
     {
         var itemsObject = new Dictionary<string, string>();
-        foreach (var item in items.Values)
+        foreach (var item in _items.Values)
         {
             // Skip invalid items (Non-Item types, and shrapnel)
             if (!IsValidItem(item))
@@ -148,7 +148,7 @@ public class ItemTplGenerator(
                     if (itemsObject.ContainsKey(itemKey))
                     {
                         var oldItemId = itemsObject[itemKey];
-                        var oldItemNameSuffix = GetItemNameSuffix(items[oldItemId]);
+                        var oldItemNameSuffix = GetItemNameSuffix(_items[oldItemId]);
                         if (!string.IsNullOrEmpty(oldItemNameSuffix))
                         {
                             var oldItemNewKey = SanitizeEnumKey($"{itemKey}_{oldItemNameSuffix}");
@@ -192,7 +192,7 @@ public class ItemTplGenerator(
         var weaponsObject = new Dictionary<string, string>();
         foreach (
             var kv /*[itemId, item]*/
-            in items
+            in _items
         )
         {
             if (!_itemHelper.IsOfBaseclass(kv.Key, BaseClasses.WEAPON))
@@ -313,7 +313,7 @@ public class ItemTplGenerator(
         }
 
         var parentId = item.Parent;
-        return items[parentId].Name.ToUpper();
+        return _items[parentId].Name.ToUpper();
     }
 
     private bool IsValidItem(TemplateItem item)
@@ -424,7 +424,7 @@ public class ItemTplGenerator(
             0
         ]?.Filter?.FirstOrDefault();
 
-        return GetAmmoPrefix(items[ammoItem]);
+        return GetAmmoPrefix(_items[ammoItem]);
     }
 
     private string GetMagazinePrefix(TemplateItem item)
@@ -433,7 +433,7 @@ public class ItemTplGenerator(
             0
         ]?.Filter?.FirstOrDefault();
 
-        return GetAmmoPrefix(items[ammoItem]);
+        return GetAmmoPrefix(_items[ammoItem]);
     }
 
     /// <summary>
@@ -447,9 +447,9 @@ public class ItemTplGenerator(
         var localeDb = _localeService.GetLocaleDb();
 
         // Manual item name overrides
-        if (itemOverrides.ContainsKey(item.Id))
+        if (_itemOverrides.ContainsKey(item.Id))
         {
-            itemName = itemOverrides[item.Id].ToUpper();
+            itemName = _itemOverrides[item.Id].ToUpper();
         }
         // For the listed types, user the item's _name property
         else if (

@@ -36,11 +36,11 @@ public class GameController(
     ProfileActivityService _profileActivityService
 )
 {
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
-    protected double _deviation = 0.0001;
-    protected HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
-    protected HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly double _deviation = 0.0001;
+    protected readonly HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
+    protected readonly HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
 
     /// <summary>
     ///     Handle client/game/start
