@@ -13,7 +13,6 @@ using SPTarkov.Server.Core.Routers;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
-using Vitality = SPTarkov.Server.Core.Models.Eft.Profile.Vitality;
 
 namespace SPTarkov.Server.Core.Services;
 
@@ -114,7 +113,6 @@ public class CreateProfileService(
             UserBuildData = profileTemplateClone.UserBuilds,
             DialogueRecords = profileTemplateClone.Dialogues,
             SptData = _profileHelper.GetDefaultSptDataObject(),
-            VitalityData = new Vitality(),
             InraidData = new Inraid(),
             InsuranceList = [],
             BtrDeliveryList = [],

@@ -34,9 +34,6 @@ public record SptProfile
     [JsonPropertyName("spt")]
     public Spt? SptData { get; set; }
 
-    [JsonPropertyName("vitality")]
-    public Vitality? VitalityData { get; set; }
-
     [JsonPropertyName("inraid")]
     public Inraid? InraidData { get; set; }
 
@@ -512,24 +509,6 @@ public record ReceivedGift
 
     [JsonPropertyName("current")]
     public int? Current { get; set; }
-}
-
-public record Vitality
-{
-    [JsonExtensionData]
-    public Dictionary<string, object>? ExtensionData { get; set; }
-
-    [JsonPropertyName("Hydration")]
-    public double? Hydration { get; set; }
-
-    [JsonPropertyName("Energy")]
-    public double? Energy { get; set; }
-
-    [JsonPropertyName("Temperature")]
-    public double? Temperature { get; set; }
-
-    [JsonPropertyName("Health")] // This now does health and effects to each bodypart
-    public Dictionary<string, BodyPartHealth>? Health { get; set; }
 }
 
 public record Inraid
