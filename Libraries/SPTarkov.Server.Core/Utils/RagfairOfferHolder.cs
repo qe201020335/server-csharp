@@ -338,15 +338,13 @@ public class RagfairOfferHolder(
                 var offer = GetOfferById(expiredOfferId);
                 if (offer is null)
                 {
-                    _logger.Warning($"offerId: {expiredOfferId} was not found !!");
+                    _logger.Warning($"Expired offerId: {expiredOfferId} not found, skipping");
                     continue;
                 }
 
                 if (offer.Items?.Count == 0)
                 {
-                    _logger.Error(
-                        $"Unable to process expired offer: {expiredOfferId}, it has no items"
-                    );
+                    _logger.Error($"Expired offerId: {expiredOfferId} has no items, skipping");
                     continue;
                 }
 
