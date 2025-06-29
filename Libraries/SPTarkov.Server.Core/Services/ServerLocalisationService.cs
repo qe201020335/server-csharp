@@ -11,19 +11,20 @@ namespace SPTarkov.Server.Core.Services;
 /// </summary>
 [Injectable(InjectionType.Singleton)]
 public class ServerLocalisationService(
-    ISptLogger<ServerLocalisationService> _logger,
-    RandomUtil _randomUtil,
-    LocaleService _localeService,
-    JsonUtil _jsonUtil,
-    FileUtil _fileUtil
+    ISptLogger<ServerLocalisationService> logger,
+    RandomUtil randomUtil,
+    LocaleService localeService,
+    JsonUtil jsonUtil,
+    FileUtil fileUtil
 )
 {
     private readonly Dictionary<string, LazyLoad<Dictionary<string, string>>> _loadedLocales = [];
-    private string _serverLocale = _localeService.GetDesiredServerLocale();
+    private string _serverLocale = localeService.GetDesiredServerLocale();
     private readonly Dictionary<string, string> _localeFallbacks =
-        _localeService.GetLocaleFallbacks();
-    private readonly string _defaultLocale = "en";
-    private readonly string _localeDirectory = "./SPT_Data/database/locales/server";
+        localeService.GetLocaleFallbacks();
+
+    private const string DefaultLocale = "en";
+    private const string LocaleDirectory = "./SPT_Data/database/locales/server";
     private bool _serverLocalesHydrated = false;
 
     protected void HydrateServerLocales()
@@ -33,30 +34,30 @@ public class ServerLocalisationService(
             return;
         }
 
-        var files = _fileUtil
-            .GetFiles(_localeDirectory, true)
-            .Where(f => _fileUtil.GetFileExtension(f) == "json")
+        var files = fileUtil
+            .GetFiles(LocaleDirectory, true)
+            .Where(f => fileUtil.GetFileExtension(f) == "json")
             .ToList();
 
         if (files.Count == 0)
         {
-            throw new Exception($"Localisation files in directory {_localeDirectory} not found.");
+            throw new Exception($"Localisation files in directory {LocaleDirectory} not found.");
         }
 
         foreach (var file in files)
         {
             _loadedLocales.Add(
-                _fileUtil.StripExtension(file),
+                fileUtil.StripExtension(file),
                 new LazyLoad<Dictionary<string, string>>(() =>
-                    _jsonUtil.DeserializeFromFile<Dictionary<string, string>>(file) ?? []
+                    jsonUtil.DeserializeFromFile<Dictionary<string, string>>(file) ?? []
                 )
             );
         }
 
-        if (!_loadedLocales.ContainsKey(_defaultLocale))
+        if (!_loadedLocales.ContainsKey(DefaultLocale))
         {
             throw new Exception(
-                $"The default locale '{_defaultLocale}' does not exist on the loaded locales."
+                $"The default locale '{DefaultLocale}' does not exist on the loaded locales."
             );
         }
 
@@ -85,7 +86,7 @@ public class ServerLocalisationService(
                 _serverLocale = foundFallbackLocale;
             }
 
-            _serverLocale = _defaultLocale;
+            _serverLocale = DefaultLocale;
         }
     }
 
@@ -132,12 +133,12 @@ public class ServerLocalisationService(
 
         if (matchingKeys.Count == 0)
         {
-            _logger.Warning($"No locale keys found for: {partialKey}");
+            logger.Warning($"No locale keys found for: {partialKey}");
 
             return string.Empty;
         }
 
-        return GetText(_randomUtil.GetArrayValue(matchingKeys));
+        return GetText(randomUtil.GetArrayValue(matchingKeys));
     }
 
     public string GetLocalisedValue(string key)
@@ -160,11 +161,11 @@ public class ServerLocalisationService(
         {
             // if the key is not found in loaded locales
             // check if the key is found in the default locale
-            _loadedLocales.TryGetValue(_defaultLocale, out var defaults);
+            _loadedLocales.TryGetValue(DefaultLocale, out var defaults);
             if (!defaults.Value.TryGetValue(key, out value))
             {
-                value = _localeService
-                    .GetLocaleDb(_defaultLocale)
+                value = localeService
+                    .GetLocaleDb(DefaultLocale)
                     .FirstOrDefault(x => x.Key == key)
                     .Value;
             }
