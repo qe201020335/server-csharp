@@ -49,7 +49,7 @@ public class HideoutCraftQuestIdGenerator(
         // Figure out our source and target directories
         var projectDir = Directory.GetParent("./").Parent.Parent.Parent.Parent.Parent;
         const string productionPath =
-            "Libraries\\SPTarkov.Server.Assets\\Assets\\database\\hideout\\production.json";
+            "Libraries\\SPTarkov.Server.Assets\\SPT_Data\\database\\hideout\\production.json";
         var productionFilePath = Path.Combine(projectDir.FullName, productionPath);
 
         var updatedProductionJson = _jsonUtil.Serialize(
