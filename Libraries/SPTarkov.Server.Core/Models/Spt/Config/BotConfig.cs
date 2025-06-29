@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 
@@ -138,6 +139,21 @@ public record BotConfig : BaseConfig
     /// </summary>
     [JsonPropertyName("botRolesThatMustHaveUniqueName")]
     public required HashSet<string> BotRolesThatMustHaveUniqueName { get; set; }
+
+    /// <summary>
+    ///     Bot roles that must have a unique name when generated vs other bots in raid
+    /// </summary>
+    [JsonPropertyName("weeklyBoss")]
+    public required WeeklyBossSettings WeeklyBoss { get; set; }
+}
+
+public record WeeklyBossSettings
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("bossPool")]
+    public List<WildSpawnType> BossPool { get; set; }
 }
 
 /// <summary>

@@ -106,5 +106,23 @@
 
             return dateToCheck >= eventStartDate && dateToCheck <= eventEndDate;
         }
+
+        /// <summary>
+        /// Get the closest monday to passed in datetime
+        /// </summary>
+        /// <param name="dateTime">Date to get closest monday of</param>
+        /// <param name="startDay">Starting day of week - Default = Monday</param>
+        /// <returns>Monday as DateTime</returns>
+        public static DateTime GetStartOfWeek(
+            this DateTime dateTime,
+            DayOfWeek startDay = DayOfWeek.Monday
+        )
+        {
+            // Calculate difference from current day to Monday
+            var diff = (7 + (dateTime.DayOfWeek - startDay)) % 7;
+
+            // Subtract difference to get date of most recent Monday
+            return dateTime.AddDays(-1 * diff).Date;
+        }
     }
 }

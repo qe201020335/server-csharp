@@ -1144,6 +1144,8 @@ public record Area
     public XYZ? Size { get; set; }
 }
 
+[EftEnumConverter]
+[EftListEnumConverter]
 public enum WildSpawnType
 {
     marksman,
