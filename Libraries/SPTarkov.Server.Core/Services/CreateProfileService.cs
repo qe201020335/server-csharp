@@ -265,7 +265,7 @@ public class CreateProfileService(
 
             if (item.Id == oldEquipmentId)
             {
-                item.Id = pmcData.Inventory.Equipment;
+                item.Id = pmcData.Inventory.Equipment.Value;
             }
         }
     }
@@ -298,7 +298,7 @@ public class CreateProfileService(
             pmcData.Inventory.Items.Add(
                 new Item
                 {
-                    Id = pmcData.Inventory.HideoutCustomizationStashId,
+                    Id = pmcData.Inventory.HideoutCustomizationStashId.Value,
                     Template = ItemTpl.HIDEOUTAREACONTAINER_CUSTOMIZATION,
                 }
             );
@@ -309,7 +309,7 @@ public class CreateProfileService(
             pmcData.Inventory.Items.Add(
                 new Item
                 {
-                    Id = pmcData.Inventory.SortingTable,
+                    Id = pmcData.Inventory.SortingTable.Value,
                     Template = ItemTpl.SORTINGTABLE_SORTING_TABLE,
                 }
             );
@@ -320,7 +320,7 @@ public class CreateProfileService(
             pmcData.Inventory.Items.Add(
                 new Item
                 {
-                    Id = pmcData.Inventory.QuestStashItems,
+                    Id = pmcData.Inventory.QuestStashItems.Value,
                     Template = ItemTpl.STASH_QUESTOFFLINE,
                 }
             );
@@ -331,7 +331,7 @@ public class CreateProfileService(
             pmcData.Inventory.Items.Add(
                 new Item
                 {
-                    Id = pmcData.Inventory.QuestRaidItems,
+                    Id = pmcData.Inventory.QuestRaidItems.Value,
                     Template = ItemTpl.STASH_QUESTRAID,
                 }
             );

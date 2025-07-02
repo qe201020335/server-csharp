@@ -350,7 +350,7 @@ public class HideoutController(
 
         // Add key/value to `hideoutAreaStashes` dictionary - used to link hideout area to inventory stash by its id
         var childAreaTypeKey = ((int)childDbArea.Type).ToString();
-        if (pmcData.Inventory.HideoutAreaStashes.GetValueOrDefault(childAreaTypeKey) is null)
+        if (!pmcData.Inventory.HideoutAreaStashes.ContainsKey(childAreaTypeKey))
         {
             pmcData.Inventory.HideoutAreaStashes[childAreaTypeKey] = childDbArea.Id;
         }

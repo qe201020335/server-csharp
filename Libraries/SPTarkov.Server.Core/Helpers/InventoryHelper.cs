@@ -1326,7 +1326,7 @@ public class InventoryHelper(
         );
         if (!wasMovedToFastPanelAccessibleContainer)
         {
-            pmcData.Inventory.FastPanel[fastPanelSlot[0].ToString()] = "";
+            pmcData.Inventory.FastPanel[fastPanelSlot.ToString()] = "";
         }
     }
 

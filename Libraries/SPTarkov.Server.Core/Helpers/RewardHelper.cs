@@ -1,5 +1,6 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
@@ -16,7 +17,6 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class RewardHelper(
     ISptLogger<RewardHelper> _logger,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     ItemHelper _itemHelper,
     DatabaseService _databaseService,
@@ -354,7 +354,7 @@ public class RewardHelper(
             // This has all the original id relations since we reset the id to the original after the splitStack
             var itemsClone = new List<Item> { _cloner.Clone(target) };
             // Here we generate a new id for the root item
-            target.Id = _hashUtil.Generate();
+            target.Id = new MongoId();
 
             // Add cloned mods to root item array
             var clonedMods = _cloner.Clone(mods);

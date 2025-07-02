@@ -1136,7 +1136,7 @@ public class LocationLootGenerator(
             itemWithMods.Add(
                 new Item
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = chosenTpl,
                     Upd = new Upd { StackObjectsCount = stackCount },
                 }

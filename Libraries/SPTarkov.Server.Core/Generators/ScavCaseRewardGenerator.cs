@@ -19,7 +19,6 @@ namespace SPTarkov.Server.Core.Generators;
 public class ScavCaseRewardGenerator(
     ISptLogger<ScavCaseRewardGenerator> _logger,
     RandomUtil _randomUtil,
-    HashUtil _hashUtil,
     ItemHelper _itemHelper,
     PresetHelper _presetHelper,
     DatabaseService _databaseService,
@@ -376,7 +375,7 @@ public class ScavCaseRewardGenerator(
             [
                 new()
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = rewardItemDb.Id,
                     Upd = null,
                 },

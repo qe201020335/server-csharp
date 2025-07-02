@@ -2,6 +2,7 @@ using System.Globalization;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Notes;
@@ -22,7 +23,6 @@ public class PlayerScavGenerator(
     ISptLogger<PlayerScavGenerator> _logger,
     RandomUtil _randomUtil,
     DatabaseService _databaseService,
-    HashUtil _hashUtil,
     ItemHelper _itemHelper,
     BotGeneratorHelper _botGeneratorHelper,
     SaveServer _saveServer,
@@ -176,7 +176,7 @@ public class PlayerScavGenerator(
             {
                 new()
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = itemTemplate.Id,
                     Upd = _botGeneratorHelper.GenerateExtraPropertiesForItem(itemTemplate),
                 },

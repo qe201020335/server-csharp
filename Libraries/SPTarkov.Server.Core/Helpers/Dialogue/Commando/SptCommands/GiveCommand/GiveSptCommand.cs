@@ -10,7 +10,6 @@ using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.GiveCommand;
@@ -18,8 +17,6 @@ namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.GiveCommand
 [Injectable]
 public class GiveSptCommand(
     ISptLogger<GiveSptCommand> _logger,
-    HashUtil _hashUtil,
-    DatabaseService _databaseService,
     ItemHelper _itemHelper,
     PresetHelper _presetHelper,
     ItemFilterService _itemFilterService,
@@ -245,9 +242,7 @@ public class GiveSptCommand(
             for (var i = 0; i < quantity; i++)
             {
                 List<Item> ammoBoxArray = [];
-                ammoBoxArray.Add(
-                    new Item { Id = _hashUtil.Generate(), Template = checkedItem.Value.Id }
-                );
+                ammoBoxArray.Add(new Item { Id = new MongoId(), Template = checkedItem.Value.Id });
                 // DO NOT generate the ammo box cartridges, the mail service does it for us! :)
                 // _itemHelper.addCartridgesToAmmoBox(ammoBoxArray, checkedItem[1]);
                 itemsToSend.AddRange(ammoBoxArray);
@@ -262,7 +257,7 @@ public class GiveSptCommand(
                     itemsToSend.Add(
                         new Item
                         {
-                            Id = _hashUtil.Generate(),
+                            Id = new MongoId(),
                             Template = checkedItem.Value.Id,
                             Upd = _itemHelper.GenerateUpdForItem(checkedItem.Value),
                         }
@@ -273,7 +268,7 @@ public class GiveSptCommand(
             {
                 var itemToSend = new Item
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = checkedItem.Value.Id,
                     Upd = _itemHelper.GenerateUpdForItem(checkedItem.Value),
                 };

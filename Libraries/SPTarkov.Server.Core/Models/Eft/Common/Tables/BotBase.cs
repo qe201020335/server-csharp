@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Notes;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Enums;
@@ -434,39 +435,40 @@ public record BotBaseInventory
     public List<Item>? Items { get; set; }
 
     [JsonPropertyName("equipment")]
-    public string? Equipment { get; set; }
+    public MongoId? Equipment { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("stash")]
-    public string? Stash { get; set; }
+    public MongoId? Stash { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("sortingTable")]
-    public string? SortingTable { get; set; }
+    public MongoId? SortingTable { get; set; }
 
     [JsonPropertyName("questRaidItems")]
-    public string? QuestRaidItems { get; set; }
+    public MongoId? QuestRaidItems { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("questStashItems")]
-    public string? QuestStashItems { get; set; }
+    public MongoId? QuestStashItems { get; set; }
 
     /// <summary>
     ///     Key is hideout area enum numeric as string e.g. "24", value is area _id
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("hideoutAreaStashes")]
-    public Dictionary<string, string>? HideoutAreaStashes { get; set; }
+    // TODO: key should be EAreaType enum
+    public Dictionary<string, MongoId>? HideoutAreaStashes { get; set; }
 
     [JsonPropertyName("fastPanel")]
-    public Dictionary<string, string>? FastPanel { get; set; }
+    public Dictionary<string, MongoId>? FastPanel { get; set; }
 
     [JsonPropertyName("favoriteItems")]
-    public List<string>? FavoriteItems { get; set; }
+    public List<MongoId>? FavoriteItems { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("hideoutCustomizationStashId")]
-    public string? HideoutCustomizationStashId { get; set; }
+    public MongoId? HideoutCustomizationStashId { get; set; }
 }
 
 public record Skills
@@ -802,7 +804,7 @@ public record InsuredItem
     public string? TId { get; set; }
 
     [JsonPropertyName("itemId")]
-    public string? ItemId { get; set; }
+    public MongoId? ItemId { get; set; }
 }
 
 public record Hideout

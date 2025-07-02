@@ -1,6 +1,7 @@
 ﻿using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -174,7 +175,7 @@ public class InRaidHelper(
         }
 
         // Remove contents of fast panel
-        pmcData.Inventory.FastPanel = new Dictionary<string, string>();
+        pmcData.Inventory.FastPanel = new Dictionary<string, MongoId>();
     }
 
     /// <summary>

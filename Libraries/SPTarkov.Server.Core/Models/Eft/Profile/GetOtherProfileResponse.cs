@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
 namespace SPTarkov.Server.Core.Models.Eft.Profile;
@@ -45,7 +46,7 @@ public record GetOtherProfileResponse
     public string CustomizationStash { get; set; }
 
     [JsonPropertyName("hideoutAreaStashes")]
-    public Dictionary<string, string> HideoutAreaStashes { get; set; }
+    public Dictionary<string, MongoId> HideoutAreaStashes { get; set; }
 
     [JsonPropertyName("items")]
     public List<Item> Items { get; set; }

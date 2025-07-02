@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Prestige;
@@ -364,7 +365,7 @@ public record MessageItems
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("stash")]
-    public string? Stash { get; set; }
+    public MongoId? Stash { get; set; }
 
     [JsonPropertyName("data")]
     public List<Item>? Data { get; set; }

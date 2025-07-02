@@ -89,7 +89,7 @@ public class ProfileFixerService(
                 }
 
                 // Otherwise we need to generate a new unique stash ID for this message's attachments
-                message.Items.Stash = _hashUtil.Generate();
+                message.Items.Stash = new MongoId();
                 message.Items.Data = message.Items.Data.AdoptOrphanedItems(message.Items.Stash);
 
                 // Because `adoptOrphanedItems` sets the slotId to `hideout`, we need to re-set it to `main` to work with mail
@@ -144,7 +144,7 @@ public class ProfileFixerService(
                     var itemToAdjust = pmcProfile.Inventory.Items.FirstOrDefault(x =>
                         x.Id == mappingKvP.Key
                     );
-                    itemToAdjust.Id = _hashUtil.Generate();
+                    itemToAdjust.Id = new MongoId();
                     _logger.Warning(
                         $"Replace duplicate item Id: {mappingKvP.Key} with {itemToAdjust.Id}"
                     );

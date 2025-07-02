@@ -158,8 +158,8 @@ public class BotInventoryGenerator(
             QuestRaidItems = questRaidItemsId,
             QuestStashItems = questStashItemsId,
             SortingTable = sortingTableId,
-            HideoutAreaStashes = new Dictionary<string, string>(),
-            FastPanel = new Dictionary<string, string>(),
+            HideoutAreaStashes = new Dictionary<string, MongoId>(),
+            FastPanel = new Dictionary<string, MongoId>(),
             FavoriteItems = [],
             HideoutCustomizationStashId = hideoutCustomizationStashId,
         };

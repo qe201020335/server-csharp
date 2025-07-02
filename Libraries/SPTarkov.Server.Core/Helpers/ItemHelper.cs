@@ -972,16 +972,16 @@ public class ItemHelper(
     )
     {
         // Blacklist
-        var itemIdBlacklist = new HashSet<string>();
+        var itemIdBlacklist = new HashSet<MongoId>();
         itemIdBlacklist.UnionWith(
-            new List<string>
+            new List<MongoId>
             {
-                inventory.Equipment,
-                inventory.QuestRaidItems,
-                inventory.QuestStashItems,
-                inventory.SortingTable,
-                inventory.Stash,
-                inventory.HideoutCustomizationStashId,
+                inventory.Equipment.Value,
+                inventory.QuestRaidItems.Value,
+                inventory.QuestStashItems.Value,
+                inventory.SortingTable.Value,
+                inventory.Stash.Value,
+                inventory.HideoutCustomizationStashId.Value,
             }
         );
         itemIdBlacklist.UnionWith(inventory.HideoutAreaStashes.Values);
@@ -989,7 +989,7 @@ public class ItemHelper(
         // Add insured items ids to blacklist
         if (insuredItems is not null)
         {
-            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId));
+            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId.Value));
         }
 
         foreach (var item in inventory.Items)
@@ -1079,28 +1079,28 @@ public class ItemHelper(
     )
     {
         // Blacklist
-        var itemIdBlacklist = new HashSet<string>();
+        var itemIdBlacklist = new HashSet<MongoId>();
 
         if (pmcData != null)
         {
             itemIdBlacklist.UnionWith(
-                new List<string>
+                new List<MongoId>
                 {
-                    pmcData.Inventory.Equipment,
-                    pmcData.Inventory.QuestRaidItems,
-                    pmcData.Inventory.QuestStashItems,
-                    pmcData.Inventory.SortingTable,
-                    pmcData.Inventory.Stash,
-                    pmcData.Inventory.HideoutCustomizationStashId,
+                    pmcData.Inventory.Equipment.Value,
+                    pmcData.Inventory.QuestRaidItems.Value,
+                    pmcData.Inventory.QuestStashItems.Value,
+                    pmcData.Inventory.SortingTable.Value,
+                    pmcData.Inventory.Stash.Value,
+                    pmcData.Inventory.HideoutCustomizationStashId.Value,
                 }
             );
-            itemIdBlacklist.UnionWith(pmcData.Inventory.HideoutAreaStashes.Keys);
+            itemIdBlacklist.UnionWith(pmcData.Inventory.HideoutAreaStashes.Values);
         }
 
         // Add insured items ids to blacklist
         if (insuredItems is not null)
         {
-            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId));
+            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId.Value));
         }
 
         foreach (var item in originalItems)

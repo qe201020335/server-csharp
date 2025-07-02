@@ -1,5 +1,6 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
@@ -104,7 +105,7 @@ public class HideoutHelper(
                 production.SptRequiredTools.Add(
                     new Item
                     {
-                        Id = _hashUtil.Generate(),
+                        Id = new MongoId(),
                         Template = toolItem.Template,
                         Upd = toolItem.Upd,
                     }
@@ -1228,7 +1229,7 @@ public class HideoutHelper(
         btcProd.Products.Add(
             new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = ItemTpl.BARTER_PHYSICAL_BITCOIN,
                 Upd = new Upd { StackObjectsCount = 1 },
             }
@@ -1419,7 +1420,7 @@ public class HideoutHelper(
                 [
                     new Item
                     {
-                        Id = _hashUtil.Generate(),
+                        Id = new MongoId(),
                         Template = ItemTpl.BARTER_PHYSICAL_BITCOIN,
                         Upd = new Upd { StackObjectsCount = 1 },
                     },

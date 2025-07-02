@@ -68,7 +68,7 @@ public class BtrDeliveryService(
         // This is to stop items being duplicated by being returned from both item delivery and insurance
         var deliveredItemIds = items.Select(item => item.Id);
         pmcData.InsuredItems = pmcData
-            .InsuredItems.Where(insuredItem => !deliveredItemIds.Contains(insuredItem.ItemId))
+            .InsuredItems.Where(insuredItem => !deliveredItemIds.Contains(insuredItem.ItemId.Value))
             .ToList();
 
         if (_saveServer.GetProfile(sessionId).BtrDeliveryList == null)

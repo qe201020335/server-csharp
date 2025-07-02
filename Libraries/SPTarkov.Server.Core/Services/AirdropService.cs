@@ -183,7 +183,7 @@ public class AirdropService(
     {
         var airdropContainer = new Item
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Template = string.Empty, // Chosen below later
             Upd = new Upd { SpawnedInSession = true, StackObjectsCount = 1 },
         };
