@@ -20,7 +20,6 @@ namespace SPTarkov.Server.Core.Generators.RepeatableQuestGeneration;
 public class RepeatableQuestRewardGenerator(
     ISptLogger<RepeatableQuestRewardGenerator> logger,
     RandomUtil randomUtil,
-    HashUtil hashUtil,
     MathUtil mathUtil,
     DatabaseService databaseService,
     ItemHelper itemHelper,
@@ -95,7 +94,7 @@ public class RepeatableQuestRewardGenerator(
             rewards.Success.Add(
                 new Reward
                 {
-                    Id = hashUtil.Generate(),
+                    Id = new MongoId(),
                     Unknown = false,
                     GameMode = [],
                     AvailableInGameEditions = [],
@@ -193,7 +192,7 @@ public class RepeatableQuestRewardGenerator(
         {
             Reward reward = new()
             {
-                Id = hashUtil.Generate(),
+                Id = new MongoId(),
                 Unknown = false,
                 GameMode = [],
                 AvailableInGameEditions = [],
@@ -219,7 +218,7 @@ public class RepeatableQuestRewardGenerator(
             var targetSkill = randomUtil.GetArrayValue(eliminationConfig.PossibleSkillRewards);
             Reward reward = new()
             {
-                Id = hashUtil.Generate(),
+                Id = new MongoId(),
                 Unknown = false,
                 GameMode = [],
                 AvailableInGameEditions = [],
@@ -664,10 +663,10 @@ public class RepeatableQuestRewardGenerator(
         bool foundInRaid = true
     )
     {
-        var id = hashUtil.Generate();
+        var id = new MongoId();
         var questRewardItem = new Reward
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             Unknown = false,
             GameMode = [],
             AvailableInGameEditions = [],
@@ -713,10 +712,10 @@ public class RepeatableQuestRewardGenerator(
         bool foundInRaid = true
     )
     {
-        var id = hashUtil.Generate();
+        var id = new MongoId();
         var questRewardItem = new Reward
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             Unknown = false,
             GameMode = [],
             AvailableInGameEditions = [],

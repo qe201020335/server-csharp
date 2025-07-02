@@ -2,6 +2,7 @@ using System.Diagnostics;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Enums;
@@ -467,7 +468,7 @@ public class RagfairOfferGenerator(
             clonedAssort[0].SlotId = null;
 
             CreateSingleOfferForItem(
-                hashUtil.Generate(),
+                new MongoId(),
                 clonedAssort,
                 isPreset,
                 itemToSellDetails.Value,

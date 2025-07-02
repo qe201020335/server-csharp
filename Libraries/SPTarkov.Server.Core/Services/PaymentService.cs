@@ -1,6 +1,7 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
@@ -272,7 +273,7 @@ public class PaymentService(
         // Create single currency item with all currency on it
         var rootCurrencyReward = new Item
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Template = currencyTpl,
             Upd = new Upd { StackObjectsCount = Math.Round(calcAmount) },
         };

@@ -1,19 +1,18 @@
 ﻿using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Generators;
 
 [Injectable]
 public class RagfairAssortGenerator(
-    HashUtil hashUtil,
     ItemHelper itemHelper,
     PresetHelper presetHelper,
     SeasonalEventService seasonalEventService,
@@ -133,16 +132,16 @@ public class RagfairAssortGenerator(
     /// <param name="tplId"> tplid to add to item </param>
     /// <param name="id"> id to add to item </param>
     /// <returns> Hydrated Item object </returns>
-    protected Item CreateRagfairAssortRootItem(string tplId, string? id = null)
+    protected Item CreateRagfairAssortRootItem(string tplId, MongoId? id = null)
     {
         if (string.IsNullOrEmpty(id))
         {
-            id = hashUtil.Generate();
+            id = new MongoId();
         }
 
         return new Item
         {
-            Id = id,
+            Id = id.Value,
             Template = tplId,
             ParentId = "hideout",
             SlotId = "hideout",

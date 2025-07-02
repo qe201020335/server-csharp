@@ -1,6 +1,7 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Game;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -82,12 +83,12 @@ public class GameController(
             return;
         }
 
-        fullProfile.CharacterData!.PmcData!.WishList ??= new DictionaryOrList<string, int>(
-            new Dictionary<string, int>(),
+        fullProfile.CharacterData!.PmcData!.WishList ??= new DictionaryOrList<MongoId, int>(
+            new Dictionary<MongoId, int>(),
             []
         );
-        fullProfile.CharacterData.ScavData!.WishList ??= new DictionaryOrList<string, int>(
-            new Dictionary<string, int>(),
+        fullProfile.CharacterData.ScavData!.WishList ??= new DictionaryOrList<MongoId, int>(
+            new Dictionary<MongoId, int>(),
             []
         );
 

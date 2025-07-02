@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Utils.Json.Converters;
 
@@ -72,7 +73,7 @@ public record TraderService
     public Dictionary<string, ServiceItemCostDetails>? ServiceItemCost { get; set; }
 
     [JsonPropertyName("UniqueItems")]
-    public List<string>? UniqueItems { get; set; }
+    public List<MongoId>? UniqueItems { get; set; }
 }
 
 public record ServiceRequirements

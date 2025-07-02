@@ -21,7 +21,6 @@ namespace SPTarkov.Server.Core.Generators.RepeatableQuestGeneration;
 public class EliminationQuestGenerator(
     ISptLogger<EliminationQuestGenerator> logger,
     RandomUtil randomUtil,
-    HashUtil hashUtil,
     MathUtil mathUtil,
     RepeatableQuestHelper repeatableQuestHelper,
     ItemHelper itemHelper,
@@ -277,7 +276,7 @@ public class EliminationQuestGenerator(
         }
 
         var availableForFinishCondition = quest.Conditions.AvailableForFinish![0];
-        availableForFinishCondition.Counter!.Id = hashUtil.Generate();
+        availableForFinishCondition.Counter!.Id = new MongoId();
         availableForFinishCondition.Counter.Conditions = [];
 
         // Only add specific location condition if specific map selected
@@ -299,7 +298,7 @@ public class EliminationQuestGenerator(
             )
         );
         availableForFinishCondition.Value = desiredKillCount;
-        availableForFinishCondition.Id = hashUtil.Generate();
+        availableForFinishCondition.Id = new MongoId();
 
         // Get the quest location, default to any if none exist
         quest.Location = repeatableQuestHelper.GetQuestLocationByMapId(locationKey) ?? "any";
@@ -744,7 +743,7 @@ public class EliminationQuestGenerator(
     {
         return new QuestConditionCounterCondition
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             DynamicLocale = true,
             Target = new ListOrT<string>(location, null),
             ConditionType = "Location",
@@ -770,7 +769,7 @@ public class EliminationQuestGenerator(
     {
         var killConditionProps = new QuestConditionCounterCondition
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             DynamicLocale = true,
             Target = new ListOrT<string>(null, target), // e,g, "AnyPmc"
             Value = 1,

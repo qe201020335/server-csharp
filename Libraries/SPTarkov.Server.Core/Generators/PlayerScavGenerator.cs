@@ -113,12 +113,12 @@ public class PlayerScavGenerator(
         scavData.Quests = existingScavDataClone.Quests ?? [];
         scavData.TaskConditionCounters =
             existingScavDataClone.TaskConditionCounters
-            ?? new Dictionary<string, TaskConditionCounter>();
+            ?? new Dictionary<MongoId, TaskConditionCounter>();
         scavData.Notes = existingScavDataClone.Notes ?? new Notes { DataNotes = new List<Note>() };
         scavData.WishList =
             existingScavDataClone.WishList
-            ?? new DictionaryOrList<string, int>(new Dictionary<string, int>(), new List<int>());
-        scavData.Encyclopedia = pmcDataClone.Encyclopedia ?? new Dictionary<string, bool>();
+            ?? new DictionaryOrList<MongoId, int>(new Dictionary<MongoId, int>(), []);
+        scavData.Encyclopedia = pmcDataClone.Encyclopedia ?? new Dictionary<MongoId, bool>();
 
         // Add additional items to player scav as loot
         AddAdditionalLootToPlayerScavContainers(

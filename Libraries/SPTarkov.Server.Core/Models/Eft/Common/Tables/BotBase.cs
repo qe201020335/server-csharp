@@ -14,7 +14,7 @@ public record BotBase
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId? Id { get; set; }
 
     [JsonPropertyName("aid")]
     [JsonConverter(typeof(StringToNumberFactoryConverter))]
@@ -28,7 +28,7 @@ public record BotBase
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("savage")]
-    public string? Savage { get; set; }
+    public MongoId? Savage { get; set; }
 
     [JsonPropertyName("karmaValue")]
     public double? KarmaValue { get; set; }
@@ -53,10 +53,10 @@ public record BotBase
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("Encyclopedia")]
-    public Dictionary<string, bool>? Encyclopedia { get; set; }
+    public Dictionary<MongoId, bool>? Encyclopedia { get; set; }
 
     [JsonPropertyName("TaskConditionCounters")]
-    public Dictionary<string, TaskConditionCounter>? TaskConditionCounters { get; set; }
+    public Dictionary<MongoId, TaskConditionCounter>? TaskConditionCounters { get; set; }
 
     [JsonPropertyName("InsuredItems")]
     public List<InsuredItem>? InsuredItems { get; set; }
@@ -82,7 +82,7 @@ public record BotBase
     /// </summary>
     [JsonPropertyName("Achievements")]
     [JsonConverter(typeof(ArrayToObjectFactoryConverter))]
-    public Dictionary<string, long>? Achievements { get; set; }
+    public Dictionary<MongoId, long>? Achievements { get; set; }
 
     [JsonPropertyName("RepeatableQuests")]
     public List<PmcDataRepeatableQuest>? RepeatableQuests { get; set; }
@@ -105,7 +105,7 @@ public record BotBase
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("WishList")]
     [JsonConverter(typeof(ArrayToObjectFactoryConverter))]
-    public DictionaryOrList<string, int>? WishList { get; set; }
+    public DictionaryOrList<MongoId, int>? WishList { get; set; }
 
     [JsonPropertyName("moneyTransferLimitData")]
     public MoneyTransferLimits? MoneyTransferLimitData { get; set; }
@@ -826,7 +826,7 @@ public record Hideout
     /// </summary>
     public string? Seed { get; set; }
 
-    public Dictionary<string, string>? MannequinPoses { get; set; }
+    public Dictionary<string, MongoId>? MannequinPoses { get; set; }
 
     [JsonPropertyName("sptUpdateLastRunTimestamp")]
     public long? SptUpdateLastRunTimestamp { get; set; }

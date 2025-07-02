@@ -226,13 +226,13 @@ public record TraderRepair
     public bool? Availability { get; set; }
 
     [JsonPropertyName("currency")]
-    public MongoId Currency { get; set; }
+    public string Currency { get; set; }
 
     [JsonPropertyName("currency_coefficient")]
     public double? CurrencyCoefficient { get; set; }
 
     [JsonPropertyName("excluded_category")]
-    public List<string>? ExcludedCategory { get; set; }
+    public List<MongoId>? ExcludedCategory { get; set; }
 
     /// <summary>
     ///     Doesn't exist in client object

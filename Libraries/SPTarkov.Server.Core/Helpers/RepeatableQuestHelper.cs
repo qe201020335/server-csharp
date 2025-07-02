@@ -6,7 +6,6 @@ using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Helpers;
@@ -16,7 +15,6 @@ public class RepeatableQuestHelper(
     ISptLogger<RepeatableQuestHelper> logger,
     DatabaseService databaseService,
     ServerLocalisationService serverLocalisationService,
-    HashUtil hashUtil,
     ICloner cloner,
     ConfigServer configServer
 )
@@ -88,7 +86,7 @@ public class RepeatableQuestHelper(
             return null;
         }
 
-        quest.Id = hashUtil.Generate();
+        quest.Id = new MongoId();
         quest.TraderId = traderId;
 
         return quest;
@@ -202,7 +200,7 @@ public class RepeatableQuestHelper(
             return null;
         }
 
-        questData.QuestStatus.Id = hashUtil.Generate();
+        questData.QuestStatus.Id = new MongoId();
         questData.QuestStatus.Uid = sessionId; // Needs to match user id
         questData.QuestStatus.QId = questData.Id; // Needs to match quest id
 

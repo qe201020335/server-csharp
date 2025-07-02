@@ -10,7 +10,7 @@ public record GetOtherProfileResponse
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId? Id { get; set; }
 
     [JsonPropertyName("aid")]
     public int? Aid { get; set; }
@@ -28,7 +28,7 @@ public record GetOtherProfileResponse
     public OtherProfileEquipment? Equipment { get; set; }
 
     [JsonPropertyName("achievements")]
-    public Dictionary<string, long>? Achievements { get; set; }
+    public Dictionary<MongoId, long>? Achievements { get; set; }
 
     [JsonPropertyName("favoriteItems")]
     public List<Item>? FavoriteItems { get; set; }

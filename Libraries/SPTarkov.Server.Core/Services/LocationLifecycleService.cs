@@ -1320,7 +1320,7 @@ public class LocationLifecycleService
     /// <param name="postRaidAchievements"> All profile achievements at the end of a raid </param>
     protected void ProcessAchievementRewards(
         SptProfile fullProfile,
-        Dictionary<string, long>? postRaidAchievements
+        Dictionary<MongoId, long>? postRaidAchievements
     )
     {
         var sessionId = fullProfile.ProfileInfo.ProfileId;
