@@ -1856,7 +1856,7 @@ public class BotEquipmentModGenerator(
 
         modPool.TryAdd(modTemplate.Id, new Dictionary<string, HashSet<MongoId>>());
 
-        modPool[modTemplate.Id][desiredSlotObject.Name] = supportedSubModsSet;
+        modPool[modTemplate.Id][desiredSlotObject.Name] = filteredMods;
     }
 
     /// <summary>
