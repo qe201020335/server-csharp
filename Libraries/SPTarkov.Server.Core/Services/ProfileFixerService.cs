@@ -19,9 +19,7 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class ProfileFixerService(
     ISptLogger<ProfileFixerService> _logger,
-    HashUtil _hashUtil,
     JsonUtil _jsonUtil,
-    ItemHelper _itemHelper,
     RewardHelper _rewardHelper,
     TraderHelper _traderHelper,
     HideoutHelper _hideoutHelper,

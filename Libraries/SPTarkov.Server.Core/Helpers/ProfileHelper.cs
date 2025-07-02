@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -24,7 +25,6 @@ public class ProfileHelper(
     Watermark _watermark,
     TimeUtil _timeUtil,
     ServerLocalisationService _serverLocalisationService,
-    HashUtil _hashUtil,
     ConfigServer _configServer
 )
 {
@@ -587,7 +587,7 @@ public class ProfileHelper(
             profile!.Bonuses.Add(
                 new Bonus
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Value = rowsToAdd,
                     Type = BonusType.StashRows,
                     IsPassive = true,
