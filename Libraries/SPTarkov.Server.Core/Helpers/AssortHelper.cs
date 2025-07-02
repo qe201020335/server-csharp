@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -13,7 +14,7 @@ public class AssortHelper(
     ISptLogger<AssortHelper> _logger,
     ItemHelper _itemHelper,
     DatabaseServer _databaseServer,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     QuestHelper _questHelper
 )
 {
@@ -40,7 +41,7 @@ public class AssortHelper(
         if (traderAssorts.LoyalLevelItems is null)
         {
             _logger.Warning(
-                _localisationService.GetText("assort-missing_loyalty_level_object", traderId)
+                _serverLocalisationService.GetText("assort-missing_loyalty_level_object", traderId)
             );
 
             return traderAssorts;
@@ -63,7 +64,7 @@ public class AssortHelper(
             );
             if (!unlockValues.Value.Value.Contains(questStatusInProfile))
             {
-                strippedTraderAssorts = RemoveItemFromAssort(traderAssorts, assortId.Key, isFlea);
+                strippedTraderAssorts = traderAssorts.RemoveItemFromAssort(assortId.Key, isFlea);
             }
         }
 
@@ -132,7 +133,7 @@ public class AssortHelper(
         if (assort.LoyalLevelItems is null)
         {
             _logger.Warning(
-                _localisationService.GetText("assort-missing_loyalty_level_object", traderId)
+                _serverLocalisationService.GetText("assort-missing_loyalty_level_object", traderId)
             );
 
             return strippedAssort;
@@ -146,45 +147,10 @@ public class AssortHelper(
                 && assort.LoyalLevelItems[item.Key] > info.LoyaltyLevel
             )
             {
-                strippedAssort = RemoveItemFromAssort(assort, item.Key);
+                strippedAssort = assort.RemoveItemFromAssort(item.Key);
             }
         }
 
         return strippedAssort;
-    }
-
-    /// <summary>
-    /// Remove an item from an assort
-    /// Must be removed from the assorts; items + barterScheme + LoyaltyLevel
-    /// </summary>
-    /// <param name="assort">Assort to remove item from</param>
-    /// <param name="itemId">Id of item to remove from assort</param>
-    /// <param name="isFlea">Is the assort being modified the flea market assort</param>
-    /// <returns>Modified assort</returns>
-    public TraderAssort RemoveItemFromAssort(
-        TraderAssort assort,
-        string itemId,
-        bool isFlea = false
-    )
-    {
-        // Flea assort needs special handling, item must remain in assort but be flagged as locked
-        if (isFlea && assort.BarterScheme.TryGetValue(itemId, out var listToUse))
-        {
-            foreach (var barterScheme in listToUse.SelectMany(barterSchemes => barterSchemes))
-            {
-                barterScheme.SptQuestLocked = true;
-            }
-
-            return assort;
-        }
-
-        assort.BarterScheme.Remove(itemId);
-        assort.LoyalLevelItems.Remove(itemId);
-
-        // The item being removed may have children linked to it, find and remove them too
-        var idsToRemove = _itemHelper.FindAndReturnChildrenByItems(assort.Items, itemId);
-        assort.Items.RemoveAll(item => idsToRemove.Contains(item.Id));
-
-        return assort;
     }
 }

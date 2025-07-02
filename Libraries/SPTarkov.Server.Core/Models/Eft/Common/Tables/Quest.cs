@@ -8,7 +8,7 @@ namespace SPTarkov.Server.Core.Models.Eft.Common.Tables;
 public record Quest
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     SPT addition - human readable quest name
@@ -20,44 +20,44 @@ public record Quest
     ///     _id
     /// </summary>
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
 
     [JsonPropertyName("canShowNotificationsInGame")]
-    public bool? CanShowNotificationsInGame { get; set; }
+    public required bool CanShowNotificationsInGame { get; set; }
 
     [JsonPropertyName("conditions")]
-    public QuestConditionTypes? Conditions { get; set; }
+    public required QuestConditionTypes Conditions { get; set; }
 
     [JsonPropertyName("description")]
-    public string? Description { get; set; }
+    public required string Description { get; set; }
 
     [JsonPropertyName("failMessageText")]
     public string? FailMessageText { get; set; }
 
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("note")]
     public string? Note { get; set; }
 
     [JsonPropertyName("traderId")]
-    public string? TraderId { get; set; }
+    public required string TraderId { get; set; }
 
     [JsonPropertyName("location")]
-    public string? Location { get; set; }
+    public required string Location { get; set; }
 
     [JsonPropertyName("image")]
-    public string? Image { get; set; }
+    public required string Image { get; set; }
 
     [JsonPropertyName("type")] // can be string or QuestTypeEnum
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public QuestTypeEnum? Type { get; set; }
+    public required QuestTypeEnum Type { get; set; }
 
     [JsonPropertyName("isKey")]
     public bool? IsKey { get; set; }
 
     [JsonPropertyName("restartable")]
-    public bool? Restartable { get; set; }
+    public required bool Restartable { get; set; }
 
     [JsonPropertyName("instantComplete")]
     public bool? InstantComplete { get; set; }
@@ -102,7 +102,7 @@ public record Quest
     ///     "Pmc" or "Scav"
     /// </summary>
     [JsonPropertyName("side")]
-    public string? Side { get; set; }
+    public required string Side { get; set; }
 
     [JsonPropertyName("acceptanceAndFinishingSource")]
     public string? AcceptanceAndFinishingSource { get; set; }
@@ -136,30 +136,24 @@ public record Quest
 }
 
 /// <summary>
-///     Same as BotBase.Quests
+///     Based on QuestDataClass in the client
 /// </summary>
 public record QuestStatus
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
-
-    [JsonPropertyName("id")]
-    public string? Id { get; set; }
-
-    [JsonPropertyName("uid")]
-    public string? Uid { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("qid")]
-    public string? QId { get; set; }
+    public required string QId { get; set; }
 
     [JsonPropertyName("startTime")]
-    public double? StartTime { get; set; }
+    public required double StartTime { get; set; }
 
     [JsonPropertyName("status")]
-    public QuestStatusEnum? Status { get; set; }
+    public required QuestStatusEnum Status { get; set; }
 
     [JsonPropertyName("statusTimers")]
-    public Dictionary<QuestStatusEnum, double>? StatusTimers { get; set; }
+    public required Dictionary<QuestStatusEnum, double> StatusTimers { get; set; }
 
     [JsonPropertyName("completedConditions")]
     public List<string>? CompletedConditions { get; set; }
@@ -171,7 +165,7 @@ public record QuestStatus
 public record QuestConditionTypes
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("Started")]
     public List<QuestCondition>? Started { get; set; }
@@ -192,10 +186,10 @@ public record QuestConditionTypes
 public record QuestCondition
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
 
     [JsonPropertyName("index")]
     public int? Index { get; set; }
@@ -204,14 +198,14 @@ public record QuestCondition
     public string? CompareMethod { get; set; }
 
     [JsonPropertyName("dynamicLocale")]
-    public bool? DynamicLocale { get; set; }
+    public required bool DynamicLocale { get; set; }
 
     [JsonPropertyName("visibilityConditions")]
     public List<VisibilityCondition>? VisibilityConditions { get; set; }
 
-    [JsonPropertyName("globalQuestCounterId")]
-    public string? GlobalQuestCounterId { get; set; }
-
+    /// <summary>
+    /// This is set as nullable in the client
+    /// </summary>
     [JsonPropertyName("parentId")]
     public string? ParentId { get; set; }
 
@@ -285,7 +279,7 @@ public record QuestCondition
     public bool? IsEncoded { get; set; }
 
     [JsonPropertyName("conditionType")]
-    public string? ConditionType { get; set; }
+    public required string ConditionType { get; set; }
 
     [JsonPropertyName("areaType")]
     public HideoutAreas? AreaType { get; set; }
@@ -333,7 +327,7 @@ public record QuestCondition
 public record QuestConditionCounter
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
     public string? Id { get; set; }
@@ -345,7 +339,7 @@ public record QuestConditionCounter
 public record QuestConditionCounterCondition
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
     public string? Id { get; set; }
@@ -415,7 +409,7 @@ public record QuestConditionCounterCondition
     public DaytimeCounter? Daytime { get; set; }
 
     [JsonPropertyName("conditionType")]
-    public string? ConditionType { get; set; }
+    public required string ConditionType { get; set; }
 
     [JsonPropertyName("enemyHealthEffects")]
     public List<EnemyHealthEffect>? EnemyHealthEffects { get; set; }
@@ -439,7 +433,7 @@ public record QuestConditionCounterCondition
 public record EnemyHealthEffect
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("bodyParts")]
     public List<string>? BodyParts { get; set; }
@@ -451,7 +445,7 @@ public record EnemyHealthEffect
 public record ValueCompare
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("compareMethod")]
     public string? CompareMethod { get; set; }
@@ -463,7 +457,7 @@ public record ValueCompare
 public record CounterConditionDistance
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("value")]
     public double? Value { get; set; }
@@ -475,7 +469,7 @@ public record CounterConditionDistance
 public record DaytimeCounter
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("from")]
     public int? From { get; set; }
@@ -487,7 +481,7 @@ public record DaytimeCounter
 public record VisibilityCondition
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
     public string? Id { get; set; }
@@ -505,13 +499,13 @@ public record VisibilityCondition
     public bool? OneSessionOnly { get; set; }
 
     [JsonPropertyName("conditionType")]
-    public string? ConditionType { get; set; }
+    public required string ConditionType { get; set; }
 }
 
 public record QuestRewards
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("AvailableForStart")]
     public List<Reward>? AvailableForStart { get; set; }

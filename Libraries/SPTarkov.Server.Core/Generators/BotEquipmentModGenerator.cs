@@ -21,10 +21,7 @@ namespace SPTarkov.Server.Core.Generators;
 [Injectable]
 public class BotEquipmentModGenerator(
     ISptLogger<BotEquipmentModGenerator> _logger,
-    HashUtil _hashUtil,
     RandomUtil _randomUtil,
-    ProbabilityHelper _probabilityHelper,
-    DatabaseService _databaseService,
     ItemHelper _itemHelper,
     BotEquipmentFilterService _botEquipmentFilterService,
     ItemFilterService _itemFilterService,
@@ -35,7 +32,7 @@ public class BotEquipmentModGenerator(
     BotWeaponGeneratorHelper _botWeaponGeneratorHelper,
     WeightedRandomHelper _weightedRandomHelper,
     PresetHelper _presetHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     BotEquipmentModPoolService _botEquipmentModPoolService,
     ConfigServer _configServer,
     ICloner _cloner
@@ -86,7 +83,7 @@ public class BotEquipmentModGenerator(
         "cartridges",
     ];
 
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
 
     /// <summary>
     ///     Check mods are compatible and add to array
@@ -125,7 +122,7 @@ public class BotEquipmentModGenerator(
             if (itemSlotTemplate is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "bot-mod_slot_missing_from_item",
                         new
                         {
@@ -183,13 +180,12 @@ public class BotEquipmentModGenerator(
                 var plateSlotFilteringOutcome = FilterPlateModsForSlotByLevel(
                     settings,
                     modSlotName.ToLower(),
-                    compatibleModsPool[modSlotName],
+                    compatibleModsPool.GetValueOrDefault(modSlotName),
                     parentTemplate
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE
-                    or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
                         if (_logger.IsLogEnabled(LogLevel.Debug))
                         {
                             _logger.Debug(
@@ -210,7 +206,7 @@ public class BotEquipmentModGenerator(
             }
 
             // Choose random mod from pool and check its compatibility
-            string modTpl = null;
+            string? modTpl = null;
             var found = false;
             var exhaustableModPool = CreateExhaustableArray(modPoolToChooseFrom);
             while (exhaustableModPool.HasValues())
@@ -262,7 +258,7 @@ public class BotEquipmentModGenerator(
             }
 
             // Generate new id to ensure all items are unique on bot
-            var modId = _hashUtil.Generate();
+            var modId = new MongoId();
             equipment.Add(
                 CreateModItem(
                     modId,
@@ -303,7 +299,7 @@ public class BotEquipmentModGenerator(
     public FilterPlateModsForSlotByLevelResult FilterPlateModsForSlotByLevel(
         GenerateEquipmentProperties settings,
         string modSlot,
-        HashSet<string> existingPlateTplPool,
+        HashSet<MongoId> existingPlateTplPool,
         TemplateItem armorItem
     )
     {
@@ -519,7 +515,7 @@ public class BotEquipmentModGenerator(
         if (ItemLacksSlotsCartridgesAndChambers(request.ParentTemplate))
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-unable_to_add_mods_to_weapon_missing_ammo_slot",
                     new
                     {
@@ -563,7 +559,7 @@ public class BotEquipmentModGenerator(
             if (modsParentSlot is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "bot-weapon_missing_mod_slot",
                         new
                         {
@@ -742,7 +738,7 @@ public class BotEquipmentModGenerator(
                 request.WeaponStats.HasOptic = true;
             }
 
-            var modId = _hashUtil.Generate();
+            var modId = new MongoId();
             request.Weapon.Add(
                 CreateModItem(
                     modId,
@@ -1103,7 +1099,7 @@ public class BotEquipmentModGenerator(
             return ModSpawn.SPAWN;
         }
 
-        var spawnMod = _probabilityHelper.RollChance(
+        var spawnMod = _randomUtil.RollChance(
             modSpawnChances.GetValueOrDefault(modSlotName.ToLower())
         );
         if (
@@ -1284,9 +1280,9 @@ public class BotEquipmentModGenerator(
     /// <param name="modSpawnRequest">Request data</param>
     /// <param name="modPool">Pool of magazine tpls to filter</param>
     /// <returns>Filtered pool of magazine tpls</returns>
-    public IEnumerable<string> GetFilteredMagazinePoolByCapacity(
+    public IEnumerable<MongoId> GetFilteredMagazinePoolByCapacity(
         ModToSpawnRequest modSpawnRequest,
-        HashSet<string> modPool
+        HashSet<MongoId> modPool
     )
     {
         var weaponTpl = modSpawnRequest.Weapon.FirstOrDefault().Template;
@@ -1327,7 +1323,7 @@ public class BotEquipmentModGenerator(
     /// <returns>Chosen weapon details</returns>
     public ChooseRandomCompatibleModResult GetCompatibleWeaponModTplForSlotFromPool(
         ModToSpawnRequest request,
-        HashSet<string> modPool,
+        HashSet<MongoId> modPool,
         Slot parentSlot,
         ModSpawn? choiceTypeEnum,
         List<Item> weapon,
@@ -1371,7 +1367,7 @@ public class BotEquipmentModGenerator(
     /// <param name="weapon">Weapon mods at current time</param>
     /// <returns>IChooseRandomCompatibleModResult</returns>
     public ChooseRandomCompatibleModResult GetCompatibleModFromPool(
-        HashSet<string> modPool,
+        HashSet<MongoId> modPool,
         ModSpawn? modSpawnType,
         List<Item> weapon
     )
@@ -1471,7 +1467,10 @@ public class BotEquipmentModGenerator(
     /// <param name="modPool"></param>
     /// <param name="tplBlacklist">Tpls that are incompatible and should not be used</param>
     /// <returns>string array of compatible mod tpls with weapon</returns>
-    public HashSet<string> GetFilteredModPool(HashSet<string> modPool, HashSet<string> tplBlacklist)
+    public HashSet<MongoId> GetFilteredModPool(
+        HashSet<MongoId> modPool,
+        HashSet<MongoId> tplBlacklist
+    )
     {
         return modPool.Where(tpl => !tplBlacklist.Contains(tpl)).ToHashSet();
     }
@@ -1485,7 +1484,7 @@ public class BotEquipmentModGenerator(
     /// <param name="request"></param>
     /// <param name="weaponTemplate">Mods root parent (weapon/equipment)</param>
     /// <returns>Array of mod tpls</returns>
-    public HashSet<string>? GetModPoolForSlot(
+    public HashSet<MongoId>? GetModPoolForSlot(
         ModToSpawnRequest request,
         TemplateItem weaponTemplate
     )
@@ -1520,7 +1519,7 @@ public class BotEquipmentModGenerator(
     /// <param name="request"></param>
     /// <param name="weaponTemplate"></param>
     /// <returns>Hashset of mods keyed by slot</returns>
-    public HashSet<string> GetModPoolForDefaultSlot(
+    public HashSet<MongoId> GetModPoolForDefaultSlot(
         ModToSpawnRequest request,
         TemplateItem weaponTemplate
     )
@@ -1684,7 +1683,7 @@ public class BotEquipmentModGenerator(
     /// <param name="botRole">The bots role mod is being created for</param>
     /// <returns>Item object</returns>
     public Item CreateModItem(
-        string modId,
+        MongoId modId,
         string modTpl,
         string parentId,
         string modSlot,
@@ -1773,7 +1772,7 @@ public class BotEquipmentModGenerator(
         if (modBeingAddedDbTemplate.Value is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-no_item_template_found_when_adding_mod",
                     new { modId = modBeingAddedDbTemplate.Value?.Id ?? "UNKNOWN", modSlot }
                 )
@@ -1793,7 +1792,7 @@ public class BotEquipmentModGenerator(
             if (slotAddedToTemplate.Required ?? false)
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "bot-unable_to_add_mod_item_invalid",
                         new
                         {
@@ -1823,7 +1822,7 @@ public class BotEquipmentModGenerator(
     public void AddCompatibleModsForProvidedMod(
         string desiredSlotName,
         TemplateItem modTemplate,
-        IDictionary<string, Dictionary<string, HashSet<string>>> modPool,
+        IDictionary<string, Dictionary<string, HashSet<MongoId>>> modPool,
         EquipmentFilterDetails botEquipBlacklist
     )
     {
@@ -1837,25 +1836,27 @@ public class BotEquipmentModGenerator(
             return;
         }
 
+        var supportedSubModsSet = supportedSubMods.ToHashSet();
+
         // Filter mods
         var filteredMods = FilterModsByBlacklist(
-            supportedSubMods.ToHashSet(),
+            supportedSubModsSet,
             botEquipBlacklist,
             desiredSlotName
         );
         if (!filteredMods.Any())
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-unable_to_filter_mods_all_blacklisted",
                     new { slotName = desiredSlotObject.Name, itemName = modTemplate.Name }
                 )
             );
         }
 
-        modPool.TryAdd(modTemplate.Id, new Dictionary<string, HashSet<string>>());
+        modPool.TryAdd(modTemplate.Id, new Dictionary<string, HashSet<MongoId>>());
 
-        modPool[modTemplate.Id][desiredSlotObject.Name] = supportedSubMods.ToHashSet();
+        modPool[modTemplate.Id][desiredSlotObject.Name] = supportedSubModsSet;
     }
 
     /// <summary>
@@ -1865,7 +1866,7 @@ public class BotEquipmentModGenerator(
     /// <param name="modSlot">Slot item should fit in</param>
     /// <param name="botEquipBlacklist">Equipment that should not be picked</param>
     /// <returns>Array of compatible items for that slot</returns>
-    public HashSet<string> GetDynamicModPool(
+    public HashSet<MongoId> GetDynamicModPool(
         string parentItemId,
         string modSlot,
         EquipmentFilterDetails botEquipBlacklist
@@ -1875,49 +1876,62 @@ public class BotEquipmentModGenerator(
             _botEquipmentModPoolService.GetCompatibleModsForWeaponSlot(parentItemId, modSlot)
         );
 
-        var filteredMods = FilterModsByBlacklist(modsFromDynamicPool, botEquipBlacklist, modSlot);
-        if (!filteredMods.Any())
+        if (modsFromDynamicPool.Count == 0)
         {
-            _logger.Warning(
-                _localisationService.GetText(
-                    "bot-unable_to_filter_mod_slot_all_blacklisted",
-                    modSlot
-                )
-            );
-
+            // Mod pool has no items, don't bother doing any filtering below
             return modsFromDynamicPool;
         }
 
-        return filteredMods;
+        var filteredMods = FilterModsByBlacklist(modsFromDynamicPool, botEquipBlacklist, modSlot);
+        if (filteredMods.Any())
+        {
+            // Filtering left at least 1 item, return it
+            return filteredMods;
+        }
+
+        _logger.Warning(
+            _serverLocalisationService.GetText(
+                "bot-unable_to_filter_mod_slot_all_blacklisted",
+                modSlot
+            )
+        );
+
+        return modsFromDynamicPool;
     }
 
     /// <summary>
     ///     Take a list of tpls and filter out blacklisted values using itemFilterService + botEquipmentBlacklist
     /// </summary>
-    /// <param name="allowedMods">Base mods to filter</param>
-    /// <param name="botEquipBlacklist">Equipment blacklist</param>
-    /// <param name="modSlot">Slot mods belong to</param>
-    /// <returns>Filtered array of mod tpls</returns>
-    public HashSet<string> FilterModsByBlacklist(
-        HashSet<string> allowedMods,
+    /// <param name="modTplPool">Base mod tpls to filter</param>
+    /// <param name="botEquipBlacklist">Equipment blacklist details for bot level range</param>
+    /// <param name="modSlot">Mod slot mods belong to</param>
+    /// <returns>New set of tpls not in blacklist(s)</returns>
+    public HashSet<MongoId> FilterModsByBlacklist(
+        HashSet<MongoId> modTplPool,
         EquipmentFilterDetails? botEquipBlacklist,
         string modSlot
     )
     {
-        // No blacklist, nothing to filter out
-        if (botEquipBlacklist is null)
+        if (!modTplPool.Any())
         {
-            return allowedMods;
+            // Mod pool has no items, don't bother doing any filtering below
+            return modTplPool;
         }
 
-        var result = new HashSet<string>();
+        // Get item blacklist and mod equipment blacklist as one Set
+        var blacklist = _itemFilterService.GetBlacklistedItems();
+        if (
+            botEquipBlacklist?.Equipment is not null
+            && botEquipBlacklist.Equipment.TryGetValue(modSlot, out var equipmentBlacklistValues)
+        )
+        {
+            blacklist.UnionWith(equipmentBlacklistValues);
+        }
 
-        // Get item blacklist and mod equipment blacklist as one array
-        botEquipBlacklist.Equipment.TryGetValue(modSlot, out var equipmentBlacklistValues);
-        var blacklist = _itemFilterService
-            .GetBlacklistedItems()
-            .Concat(equipmentBlacklistValues ?? []);
-        result = allowedMods.Where(tpl => !blacklist.Contains(tpl)).ToHashSet();
+        var result = _cloner.Clone(modTplPool);
+
+        // Filter out blacklisted tpls
+        result.ExceptWith(blacklist);
 
         return result;
     }
@@ -1934,7 +1948,7 @@ public class BotEquipmentModGenerator(
     /// <param name="cylinderMagTemplate">The CylinderMagazine's template</param>
     public void FillCamora(
         List<Item> items,
-        Dictionary<string, Dictionary<string, HashSet<string>>> modPool,
+        Dictionary<string, Dictionary<string, HashSet<MongoId>>> modPool,
         string cylinderMagParentId,
         TemplateItem cylinderMagTemplate
     )
@@ -1942,7 +1956,7 @@ public class BotEquipmentModGenerator(
         if (!modPool.TryGetValue(cylinderMagTemplate.Id, out var itemModPool))
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-unable_to_fill_camora_slot_mod_pool_empty",
                     new { weaponId = cylinderMagTemplate.Id, weaponName = cylinderMagTemplate.Name }
                 )
@@ -1952,7 +1966,7 @@ public class BotEquipmentModGenerator(
             );
 
             // Attempt to generate camora slots for item
-            modPool[cylinderMagTemplate.Id] = new Dictionary<string, HashSet<string>>();
+            modPool[cylinderMagTemplate.Id] = new Dictionary<string, HashSet<MongoId>>();
             foreach (var camora in camoraSlots)
             {
                 modPool[cylinderMagTemplate.Id][camora.Name] = camora.Props.Filters?[
@@ -1963,7 +1977,7 @@ public class BotEquipmentModGenerator(
             itemModPool = modPool[cylinderMagTemplate.Id];
         }
 
-        ExhaustableArray<string> exhaustableModPool = null;
+        ExhaustableArray<MongoId>? exhaustableModPool = null;
         var modSlot = "cartridges";
         const string camoraFirstSlot = "camora_000";
         if (itemModPool.TryGetValue(modSlot, out var value))
@@ -1978,7 +1992,10 @@ public class BotEquipmentModGenerator(
         else
         {
             _logger.Error(
-                _localisationService.GetText("bot-missing_cartridge_slot", cylinderMagTemplate.Id)
+                _serverLocalisationService.GetText(
+                    "bot-missing_cartridge_slot",
+                    cylinderMagTemplate.Id
+                )
             );
 
             return;
@@ -2003,7 +2020,7 @@ public class BotEquipmentModGenerator(
         if (!found)
         {
             _logger.Error(
-                _localisationService.GetText("bot-no_compatible_camora_ammo_found", modSlot)
+                _serverLocalisationService.GetText("bot-no_compatible_camora_ammo_found", modSlot)
             );
 
             return;
@@ -2012,7 +2029,7 @@ public class BotEquipmentModGenerator(
         foreach (var slot in cylinderMagTemplate.Properties.Slots)
         {
             var modSlotId = slot.Name;
-            var modId = _hashUtil.Generate();
+            var modId = new MongoId();
             items.Add(
                 new Item
                 {
@@ -2030,7 +2047,7 @@ public class BotEquipmentModGenerator(
     /// </summary>
     /// <param name="camorasWithShells">Dictionary of camoras we want to merge into one array</param>
     /// <returns>String array of shells for multiple camora sources</returns>
-    public HashSet<string> MergeCamoraPools(Dictionary<string, HashSet<string>> camorasWithShells)
+    public HashSet<MongoId> MergeCamoraPools(Dictionary<string, HashSet<MongoId>> camorasWithShells)
     {
         return camorasWithShells.SelectMany(shellKvP => shellKvP.Value).Distinct().ToHashSet();
     }
@@ -2044,9 +2061,9 @@ public class BotEquipmentModGenerator(
     /// <param name="scopes">Full scope pool</param>
     /// <param name="botWeaponSightWhitelist">Whitelist of scope types by weapon base type</param>
     /// <returns>Array of scope tpls that have been filtered to just ones allowed for that weapon type</returns>
-    public HashSet<string> FilterSightsByWeaponType(
+    public HashSet<MongoId> FilterSightsByWeaponType(
         Item weapon,
-        HashSet<string> scopes,
+        HashSet<MongoId> scopes,
         Dictionary<string, List<string>> botWeaponSightWhitelist
     )
     {
@@ -2071,7 +2088,7 @@ public class BotEquipmentModGenerator(
         }
 
         // Filter items that are not directly scopes OR mounts that do not hold the type of scope we allow for this weapon type
-        HashSet<string> filteredScopesAndMods = [];
+        HashSet<MongoId> filteredScopesAndMods = [];
         foreach (var item in scopes)
         {
             // Mods is a scope, check base class is allowed

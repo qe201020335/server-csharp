@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Weather;
 using SPTarkov.Server.Core.Models.Enums;
@@ -19,7 +20,7 @@ public class WeatherGenerator(
     RandomUtil _randomUtil
 )
 {
-    protected WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
+    protected readonly WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
 
     /// <summary>
     ///     Get current + raid datetime and format into correct BSG format.
@@ -29,7 +30,7 @@ public class WeatherGenerator(
     public void CalculateGameTime(WeatherData data)
     {
         var computedDate = _timeUtil.GetDateTimeNow();
-        var formattedDate = _timeUtil.FormatDate(computedDate);
+        var formattedDate = computedDate.FormatToBsgDate();
 
         data.Date = formattedDate;
         data.Time = GetBsgFormattedInRaidTime();
@@ -45,19 +46,7 @@ public class WeatherGenerator(
     /// <returns>Formatted time as String </returns>
     protected string GetBsgFormattedInRaidTime()
     {
-        var clientAcceleratedDate = _weatherHelper.GetInRaidTime();
-
-        return GetBsgFormattedTime(clientAcceleratedDate);
-    }
-
-    /// <summary>
-    ///     Get current time formatted to fit BSGs requirement
-    /// </summary>
-    /// <param name="date"> Date to format into bsg style </param>
-    /// <returns> Time formatted in BSG format </returns>
-    protected string GetBsgFormattedTime(DateTime date)
-    {
-        return _timeUtil.FormatTime(date).Replace("-", ":").Replace("-", ":");
+        return _weatherHelper.GetInRaidTime().GetBsgFormattedWeatherTime();
     }
 
     /// <summary>
@@ -150,12 +139,12 @@ public class WeatherGenerator(
         var inRaidTime = timestamp is null
             ? _weatherHelper.GetInRaidTime()
             : _weatherHelper.GetInRaidTime(timestamp.Value);
-        var normalTime = GetBsgFormattedTime(inRaidTime);
-        var formattedDate = _timeUtil.FormatDate(
+        var normalTime = inRaidTime.GetBsgFormattedWeatherTime();
+        var formattedDate = (
             timestamp.HasValue
                 ? _timeUtil.GetDateTimeFromTimeStamp(timestamp.Value)
                 : DateTime.UtcNow
-        );
+        ).FormatToBsgDate();
         var datetimeBsgFormat = $"{formattedDate} {normalTime}";
 
         weather.Timestamp = timestamp ?? _timeUtil.GetTimeStamp(); // matches weather.date

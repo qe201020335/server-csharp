@@ -14,7 +14,7 @@ public class CustomLocationWaveService(
     ConfigServer _configServer
 )
 {
-    protected LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
+    protected readonly LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
 
     /// <summary>
     ///     Add a boss wave to a map

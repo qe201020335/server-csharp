@@ -34,10 +34,10 @@ public record LocationConfig : BaseConfig
     public required Dictionary<string, HashSet<string>> OpenZones { get; set; }
 
     /// <summary>
-    ///     Key = map id, value = item tpls that should only have one forced loot spawn position
+    ///     Key = map id, value = dict of item tpls that should only have x forced loot spawn position
     /// </summary>
-    [JsonPropertyName("forcedLootSingleSpawnById")]
-    public required Dictionary<string, HashSet<string>> ForcedLootSingleSpawnById { get; set; }
+    [JsonPropertyName("lootMaxSpawnLimits")]
+    public required Dictionary<string, Dictionary<string, int>> LootMaxSpawnLimits { get; set; }
 
     /// <summary>
     ///     How many attempts should be taken to fit an item into a container before giving up
@@ -144,6 +144,9 @@ public record LocationConfig : BaseConfig
 
 public record TransitSettings
 {
+    [JsonExtensionData]
+    public Dictionary<string, object>? ExtensionData { get; set; }
+
     [JsonPropertyName("effectsToRemove")]
     public HashSet<string>? EffectsToRemove { get; set; }
 
@@ -157,7 +160,7 @@ public record TransitSettings
 public record ReserveRaiderSpawnChanceOverrides
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("nonTriggered")]
     public int NonTriggered { get; set; }
@@ -169,7 +172,7 @@ public record ReserveRaiderSpawnChanceOverrides
 public record EquipmentLootSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Percentage chance item will be added to equipment
@@ -181,7 +184,7 @@ public record EquipmentLootSettings
 public record RogueLighthouseSpawnTimeSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("enabled")]
     public bool Enabled { get; set; }
@@ -193,7 +196,7 @@ public record RogueLighthouseSpawnTimeSettings
 public record CustomWaves
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Bosses spawn on raid start
@@ -214,7 +217,7 @@ public record BotTypeLimit : MinMax<int>
 public record ContainerRandomisationSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("enabled")]
     public bool Enabled { get; set; }
@@ -241,7 +244,7 @@ public record ContainerRandomisationSettings
 public record ScavRaidTimeSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("settings")]
     public required ScavRaidTimeConfigSettings Settings { get; set; }
@@ -253,7 +256,7 @@ public record ScavRaidTimeSettings
 public record ScavRaidTimeConfigSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("trainArrivalDelayObservedSeconds")]
     public int TrainArrivalDelayObservedSeconds { get; set; }
@@ -262,7 +265,7 @@ public record ScavRaidTimeConfigSettings
 public record ScavRaidTimeLocationSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Should loot be reduced by same percent length of raid is reduced by

@@ -21,13 +21,14 @@ public class BtrDeliveryService(
     SaveServer _saveServer,
     MailSendService _mailSendService,
     ConfigServer _configServer,
-    LocalisationService _localisationService
+    ServerLocalisationService _serverLocalisationService
 )
 {
-    protected BtrDeliveryConfig _btrDeliveryConfig = _configServer.GetConfig<BtrDeliveryConfig>();
-    protected TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
+    protected readonly BtrDeliveryConfig _btrDeliveryConfig =
+        _configServer.GetConfig<BtrDeliveryConfig>();
+    protected readonly TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
 
-    protected static List<string> _transferTypes = new() { "btr", "transit" };
+    protected static readonly List<string> _transferTypes = new() { "btr", "transit" };
 
     /// <summary>
     ///     Check if player used BTR or transit item sending service and send items to player via mail if found
@@ -67,7 +68,7 @@ public class BtrDeliveryService(
         // This is to stop items being duplicated by being returned from both item delivery and insurance
         var deliveredItemIds = items.Select(item => item.Id);
         pmcData.InsuredItems = pmcData
-            .InsuredItems.Where(insuredItem => !deliveredItemIds.Contains(insuredItem.ItemId))
+            .InsuredItems.Where(insuredItem => !deliveredItemIds.Contains(insuredItem.ItemId.Value))
             .ToList();
 
         if (_saveServer.GetProfile(sessionId).BtrDeliveryList == null)
@@ -94,7 +95,7 @@ public class BtrDeliveryService(
         if (dialogueTemplates is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "inraid-unable_to_deliver_item_no_trader_found",
                     Traders.BTR
                 )
@@ -105,7 +106,7 @@ public class BtrDeliveryService(
         if (!dialogueTemplates.TryGetValue("itemsDelivered", out var itemsDelivered))
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "btr-unable_to_find_items_in_dialog_template",
                     sessionId
                 )

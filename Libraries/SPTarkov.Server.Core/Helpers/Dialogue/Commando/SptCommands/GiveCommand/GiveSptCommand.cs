@@ -1,14 +1,15 @@
 using System.Collections.Frozen;
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers.Dialog.Commando.SptCommands;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Dialog;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.GiveCommand;
@@ -16,8 +17,6 @@ namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.GiveCommand
 [Injectable]
 public class GiveSptCommand(
     ISptLogger<GiveSptCommand> _logger,
-    HashUtil _hashUtil,
-    DatabaseService _databaseService,
     ItemHelper _itemHelper,
     PresetHelper _presetHelper,
     ItemFilterService _itemFilterService,
@@ -39,7 +38,7 @@ public class GiveSptCommand(
         ItemTpl.FLARE_RSP30_REACTIVE_SIGNAL_CARTRIDGE_YELLOW,
     ];
 
-    protected Dictionary<string, SavedCommand> _savedCommand = new();
+    protected readonly Dictionary<string, SavedCommand> _savedCommand = new();
 
     public string GetCommand()
     {
@@ -206,7 +205,7 @@ public class GiveSptCommand(
         localizedGlobal ??= GetGlobalsLocale(locale ?? "en");
         // If item is an item name, we need to search using that item name and the locale which one we want otherwise
         // item is just the tplId.
-        var tplId = isItemName
+        MongoId tplId = isItemName
             ? _itemHelper
                 .GetItems()
                 .Where(IsItemAllowed)
@@ -243,9 +242,7 @@ public class GiveSptCommand(
             for (var i = 0; i < quantity; i++)
             {
                 List<Item> ammoBoxArray = [];
-                ammoBoxArray.Add(
-                    new Item { Id = _hashUtil.Generate(), Template = checkedItem.Value.Id }
-                );
+                ammoBoxArray.Add(new Item { Id = new MongoId(), Template = checkedItem.Value.Id });
                 // DO NOT generate the ammo box cartridges, the mail service does it for us! :)
                 // _itemHelper.addCartridgesToAmmoBox(ammoBoxArray, checkedItem[1]);
                 itemsToSend.AddRange(ammoBoxArray);
@@ -260,7 +257,7 @@ public class GiveSptCommand(
                     itemsToSend.Add(
                         new Item
                         {
-                            Id = _hashUtil.Generate(),
+                            Id = new MongoId(),
                             Template = checkedItem.Value.Id,
                             Upd = _itemHelper.GenerateUpdForItem(checkedItem.Value),
                         }
@@ -271,7 +268,7 @@ public class GiveSptCommand(
             {
                 var itemToSend = new Item
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = checkedItem.Value.Id,
                     Upd = _itemHelper.GenerateUpdForItem(checkedItem.Value),
                 };
@@ -323,7 +320,7 @@ public class GiveSptCommand(
     protected bool IsItemAllowed(TemplateItem templateItem)
     {
         return templateItem.Type != "Node"
-            && !_itemHelper.IsQuestItem(templateItem.Id)
+            && !templateItem.IsQuestItem()
             && !_itemFilterService.IsItemBlacklisted(templateItem.Id)
             && (templateItem.Properties?.Prefab?.Path ?? "") != ""
             && !_itemHelper.IsOfBaseclasses(

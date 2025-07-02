@@ -1,24 +1,18 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Helpers;
 
 [Injectable]
 public class BotWeaponGeneratorHelper(
     ISptLogger<BotWeaponGeneratorHelper> _logger,
-    DatabaseServer _databaseServer,
     ItemHelper _itemHelper,
-    RandomUtil _randomUtil,
-    HashUtil _hashUtil,
     WeightedRandomHelper _weightedRandomHelper,
-    BotGeneratorHelper _botGeneratorHelper,
-    LocalisationService _localisationService
+    BotGeneratorHelper _botGeneratorHelper
 )
 {
     private static readonly FrozenSet<string> _magCheck =
@@ -99,7 +93,7 @@ public class BotWeaponGeneratorHelper(
         TemplateItem magTemplate
     )
     {
-        List<Item> magazine = [new() { Id = _hashUtil.Generate(), Template = magazineTpl }];
+        List<Item> magazine = [new() { Id = new MongoId(), Template = magazineTpl }];
 
         _itemHelper.FillMagazineWithCartridge(magazine, magTemplate, ammoTpl, 1);
 
@@ -117,7 +111,7 @@ public class BotWeaponGeneratorHelper(
         string ammoTpl,
         int cartridgeCount,
         BotBaseInventory inventory,
-        HashSet<EquipmentSlots> equipmentSlotsToAddTo
+        HashSet<EquipmentSlots>? equipmentSlotsToAddTo = null
     )
     {
         if (equipmentSlotsToAddTo is null)
@@ -128,7 +122,7 @@ public class BotWeaponGeneratorHelper(
         var ammoItems = _itemHelper.SplitStack(
             new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = ammoTpl,
                 Upd = new Upd { StackObjectsCount = cartridgeCount },
             }
@@ -157,15 +151,5 @@ public class BotWeaponGeneratorHelper(
                 }
             }
         }
-    }
-
-    /// <summary>
-    ///     Get a weapons default magazine template id
-    /// </summary>
-    /// <param name="weaponTemplate">Weapon to get default magazine for</param>
-    /// <returns>Tpl of magazine</returns>
-    public string? GetWeaponsDefaultMagazineTpl(TemplateItem weaponTemplate)
-    {
-        return weaponTemplate.Properties.DefMagType;
     }
 }

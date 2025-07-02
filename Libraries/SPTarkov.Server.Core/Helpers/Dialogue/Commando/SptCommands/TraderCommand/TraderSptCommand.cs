@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers.Dialog.Commando.SptCommands;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Dialog;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -21,7 +22,7 @@ public class TraderSptCommand(
     MailSendService _mailSendService
 ) : ISptCommand
 {
-    protected Regex _commandRegex = new(
+    protected readonly Regex _commandRegex = new(
         @"^spt trader (?<trader>[\w]+) (?<command>rep|spend) (?<quantity>(?!0+)[0-9]+)$"
     );
 
@@ -107,7 +108,7 @@ public class TraderSptCommand(
             [
                 new Item
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = Money.ROUBLES,
                     Upd = new Upd { StackObjectsCount = 1 },
                     ParentId = _hashUtil.Generate(),
@@ -129,7 +130,7 @@ public class TraderSptCommand(
     {
         return new ProfileChangeEvent
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Type = profileChangeEventType.ToString(),
             Value = quantity,
             Entity = dbTraderId,

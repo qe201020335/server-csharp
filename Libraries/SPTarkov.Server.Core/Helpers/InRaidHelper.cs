@@ -1,5 +1,7 @@
 ﻿using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -25,8 +27,9 @@ public class InRaidHelper(
         "pocket3",
         "pocket4",
     ];
-    protected InRaidConfig _inRaidConfig = _configServer.GetConfig<InRaidConfig>();
-    protected LostOnDeathConfig _lostOnDeathConfig = _configServer.GetConfig<LostOnDeathConfig>();
+    protected readonly InRaidConfig _inRaidConfig = _configServer.GetConfig<InRaidConfig>();
+    protected readonly LostOnDeathConfig _lostOnDeathConfig =
+        _configServer.GetConfig<LostOnDeathConfig>();
 
     /// <summary>
     ///     Deprecated. Reset the skill points earned in a raid to 0, ready for next raid.
@@ -73,14 +76,12 @@ public class InRaidHelper(
         );
 
         // Get all items that have a parent of `serverProfile.Inventory.equipment` (All items player had on them at end of raid)
-        var postRaidInventoryItems = _itemHelper.FindAndReturnChildrenAsItems(
-            postRaidProfile.Inventory.Items,
+        var postRaidInventoryItems = postRaidProfile.Inventory.Items.FindAndReturnChildrenAsItems(
             postRaidProfile.Inventory.Equipment
         );
 
         // Get all items that have a parent of `serverProfile.Inventory.questRaidItems` (Quest items player had on them at end of raid)
-        var postRaidQuestItems = _itemHelper.FindAndReturnChildrenAsItems(
-            postRaidProfile.Inventory.Items,
+        var postRaidQuestItems = postRaidProfile.Inventory.Items.FindAndReturnChildrenAsItems(
             postRaidProfile.Inventory.QuestRaidItems
         );
 
@@ -116,7 +117,7 @@ public class InRaidHelper(
                 && !(dbItems[item.Template].Properties.QuestItem ?? false)
                 && !(
                     _inRaidConfig.KeepFiRSecureContainerOnDeath
-                    && _itemHelper.ItemIsInsideContainer(item, "SecuredContainer", items)
+                    && item.ItemIsInsideContainer("SecuredContainer", items)
                 );
         });
 
@@ -174,7 +175,7 @@ public class InRaidHelper(
         }
 
         // Remove contents of fast panel
-        pmcData.Inventory.FastPanel = new Dictionary<string, string>();
+        pmcData.Inventory.FastPanel = new Dictionary<string, MongoId>();
     }
 
     /// <summary>
@@ -201,13 +202,7 @@ public class InRaidHelper(
             )
         )
         {
-            if (
-                _itemHelper.ItemIsInsideContainer(
-                    inventoryItem,
-                    secureContainerSlotId,
-                    pmcData.Inventory.Items
-                )
-            )
+            if (inventoryItem.ItemIsInsideContainer(secureContainerSlotId, pmcData.Inventory.Items))
             {
                 itemsInsideContainer.Add(inventoryItem);
             }

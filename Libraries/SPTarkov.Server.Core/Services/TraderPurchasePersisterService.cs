@@ -14,11 +14,11 @@ public class TraderPurchasePersisterService(
     RandomUtil _randomUtil,
     TimeUtil _timeUtil,
     ProfileHelper _profileHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer
 )
 {
-    protected TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
+    protected readonly TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
 
     /// <summary>
     ///     Get the purchases made from a trader for this profile before the last trader reset
@@ -33,17 +33,7 @@ public class TraderPurchasePersisterService(
     {
         var profile = _profileHelper.GetFullProfile(sessionId);
 
-        if (profile.TraderPurchases is null)
-        {
-            return null;
-        }
-
-        if (profile.TraderPurchases.ContainsKey(traderId))
-        {
-            return profile.TraderPurchases[traderId];
-        }
-
-        return null;
+        return profile?.TraderPurchases?.GetValueOrDefault(traderId);
     }
 
     /// <summary>
@@ -97,7 +87,7 @@ public class TraderPurchasePersisterService(
                 continue;
             }
 
-            // Skip if no trader-speicifc purchases
+            // Skip if no trader-specific purchases
             if (!profile.Value.TraderPurchases.TryGetValue(traderId, out _))
             {
                 continue;
@@ -135,7 +125,7 @@ public class TraderPurchasePersisterService(
                 if (traderUpdateDetails is null)
                 {
                     _logger.Error(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "trader-unable_to_delete_stale_purchases",
                             new { profileId = profile.ProfileInfo.ProfileId, traderId }
                         )

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 
@@ -138,6 +139,34 @@ public record BotConfig : BaseConfig
     /// </summary>
     [JsonPropertyName("botRolesThatMustHaveUniqueName")]
     public required HashSet<string> BotRolesThatMustHaveUniqueName { get; set; }
+
+    /// <summary>
+    ///     Bot roles that must have a unique name when generated vs other bots in raid
+    /// </summary>
+    [JsonPropertyName("weeklyBoss")]
+    public required WeeklyBossSettings WeeklyBoss { get; set; }
+}
+
+public record WeeklyBossSettings
+{
+    /// <summary>
+    /// Should a weekly boss be picked to 100% spawn
+    /// </summary>
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    /// <summary>
+    /// Bosses that can be picked
+    /// </summary>
+    [JsonPropertyName("bossPool")]
+    public List<WildSpawnType> BossPool { get; set; }
+
+    /// <summary>
+    /// Day of week boss choice resets
+    /// </summary>
+    [JsonPropertyName("resetDay")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public DayOfWeek ResetDay { get; set; }
 }
 
 /// <summary>
@@ -146,7 +175,7 @@ public record BotConfig : BaseConfig
 public record PresetBatch
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("assault")]
     public int Assault { get; set; }
@@ -287,7 +316,7 @@ public record PresetBatch
 public record WalletLootSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Chance wallets have loot in them
@@ -302,7 +331,7 @@ public record WalletLootSettings
     public required Dictionary<string, double> StackSizeWeight { get; set; }
 
     [JsonPropertyName("currencyWeight")]
-    public required Dictionary<string, double> CurrencyWeight { get; set; }
+    public required Dictionary<MongoId, double> CurrencyWeight { get; set; }
 
     /// <summary>
     ///     What wallets will have money in them
@@ -314,7 +343,7 @@ public record WalletLootSettings
 public record EquipmentFilters
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Limits for mod types per weapon .e.g. scopes
@@ -425,7 +454,7 @@ public record EquipmentFilters
 public record ModLimits
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     How many scopes are allowed on a weapon - hard coded to work with OPTIC_SCOPE, ASSAULT_SCOPE, COLLIMATOR, COMPACT_COLLIMATOR
@@ -443,7 +472,7 @@ public record ModLimits
 public record RandomisationDetails
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Between what levels do these randomisation setting apply to
@@ -497,7 +526,7 @@ public record RandomisationDetails
 public record NighttimeChanges
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Applies changes to values stored in equipmentMods
@@ -512,7 +541,7 @@ public record NighttimeChanges
 public record EquipmentFilterDetails
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Between what levels do these equipment filter setting apply to
@@ -524,25 +553,25 @@ public record EquipmentFilterDetails
     ///     Key: mod slot name e.g. mod_magazine, value: item tpls
     /// </summary>
     [JsonPropertyName("equipment")]
-    public Dictionary<string, HashSet<string>>? Equipment { get; set; }
+    public Dictionary<string, HashSet<MongoId>>? Equipment { get; set; }
 
     /// <summary>
     ///     Key: equipment slot name e.g. FirstPrimaryWeapon, value: item tpls
     /// </summary>
     [JsonPropertyName("gear")]
-    public Dictionary<EquipmentSlots, HashSet<string>>? Gear { get; set; }
+    public Dictionary<EquipmentSlots, HashSet<MongoId>>? Gear { get; set; }
 
     /// <summary>
     ///     Key: cartridge type e.g. Caliber23x75, value: item tpls
     /// </summary>
     [JsonPropertyName("cartridge")]
-    public Dictionary<string, HashSet<string>>? Cartridge { get; set; }
+    public Dictionary<string, HashSet<MongoId>>? Cartridge { get; set; }
 }
 
 public record WeightingAdjustmentDetails
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Between what levels do these weight settings apply to
@@ -572,7 +601,7 @@ public record WeightingAdjustmentDetails
 public record AdjustmentDetails
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("add")]
     public Dictionary<string, Dictionary<string, float>> Add { get; set; }
@@ -584,7 +613,7 @@ public record AdjustmentDetails
 public class ArmorPlateWeights
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("levelRange")]
     public MinMax<int> LevelRange { get; set; }
@@ -596,7 +625,7 @@ public class ArmorPlateWeights
 public record RandomisedResourceDetails
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("food")]
     public RandomisedResourceValues Food { get; set; }
@@ -608,7 +637,7 @@ public record RandomisedResourceDetails
 public record RandomisedResourceValues
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Minimum percent of item to randomized between min and max resource

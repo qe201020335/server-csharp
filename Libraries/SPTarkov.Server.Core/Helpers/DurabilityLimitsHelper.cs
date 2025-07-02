@@ -9,13 +9,13 @@ namespace SPTarkov.Server.Core.Helpers;
 
 [Injectable]
 public class DurabilityLimitsHelper(
-    ISptLogger<DurabilityLimitsHelper> _logger,
-    RandomUtil _randomUtil,
-    BotHelper _botHelper,
-    ConfigServer _configServer
+    ISptLogger<DurabilityLimitsHelper> logger,
+    RandomUtil randomUtil,
+    BotHelper botHelper,
+    ConfigServer configServer
 )
 {
-    private readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    private readonly BotConfig _botConfig = configServer.GetConfig<BotConfig>();
 
     /// <summary>
     ///     Get max durability for a weapon based on bot role
@@ -50,21 +50,12 @@ public class DurabilityLimitsHelper(
             return itemMaxDurability;
         }
 
-        if (_botHelper.IsBotPmc(botRole))
+        if (botHelper.IsBotPmc(botRole))
         {
             return GenerateMaxPmcArmorDurability(itemMaxDurability);
         }
 
-        if (_botHelper.IsBotBoss(botRole))
-        {
-            return itemMaxDurability;
-        }
-
-        if (_botHelper.IsBotFollower(botRole))
-        {
-            return itemMaxDurability;
-        }
-
+        // Everyone else (Boss/follower etc)
         return itemMaxDurability;
     }
 
@@ -98,37 +89,37 @@ public class DurabilityLimitsHelper(
             return "default";
         }
 
-        if (_botHelper.IsBotPmc(botRole))
+        if (botHelper.IsBotPmc(botRole))
         {
             return "pmc";
         }
 
-        if (_botHelper.IsBotBoss(botRole))
+        if (botHelper.IsBotBoss(botRole))
         {
             return "boss";
         }
 
-        if (_botHelper.IsBotFollower(botRole))
+        if (botHelper.IsBotFollower(botRole))
         {
             return "follower";
         }
 
-        if (_botHelper.IsBotZombie(botRole))
+        if (botHelper.IsBotZombie(botRole))
         {
             return "zombie";
         }
 
         var roleExistsInConfig = _botConfig.Durability.BotDurabilities.ContainsKey(botRole);
-        if (!roleExistsInConfig)
+        if (roleExistsInConfig)
         {
-            _logger.Debug(
-                $"{botRole} doesn't exist in bot config durability values, using default fallback"
-            );
-
-            return "default";
+            return botRole;
         }
 
-        return botRole;
+        logger.Debug(
+            $"{botRole} doesn't exist in bot config durability values, using default fallback"
+        );
+
+        return "default";
     }
 
     /// <summary>
@@ -154,14 +145,14 @@ public class DurabilityLimitsHelper(
         var lowestMax = GetLowestMaxWeaponFromConfig(botRole);
         var highestMax = GetHighestMaxWeaponDurabilityFromConfig(botRole);
 
-        return _randomUtil.GetInt(lowestMax, highestMax);
+        return randomUtil.GetInt(lowestMax, highestMax);
     }
 
     protected double GenerateMaxPmcArmorDurability(double itemMaxDurability)
     {
         var lowestMaxPercent = _botConfig.Durability.Pmc.Armor.LowestMaxPercent;
         var highestMaxPercent = _botConfig.Durability.Pmc.Armor.HighestMaxPercent;
-        var multiplier = _randomUtil.GetDouble(lowestMaxPercent, highestMaxPercent);
+        var multiplier = randomUtil.GetDouble(lowestMaxPercent, highestMaxPercent);
 
         return itemMaxDurability * (multiplier / 100);
     }
@@ -202,13 +193,13 @@ public class DurabilityLimitsHelper(
     {
         var minDelta = GetMinWeaponDeltaFromConfig(botRole);
         var maxDelta = GetMaxWeaponDeltaFromConfig(botRole);
-        var delta = _randomUtil.GetInt(minDelta, maxDelta);
+        var delta = randomUtil.GetInt(minDelta, maxDelta);
         var result = maxDurability - delta;
         var durabilityValueMinLimit = Math.Round(
             GetMinWeaponLimitPercentFromConfig(botRole) / 100 * maxDurability
         );
 
-        // Don't let weapon dura go below the percent defined in config
+        // Don't let weapon durability go below the percent defined in config
         return result >= durabilityValueMinLimit ? result : durabilityValueMinLimit;
     }
 
@@ -216,13 +207,13 @@ public class DurabilityLimitsHelper(
     {
         var minDelta = GetMinArmorDeltaFromConfig(botRole);
         var maxDelta = GetMaxArmorDeltaFromConfig(botRole);
-        var delta = _randomUtil.GetInt(minDelta, maxDelta);
+        var delta = randomUtil.GetInt(minDelta, maxDelta);
         var result = maxDurability - delta;
         var durabilityValueMinLimit = Math.Round(
             GetMinArmorLimitPercentFromConfig(botRole) / 100 * maxDurability
         );
 
-        // Don't let armor dura go below the percent defined in config
+        // Don't let armor durability go below the percent defined in config
         return result >= durabilityValueMinLimit ? result : durabilityValueMinLimit;
     }
 
@@ -238,9 +229,9 @@ public class DurabilityLimitsHelper(
             return _botConfig.Durability.Pmc.Weapon.MinDelta;
         }
 
-        _botConfig.Durability.BotDurabilities.TryGetValue(botRole, out var value);
+        _botConfig.Durability.BotDurabilities.TryGetValue(botRole, out var durability);
 
-        return value.Weapon.MinDelta;
+        return durability.Weapon.MinDelta;
     }
 
     protected int GetMaxWeaponDeltaFromConfig(string? botRole = null)

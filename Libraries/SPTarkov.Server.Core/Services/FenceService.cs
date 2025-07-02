@@ -1,5 +1,6 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -23,7 +24,7 @@ public class FenceService(
     HandbookHelper handbookHelper,
     ItemHelper itemHelper,
     PresetHelper presetHelper,
-    LocalisationService localisationService,
+    ServerLocalisationService localisationService,
     ConfigServer configServer,
     ICloner _cloner
 )
@@ -43,7 +44,7 @@ public class FenceService(
     /// </summary>
     protected TraderAssort? fenceDiscountAssort;
 
-    protected HashSet<string> fenceItemUpdCompareProperties =
+    protected readonly HashSet<string> fenceItemUpdCompareProperties =
     [
         "Buff",
         "Repairable",
@@ -61,7 +62,7 @@ public class FenceService(
     /// </summary>
     protected long nextPartialRefreshTimestamp;
 
-    protected TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
+    protected readonly TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
 
     /// <summary>
     ///     Replace main fence assort with new assort
@@ -144,9 +145,7 @@ public class FenceService(
     {
         // HUGE THANKS TO LACYWAY AND LEAVES FOR PROVIDING THIS SOLUTION FOR SPT TO IMPLEMENT!!
         // Copy the item and its children
-        var clonedItems = _cloner.Clone(
-            itemHelper.FindAndReturnChildrenAsItems(items, mainItem.Id)
-        );
+        var clonedItems = _cloner.Clone(items.FindAndReturnChildrenAsItems(mainItem.Id));
         // I BLAME LACY FOR THIS ISSUE, I SPENT HOURS FIXING IT /s
         // i think on node the one with hideout usually came first
         var root = clonedItems.FirstOrDefault(x => x.SlotId == "hideout");
@@ -422,8 +421,7 @@ public class FenceService(
             // Check if same type of item exists + its on list of item types to always stack
             if (existingRootItem != null && ItemInPreventDupeCategoryList(newRootItem.Template))
             {
-                var existingFullItemTree = itemHelper.FindAndReturnChildrenAsItems(
-                    existingFenceAssorts.Items,
+                var existingFullItemTree = existingFenceAssorts.Items.FindAndReturnChildrenAsItems(
                     existingRootItem.Id
                 );
                 if (
@@ -579,10 +577,7 @@ public class FenceService(
         }
 
         // Remove item + child mods (if any)
-        var itemWithChildren = itemHelper.FindAndReturnChildrenAsItems(
-            assort.Items,
-            rootItemToAdjust.Id
-        );
+        var itemWithChildren = assort.Items.FindAndReturnChildrenAsItems(rootItemToAdjust.Id);
         foreach (var itemToDelete in itemWithChildren)
         // Delete item from assort items array
         {
@@ -823,10 +818,7 @@ public class FenceService(
                 .ToList();
 
             var desiredAssortItemAndChildrenClone = _cloner.Clone(
-                itemHelper.FindAndReturnChildrenAsItems(
-                    childItemsAndSingleRoot,
-                    chosenBaseAssortRoot.Id
-                )
+                childItemsAndSingleRoot.FindAndReturnChildrenAsItems(chosenBaseAssortRoot.Id)
             );
 
             var itemDbDetails = itemHelper.GetItem(chosenBaseAssortRoot.Template).Value;
@@ -1120,10 +1112,7 @@ public class FenceService(
                 var rootItemDb = itemHelper.GetItem(randomPresetRoot.Template).Value;
 
                 var presetWithChildrenClone = _cloner.Clone(
-                    itemHelper.FindAndReturnChildrenAsItems(
-                        baseFenceAssort.Items,
-                        randomPresetRoot.Id
-                    )
+                    baseFenceAssort.Items.FindAndReturnChildrenAsItems(randomPresetRoot.Id)
                 );
 
                 RandomiseItemUpdProperties(rootItemDb, presetWithChildrenClone[0]);
@@ -1203,7 +1192,7 @@ public class FenceService(
             var rootItemDb = itemHelper.GetItem(randomPresetRoot.Template).Value;
 
             var presetWithChildrenClone = _cloner.Clone(
-                itemHelper.FindAndReturnChildrenAsItems(baseFenceAssort.Items, randomPresetRoot.Id)
+                baseFenceAssort.Items.FindAndReturnChildrenAsItems(randomPresetRoot.Id)
             );
 
             // Need to add mods to armors so they don't show as red in the trade screen
@@ -1497,9 +1486,7 @@ public class FenceService(
                 }
 
                 // Remove item and its sub-items to prevent orphans
-                toDelete.UnionWith(
-                    itemHelper.FindAndReturnChildrenByItems(itemAndMods, itemMod.Id)
-                );
+                toDelete.UnionWith(itemAndMods.FindAndReturnChildrenByItems(itemMod.Id));
             }
         }
 
@@ -1565,10 +1552,11 @@ public class FenceService(
 
         // Randomise armor durability
         if (
-            itemDetails.Parent
-                is BaseClasses.ARMORED_EQUIPMENT
-                    or BaseClasses.FACECOVER
-                    or BaseClasses.ARMOR_PLATE
+            (
+                itemDetails.Parent == BaseClasses.ARMORED_EQUIPMENT
+                || itemDetails.Parent == BaseClasses.FACECOVER
+                || itemDetails.Parent == BaseClasses.ARMOR_PLATE
+            )
             && itemDetails.Properties.MaxDurability.GetValueOrDefault(0) > 0
         )
         {
@@ -1800,7 +1788,7 @@ public class FenceService(
     protected void DeleteOffer(string assortId, List<Item> assorts)
     {
         // Assort could have child items, remove those too
-        var itemWithChildrenToRemove = itemHelper.FindAndReturnChildrenAsItems(assorts, assortId);
+        var itemWithChildrenToRemove = assorts.FindAndReturnChildrenAsItems(assortId);
         foreach (var itemToRemove in itemWithChildrenToRemove)
         {
             var indexToRemove = assorts.FindIndex(item => item.Id == itemToRemove.Id);

@@ -7,7 +7,7 @@ namespace SPTarkov.Server.Core.Models.Spt.Server;
 public record DatabaseTables
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     public Bots.Bots? Bots { get; set; }
 
@@ -21,7 +21,7 @@ public record DatabaseTables
 
     public Templates.Templates? Templates { get; set; }
 
-    public Dictionary<string, Trader>? Traders { get; set; }
+    public Dictionary<string, Trader> Traders { get; set; }
 
     public Globals? Globals { get; set; }
 

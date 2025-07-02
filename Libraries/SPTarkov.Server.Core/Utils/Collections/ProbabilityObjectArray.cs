@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Utils.Collections;
@@ -23,16 +24,13 @@ namespace SPTarkov.Server.Core.Utils.Collections;
 public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>
 {
     private readonly ICloner _cloner;
-    private readonly MathUtil _mathUtil;
 
     public ProbabilityObjectArray(
-        MathUtil mathUtil,
         ICloner cloner,
         ICollection<ProbabilityObject<K, V>>? items = null
     )
         : base(items ?? [])
     {
-        _mathUtil = mathUtil;
         _cloner = cloner;
     }
 
@@ -43,11 +41,11 @@ public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>
     /// <returns>Cumulative Sum normalized to 1</returns>
     public List<double> CumulativeProbability(List<double> probValues)
     {
-        var sum = _mathUtil.ListSum(probValues);
-        var probCumsum = _mathUtil.ListCumSum(probValues);
-        probCumsum = _mathUtil.ListProduct(probCumsum, 1D / sum);
+        var sum = probValues.Sum();
+        var probCumsum = probValues.CumulativeSum();
+        probCumsum = probCumsum.Product(1D / sum);
 
-        return probCumsum;
+        return probCumsum.ToList();
     }
 
     /// <summary>
@@ -57,11 +55,7 @@ public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>
     /// <returns>Filtered results</returns>
     public ProbabilityObjectArray<K, V> Filter(Predicate<ProbabilityObject<K, V>> predicate)
     {
-        var result = new ProbabilityObjectArray<K, V>(
-            _mathUtil,
-            _cloner,
-            new List<ProbabilityObject<K, V>>()
-        );
+        var result = new ProbabilityObjectArray<K, V>(_cloner, new List<ProbabilityObject<K, V>>());
         foreach (var probabilityObject in this)
         {
             if (predicate.Invoke(probabilityObject))
@@ -81,7 +75,6 @@ public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>
     {
         var clone = _cloner.Clone(this);
         var probabilityObjects = new ProbabilityObjectArray<K, V>(
-            _mathUtil,
             _cloner,
             new List<ProbabilityObject<K, V>>()
         );
@@ -151,14 +144,14 @@ public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>
         return this.Min(x => x.RelativeProbability.Value);
     }
 
-    /**
-     * Draw random element of the ProbabilityObject N times to return an array of N keys.
-     * Drawing can be with or without replacement
-     * @param count The number of times we want to draw
-     * @param removeAfterDraw Draw with or without replacement from the input dict (true = dont remove after drawing)
-     * @param lockList list keys which shall be replaced even if drawing without replacement
-     * @returns Array consisting of N random keys for this ProbabilityObjectArray
-     */
+    /// <summary>
+    /// Draw random element of the ProbabilityObject N times to return an array of N keys.
+    /// Drawing can be with or without replacement
+    /// </summary>
+    /// <param name="drawCount">The number of times we want to draw</param>
+    /// <param name="removeAfterDraw">Draw with or without replacement from the input dict (true = don't remove after drawing)</param>
+    /// <param name="neverRemoveWhitelist">List of keys which shall be replaced even if drawing without replacement</param>
+    /// <returns>Collection consisting of N random keys for this ProbabilityObjectArray</returns>
     public List<K> Draw(
         int drawCount = 1,
         bool removeAfterDraw = true,

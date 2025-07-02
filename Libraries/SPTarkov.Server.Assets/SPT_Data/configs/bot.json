@@ -2916,5 +2916,19 @@
       "5783c43d2459774bbe137486",
       "60b0f6c058e0b0481a09ad11"
     ]
+  },
+  "weeklyBoss": {
+	  "enabled": true,
+      "bossPool": [
+          "bossBully",
+          "bossTagilla",
+          "bossGluhar",
+          "bossKilla",
+          "bossKojaniy",
+          "bossSanitar",
+          "bossKolontay",
+          "bossKnight"
+	  ],
+	  "resetDay": "Monday"
   }
 }

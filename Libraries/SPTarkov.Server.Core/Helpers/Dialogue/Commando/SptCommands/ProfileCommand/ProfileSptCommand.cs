@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers.Dialog.Commando.SptCommands;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Dialog;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -139,7 +140,7 @@ public class ProfileSptCommand(
             [
                 new Item
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = Money.ROUBLES,
                     Upd = new Upd { StackObjectsCount = 1 },
                     ParentId = _hashUtil.Generate(),
@@ -157,7 +158,7 @@ public class ProfileSptCommand(
     {
         var profileChangeEvent = new ProfileChangeEvent
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Type = "SkillPoints",
             Value = level * 100,
             Entity = skill.ToString(),
@@ -170,7 +171,7 @@ public class ProfileSptCommand(
         var exp = _profileHelper.GetExperience(level);
         var profileChangeEvent = new ProfileChangeEvent
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Type = "ProfileLevel",
             Value = exp,
             Entity = null,
@@ -182,7 +183,7 @@ public class ProfileSptCommand(
     {
         var profileChangeEvent = new ProfileChangeEvent
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Type = "ExamineAllItems",
             Value = null,
             Entity = null,

@@ -8,7 +8,7 @@ namespace SPTarkov.Server.Core.Models.Eft.Match;
 public record StartLocalRaidResponseData
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("serverId")]
     public string? ServerId { get; set; }
@@ -28,12 +28,15 @@ public record StartLocalRaidResponseData
 
     [JsonPropertyName("transition")]
     public Transition? Transition { get; set; }
+
+    [JsonPropertyName("excludedBosses")]
+    public List<string>? ExcludedBosses { get; set; }
 }
 
 public record ProfileInsuredItems
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("insuredItems")]
     public List<InsuredItem>? InsuredItems { get; set; }
@@ -42,7 +45,7 @@ public record ProfileInsuredItems
 public record Transition
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("transitionType")]
     public TransitionType? TransitionType { get; set; }

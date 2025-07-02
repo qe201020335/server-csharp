@@ -1,6 +1,8 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -8,6 +10,7 @@ using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Utils;
+using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
 namespace SPTarkov.Server.Core.Services;
 
@@ -17,10 +20,10 @@ public class SeasonalEventService(
     TimeUtil _timeUtil,
     DatabaseService _databaseService,
     GiftService _giftService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ProfileHelper _profileHelper,
     ConfigServer _configServer,
-    LocaleService _localeService
+    RandomUtil _randomUtil
 )
 {
     private bool _christmasEventActive;
@@ -73,23 +76,28 @@ public class SeasonalEventService(
         ItemTpl.HEADWEAR_JACKOLANTERN_TACTICAL_PUMPKIN_HELMET,
         ItemTpl.FACECOVER_FACELESS_MASK,
         ItemTpl.FACECOVER_GHOUL_MASK,
-        ItemTpl.FACECOVER_HOCKEY_PLAYER_MASK_BRAWLER,
-        ItemTpl.FACECOVER_HOCKEY_PLAYER_MASK_CAPTAIN,
-        ItemTpl.FACECOVER_HOCKEY_PLAYER_MASK_QUIET,
+        ItemTpl.FACECOVER_SPOOKY_SKULL_MASK,
+        ItemTpl.FACECOVER_SPOOKY_SKULL_MASK_2,
+        ItemTpl.FACECOVER_GHOUL_MASK_2,
         ItemTpl.FACECOVER_JASON_MASK,
         ItemTpl.FACECOVER_MISHA_MAYOROV_MASK,
         ItemTpl.FACECOVER_SLENDER_MASK,
-        ItemTpl.FACECOVER_SPOOKY_SKULL_MASK,
+        ItemTpl.FACECOVER_SLENDER_MASK_2,
         ItemTpl.RANDOMLOOTCONTAINER_PUMPKIN_RAND_LOOT_CONTAINER,
     ];
 
-    protected HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
-    protected LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
-    protected HashSet<string> _lootContainersToFilter = ["Backpack", "Pockets", "TacticalVest"];
-    protected QuestConfig _questConfig = _configServer.GetConfig<QuestConfig>();
-    protected SeasonalEventConfig _seasonalEventConfig =
+    protected readonly HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
+    protected readonly LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
+    protected readonly HashSet<string> _lootContainersToFilter =
+    [
+        "Backpack",
+        "Pockets",
+        "TacticalVest",
+    ];
+    protected readonly QuestConfig _questConfig = _configServer.GetConfig<QuestConfig>();
+    protected readonly SeasonalEventConfig _seasonalEventConfig =
         _configServer.GetConfig<SeasonalEventConfig>();
-    protected WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
+    protected readonly WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
 
     /// <summary>
     ///     Get an array of christmas items found in bots inventories as loot
@@ -144,17 +152,17 @@ public class SeasonalEventService(
     ///     or, if halloween and christmas are inactive, return both sets of items
     /// </summary>
     /// <returns>array of tpl strings</returns>
-    public HashSet<string> GetInactiveSeasonalEventItems()
+    public HashSet<MongoId> GetInactiveSeasonalEventItems()
     {
-        var items = new HashSet<string>();
+        var items = new HashSet<MongoId>();
         if (!ChristmasEventEnabled())
         {
-            items.UnionWith(_christmasEventItems);
+            items.UnionWith(_christmasEventItems.ToMongoIds());
         }
 
         if (!HalloweenEventEnabled())
         {
-            items.UnionWith(_halloweenEventItems);
+            items.UnionWith(_halloweenEventItems.ToMongoIds());
         }
 
         return items;
@@ -298,8 +306,7 @@ public class SeasonalEventService(
             }
 
             if (
-                DateIsBetweenTwoDates(
-                    currentDate,
+                currentDate.DateIsBetweenTwoDates(
                     events.StartMonth,
                     events.StartDay,
                     events.EndMonth,
@@ -327,8 +334,7 @@ public class SeasonalEventService(
         foreach (var seasonRange in _weatherConfig.SeasonDates)
         {
             if (
-                DateIsBetweenTwoDates(
-                    currentDate,
+                currentDate.DateIsBetweenTwoDates(
                     seasonRange.StartMonth ?? 0,
                     seasonRange.StartDay ?? 0,
                     seasonRange.EndMonth ?? 0,
@@ -340,34 +346,11 @@ public class SeasonalEventService(
             }
         }
 
-        _logger.Warning(_localisationService.GetText("season-no_matching_season_found_for_date"));
+        _logger.Warning(
+            _serverLocalisationService.GetText("season-no_matching_season_found_for_date")
+        );
 
         return Season.SUMMER;
-    }
-
-    /// <summary>
-    ///     Does the provided date fit between the two defined dates?
-    ///     Excludes year
-    ///     Inclusive of end date upto 23 hours 59 minutes
-    /// </summary>
-    /// <param name="dateToCheck">Date to check is between 2 dates</param>
-    /// <param name="startMonth">Lower bound for month</param>
-    /// <param name="startDay">Lower bound for day</param>
-    /// <param name="endMonth">Upper bound for month</param>
-    /// <param name="endDay">Upper bound for day</param>
-    /// <returns>True when inside date range</returns>
-    private bool DateIsBetweenTwoDates(
-        DateTime dateToCheck,
-        int startMonth,
-        int startDay,
-        int endMonth,
-        int endDay
-    )
-    {
-        var eventStartDate = new DateTime(dateToCheck.Year, startMonth, startDay);
-        var eventEndDate = new DateTime(dateToCheck.Year, endMonth, endDay, 23, 59, 0);
-
-        return dateToCheck >= eventStartDate && dateToCheck <= eventEndDate;
     }
 
     /// <summary>
@@ -385,7 +368,7 @@ public class SeasonalEventService(
             if (botInventory.Equipment[equipmentSlotKey] is null)
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "seasonal-missing_equipment_slot_on_bot",
                         new { equipmentSlot = equipmentSlotKey, botRole }
                     )
@@ -414,7 +397,7 @@ public class SeasonalEventService(
             if (prop is null)
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "seasonal-missing_loot_container_slot_on_bot",
                         new { lootContainer = lootContainerKey, botRole }
                     )
@@ -433,7 +416,9 @@ public class SeasonalEventService(
     /// <param name="event">Name of the event to enable. e.g. Christmas</param>
     private void UpdateGlobalEvents(Config globalConfig, SeasonalEvent eventType)
     {
-        _logger.Success(_localisationService.GetText("season-event_is_active", eventType.Type));
+        _logger.Success(
+            _serverLocalisationService.GetText("season-event_is_active", eventType.Type)
+        );
         _christmasEventActive = false;
         _halloweenEventActive = false;
 
@@ -804,6 +789,17 @@ public class SeasonalEventService(
         var globalInfectionDict = globals.LocationInfection.GetAllPropsAsDict();
         foreach (var (locationId, infectionPercentage) in zombieSettings.MapInfectionAmount)
         {
+            // calculate a random value unless the rate is 100
+            double randomInfectionPercentage =
+                infectionPercentage == 100
+                    ? infectionPercentage
+                    : Convert.ToDouble(
+                        _randomUtil.GetInt(Convert.ToInt32(infectionPercentage), 100)
+                    );
+            if (_logger.IsLogEnabled(LogLevel.Debug))
+                _logger.Debug(
+                    $"Percent infected from map {locationId} is {randomInfectionPercentage}"
+                );
             // Infection rates sometimes apply to multiple maps, e.g. Factory day/night or Sandbox/sandbox_high
             // Get the list of maps that should have infection value applied to their base
             // 90% of locations are just 1 map e.g. bigmap = customs
@@ -812,11 +808,11 @@ public class SeasonalEventService(
             {
                 _databaseService
                     .GetLocation(locationKey)
-                    .Base.Events.Halloween2024.InfectionPercentage = infectionPercentage;
+                    .Base.Events.Halloween2024.InfectionPercentage = randomInfectionPercentage;
             }
 
             // Globals data needs value updated too
-            globalInfectionDict[locationId] = infectionPercentage;
+            globalInfectionDict[locationId] = randomInfectionPercentage;
         }
 
         foreach (var locationId in zombieSettings.DisableBosses)
@@ -1012,7 +1008,9 @@ public class SeasonalEventService(
         var botGearChanges = GetEventBotGear(eventType);
         if (botGearChanges is null)
         {
-            _logger.Warning(_localisationService.GetText("gameevent-no_gear_data", eventType));
+            _logger.Warning(
+                _serverLocalisationService.GetText("gameevent-no_gear_data", eventType)
+            );
 
             return;
         }
@@ -1023,7 +1021,9 @@ public class SeasonalEventService(
             var botToUpdate = _databaseService.GetBots().Types[botKvP.Key.ToLower()];
             if (botToUpdate is null)
             {
-                _logger.Warning(_localisationService.GetText("gameevent-bot_not_found", botKvP));
+                _logger.Warning(
+                    _serverLocalisationService.GetText("gameevent-bot_not_found", botKvP)
+                );
                 continue;
             }
 
@@ -1058,7 +1058,9 @@ public class SeasonalEventService(
         var botLootChanges = GetEventBotLoot(eventType);
         if (botLootChanges is null)
         {
-            _logger.Warning(_localisationService.GetText("gameevent-no_gear_data", eventType));
+            _logger.Warning(
+                _serverLocalisationService.GetText("gameevent-no_gear_data", eventType)
+            );
 
             return;
         }
@@ -1069,7 +1071,9 @@ public class SeasonalEventService(
             var botToUpdate = _databaseService.GetBots().Types[botKvpP.Key.ToLower()];
             if (botToUpdate is null)
             {
-                _logger.Warning(_localisationService.GetText("gameevent-bot_not_found", botKvpP));
+                _logger.Warning(
+                    _serverLocalisationService.GetText("gameevent-bot_not_found", botKvpP)
+                );
                 continue;
             }
 
@@ -1252,7 +1256,7 @@ public class SeasonalEventService(
     {
         var giftData = _giftService.GetGiftById(giftKey);
         if (
-            !_profileHelper.PlayerHasRecievedMaxNumberOfGift(
+            !_profileHelper.PlayerHasReceivedMaxNumberOfGift(
                 playerId,
                 giftKey,
                 giftData.MaxToSendPlayer ?? 5

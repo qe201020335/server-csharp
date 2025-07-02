@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
@@ -146,31 +147,16 @@ public class BotHelper(
     /// <param name="botLevel">level of bot</param>
     /// <param name="botEquipConfig">bot equipment json</param>
     /// <returns>RandomisationDetails</returns>
-    public RandomisationDetails GetBotRandomizationDetails(
+    public RandomisationDetails? GetBotRandomizationDetails(
         int botLevel,
         EquipmentFilters botEquipConfig
     )
     {
         // No randomisation details found, skip
-        if (botEquipConfig is null || botEquipConfig.Randomisation is null)
-        {
-            return null;
-        }
 
-        return botEquipConfig.Randomisation.FirstOrDefault(randDetails =>
+        return botEquipConfig?.Randomisation?.FirstOrDefault(randDetails =>
             botLevel >= randDetails.LevelRange.Min && botLevel <= randDetails.LevelRange.Max
         );
-    }
-
-    /// <summary>
-    ///     Choose between pmcBEAR and pmcUSEC at random based on the % defined in pmcConfig.isUsec
-    /// </summary>
-    /// <returns>pmc role</returns>
-    public string GetRandomizedPmcRole()
-    {
-        return _randomUtil.GetChance100(_pmcConfig.IsUsec)
-            ? _pmcConfig.UsecType
-            : _pmcConfig.BearType;
     }
 
     /// <summary>
@@ -191,6 +177,24 @@ public class BotHelper(
         }
 
         return GetRandomizedPmcSide();
+    }
+
+    /// <summary>
+    ///     Get the corresponding side when pmcBEAR or pmcUSEC is passed in
+    /// </summary>
+    /// <param name="botRole">role to get side for</param>
+    /// <returns>side (usec/bear)</returns>
+    public string GetPmcSideByRole(WildSpawnType botRole)
+    {
+        switch (botRole)
+        {
+            case WildSpawnType.pmcBEAR:
+                return Sides.Bear;
+            case WildSpawnType.pmcUSEC:
+                return Sides.Usec;
+            default:
+                return GetRandomizedPmcSide();
+        }
     }
 
     /// <summary>

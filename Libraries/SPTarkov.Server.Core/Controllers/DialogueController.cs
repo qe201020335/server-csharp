@@ -22,13 +22,13 @@ public class DialogueController(
     ProfileHelper _profileHelper,
     ConfigServer _configServer,
     SaveServer _saveServer,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     MailSendService _mailSendService,
     IEnumerable<IDialogueChatBot> dialogueChatBots
 )
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
-    protected List<IDialogueChatBot> _dialogueChatBots = dialogueChatBots.ToList();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly List<IDialogueChatBot> _dialogueChatBots = dialogueChatBots.ToList();
 
     /// <summary>
     /// </summary>
@@ -38,7 +38,7 @@ public class DialogueController(
         if (_dialogueChatBots.Any(cb => cb.GetChatBot().Id == chatBot.GetChatBot().Id))
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "dialog-chatbot_id_already_exists",
                     chatBot.GetChatBot().Id
                 )
@@ -127,10 +127,9 @@ public class DialogueController(
     public virtual List<DialogueInfo> GenerateDialogueList(string sessionId)
     {
         var data = new List<DialogueInfo>();
-        foreach (var dialogueId in _dialogueHelper.GetDialogsForProfile(sessionId))
+        foreach (var (_, dialog) in _dialogueHelper.GetDialogsForProfile(sessionId))
         {
-            var dialogueInfo = GetDialogueInfo(dialogueId.Key, sessionId);
-
+            var dialogueInfo = GetDialogueInfo(dialog, sessionId);
             if (dialogueInfo is null)
             {
                 continue;
@@ -153,6 +152,17 @@ public class DialogueController(
         var dialogs = _dialogueHelper.GetDialogsForProfile(sessionId);
         var dialogue = dialogs!.GetValueOrDefault(dialogueId);
 
+        return GetDialogueInfo(dialogue, sessionId);
+    }
+
+    /// <summary>
+    ///     Get the content of a dialogue
+    /// </summary>
+    /// <param name="dialogue">Dialog</param>
+    /// <param name="sessionId">Session Id</param>
+    /// <returns>DialogueInfo</returns>
+    public virtual DialogueInfo? GetDialogueInfo(Dialogue dialogue, string sessionId)
+    {
         if (!dialogue.Messages.Any())
         {
             return null;
@@ -160,7 +170,7 @@ public class DialogueController(
 
         var result = new DialogueInfo
         {
-            Id = dialogueId,
+            Id = dialogue.Id,
             Type = dialogue?.Type ?? MessageType.NpcTraderMessage,
             Message = _dialogueHelper.GetMessagePreview(dialogue),
             New = dialogue?.New,
@@ -426,7 +436,7 @@ public class DialogueController(
         if (!profile.DialogueRecords.ContainsKey(dialogueId))
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "dialogue-unable_to_find_in_profile",
                     new { sessionId, dialogueId }
                 )
@@ -450,7 +460,7 @@ public class DialogueController(
         if (dialog is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "dialogue-unable_to_find_in_profile",
                     new { sessionId, dialogueId }
                 )
@@ -474,7 +484,7 @@ public class DialogueController(
         if (dialogs is null || !dialogs.Any())
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "dialogue-unable_to_find_dialogs_in_profile",
                     new { sessionId }
                 )
@@ -503,7 +513,7 @@ public class DialogueController(
         var dialog = dialogs.TryGetValue(dialogueId, out var dialogInfo);
         if (!dialog)
         {
-            _logger.Error(_localisationService.GetText("dialogue-unable_to_find_in_profile"));
+            _logger.Error(_serverLocalisationService.GetText("dialogue-unable_to_find_in_profile"));
 
             return null;
         }
@@ -555,9 +565,9 @@ public class DialogueController(
     /// <param name="sessionId">Session id</param>
     protected void RemoveExpiredItemsFromMessages(string sessionId)
     {
-        foreach (var dialogueId in _dialogueHelper.GetDialogsForProfile(sessionId))
+        foreach (var (dialogId, _) in _dialogueHelper.GetDialogsForProfile(sessionId))
         {
-            RemoveExpiredItemsFromMessage(sessionId, dialogueId.Key);
+            RemoveExpiredItemsFromMessage(sessionId, dialogId);
         }
     }
 

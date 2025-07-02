@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Bots;
@@ -22,7 +23,7 @@ namespace SPTarkov.Server.Core.Services;
 public class DatabaseService(
     ISptLogger<DatabaseService> _logger,
     DatabaseServer _databaseServer,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     HashUtil _hashUtil
 )
 {
@@ -40,7 +41,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Bots == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/bots"
                 )
@@ -56,7 +57,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Globals == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/globals.json"
                 )
@@ -72,7 +73,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Hideout == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/hideout"
                 )
@@ -88,7 +89,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Locales == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/locales"
                 )
@@ -104,7 +105,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Locations == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/locations"
                 )
@@ -121,12 +122,11 @@ public class DatabaseService(
     /// <returns> assets/database/locations/ </returns>
     public Location? GetLocation(string locationId)
     {
-        var locations = GetLocations();
-        var desiredLocation = locations.GetByJsonProp<Location>(locationId.ToLower());
+        var desiredLocation = GetLocations()?.GetByJsonProp<Location>(locationId.ToLower());
         if (desiredLocation == null)
         {
             _logger.Error(
-                _localisationService.GetText("database-no_location_found_with_id", locationId)
+                _serverLocalisationService.GetText("database-no_location_found_with_id", locationId)
             );
 
             return null;
@@ -141,7 +141,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Match == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/locales"
                 )
@@ -157,7 +157,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Server == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/server.json"
                 )
@@ -173,7 +173,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Settings == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/settings.json"
                 )
@@ -189,7 +189,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates"
                 )
@@ -205,7 +205,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.Achievements == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/achievements.json"
                 )
@@ -221,7 +221,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.Achievements == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/customAchievements.json"
                 )
@@ -237,7 +237,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.Customization == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/customization.json"
                 )
@@ -253,7 +253,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.Handbook == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/handbook.json"
                 )
@@ -264,12 +264,12 @@ public class DatabaseService(
     }
 
     /// <returns> assets/database/templates/items.json </returns>
-    public Dictionary<string, TemplateItem> GetItems()
+    public Dictionary<MongoId, TemplateItem> GetItems()
     {
         if (_databaseServer.GetTables().Templates?.Items == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/items.json"
                 )
@@ -285,7 +285,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.Prices == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/prices.json"
                 )
@@ -301,7 +301,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.Profiles == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/profiles.json"
                 )
@@ -317,7 +317,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.Quests == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/templates/quests.json"
                 )
@@ -333,7 +333,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Traders == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/traders"
                 )
@@ -354,7 +354,7 @@ public class DatabaseService(
         if (!traders.TryGetValue(traderId, out var desiredTrader))
         {
             _logger.Error(
-                _localisationService.GetText("database-no_trader_found_with_id", traderId)
+                _serverLocalisationService.GetText("database-no_trader_found_with_id", traderId)
             );
 
             return null;
@@ -369,7 +369,7 @@ public class DatabaseService(
         if (_databaseServer.GetTables().Templates?.LocationServices == null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "database-data_at_path_missing",
                     "assets/database/locationServices.json"
                 )
@@ -394,7 +394,7 @@ public class DatabaseService(
 
         if (!_isDataValid)
         {
-            _logger.Error(_localisationService.GetText("database-invalid_data"));
+            _logger.Error(_serverLocalisationService.GetText("database-invalid_data"));
         }
 
         start.Stop();
@@ -411,6 +411,20 @@ public class DatabaseService(
     /// <param name="tableType"> The type of table, used in output message </param>
     /// <returns> True if the table only contains valid data </returns>
     private bool ValidateTable<T>(Dictionary<string, T> table, string tableType)
+    {
+        foreach (var keyValuePair in table)
+        {
+            if (!_hashUtil.IsValidMongoId(keyValuePair.Key))
+            {
+                _logger.Error($"Invalid {tableType} ID: '{keyValuePair.Key}'");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool ValidateTable<T>(Dictionary<MongoId, T> table, string tableType)
     {
         foreach (var keyValuePair in table)
         {

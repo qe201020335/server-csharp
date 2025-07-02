@@ -14,7 +14,7 @@ public class WeatherHelper(
     ConfigServer _configServer
 )
 {
-    protected WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
+    protected readonly WeatherConfig _weatherConfig = _configServer.GetConfig<WeatherConfig>();
 
     /// <summary>
     ///     Assumes current time

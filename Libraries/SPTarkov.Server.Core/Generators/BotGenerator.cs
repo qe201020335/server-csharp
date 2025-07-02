@@ -37,8 +37,8 @@ public class BotGenerator(
     ICloner _cloner
 )
 {
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
 
     /// <summary>
     ///     Generate a player scav bot object
@@ -474,29 +474,32 @@ public class BotGenerator(
     /// <param name="botInventory">Bot to filter</param>
     public void RemoveBlacklistedLootFromBotTemplate(BotTypeInventory botInventory)
     {
-        List<string> lootContainersToFilter = ["Backpack", "Pockets", "TacticalVest"];
-        var props = botInventory.Items.GetType().GetProperties();
-
-        // Remove blacklisted loot from loot containers
-        foreach (var lootContainerKey in lootContainersToFilter)
+        var containersToProcess = new List<Dictionary<string, double>>
         {
-            var propInfo = props.FirstOrDefault(x =>
-                string.Equals(x.Name, lootContainerKey, StringComparison.CurrentCultureIgnoreCase)
-            );
-            var prop = (Dictionary<string, double>?)propInfo.GetValue(botInventory.Items);
+            botInventory.Items.Backpack,
+            botInventory.Items.Pockets,
+            botInventory.Items.TacticalVest,
+        };
 
-            // No container, skip
-            if (prop is null)
+        foreach (var container in containersToProcess)
+        {
+            if (!container.Any())
             {
+                // Nothing in container, skip
                 continue;
             }
 
-            var newProp = prop.Where(tpl =>
-                {
-                    return !_itemFilterService.IsLootableItemBlacklisted(tpl.Key);
-                })
-                .ToDictionary();
-            propInfo.SetValue(botInventory.Items, newProp);
+            // Create a set of tpls to remove
+            var keysToRemove = container
+                .Where(item => _itemFilterService.IsLootableItemBlacklisted(item.Key))
+                .Select(item => item.Key)
+                .ToHashSet();
+
+            // Remove from container by key
+            foreach (var key in keysToRemove)
+            {
+                container.Remove(key);
+            }
         }
     }
 
@@ -668,43 +671,31 @@ public class BotGenerator(
     }
 
     /// <summary>
-    ///     Sum up body parts max hp values, return the bodyPart collection with the lowest value
+    ///     Get the bodyPart with the lowest hp
     /// </summary>
-    /// <param name="bodies">Body parts to sum up</param>
-    /// <returns>Lowest hp collection</returns>
-    public BodyPart? GetLowestHpBody(List<BodyPart> bodies)
+    /// <param name="bodyParts">Body parts</param>
+    /// <returns>Part with the lowest hp</returns>
+    public BodyPart? GetLowestHpBody(List<BodyPart> bodyParts)
     {
-        if (bodies.Count == 0)
+        if (bodyParts.Count == 0)
         {
             return null;
         }
 
-        BodyPart result = new();
-        var props = result.GetType().GetProperties();
-        double? currentHighest = double.MaxValue;
-        foreach (var bodyPart in bodies)
-        {
-            double? hpTotal = 0;
-
-            foreach (
-                var prop in props.Where(property =>
-                    !property.Name.Equals("extensiondata", StringComparison.OrdinalIgnoreCase)
-                )
-            )
+        return bodyParts
+            .Select(bp => new
             {
-                var value = (MinMax<double>)prop.GetValue(bodyPart);
-                hpTotal += value.Max;
-            }
-
-            if (hpTotal < currentHighest)
-            {
-                // Found collection with lower value that previous, use it
-                currentHighest = hpTotal;
-                result = bodyPart;
-            }
-        }
-
-        return result;
+                BodyPart = bp,
+                TotalMaxHp = bp.Head.Max
+                    + bp.Chest.Max
+                    + bp.LeftArm.Max
+                    + bp.RightArm.Max
+                    + bp.LeftLeg.Max
+                    + bp.RightLeg.Max,
+            })
+            .OrderBy(x => x.TotalMaxHp)
+            .FirstOrDefault()
+            ?.BodyPart;
     }
 
     /// <summary>
@@ -803,9 +794,7 @@ public class BotGenerator(
     /// <returns></returns>
     public void AddIdsToBot(BotBase bot, BotGenerationDetails botGenerationDetails)
     {
-        var botId = _hashUtil.Generate();
-
-        bot.Id = botId;
+        bot.Id = new MongoId();
         bot.Aid = botGenerationDetails.IsPmc.GetValueOrDefault(false)
             ? _hashUtil.GenerateAccountId()
             : 0;
@@ -818,7 +807,7 @@ public class BotGenerator(
     /// <param name="profile">Profile to update</param>
     public void GenerateInventoryId(BotBase profile)
     {
-        var newInventoryItemId = _hashUtil.Generate();
+        var newInventoryItemId = new MongoId();
 
         foreach (var item in profile.Inventory.Items)
         {
@@ -901,7 +890,7 @@ public class BotGenerator(
     {
         Item inventoryItem = new()
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Template = GetDogtagTplByGameVersionAndSide(bot.Info.Side, bot.Info.GameVersion),
             ParentId = bot.Inventory.Equipment,
             SlotId = Slots.Dogtag,

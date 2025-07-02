@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
@@ -8,7 +9,7 @@ namespace SPTarkov.Server.Core.Models.Spt.Dialog;
 public record SendMessageDetails
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Player id
@@ -92,10 +93,10 @@ public record SendMessageDetails
 public record ProfileChangeEvent
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId? Id { get; set; }
 
     [JsonPropertyName("Type")]
     public string Type { get; set; }

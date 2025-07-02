@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -23,12 +24,13 @@ public class PaymentService(
     TraderHelper _traderHelper,
     ItemHelper _itemHelper,
     InventoryHelper _inventoryHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     PaymentHelper _paymentHelper,
     ConfigServer _configServer
 )
 {
-    protected InventoryConfig _inventoryConfig = _configServer.GetConfig<InventoryConfig>();
+    protected readonly InventoryConfig _inventoryConfig =
+        _configServer.GetConfig<InventoryConfig>();
 
     /// <summary>
     ///     Take money and insert items into return to server request
@@ -122,7 +124,7 @@ public class PaymentService(
                 // Convert the amount to the trader's currency and update the sales sum.
                 var costOfPurchaseInCurrency = _handbookHelper.FromRUB(
                     _handbookHelper.InRUB(currencyAmount ?? 0, currencyTpl),
-                    _paymentHelper.GetCurrency(trader.Currency)
+                    trader.Currency.Value.GetCurrencyTpl()
                 );
 
                 // Only update traders
@@ -133,12 +135,12 @@ public class PaymentService(
         // If no currency-based payment is involved, handle it separately
         if (totalCurrencyAmount == 0 && payToTrader)
         {
-            _logger.Debug(_localisationService.GetText("payment-zero_price_no_payment"));
+            _logger.Debug(_serverLocalisationService.GetText("payment-zero_price_no_payment"));
 
             // Convert the handbook price to the trader's currency and update the sales sum.
             var costOfPurchaseInCurrency = _handbookHelper.FromRUB(
                 GetTraderItemHandbookPriceRouble(request.ItemId, request.TransactionId) ?? 0,
-                _paymentHelper.GetCurrency(trader.Currency)
+                trader.Currency.Value.GetCurrencyTpl()
             );
 
             pmcData.TradersInfo[request.TransactionId].SalesSum += costOfPurchaseInCurrency;
@@ -211,7 +213,7 @@ public class PaymentService(
             return;
         }
 
-        var currencyTpl = _paymentHelper.GetCurrency(trader.Currency);
+        var currencyTpl = trader.Currency.Value.GetCurrencyTpl();
         var calcAmount = _handbookHelper.FromRUB(
             _handbookHelper.InRUB(amountToSend ?? 0, currencyTpl),
             currencyTpl
@@ -237,7 +239,7 @@ public class PaymentService(
             }
 
             // Item is not in the stash
-            if (!_inventoryHelper.IsItemInStash(pmcData, item))
+            if (!pmcData.IsItemInStash(item))
             {
                 continue;
             }
@@ -334,14 +336,14 @@ public class PaymentService(
         if (moneyItemsInInventory.Count <= 0 || amountAvailable < amountToPay)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "payment-not_enough_money_to_complete_transation", // Typo, needs locale updated if fixed
                     new { amountToPay, amountAvailable }
                 )
             );
             _httpResponseUtil.AppendErrorToOutput(
                 output,
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "payment-not_enough_money_to_complete_transation_short",
                     amountToPay
                 ), // Typo, needs locale updated if fixed

@@ -15,14 +15,14 @@ public class BotNameService(
     ISptLogger<BotNameService> _logger,
     BotHelper _botHelper,
     RandomUtil _randomUtil,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     DatabaseService _databaseService,
     ConfigServer _configServer
 )
 {
     protected readonly Lock _lockObject = new();
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected HashSet<string> _usedNameCache = new();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly HashSet<string> _usedNameCache = new();
 
     /// <summary>
     ///     Clear out any entries in Name Set
@@ -80,7 +80,7 @@ public class BotNameService(
                 && botGenerationDetails.AllPmcsHaveSameNameAsPlayer.GetValueOrDefault(false)
             )
             {
-                var prefix = _localisationService.GetRandomTextThatMatchesPartialKey(
+                var prefix = _serverLocalisationService.GetRandomTextThatMatchesPartialKey(
                     "pmc-name_prefix_"
                 );
                 name = $"{prefix} {name}";

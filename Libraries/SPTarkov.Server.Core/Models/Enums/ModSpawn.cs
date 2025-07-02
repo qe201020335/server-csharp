@@ -2,18 +2,18 @@ namespace SPTarkov.Server.Core.Models.Enums;
 
 public enum ModSpawn
 {
-    /**
-     * Chosen mod should be the tpl from the default weapon template
-     */
+    /// <summary>
+    /// Chosen mod should be the tpl from the default weapon template
+    /// </summary>
     DEFAULT_MOD = 0,
 
-    /**
-     * Normal behaviour
-     */
+    /// <summary>
+    /// Normal behaviour
+    /// </summary>
     SPAWN = 1,
 
-    /**
-     * Item should not be chosen
-     */
+    /// <summary>
+    /// Item should not be chosen
+    /// </summary>
     SKIP = 2,
 }

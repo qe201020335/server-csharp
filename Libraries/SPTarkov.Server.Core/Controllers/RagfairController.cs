@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -30,7 +31,7 @@ public class RagfairController
     protected InventoryHelper _inventoryHelper;
     protected ItemHelper _itemHelper;
     protected JsonUtil _jsonUtil;
-    protected LocalisationService _localisationService;
+    protected ServerLocalisationService _serverLocalisationService;
     protected ISptLogger<RagfairController> _logger;
     protected PaymentHelper _paymentHelper;
     protected PaymentService _paymentService;
@@ -67,7 +68,7 @@ public class RagfairController
         RagfairOfferHelper ragfairOfferHelper,
         TraderHelper traderHelper,
         DatabaseService databaseService,
-        LocalisationService localisationService,
+        ServerLocalisationService localisationService,
         RagfairTaxService ragfairTaxService,
         RagfairOfferService ragfairOfferService,
         PaymentService paymentService,
@@ -93,7 +94,7 @@ public class RagfairController
         _ragfairOfferHelper = ragfairOfferHelper;
         _traderHelper = traderHelper;
         _databaseService = databaseService;
-        _localisationService = localisationService;
+        _serverLocalisationService = localisationService;
         _ragfairTaxService = ragfairTaxService;
         _ragfairOfferService = ragfairOfferService;
         _paymentService = paymentService;
@@ -230,7 +231,7 @@ public class RagfairController
         {
             // Occurs when player edits "item count shown per page" value when on page near end of offer list
             // The page no longer exists due to the larger number of items on each page, show them the very end of the offer list instead
-            _logger.Warning(_localisationService.GetText("ragfair-offer_page_doesnt_exist"));
+            _logger.Warning(_serverLocalisationService.GetText("ragfair-offer_page_doesnt_exist"));
             startIndex = result.Offers.Count - perPageLimit;
             endIndex = result.Offers.Count;
         }
@@ -251,7 +252,7 @@ public class RagfairController
         if (assortPurchased is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "ragfair-unable_to_adjust_stack_count_assort_not_found",
                     new { offerId = offer.Items.First().Id, traderId = offer.User.Id }
                 )
@@ -323,7 +324,7 @@ public class RagfairController
     /// <param name="searchRequest">Client search request data</param>
     /// <param name="offers">Ragfair offers to get categories for</param>
     /// <returns>Record with templates + counts</returns>
-    protected Dictionary<string, int> GetSpecificCategories(
+    protected Dictionary<MongoId, int> GetSpecificCategories(
         PmcData pmcProfile,
         SearchRequestData searchRequest,
         List<RagfairOffer> offers
@@ -345,13 +346,13 @@ public class RagfairController
         }
         else
         {
-            _logger.Error(_localisationService.GetText("ragfair-unable_to_get_categories"));
+            _logger.Error(_serverLocalisationService.GetText("ragfair-unable_to_get_categories"));
             if (_logger.IsLogEnabled(LogLevel.Debug))
             {
                 _logger.Debug(_jsonUtil.Serialize(searchRequest));
             }
 
-            return new Dictionary<string, int>();
+            return [];
         }
 
         return _ragfairServer.GetAllActiveCategories(
@@ -436,7 +437,7 @@ public class RagfairController
         var offers = _ragfairOfferService.GetOffersOfType(getPriceRequest.TemplateId);
 
         // Offers exist for item, get averages of what's listed
-        if (offers.Count > 0)
+        if (offers?.Count > 0)
         {
             // These get calculated while iterating through the list below
             var minMax = new MinMax<double>(int.MaxValue, 0);
@@ -577,7 +578,9 @@ public class RagfairController
     {
         if (offerRequest?.Items is null || offerRequest.Items.Count == 0)
         {
-            _logger.Error(_localisationService.GetText("ragfair-invalid_player_offer_request"));
+            _logger.Error(
+                _serverLocalisationService.GetText("ragfair-invalid_player_offer_request")
+            );
 
             return false;
         }
@@ -585,7 +588,9 @@ public class RagfairController
         if (offerRequest.Requirements is null)
         {
             _logger.Error(
-                _localisationService.GetText("ragfair-unable_to_place_offer_with_no_requirements")
+                _serverLocalisationService.GetText(
+                    "ragfair-unable_to_place_offer_with_no_requirements"
+                )
             );
 
             return false;
@@ -648,8 +653,7 @@ public class RagfairController
 
         // multi-offers are all the same item,
         // Get first item and its children and use as template
-        var inventoryItems = _itemHelper.FindAndReturnChildrenAsItems(
-            pmcData.Inventory.Items,
+        var inventoryItems = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(
             firstOfferItemId // Choose first item as they're all the same item
         );
 
@@ -665,19 +669,21 @@ public class RagfairController
 
         // When listing identical items on flea, condense separate items into one stack with a merged stack count
         // e.g. 2 ammo items each with stackObjectCount = 3, will result in 1 stack of 6
-        inventoryItems[0].Upd ??= new Upd();
-        inventoryItems[0].Upd.StackObjectsCount = stackCountTotal;
+        var firstInventoryItem = inventoryItems.FirstOrDefault();
+        firstInventoryItem.Upd ??= new Upd();
+        firstInventoryItem.Upd.StackObjectsCount = stackCountTotal;
+
+        // Average offer price for single item (or whole weapon)
+        // MUST occur prior to CreatePlayerOffer(), otherwise offer ends up in averages calculation
+        var averages = GetItemMinAvgMaxFleaPriceValues(
+            new GetMarketPriceRequestData { TemplateId = firstInventoryItem.Template }
+        );
 
         // Create flea object
         var offer = CreatePlayerOffer(sessionID, offerRequest.Requirements, inventoryItems, false);
 
         // This is the item that will be listed on flea, has merged stackObjectCount
         var rootOfferItem = offer.Items.First(x => x.Id == firstOfferItemId);
-
-        // Average offer price for single item (or whole weapon)
-        var averages = GetItemMinAvgMaxFleaPriceValues(
-            new GetMarketPriceRequestData { TemplateId = offer.Items[0].Template }
-        );
 
         // Check for and apply item price modifer if it exists in config
         var averageOfferPrice = averages.Avg;
@@ -763,9 +769,8 @@ public class RagfairController
 
         // multi-offers are all the same item,
         // Get first item and its children and use as template
-        var firstListingAndChildren = _itemHelper.FindAndReturnChildrenAsItems(
-            pmcData.Inventory.Items,
-            offerRequest.Items[0]
+        var firstInventoryItemAndChildren = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(
+            offerRequest.Items.FirstOrDefault()
         );
 
         // Find items to be listed on flea (+ children) from player inventory
@@ -780,26 +785,27 @@ public class RagfairController
 
         // When listing identical items on flea, condense separate items into one stack with a merged stack count
         // e.g. 2 ammo items, stackObjectCount = 3 for each, will result in 1 stack of 6
-        var firstListingRootItem = firstListingAndChildren.FirstOrDefault();
-        firstListingRootItem.Upd ??= new Upd();
-        firstListingRootItem.Upd.StackObjectsCount = stackCountTotal;
+        var firstInventoryItem = firstInventoryItemAndChildren.FirstOrDefault();
+        firstInventoryItem.Upd ??= new Upd();
+        firstInventoryItem.Upd.StackObjectsCount = stackCountTotal;
+
+        // Single price for an item
+        // MUST occur prior to CreatePlayerOffer(), otherwise offer ends up in averages calculation
+        var averages = GetItemMinAvgMaxFleaPriceValues(
+            new GetMarketPriceRequestData { TemplateId = firstInventoryItem.Template }
+        );
+        var singleItemPrice = averages.Avg;
 
         // Create flea object
         var offer = CreatePlayerOffer(
             sessionID,
             offerRequest.Requirements,
-            firstListingAndChildren,
+            firstInventoryItemAndChildren,
             true
         );
 
         // This is the item that will be listed on flea, has merged stackObjectCount
         var newRootOfferItem = offer.Items[0]; // TODO: add logic like single/multi offers to find root item
-
-        // Single price for an item
-        var averages = GetItemMinAvgMaxFleaPriceValues(
-            new GetMarketPriceRequestData { TemplateId = firstListingRootItem.Template }
-        );
-        var singleItemPrice = averages.Avg;
 
         // Check for and apply item price modifer if it exists in config
         if (
@@ -895,10 +901,19 @@ public class RagfairController
             _httpResponseUtil.AppendErrorToOutput(output, inventoryItemsToSell.ErrorMessage);
         }
 
+        var firstItemToSell = inventoryItemsToSell.Items.FirstOrDefault().FirstOrDefault();
+
         // Total count of items summed using their stack counts
         var stackCountTotal = _ragfairOfferHelper.GetTotalStackCountSize(
             inventoryItemsToSell.Items
         );
+
+        // Average offer price for single item (or whole weapon)
+        // MUST occur prior to CreatePlayerOffer(), otherwise offer ends up in averages calculation
+        var averages = GetItemMinAvgMaxFleaPriceValues(
+            new GetMarketPriceRequestData { TemplateId = firstItemToSell.Template }
+        );
+        var averageOfferPriceSingleItem = averages.Avg;
 
         // Checks are done, create offer
         var playerListedPriceInRub = CalculateRequirementsPriceInRub(offerRequest.Requirements);
@@ -913,12 +928,6 @@ public class RagfairController
 
         // Get average of items quality+children
         var qualityMultiplier = _itemHelper.GetItemQualityModifierForItems(offer.Items, true);
-
-        // Average offer price for single item (or whole weapon)
-        var averages = GetItemMinAvgMaxFleaPriceValues(
-            new GetMarketPriceRequestData { TemplateId = offerRootItem.Template }
-        );
-        var averageOfferPriceSingleItem = averages.Avg;
 
         // Check for and apply item price modifer if it exists in config
         if (
@@ -1024,7 +1033,7 @@ public class RagfairController
         {
             _httpResponseUtil.AppendErrorToOutput(
                 output,
-                _localisationService.GetText("ragfair-unable_to_pay_commission_fee", tax)
+                _serverLocalisationService.GetText("ragfair-unable_to_pay_commission_fee", tax)
             );
             return true;
         }
@@ -1125,7 +1134,7 @@ public class RagfairController
             var rootItem = pmcData.Inventory?.Items?.FirstOrDefault(i => i.Id == itemId);
             if (rootItem is null)
             {
-                errorMessage = _localisationService.GetText(
+                errorMessage = _serverLocalisationService.GetText(
                     "ragfair-unable_to_find_item_in_inventory",
                     new { id = itemId }
                 );
@@ -1138,16 +1147,14 @@ public class RagfairController
                 };
             }
 
-            _itemHelper.FixItemStackCount(rootItem);
+            rootItem.FixItemStackCount();
 
-            itemsToReturn.Add(
-                _itemHelper.FindAndReturnChildrenAsItems(pmcData.Inventory.Items, itemId)
-            );
+            itemsToReturn.Add(pmcData.Inventory.Items.FindAndReturnChildrenAsItems(itemId));
         }
 
         if (itemsToReturn?.Count == 0)
         {
-            errorMessage = _localisationService.GetText(
+            errorMessage = _serverLocalisationService.GetText(
                 "ragfair-unable_to_find_requested_items_in_inventory"
             );
             _logger.Error(errorMessage);
@@ -1178,7 +1185,7 @@ public class RagfairController
         if (playerProfileOffers is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "ragfair-unable_to_remove_offer_not_found_in_profile",
                     new { profileId = sessionId, offerId }
                 )
@@ -1191,12 +1198,15 @@ public class RagfairController
         if (playerOffer is null)
         {
             _logger.Error(
-                _localisationService.GetText("ragfair-offer_not_found_in_profile", new { offerId })
+                _serverLocalisationService.GetText(
+                    "ragfair-offer_not_found_in_profile",
+                    new { offerId }
+                )
             );
 
             return _httpResponseUtil.AppendErrorToOutput(
                 output,
-                _localisationService.GetText("ragfair-offer_not_found_in_profile_short")
+                _serverLocalisationService.GetText("ragfair-offer_not_found_in_profile_short")
             );
         }
 
@@ -1237,14 +1247,14 @@ public class RagfairController
         if (playerOfferIndex == -1)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "ragfair-offer_not_found_in_profile",
                     new { offerId = extendRequest.OfferId }
                 )
             );
             return _httpResponseUtil.AppendErrorToOutput(
                 output,
-                _localisationService.GetText("ragfair-offer_not_found_in_profile_short")
+                _serverLocalisationService.GetText("ragfair-offer_not_found_in_profile_short")
             );
         }
 
@@ -1275,7 +1285,7 @@ public class RagfairController
             {
                 return _httpResponseUtil.AppendErrorToOutput(
                     output,
-                    _localisationService.GetText("ragfair-unable_to_pay_commission_fee")
+                    _serverLocalisationService.GetText("ragfair-unable_to_pay_commission_fee")
                 );
             }
         }
@@ -1303,11 +1313,7 @@ public class RagfairController
             Action = "TradingConfirm",
             SchemeItems =
             [
-                new IdWithCount
-                {
-                    Id = _paymentHelper.GetCurrency(currency),
-                    Count = Math.Round(value),
-                },
+                new IdWithCount { Id = currency.GetCurrencyTpl(), Count = Math.Round(value) },
             ],
             Type = "",
             ItemId = "",

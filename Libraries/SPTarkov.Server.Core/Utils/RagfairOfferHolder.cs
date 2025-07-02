@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
@@ -14,7 +15,7 @@ public class RagfairOfferHolder(
     RagfairServerHelper _ragfairServerHelper,
     ProfileHelper _profileHelper,
     HashUtil _hashUtil,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ItemHelper _itemHelper
 )
 {
@@ -181,7 +182,10 @@ public class RagfairOfferHolder(
         if (!_offersById.TryGetValue(offerId, out var offer))
         {
             _logger.Warning(
-                _localisationService.GetText("ragfair-unable_to_remove_offer_doesnt_exist", offerId)
+                _serverLocalisationService.GetText(
+                    "ragfair-unable_to_remove_offer_doesnt_exist",
+                    offerId
+                )
             );
 
             return;
@@ -293,17 +297,6 @@ public class RagfairOfferHolder(
     }
 
     /// <summary>
-    ///     Is the passed in offer stale - end time > passed in time
-    /// </summary>
-    /// <param name="offer">Offer to check</param>
-    /// <param name="time">Time to check offer against</param>
-    /// <returns>True - offer is stale</returns>
-    protected bool IsStale(RagfairOffer offer, long time)
-    {
-        return offer.EndTime < time || (offer.Quantity ?? 0) < 1;
-    }
-
-    /// <summary>
     ///     Add a stale offers id to _expiredOfferIds collection for later processing
     /// </summary>
     /// <param name="staleOfferId">Id of offer to add to stale collection</param>
@@ -345,15 +338,13 @@ public class RagfairOfferHolder(
                 var offer = GetOfferById(expiredOfferId);
                 if (offer is null)
                 {
-                    _logger.Warning($"offerId: {expiredOfferId} was not found !!");
+                    _logger.Warning($"Expired offerId: {expiredOfferId} not found, skipping");
                     continue;
                 }
 
                 if (offer.Items?.Count == 0)
                 {
-                    _logger.Error(
-                        $"Unable to process expired offer: {expiredOfferId}, it has no items"
-                    );
+                    _logger.Error($"Expired offerId: {expiredOfferId} has no items, skipping");
                     continue;
                 }
 
@@ -394,7 +385,7 @@ public class RagfairOfferHolder(
                     continue;
                 }
 
-                if (IsStale(offer, timestamp))
+                if (offer.IsStale(timestamp))
                 {
                     if (!_expiredOfferIds.Add(offer.Id))
                     {

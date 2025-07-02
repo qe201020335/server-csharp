@@ -12,28 +12,17 @@ using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 namespace SPTarkov.Server.Core.Services;
 
 [Injectable(InjectionType.Singleton)]
-public class BotEquipmentFilterService
+public class BotEquipmentFilterService(
+    ISptLogger<BotEquipmentFilterService> logger,
+    BotHelper botHelper,
+    ProfileHelper profileHelper,
+    ConfigServer configServer
+)
 {
-    protected BotConfig _botConfig;
-    protected Dictionary<string, EquipmentFilters?> _botEquipmentConfig;
-    protected BotHelper _botHelper;
-    protected ISptLogger<BotEquipmentFilterService> _logger;
-    protected ProfileHelper _profileHelper;
-
-    public BotEquipmentFilterService(
-        ISptLogger<BotEquipmentFilterService> logger,
-        BotHelper botHelper,
-        ProfileHelper profileHelper,
-        ConfigServer configServer
-    )
-    {
-        _logger = logger;
-        _profileHelper = profileHelper;
-        _botHelper = botHelper;
-
-        _botConfig = configServer.GetConfig<BotConfig>();
-        _botEquipmentConfig = _botConfig.Equipment!;
-    }
+    protected readonly BotConfig _botConfig = configServer.GetConfig<BotConfig>();
+    protected readonly Dictionary<string, EquipmentFilters?> _botEquipmentConfig = configServer
+        .GetConfig<BotConfig>()
+        .Equipment;
 
     /// <summary>
     ///     Filter a bots data to exclude equipment and cartridges defines in the botConfig
@@ -49,7 +38,7 @@ public class BotEquipmentFilterService
         BotGenerationDetails botGenerationDetails
     )
     {
-        var pmcProfile = _profileHelper.GetPmcProfile(sessionId);
+        var pmcProfile = profileHelper.GetPmcProfile(sessionId);
 
         var botRole = botGenerationDetails.IsPmc ?? false ? "pmc" : botGenerationDetails.Role;
         var botEquipmentBlacklist = GetBotEquipmentBlacklist(botRole, botLevel);
@@ -63,7 +52,7 @@ public class BotEquipmentFilterService
         RandomisationDetails? randomisationDetails = null;
         if (_botEquipmentConfig.TryGetValue(botRole.ToLower(), out var botEquipmentConfig))
         {
-            randomisationDetails = _botHelper.GetBotRandomizationDetails(
+            randomisationDetails = botHelper.GetBotRandomizationDetails(
                 botLevel,
                 botEquipmentConfig
             );
@@ -439,9 +428,9 @@ public class BotEquipmentFilterService
                     {
                         if (showEditWarnings)
                         {
-                            if (_logger.IsLogEnabled(LogLevel.Debug))
+                            if (logger.IsLogEnabled(LogLevel.Debug))
                             {
-                                _logger.Debug(
+                                logger.Debug(
                                     $"Tried to edit a non - existent item for slot: {poolAdjustmentKvP} {itemToEditKvP}"
                                 );
                             }
@@ -500,9 +489,9 @@ public class BotEquipmentFilterService
                     {
                         if (showEditWarnings)
                         {
-                            if (_logger.IsLogEnabled(LogLevel.Debug))
+                            if (logger.IsLogEnabled(LogLevel.Debug))
                             {
-                                _logger.Debug(
+                                logger.Debug(
                                     $"Tried to edit a non - existent item for slot: {poolAdjustmentKvP} {itemToEditKvP}"
                                 );
                             }
@@ -574,9 +563,9 @@ public class BotEquipmentFilterService
                     // We tried to add an item flagged as edit only
                     if (showEditWarnings)
                     {
-                        if (_logger.IsLogEnabled(LogLevel.Debug))
+                        if (logger.IsLogEnabled(LogLevel.Debug))
                         {
-                            _logger.Debug(
+                            logger.Debug(
                                 $"Tried to edit a non - existent item for slot: {poolAdjustmentKvP} {itemToEditKvP}"
                             );
                         }

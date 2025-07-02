@@ -24,11 +24,11 @@ public class LauncherController(
     HttpServerHelper _httpServerHelper,
     ProfileHelper _profileHelper,
     DatabaseService _databaseService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer
 )
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
 
     /// <summary>
     ///     Handle launcher connecting to server
@@ -65,7 +65,10 @@ public class LauncherController(
         var result = new Dictionary<string, string>();
         foreach (var (profileKey, profile) in profileTemplates)
         {
-            result.TryAdd(profileKey, _localisationService.GetText(profile.DescriptionLocaleKey));
+            result.TryAdd(
+                profileKey,
+                _serverLocalisationService.GetText(profile.DescriptionLocaleKey)
+            );
         }
 
         return result;
@@ -90,12 +93,12 @@ public class LauncherController(
     /// <returns></returns>
     public string? Login(LoginRequestData? info)
     {
-        foreach (var kvp in _saveServer.GetProfiles())
+        foreach (var (sessionId, profile) in _saveServer.GetProfiles())
         {
-            var account = _saveServer.GetProfile(kvp.Key).ProfileInfo;
+            var account = profile.ProfileInfo;
             if (info?.Username == account?.Username)
             {
-                return kvp.Key;
+                return sessionId;
             }
         }
 
@@ -108,9 +111,9 @@ public class LauncherController(
     /// <returns></returns>
     public async Task<string> Register(RegisterData info)
     {
-        foreach (var kvp in _saveServer.GetProfiles())
+        foreach (var (_, profile) in _saveServer.GetProfiles())
         {
-            if (info.Username == _saveServer.GetProfile(kvp.Key).ProfileInfo?.Username)
+            if (info.Username == profile.ProfileInfo?.Username)
             {
                 return "";
             }
@@ -281,13 +284,12 @@ public class LauncherController(
 
         // Find the highest versioned mod and add to results array
         var result = new List<ModDetails>();
-        foreach (var modName in modsGroupedByName)
+        foreach (var (modName, modDatas) in modsGroupedByName)
         {
-            var modDatas = modsGroupedByName[modName.Key];
             var modVersions = modDatas.Select(x => x.Version);
             // var highestVersion = MaxSatisfying(modVersions, "*"); ?? TODO: Node used SemVer here
 
-            var chosenVersion = modDatas.FirstOrDefault(x => x.Name == modName.Key); // && x.Version == highestVersion
+            var chosenVersion = modDatas.FirstOrDefault(x => x.Name == modName); // && x.Version == highestVersion
             if (chosenVersion is null)
             {
                 continue;

@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -20,7 +21,7 @@ public class RagfairServerHelper(
     TraderHelper traderHelper,
     WeightedRandomHelper weightedRandomHelper,
     MailSendService mailSendService,
-    LocalisationService localisationService,
+    ServerLocalisationService localisationService,
     ConfigServer configServer,
     ICloner cloner
 )
@@ -75,7 +76,7 @@ public class RagfairServerHelper(
         }
 
         // Skip quest items
-        if (blacklistConfig.EnableQuestList && itemHelper.IsQuestItem(itemDetails.Value.Id))
+        if (blacklistConfig.EnableQuestList && itemDetails.Value.IsQuestItem())
         {
             return false;
         }
@@ -145,7 +146,7 @@ public class RagfairServerHelper(
         );
     }
 
-    public int CalculateDynamicStackCount(string tplId, bool isWeaponPreset)
+    public int CalculateDynamicStackCount(string tplId, bool isPreset)
     {
         var config = ragfairConfig.Dynamic;
 
@@ -163,7 +164,7 @@ public class RagfairServerHelper(
 
         // Item Types to return one of
         if (
-            isWeaponPreset
+            isPreset
             || itemHelper.IsOfBaseclasses(
                 itemDetails.Value.Id,
                 ragfairConfig.Dynamic.ShowAsSingleStack

@@ -77,6 +77,15 @@ public class GameCallbacks(
     }
 
     /// <summary>
+    ///     Handle client/putHWMetrics
+    /// </summary>
+    /// <returns></returns>
+    public ValueTask<string> PutHwMetrics(string url, EmptyRequestData info, string sessionID)
+    {
+        return new ValueTask<string>(_httpResponseUtil.GetBody<string>(null!));
+    }
+
+    /// <summary>
     ///     Handle client/game/mode
     /// </summary>
     /// <returns></returns>

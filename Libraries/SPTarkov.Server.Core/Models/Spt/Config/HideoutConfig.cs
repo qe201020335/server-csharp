@@ -49,7 +49,7 @@ public record HideoutConfig : BaseConfig
 public record HideoutCraftToAdd
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     The new mongoId for the craft to use
@@ -70,7 +70,7 @@ public record HideoutCraftToAdd
 public record CultistCircleSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("maxRewardItemCount")]
     public int MaxRewardItemCount { get; set; }
@@ -133,7 +133,7 @@ public record CultistCircleSettings
     ///     Item tpls to exclude from the reward pool
     /// </summary>
     [JsonPropertyName("rewardItemBlacklist")]
-    public required List<string> RewardItemBlacklist { get; set; }
+    public required List<MongoId> RewardItemBlacklist { get; set; }
 
     /// <summary>
     ///     Item tpls to include in the reward pool
@@ -142,7 +142,7 @@ public record CultistCircleSettings
     public required List<string> AdditionalRewardItemPool { get; set; }
 
     [JsonPropertyName("currencyRewards")]
-    public required Dictionary<string, MinMax<int>> CurrencyRewards { get; set; }
+    public required Dictionary<MongoId, MinMax<int>> CurrencyRewards { get; set; }
 }
 
 public record CraftTimeThreshold : MinMax<int>
@@ -154,7 +154,7 @@ public record CraftTimeThreshold : MinMax<int>
 public record DirectRewardSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("reward")]
     public required List<string> Reward { get; set; }

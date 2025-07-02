@@ -21,7 +21,7 @@ public class RaidTimeAdjustmentService(
     ConfigServer _configServer
 )
 {
-    protected LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
+    protected readonly LocationConfig _locationConfig = _configServer.GetConfig<LocationConfig>();
 
     /// <summary>
     ///     Make alterations to the base map data passed in

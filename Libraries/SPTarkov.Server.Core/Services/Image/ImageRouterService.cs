@@ -5,7 +5,7 @@ namespace SPTarkov.Server.Core.Services.Image;
 [Injectable(InjectionType.Singleton)]
 public class ImageRouterService
 {
-    protected Dictionary<string, string> routes = new();
+    protected readonly Dictionary<string, string> routes = new();
 
     public void AddRoute(string urlKey, string route)
     {

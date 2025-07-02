@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -20,8 +21,7 @@ public class TraderHelper(
     ProfileHelper _profileHelper,
     HandbookHelper _handbookHelper,
     ItemHelper _itemHelper,
-    PlayerService _playerService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     FenceService _fenceService,
     TraderStore _traderStore,
     TimeUtil _timeUtil,
@@ -29,9 +29,13 @@ public class TraderHelper(
     ConfigServer _configServer
 )
 {
-    protected List<string> _gameVersions = [GameEditions.EDGE_OF_DARKNESS, GameEditions.UNHEARD];
-    protected Dictionary<string, double> _highestTraderPriceItems = new();
-    protected TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
+    protected readonly List<string> _gameVersions =
+    [
+        GameEditions.EDGE_OF_DARKNESS,
+        GameEditions.UNHEARD,
+    ];
+    protected readonly Dictionary<string, double> _highestTraderPriceItems = new();
+    protected readonly TraderConfig _traderConfig = _configServer.GetConfig<TraderConfig>();
 
     public TraderBase? GetTraderByNickName(string traderName)
     {
@@ -62,7 +66,10 @@ public class TraderHelper(
         if (pmcData == null)
         {
             throw new Exception(
-                _localisationService.GetText("trader-unable_to_find_profile_with_id", sessionID)
+                _serverLocalisationService.GetText(
+                    "trader-unable_to_find_profile_with_id",
+                    sessionID
+                )
             );
         }
 
@@ -78,7 +85,7 @@ public class TraderHelper(
         if (traderBase == null)
         {
             _logger.Error(
-                _localisationService.GetText("trader-unable_to_find_trader_by_id", traderID)
+                _serverLocalisationService.GetText("trader-unable_to_find_trader_by_id", traderID)
             );
         }
 
@@ -146,7 +153,7 @@ public class TraderHelper(
         if (fullProfile is null)
         {
             throw new Exception(
-                _localisationService.GetText("trader-unable_to_find_profile_by_id", sessionID)
+                _serverLocalisationService.GetText("trader-unable_to_find_profile_by_id", sessionID)
             );
         }
 
@@ -192,7 +199,7 @@ public class TraderHelper(
             if (clothing?.Count > 0)
             // Force suit ids into profile
             {
-                AddSuitsToProfile(fullProfile, clothing.Select(suit => suit.SuiteId).ToList());
+                fullProfile.AddSuitsToProfile(clothing.Select(suit => suit.SuiteId).ToList());
             }
         }
 
@@ -244,36 +251,6 @@ public class TraderHelper(
         }
 
         return rawProfileTemplate.InitialStanding["default"];
-    }
-
-    /// <summary>
-    ///     Add a list of suit ids to a profiles suit list, no duplicates
-    /// </summary>
-    /// <param name="fullProfile">Profile to add clothing to</param>
-    /// <param name="clothingIds">Clothing Ids to add to profile</param>
-    public void AddSuitsToProfile(SptProfile fullProfile, List<string> clothingIds)
-    {
-        fullProfile.CustomisationUnlocks ??= [];
-
-        foreach (var suitId in clothingIds)
-        {
-            if (
-                !fullProfile.CustomisationUnlocks.Exists(customisation =>
-                    customisation.Id == suitId
-                )
-            )
-            {
-                // Clothing item doesn't exist in profile, add it
-                fullProfile.CustomisationUnlocks.Add(
-                    new CustomisationStorage
-                    {
-                        Id = suitId,
-                        Source = CustomisationSource.UNLOCKED_IN_GAME,
-                        Type = CustomisationType.SUITE,
-                    }
-                );
-            }
-        }
     }
 
     /// <summary>
@@ -361,7 +338,9 @@ public class TraderHelper(
         var loyaltyLevels = _databaseService.GetTrader(traderID).Base.LoyaltyLevels;
 
         // Level up player
-        pmcData.Info.Level = _playerService.CalculateLevel(pmcData);
+        pmcData.Info.Level = pmcData.CalculateLevel(
+            _databaseService.GetGlobals().Configuration.Exp.Level.ExperienceTable
+        );
 
         // Level up traders
         var targetLevel = 0;
@@ -411,7 +390,7 @@ public class TraderHelper(
         if (traderDetails?.Seconds?.Min is null || traderDetails.Seconds?.Max is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "trader-missing_trader_details_using_default_refresh_time",
                     new { traderId, updateTime = _traderConfig.UpdateTimeDefault }
                 )
@@ -509,7 +488,7 @@ public class TraderHelper(
             )
             {
                 throw new Exception(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "trader-unable_to_purchase_item_limit_reached",
                         new { traderId, limit = itemPurchased.Upd.BuyRestrictionMax }
                     )

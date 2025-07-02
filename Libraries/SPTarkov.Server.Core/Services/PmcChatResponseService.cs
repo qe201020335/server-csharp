@@ -20,7 +20,7 @@ public class PmcChatResponseService(
     NotificationSendHelper _notificationSendHelper,
     WeightedRandomHelper _weightedRandomHelper,
     DatabaseService _databaseService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     GiftService _giftService,
     LocaleService _localeService,
     MatchBotDetailsCacheService _matchBotDetailsCacheService,
@@ -28,7 +28,8 @@ public class PmcChatResponseService(
 )
 {
     protected GiftsConfig _giftConfig = _configServer.GetConfig<GiftsConfig>();
-    protected PmcChatResponse _pmcResponsesConfig = _configServer.GetConfig<PmcChatResponse>();
+    protected readonly PmcChatResponse _pmcResponsesConfig =
+        _configServer.GetConfig<PmcChatResponse>();
 
     /// <summary>
     ///     For each PMC victim of the player, have a chance to send a message to the player, can be positive or negative
@@ -141,14 +142,14 @@ public class PmcChatResponseService(
         if (possibleResponseLocaleKeys.Count == 0)
         {
             _logger.Warning(
-                _localisationService.GetText("pmcresponse-unable_to_find_key", responseType)
+                _serverLocalisationService.GetText("pmcresponse-unable_to_find_key", responseType)
             );
 
             return null;
         }
 
         // Choose random response from above list and request it from localisation service
-        var responseText = _localisationService.GetText(
+        var responseText = _serverLocalisationService.GetText(
             _randomUtil.GetArrayValue(possibleResponseLocaleKeys),
             new
             {
@@ -172,7 +173,7 @@ public class PmcChatResponseService(
 
         if (AppendSuffixToMessageEnd(isVictim))
         {
-            var suffixText = _localisationService.GetText(
+            var suffixText = _serverLocalisationService.GetText(
                 _randomUtil.GetArrayValue(GetResponseSuffixLocaleKeys())
             );
             responseText += $" {suffixText}";
@@ -267,7 +268,7 @@ public class PmcChatResponseService(
     protected List<string> GetResponseLocaleKeys(string keyType, bool isVictim = true)
     {
         var keyBase = isVictim ? "pmcresponse-victim_" : "pmcresponse-killer_";
-        var keys = _localisationService.GetKeys();
+        var keys = _serverLocalisationService.GetLocaleKeys();
 
         return keys.Where(x => x.StartsWith($"{keyBase}{keyType}")).ToList();
     }
@@ -278,7 +279,7 @@ public class PmcChatResponseService(
     /// <returns> List of keys </returns>
     protected List<string> GetResponseSuffixLocaleKeys()
     {
-        var keys = _localisationService.GetKeys();
+        var keys = _serverLocalisationService.GetLocaleKeys();
 
         return keys.Where(x => x.StartsWith("pmcresponse-suffix")).ToList();
     }

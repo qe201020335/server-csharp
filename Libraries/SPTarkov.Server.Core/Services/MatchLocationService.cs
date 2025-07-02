@@ -6,7 +6,7 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class MatchLocationService
 {
-    protected Dictionary<string, MatchGroup> _locations = new();
+    protected readonly Dictionary<string, MatchGroup> _locations = new();
 
     /// <summary>
     ///     DisbandRaidGroup

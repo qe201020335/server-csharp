@@ -1,3 +1,4 @@
+using System.Numerics;
 using SPTarkov.DI.Annotations;
 
 namespace SPTarkov.Server.Core.Utils;
@@ -5,58 +6,6 @@ namespace SPTarkov.Server.Core.Utils;
 [Injectable(InjectionType.Singleton)]
 public class MathUtil
 {
-    /// <summary>
-    ///     Helper to create the sum of all list elements
-    /// </summary>
-    /// <param name="values">List of floats to sum</param>
-    /// <returns>sum of all values</returns>
-    public double ListSum(List<double> values)
-    {
-        // Sum the list starting with an initial value of 0
-        return values.Sum();
-    }
-
-    public float ListSum(List<float> values)
-    {
-        // Sum the list starting with an initial value of 0
-        return values.Sum();
-    }
-
-    /// <summary>
-    ///     Helper to create the cumulative sum of all list elements
-    ///     ListCumSum([1, 2, 3, 4]) = [1, 3, 6, 10]
-    /// </summary>
-    /// <param name="values">The list with numbers of which to calculate the cumulative sum</param>
-    /// <returns>cumulative sum of values</returns>
-    public List<double> ListCumSum(List<double> values)
-    {
-        if (values.Count == 0)
-        {
-            return [];
-        }
-
-        var cumSumArray = new double[values.Count];
-        cumSumArray[0] = values[0];
-
-        for (var i = 1; i < values.Count; i++)
-        {
-            cumSumArray[i] = cumSumArray[i - 1] + values[i];
-        }
-
-        return [.. cumSumArray];
-    }
-
-    /// <summary>
-    ///     Helper to create the product of each element times factor
-    /// </summary>
-    /// <param name="values">The list of numbers which shall be multiplied by the factor</param>
-    /// <param name="factor">Number to multiply each element by</param>
-    /// <returns>A list of elements all multiplied by the factor</returns>
-    public List<double> ListProduct(List<double> values, double factor)
-    {
-        return values.Select(v => v * factor).ToList();
-    }
-
     /// <summary>
     ///     Helper to add a constant to all list elements
     /// </summary>
@@ -98,15 +47,18 @@ public class MathUtil
     /// <param name="x">Support points in x (of same length as y)</param>
     /// <param name="y">Support points in y (of same length as x)</param>
     /// <returns>Interpolated value at xp, or null if xp is out of bounds</returns>
-    public double? Interp1(double xp, List<double> x, List<double> y)
+    public T? Interp1<T>(T xp, IReadOnlyList<T> x, IReadOnlyList<T> y)
+        where T : INumber<T>
     {
         if (xp > x[^1]) // ^1 is the last index in C#
         {
+            // Value is above max provided value in x array, Clamp result to last value
             return y[^1];
         }
 
         if (xp < x[0])
         {
+            // Value is below min provided value in x array, Clamp result to first value
             return y[0];
         }
 
@@ -118,6 +70,6 @@ public class MathUtil
             }
         }
 
-        return null;
+        return default;
     }
 }

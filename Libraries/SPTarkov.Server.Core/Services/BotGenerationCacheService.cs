@@ -9,11 +9,11 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class BotGenerationCacheService(
     ISptLogger<BotGenerationCacheService> _logger,
-    LocalisationService _localisationService
+    ServerLocalisationService _serverLocalisationService
 )
 {
     protected Queue<BotBase> _activeBotsInRaid = [];
-    protected ConcurrentDictionary<string, List<BotBase>> _storedBots = new();
+    protected readonly ConcurrentDictionary<string, List<BotBase>> _storedBots = new();
 
     /// <summary>
     ///     Store list of bots in cache, shuffle results before storage
@@ -50,7 +50,7 @@ public class BotGenerationCacheService(
                 catch (Exception e)
                 {
                     _logger.Error(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "bot-cache_has_zero_bots_of_requested_type",
                             key
                         )
@@ -60,13 +60,13 @@ public class BotGenerationCacheService(
             }
 
             _logger.Error(
-                _localisationService.GetText("bot-cache_has_zero_bots_of_requested_type", key)
+                _serverLocalisationService.GetText("bot-cache_has_zero_bots_of_requested_type", key)
             );
 
             return null;
         }
 
-        _logger.Warning(_localisationService.GetText("bot-no_bot_type_in_cache", key));
+        _logger.Warning(_serverLocalisationService.GetText("bot-no_bot_type_in_cache", key));
         return null;
     }
 
@@ -96,7 +96,7 @@ public class BotGenerationCacheService(
     public void ClearStoredBots()
     {
         _storedBots.Clear();
-        _activeBotsInRaid = [];
+        _activeBotsInRaid.Clear();
     }
 
     /// <summary>

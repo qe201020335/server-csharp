@@ -15,14 +15,14 @@ namespace SPTarkov.Server.Core.Services;
 public class GiftService(
     ISptLogger<GiftService> _logger,
     MailSendService _mailSendService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     HashUtil _hashUtil,
     TimeUtil _timeUtil,
     ProfileHelper _profileHelper,
     ConfigServer _configServer
 )
 {
-    protected GiftsConfig _giftConfig = _configServer.GetConfig<GiftsConfig>();
+    protected readonly GiftsConfig _giftConfig = _configServer.GetConfig<GiftsConfig>();
 
     /// <summary>
     ///     Does a gift with a specific ID exist in db
@@ -75,7 +75,7 @@ public class GiftService(
 
         var maxGiftsToSendCount = giftData.MaxToSendPlayer ?? 1;
 
-        if (_profileHelper.PlayerHasRecievedMaxNumberOfGift(playerId, giftId, maxGiftsToSendCount))
+        if (_profileHelper.PlayerHasReceivedMaxNumberOfGift(playerId, giftId, maxGiftsToSendCount))
         {
             if (_logger.IsLogEnabled(LogLevel.Debug))
             {
@@ -224,7 +224,7 @@ public class GiftService(
                 return MessageType.UserMessage;
             default:
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "gift-unable_to_handle_message_type_command",
                         giftData.Sender
                     )
@@ -249,7 +249,7 @@ public class GiftService(
 
         if (giftId is not null)
         {
-            if (!_profileHelper.PlayerHasRecievedMaxNumberOfGift(sessionId, giftId, 1))
+            if (!_profileHelper.PlayerHasReceivedMaxNumberOfGift(sessionId, giftId, 1))
             {
                 SendGiftToPlayer(sessionId, giftId);
             }
@@ -264,7 +264,7 @@ public class GiftService(
     /// <param name="giftCount"> Optional, how many to send </param>
     public void SendGiftWithSilentReceivedCheck(string giftId, string? sessionId, int giftCount)
     {
-        if (!_profileHelper.PlayerHasRecievedMaxNumberOfGift(sessionId, giftId, giftCount))
+        if (!_profileHelper.PlayerHasReceivedMaxNumberOfGift(sessionId, giftId, giftCount))
         {
             SendGiftToPlayer(sessionId, giftId);
         }

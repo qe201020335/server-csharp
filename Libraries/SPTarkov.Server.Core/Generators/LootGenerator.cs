@@ -19,12 +19,11 @@ namespace SPTarkov.Server.Core.Generators;
 public class LootGenerator(
     ISptLogger<LootGenerator> _logger,
     RandomUtil _randomUtil,
-    HashUtil _hashUtil,
     ItemHelper _itemHelper,
     PresetHelper _presetHelper,
     DatabaseService _databaseService,
     ItemFilterService _itemFilterService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     WeightedRandomHelper _weightedRandomHelper,
     RagfairLinkedItemService _ragfairLinkedItemService,
     SeasonalEventService _seasonalEventService,
@@ -62,7 +61,7 @@ public class LootGenerator(
                     [
                         new Item
                         {
-                            Id = _hashUtil.Generate(),
+                            Id = new MongoId(),
                             Template = chosenSealedContainer.Id,
                             Upd = new Upd { StackObjectsCount = 1, SpawnedInSession = true },
                         },
@@ -216,7 +215,7 @@ public class LootGenerator(
             // Non-preset item to be added
             var newLootItem = new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = itemTpl,
                 Upd = new Upd { StackObjectsCount = randomisedItemCount, SpawnedInSession = true },
             };
@@ -241,15 +240,15 @@ public class LootGenerator(
     /// <param name="blockSeasonalItemsOutOfSeason">Prevent seasonal items appearing outside their defined season</param>
     /// <returns>results of filtering + blacklist used</returns>
     protected ItemRewardPoolResults GetItemRewardPool(
-        HashSet<string> itemTplBlacklist,
-        List<string> itemTypeWhitelist,
+        HashSet<MongoId> itemTplBlacklist,
+        List<MongoId> itemTypeWhitelist,
         bool useRewardItemBlacklist,
         bool allowBossItems,
         bool blockSeasonalItemsOutOfSeason
     )
     {
         var itemsDb = _databaseService.GetItems().Values;
-        var itemBlacklist = new HashSet<string>();
+        var itemBlacklist = new HashSet<MongoId>();
         itemBlacklist.UnionWith([.. _itemFilterService.GetBlacklistedItems(), .. itemTplBlacklist]);
 
         if (useRewardItemBlacklist)
@@ -321,9 +320,9 @@ public class LootGenerator(
     /// </summary>
     /// <param name="limits">limits as defined in config</param>
     /// <returns>record, key: item tplId, value: current/max item count allowed</returns>
-    protected Dictionary<string, ItemLimit> InitItemLimitCounter(Dictionary<string, int> limits)
+    protected Dictionary<MongoId, ItemLimit> InitItemLimitCounter(Dictionary<MongoId, int> limits)
     {
-        var itemTypeCounts = new Dictionary<string, ItemLimit>();
+        var itemTypeCounts = new Dictionary<MongoId, ItemLimit>();
         foreach (var itemTypeId in limits)
         {
             itemTypeCounts[itemTypeId.Key] = new ItemLimit
@@ -346,7 +345,7 @@ public class LootGenerator(
     /// <returns>true if item was valid and added to pool</returns>
     protected bool FindAndAddRandomItemToLoot(
         List<TemplateItem> items,
-        Dictionary<string, ItemLimit> itemTypeCounts,
+        Dictionary<MongoId, ItemLimit> itemTypeCounts,
         LootRequest options,
         List<List<Item>> result
     )
@@ -370,7 +369,7 @@ public class LootGenerator(
 
         var newLootItem = new Item
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Template = randomItem.Id,
             Upd = new Upd { StackObjectsCount = 1, SpawnedInSession = true },
         };
@@ -424,14 +423,14 @@ public class LootGenerator(
     /// <returns>true if preset was valid and added to pool</returns>
     protected bool FindAndAddRandomPresetToLoot(
         List<Preset> presetPool,
-        Dictionary<string, ItemLimit> itemTypeCounts,
-        HashSet<string> itemBlacklist,
+        Dictionary<MongoId, ItemLimit> itemTypeCounts,
+        HashSet<MongoId> itemBlacklist,
         List<List<Item>> result
     )
     {
         if (presetPool.Count == 0)
         {
-            _logger.Warning(_localisationService.GetText("loot-preset_pool_is_empty"));
+            _logger.Warning(_serverLocalisationService.GetText("loot-preset_pool_is_empty"));
 
             return false;
         }
@@ -445,7 +444,7 @@ public class LootGenerator(
             if (_logger.IsLogEnabled(LogLevel.Debug))
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "loot-chosen_preset_missing_encyclopedia_value",
                         chosenPreset?.Id
                     )
@@ -479,7 +478,7 @@ public class LootGenerator(
         if (itemDbDetails.Value?.Parent is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "loot-item_missing_parentid",
                     itemDbDetails.Value?.Name
                 )
@@ -537,7 +536,7 @@ public class LootGenerator(
         if (!weaponDetailsDb.Key)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "loot-non_item_picked_as_sealed_weapon_crate_reward",
                     chosenWeaponTpl
                 )
@@ -555,7 +554,7 @@ public class LootGenerator(
         if (chosenWeaponPreset is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "loot-default_preset_not_found_using_random",
                     chosenWeaponTpl
                 )
@@ -641,7 +640,7 @@ public class LootGenerator(
                     var chosenAmmoBox = _randomUtil.GetArrayValue(ammoBoxesMatchingCaliber);
                     var ammoBoxReward = new List<Item>
                     {
-                        new() { Id = _hashUtil.Generate(), Template = chosenAmmoBox.Id },
+                        new() { Id = new MongoId(), Template = chosenAmmoBox.Id },
                     };
                     _itemHelper.AddCartridgesToAmmoBox(ammoBoxReward, chosenAmmoBox);
                     rewards.Add(ammoBoxReward);
@@ -677,7 +676,7 @@ public class LootGenerator(
                 var chosenRewardItem = _randomUtil.GetArrayValue(rewardItemPool);
                 var rewardItem = new List<Item>
                 {
-                    new() { Id = _hashUtil.Generate(), Template = chosenRewardItem.Id },
+                    new() { Id = new MongoId(), Template = chosenRewardItem.Id },
                 };
 
                 rewards.Add(rewardItem);
@@ -734,7 +733,7 @@ public class LootGenerator(
                 var chosenItem = _randomUtil.DrawRandomFromList(relatedItems.ToList());
                 var reward = new List<Item>
                 {
-                    new() { Id = _hashUtil.Generate(), Template = chosenItem[0].Id },
+                    new() { Id = new MongoId(), Template = chosenItem[0].Id },
                 };
 
                 modRewards.Add(reward);
@@ -772,10 +771,7 @@ public class LootGenerator(
                 continue;
             }
 
-            List<Item> rewardItem =
-            [
-                new() { Id = _hashUtil.Generate(), Template = chosenRewardItemTpl },
-            ];
+            List<Item> rewardItem = [new() { Id = new MongoId(), Template = chosenRewardItemTpl }];
             itemsToReturn.Add(rewardItem);
         }
 
@@ -807,7 +803,7 @@ public class LootGenerator(
     {
         public List<TemplateItem> ItemPool { get; set; }
 
-        public HashSet<string> Blacklist { get; set; }
+        public HashSet<MongoId> Blacklist { get; set; }
     }
 }
 

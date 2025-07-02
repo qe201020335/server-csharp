@@ -22,7 +22,7 @@ public class HealthController(
     ItemHelper _itemHelper,
     PaymentService _paymentService,
     InventoryHelper _inventoryHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     HttpResponseUtil _httpResponseUtil,
     HealthHelper _healthHelper,
     ICloner _cloner
@@ -49,7 +49,7 @@ public class HealthController(
         );
         if (healingItemToUse is null)
         {
-            var errorMessage = _localisationService.GetText(
+            var errorMessage = _serverLocalisationService.GetText(
                 "health-healing_item_not_found",
                 request.Item
             );
@@ -103,11 +103,11 @@ public class HealthController(
         if (itemRemovesEffects && bodyPartToHeal.Effects is not null)
         {
             // Can remove effects and limb has effects to remove
-            foreach (var effectKvP in bodyPartToHeal.Effects)
+            foreach (var (effectId, _) in bodyPartToHeal.Effects)
             {
                 // Check enum has effectType
-                if (!Enum.TryParse<DamageEffectType>(effectKvP.Key, out var effect))
-                // Enum doesnt contain this key
+                if (!Enum.TryParse<DamageEffectType>(effectId, out var effect))
+                // Enum doesn't contain this key
                 {
                     continue;
                 }
@@ -126,7 +126,7 @@ public class HealthController(
 
                 // Adjust limb heal amount based on if it's fixing an effect (request.count is TOTAL cost of hp resource on heal item, NOT amount to heal limb)
                 amountToHealLimb -= (int)(matchingEffectFromHealingItem.Cost ?? 0);
-                bodyPartToHeal.Effects.Remove(effectKvP.Key);
+                bodyPartToHeal.Effects.Remove(effectId);
             }
         }
 
@@ -165,7 +165,10 @@ public class HealthController(
         {
             return _httpResponseUtil.AppendErrorToOutput(
                 output,
-                _localisationService.GetText("health-unable_to_find_item_to_consume", request.Item)
+                _serverLocalisationService.GetText(
+                    "health-unable_to_find_item_to_consume",
+                    request.Item
+                )
             );
         }
 

@@ -1,8 +1,11 @@
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+using SPTarkov.Server.Core.Models.Eft.Hideout;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -16,20 +19,18 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class ProfileFixerService(
     ISptLogger<ProfileFixerService> _logger,
-    HashUtil _hashUtil,
     JsonUtil _jsonUtil,
-    ItemHelper _itemHelper,
     RewardHelper _rewardHelper,
     TraderHelper _traderHelper,
     HideoutHelper _hideoutHelper,
     DatabaseService _databaseService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer,
     InventoryHelper _inventoryHelper
 )
 {
-    protected List<string> _areas = ["hideout", "main"];
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly List<string> _areas = ["hideout", "main"];
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
 
     /// <summary>
     ///     Find issues in the pmc profile data that may cause issues and fix them
@@ -86,11 +87,8 @@ public class ProfileFixerService(
                 }
 
                 // Otherwise we need to generate a new unique stash ID for this message's attachments
-                message.Items.Stash = _hashUtil.Generate();
-                message.Items.Data = _itemHelper.AdoptOrphanedItems(
-                    message.Items.Stash,
-                    message.Items.Data
-                );
+                message.Items.Stash = new MongoId();
+                message.Items.Data = message.Items.Data.AdoptOrphanedItems(message.Items.Stash);
 
                 // Because `adoptOrphanedItems` sets the slotId to `hideout`, we need to re-set it to `main` to work with mail
                 foreach (var item in message.Items.Data.Where(item => item.SlotId == "hideout"))
@@ -144,7 +142,7 @@ public class ProfileFixerService(
                     var itemToAdjust = pmcProfile.Inventory.Items.FirstOrDefault(x =>
                         x.Id == mappingKvP.Key
                     );
-                    itemToAdjust.Id = _hashUtil.Generate();
+                    itemToAdjust.Id = new MongoId();
                     _logger.Warning(
                         $"Replace duplicate item Id: {mappingKvP.Key} with {itemToAdjust.Id}"
                     );
@@ -414,7 +412,7 @@ public class ProfileFixerService(
         if (matchingProductions.Count != 1)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "quest-unable_to_find_matching_hideout_production",
                     new
                     {
@@ -659,7 +657,7 @@ public class ProfileFixerService(
                 if (!itemsDb.ContainsKey(item.Template))
                 {
                     _logger.Error(
-                        _localisationService.GetText("fixer-mod_item_found", item.Template)
+                        _serverLocalisationService.GetText("fixer-mod_item_found", item.Template)
                     );
 
                     if (_coreConfig.Fixes.RemoveModItemsFromProfile)
@@ -735,7 +733,10 @@ public class ProfileFixerService(
                     if (!itemsDb.ContainsKey(item.Template))
                     {
                         _logger.Error(
-                            _localisationService.GetText("fixer-mod_item_found", item.Template)
+                            _serverLocalisationService.GetText(
+                                "fixer-mod_item_found",
+                                item.Template
+                            )
                         );
                     }
 
@@ -763,7 +764,7 @@ public class ProfileFixerService(
             {
                 // Item in profile not found in db, not good
                 _logger.Error(
-                    _localisationService.GetText("fixer-clothing_item_found", clothingItem)
+                    _serverLocalisationService.GetText("fixer-clothing_item_found", clothingItem)
                 );
 
                 if (_coreConfig.Fixes.RemoveModItemsFromProfile)
@@ -791,7 +792,10 @@ public class ProfileFixerService(
                 if (!_traderHelper.TraderExists(activeQuest.TraderId))
                 {
                     _logger.Error(
-                        _localisationService.GetText("fixer-trader_found", activeQuest.TraderId)
+                        _serverLocalisationService.GetText(
+                            "fixer-trader_found",
+                            activeQuest.TraderId
+                        )
                     );
                     if (_coreConfig.Fixes.RemoveModItemsFromProfile)
                     {
@@ -835,7 +839,7 @@ public class ProfileFixerService(
         )
         {
             _logger.Error(
-                _localisationService.GetText("fixer-trader_found", TraderPurchaseKvP.Key)
+                _serverLocalisationService.GetText("fixer-trader_found", TraderPurchaseKvP.Key)
             );
             if (_coreConfig.Fixes.RemoveModItemsFromProfile)
             {
@@ -857,7 +861,7 @@ public class ProfileFixerService(
     protected bool ShouldRemoveWeaponEquipmentBuild(
         string buildType,
         UserBuild build,
-        Dictionary<string, TemplateItem> itemsDb
+        Dictionary<MongoId, TemplateItem> itemsDb
     )
     {
         if (buildType == "weapon")
@@ -869,7 +873,9 @@ public class ProfileFixerService(
                 )
             )
             {
-                _logger.Error(_localisationService.GetText("fixer-mod_item_found", item.Template));
+                _logger.Error(
+                    _serverLocalisationService.GetText("fixer-mod_item_found", item.Template)
+                );
 
                 if (_coreConfig.Fixes.RemoveModItemsFromProfile)
                 {
@@ -895,7 +901,9 @@ public class ProfileFixerService(
                 )
             )
             {
-                _logger.Error(_localisationService.GetText("fixer-mod_item_found", item.Template));
+                _logger.Error(
+                    _serverLocalisationService.GetText("fixer-mod_item_found", item.Template)
+                );
 
                 if (_coreConfig.Fixes.RemoveModItemsFromProfile)
                 {
@@ -922,7 +930,7 @@ public class ProfileFixerService(
     /// <returns> True if the build should be removed from the build list, false otherwise </returns>
     protected bool ShouldRemoveMagazineBuild(
         MagazineBuild magazineBuild,
-        Dictionary<string, TemplateItem> itemsDb
+        Dictionary<MongoId, TemplateItem> itemsDb
     )
     {
         foreach (var item in magazineBuild.Items)
@@ -937,7 +945,7 @@ public class ProfileFixerService(
             if (!itemsDb.ContainsKey(item.TemplateId))
             {
                 _logger.Error(
-                    _localisationService.GetText("fixer-mod_item_found", item.TemplateId)
+                    _serverLocalisationService.GetText("fixer-mod_item_found", item.TemplateId)
                 );
 
                 if (_coreConfig.Fixes.RemoveModItemsFromProfile)
@@ -961,10 +969,12 @@ public class ProfileFixerService(
     ///     Iterate over players hideout areas and find what's built, look for missing bonuses those areas give and add them if missing
     /// </summary>
     /// <param name="pmcProfile"> Profile to update </param>
-    public void AddMissingHideoutBonusesToProfile(PmcData pmcProfile)
+    /// <param name="dbHideoutAreas"></param>
+    public void AddMissingHideoutBonusesToProfile(
+        PmcData pmcProfile,
+        List<HideoutArea>? dbHideoutAreas
+    )
     {
-        var dbHideoutAreas = _databaseService.GetHideout().Areas;
-
         foreach (var profileArea in pmcProfile.Hideout?.Areas ?? [])
         {
             var areaType = profileArea.Type;
@@ -1053,7 +1063,7 @@ public class ProfileFixerService(
             var traderId = traderKvP.Key;
             if (!_traderHelper.TraderExists(traderId))
             {
-                _logger.Error(_localisationService.GetText("fixer-trader_found", traderId));
+                _logger.Error(_serverLocalisationService.GetText("fixer-trader_found", traderId));
                 if (_coreConfig.Fixes.RemoveInvalidTradersFromProfile)
                 {
                     _logger.Warning(
@@ -1069,7 +1079,7 @@ public class ProfileFixerService(
             var traderId = traderKvP.Key;
             if (!_traderHelper.TraderExists(traderId))
             {
-                _logger.Error(_localisationService.GetText("fixer-trader_found", traderId));
+                _logger.Error(_serverLocalisationService.GetText("fixer-trader_found", traderId));
                 if (_coreConfig.Fixes.RemoveInvalidTradersFromProfile)
                 {
                     _logger.Warning(

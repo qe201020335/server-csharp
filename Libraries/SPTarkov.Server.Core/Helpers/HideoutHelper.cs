@@ -1,4 +1,6 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
@@ -18,7 +20,7 @@ namespace SPTarkov.Server.Core.Helpers;
 public class HideoutHelper(
     ISptLogger<HideoutHelper> _logger,
     TimeUtil _timeUtil,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     HashUtil _hashUtil,
     DatabaseService _databaseService,
     EventOutputHolder _eventOutputHolder,
@@ -34,7 +36,6 @@ public class HideoutHelper(
     public const string BitcoinProductionId = "5d5c205bd582a50d042a3c0e";
     public const string WaterCollector = "5d5589c1f934db045e6c5492";
     public const int MaxSkillPoint = 5000;
-    protected HashSet<string> _idCheck = [BitcoinFarm, CultistCircleCraftId];
 
     /// <summary>
     ///     Add production to profiles' Hideout.Production array
@@ -57,7 +58,7 @@ public class HideoutHelper(
         if (recipe is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-missing_recipe_in_db",
                     productionRequest.RecipeId
                 )
@@ -104,7 +105,7 @@ public class HideoutHelper(
                 production.SptRequiredTools.Add(
                     new Item
                     {
-                        Id = _hashUtil.Generate(),
+                        Id = new MongoId(),
                         Template = toolItem.Template,
                         Upd = toolItem.Upd,
                     }
@@ -136,7 +137,7 @@ public class HideoutHelper(
         if (recipe is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-missing_recipe_in_db",
                     productionRequest.RecipeId
                 )
@@ -212,7 +213,7 @@ public class HideoutHelper(
                 if (stashItem is null)
                 {
                     _logger.Warning(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "hideout-unable_to_apply_stashsize_bonus_no_stash_found",
                             profileData.Inventory.Stash
                         )
@@ -331,7 +332,7 @@ public class HideoutHelper(
             if (craft.Progress == null)
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "hideout-craft_has_undefined_progress_value_defaulting",
                         prodId
                     )
@@ -340,20 +341,20 @@ public class HideoutHelper(
             }
 
             // Skip processing (Don't skip continuous crafts like bitcoin farm or cultist circle)
-            if (IsCraftComplete(craft))
+            if (craft.IsCraftComplete())
             {
                 continue;
             }
 
             // Special handling required
-            if (IsCraftOfType(craft, HideoutAreas.ScavCase))
+            if (craft.IsCraftOfType(HideoutAreas.ScavCase))
             {
                 UpdateScavCaseProductionTimer(pmcData, prodId.Key);
 
                 continue;
             }
 
-            if (IsCraftOfType(craft, HideoutAreas.WaterCollector))
+            if (craft.IsCraftOfType(HideoutAreas.WaterCollector))
             {
                 UpdateWaterCollectorProductionTimer(pmcData, prodId.Key, hideoutProperties);
 
@@ -361,7 +362,7 @@ public class HideoutHelper(
             }
 
             // Continuous craft
-            if (IsCraftOfType(craft, HideoutAreas.BitcoinFarm))
+            if (craft.IsCraftOfType(HideoutAreas.BitcoinFarm))
             {
                 UpdateBitcoinFarm(
                     pmcData,
@@ -374,7 +375,7 @@ public class HideoutHelper(
             }
 
             // No recipe, needs special handling
-            if (IsCraftOfType(craft, HideoutAreas.CircleOfCultists))
+            if (craft.IsCraftOfType(HideoutAreas.CircleOfCultists))
             {
                 UpdateCultistCircleCraftProgress(pmcData, prodId.Key);
 
@@ -386,7 +387,7 @@ public class HideoutHelper(
             if (recipe is null)
             {
                 _logger.Error(
-                    _localisationService.GetText("hideout-missing_recipe_for_area", prodId)
+                    _serverLocalisationService.GetText("hideout-missing_recipe_for_area", prodId)
                 );
 
                 continue;
@@ -394,43 +395,6 @@ public class HideoutHelper(
 
             UpdateProductionProgress(pmcData, prodId.Key, recipe, hideoutProperties);
         }
-    }
-
-    /// <summary>
-    ///     Is a craft from a particular hideout area
-    /// </summary>
-    /// <param name="craft">Craft to check</param>
-    /// <param name="hideoutType">Type to check craft against</param>
-    /// <returns>True if it is from that area</returns>
-    protected bool IsCraftOfType(Production craft, HideoutAreas hideoutType)
-    {
-        switch (hideoutType)
-        {
-            case HideoutAreas.WaterCollector:
-                return craft.RecipeId == WaterCollector;
-            case HideoutAreas.BitcoinFarm:
-                return craft.RecipeId == BitcoinFarm;
-            case HideoutAreas.ScavCase:
-                return craft.SptIsScavCase ?? false;
-            case HideoutAreas.CircleOfCultists:
-                return craft.SptIsCultistCircle ?? false;
-            default:
-                _logger.Error(
-                    $"Unhandled hideout area: {hideoutType}, assuming craft: {craft.RecipeId} is not of this type"
-                );
-                return false;
-        }
-    }
-
-    /// <summary>
-    ///     Has the craft completed
-    ///     Ignores bitcoin farm/cultist circle as they're continuous crafts
-    /// </summary>
-    /// <param name="craft">Craft to check</param>
-    /// <returns>True when craft is complete</returns>
-    protected bool IsCraftComplete(Production craft)
-    {
-        return craft.Progress >= craft.ProductionTime && !_idCheck.Contains(craft.RecipeId);
     }
 
     /// <summary>
@@ -819,7 +783,9 @@ public class HideoutHelper(
             .Production.Recipes.FirstOrDefault(production => production.Id == recipeId);
         if (recipe is null)
         {
-            _logger.Error(_localisationService.GetText("hideout-missing_recipe_in_db", recipeId));
+            _logger.Error(
+                _serverLocalisationService.GetText("hideout-missing_recipe_in_db", recipeId)
+            );
 
             return null;
         }
@@ -1156,7 +1122,7 @@ public class HideoutHelper(
     {
         if (btcProduction is null)
         {
-            _logger.Error(_localisationService.GetText("hideout-bitcoin_craft_missing"));
+            _logger.Error(_serverLocalisationService.GetText("hideout-bitcoin_craft_missing"));
 
             return;
         }
@@ -1263,7 +1229,7 @@ public class HideoutHelper(
         btcProd.Products.Add(
             new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = ItemTpl.BARTER_PHYSICAL_BITCOIN,
                 Upd = new Upd { StackObjectsCount = 1 },
             }
@@ -1349,10 +1315,7 @@ public class HideoutHelper(
     /// <returns>Consumption bonus</returns>
     protected double? GetHideoutManagementConsumptionBonus(PmcData pmcData)
     {
-        var hideoutManagementSkill = _profileHelper.GetSkillFromProfile(
-            pmcData,
-            SkillTypes.HideoutManagement
-        );
+        var hideoutManagementSkill = pmcData.GetSkillFromProfile(SkillTypes.HideoutManagement);
         if (hideoutManagementSkill is null || hideoutManagementSkill.Progress == 0)
         {
             return 0;
@@ -1384,7 +1347,7 @@ public class HideoutHelper(
         double valuePerLevel
     )
     {
-        var profileSkill = _profileHelper.GetSkillFromProfile(pmcData, skill);
+        var profileSkill = pmcData.GetSkillFromProfile(skill);
         if (profileSkill is null || profileSkill.Progress == 0)
         {
             return 0;
@@ -1442,7 +1405,7 @@ public class HideoutHelper(
         var craftedCoinCount = bitcoinCraft?.Products?.Count;
         if (bitcoinCraft is null || craftedCoinCount is null)
         {
-            var errorMsg = _localisationService.GetText("hideout-no_bitcoins_to_collect");
+            var errorMsg = _serverLocalisationService.GetText("hideout-no_bitcoins_to_collect");
             _logger.Error(errorMsg);
 
             _httpResponseUtil.AppendErrorToOutput(output, errorMsg);
@@ -1457,7 +1420,7 @@ public class HideoutHelper(
                 [
                     new Item
                     {
-                        Id = _hashUtil.Generate(),
+                        Id = new MongoId(),
                         Template = ItemTpl.BARTER_PHYSICAL_BITCOIN,
                         Upd = new Upd { StackObjectsCount = 1 },
                     },
@@ -1492,32 +1455,6 @@ public class HideoutHelper(
         // Remove crafted coins from production in profile now they've been collected
         // Can only collect all coins, not individually
         pmcData.Hideout.Production[BitcoinFarm].Products = [];
-    }
-
-    /// <summary>
-    ///     Upgrade hideout wall from starting level to interactable level if necessary stations have been upgraded
-    /// </summary>
-    /// <param name="profileData">Profile to upgrade wall in</param>
-    public void UnlockHideoutWallInProfile(PmcData profileData)
-    {
-        var profileHideoutAreas = profileData.Hideout.Areas;
-        var waterCollector = profileHideoutAreas.FirstOrDefault(x =>
-            x.Type == HideoutAreas.WaterCollector
-        );
-        var medStation = profileHideoutAreas.FirstOrDefault(x => x.Type == HideoutAreas.MedStation);
-        var wall = profileHideoutAreas.FirstOrDefault(x => x.Type == HideoutAreas.EmergencyWall);
-
-        // No collector or med station, skip
-        if (waterCollector is null && medStation is null)
-        {
-            return;
-        }
-
-        // If med-station > level 1 AND water collector > level 1 AND wall is level 0
-        if (waterCollector?.Level >= 1 && medStation?.Level >= 1 && wall?.Level <= 0)
-        {
-            wall.Level = 3;
-        }
     }
 
     /// <summary>
@@ -1589,10 +1526,7 @@ public class HideoutHelper(
             .ToList();
 
         // Calculate bonus percent (apply hideoutManagement bonus)
-        var hideoutManagementSkill = _profileHelper.GetSkillFromProfile(
-            pmcData,
-            SkillTypes.HideoutManagement
-        );
+        var hideoutManagementSkill = pmcData.GetSkillFromProfile(SkillTypes.HideoutManagement);
         var hideoutManagementSkillBonusPercent = 1 + hideoutManagementSkill.Progress / 10000; // 5100 becomes 0.51, add 1 to it, 1.51
         var bonus =
             GetDogtagCombatSkillBonusPercent(pmcData, activeDogtags)

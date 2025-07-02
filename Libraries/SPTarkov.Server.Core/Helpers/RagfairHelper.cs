@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Enums;
@@ -16,32 +17,58 @@ public class RagfairHelper(
     HandbookHelper handbookHelper,
     ItemHelper itemHelper,
     RagfairLinkedItemService ragfairLinkedItemService,
-    UtilityHelper utilityHelper,
     ConfigServer configServer,
     ICloner cloner
 )
 {
-    protected RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
+    protected readonly RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
 
-    /**
-     * Gets currency TAG from TPL
-     * @param {string} currency
-     * @returns string
-     */
-    public string GetCurrencyTag(string currency)
+    /// <summary>
+    /// Gets currency TAG from currency tpl value
+    /// </summary>
+    /// <param name="currencyTpl">Currency tpl</param>
+    /// <returns>Currency tag, e.g. RUB</returns>
+    public string GetCurrencyTag(string currencyTpl)
     {
-        switch (currency)
+        if (currencyTpl == Money.EUROS)
         {
-            case Money.EUROS:
+            return "EUR";
+        }
+        else if (currencyTpl == Money.DOLLARS)
+        {
+            return "USD";
+        }
+        else if (currencyTpl == Money.ROUBLES)
+        {
+            return "RUB";
+        }
+        else if (currencyTpl == Money.GP)
+        {
+            return "GP";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    /// <summary>
+    /// Get a currency TAG by its search filter value (e.g. 0 = all, 1 = RUB)
+    /// </summary>
+    /// <param name="currencyFilter">Search filter choice</param>
+    /// <returns>Currency tag</returns>
+    public string GetCurrencyTag(int currencyFilter)
+    {
+        switch (currencyFilter)
+        {
+            case 3:
                 return "EUR";
-            case Money.DOLLARS:
+            case 2:
                 return "USD";
-            case Money.ROUBLES:
+            case 1:
                 return "RUB";
-            case Money.GP:
-                return "GP";
             default:
-                return "";
+                return "all";
         }
     }
 
@@ -66,7 +93,7 @@ public class RagfairHelper(
         if (!string.IsNullOrEmpty(request.HandbookId))
         {
             var handbook = GetCategoryList(request.HandbookId);
-            result = result?.Count > 0 ? utilityHelper.ArrayIntersect(result, handbook) : handbook;
+            result = result?.Count > 0 ? result.IntersectWith(handbook) : handbook;
         }
 
         return result;
@@ -133,29 +160,29 @@ public class RagfairHelper(
     public List<Item> MergeStackable(List<Item> items)
     {
         var list = new List<Item>();
-        Item rootItem = null;
+        Item? rootItem = null;
 
         foreach (var item in items)
         {
-            var itemFixed = itemHelper.FixItemStackCount(item);
+            item.FixItemStackCount();
 
-            var isChild = items.Any(it => it.Id == itemFixed.ParentId);
+            var isChild = items.Any(it => it.Id == item.ParentId);
             if (!isChild)
             {
                 if (rootItem == null)
                 {
-                    rootItem = cloner.Clone(itemFixed);
+                    rootItem = cloner.Clone(item);
                     rootItem.Upd.OriginalStackObjectsCount = rootItem.Upd.StackObjectsCount;
                 }
                 else
                 {
-                    rootItem.Upd.StackObjectsCount += itemFixed.Upd.StackObjectsCount;
-                    list.Add(itemFixed);
+                    rootItem.Upd.StackObjectsCount += item.Upd.StackObjectsCount;
+                    list.Add(item);
                 }
             }
             else
             {
-                list.Add(itemFixed);
+                list.Add(item);
             }
         }
 
@@ -170,11 +197,8 @@ public class RagfairHelper(
      */
     public string GetCurrencySymbol(string currencyTpl)
     {
-        return currencyTpl switch
-        {
-            Money.EUROS => "€",
-            Money.DOLLARS => "$",
-            _ => "₽",
-        };
+        return currencyTpl == Money.EUROS ? "€"
+            : currencyTpl == Money.DOLLARS ? "$"
+            : "₽";
     }
 }

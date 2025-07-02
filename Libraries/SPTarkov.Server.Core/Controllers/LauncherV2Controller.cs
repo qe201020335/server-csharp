@@ -20,12 +20,12 @@ public class LauncherV2Controller(
     RandomUtil _randomUtil,
     SaveServer _saveServer,
     DatabaseService _databaseService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer,
     Watermark _watermark
 )
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
 
     /// <summary>
     ///     Returns a simple string of Pong!
@@ -50,7 +50,7 @@ public class LauncherV2Controller(
         {
             result.TryAdd(
                 profileKvP.Key,
-                _localisationService.GetText(profileKvP.Value.DescriptionLocaleKey)
+                _serverLocalisationService.GetText(profileKvP.Value.DescriptionLocaleKey)
             );
         }
 
@@ -76,9 +76,9 @@ public class LauncherV2Controller(
     /// <returns></returns>
     public async Task<bool> Register(RegisterData info)
     {
-        foreach (var session in _saveServer.GetProfiles())
+        foreach (var (_, profile) in _saveServer.GetProfiles())
         {
-            if (info.Username == _saveServer.GetProfile(session.Key).ProfileInfo!.Username)
+            if (info.Username == profile.ProfileInfo!.Username)
             {
                 return false;
             }
@@ -150,14 +150,10 @@ public class LauncherV2Controller(
     /// <returns></returns>
     public Dictionary<string, AbstractModMetadata> LoadedMods()
     {
-        var result = new Dictionary<string, AbstractModMetadata>();
-
-        foreach (var sptMod in _loadedMods)
-        {
-            result.Add(sptMod.ModMetadata.Name, sptMod.ModMetadata);
-        }
-
-        return result;
+        return _loadedMods.ToDictionary(
+            sptMod => sptMod.ModMetadata.Name,
+            sptMod => sptMod.ModMetadata
+        );
     }
 
     /// <summary>
@@ -205,14 +201,14 @@ public class LauncherV2Controller(
 
     protected string? GetSessionId(LoginRequestData info)
     {
-        foreach (var profile in _saveServer.GetProfiles())
+        foreach (var (sessionId, profile) in _saveServer.GetProfiles())
         {
             if (
-                info.Username == profile.Value.ProfileInfo!.Username
-                && info.Password == profile.Value.ProfileInfo.Password
+                info.Username == profile.ProfileInfo!.Username
+                && info.Password == profile.ProfileInfo.Password
             )
             {
-                return profile.Key;
+                return sessionId;
             }
         }
 

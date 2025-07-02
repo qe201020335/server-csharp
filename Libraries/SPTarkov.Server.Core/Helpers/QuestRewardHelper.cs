@@ -1,14 +1,12 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Helpers;
@@ -16,29 +14,20 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class QuestRewardHelper(
     ISptLogger<QuestRewardHelper> _logger,
-    HashUtil _hashUtil,
-    TimeUtil _timeUtil,
-    ItemHelper _itemHelper,
     PaymentHelper _paymentHelper,
-    TraderHelper _traderHelper,
     DatabaseService _databaseService,
-    QuestConditionHelper _questConditionHelper,
     ProfileHelper _profileHelper,
-    PresetHelper _presetHelper,
     RewardHelper _rewardHelper,
-    LocalisationService _localisationService,
-    ICloner _cloner,
-    ConfigServer _configServer
+    ServerLocalisationService _serverLocalisationService,
+    ICloner _cloner
 )
 {
-    protected QuestConfig _questConfig = _configServer.GetConfig<QuestConfig>();
-
     /// <summary>
     /// Value for in game reward traders to not duplicate quest rewards.
     /// Value can be modified by modders by overriding this value with new traders.
     /// Ensure to add Lightkeeper's ID (638f541a29ffd1183d187f57) and BTR Driver's ID (656f0f98d80a697f855d34b1)
     /// </summary>
-    protected string[] InGameTraders = [Traders.LIGHTHOUSEKEEPER, Traders.BTR];
+    protected readonly string[] InGameTraders = [Traders.LIGHTHOUSEKEEPER, Traders.BTR];
 
     /// <summary>
     /// Give player quest rewards - Skills/exp/trader standing/items/assort unlocks - Returns reward items player earned
@@ -73,7 +62,7 @@ public class QuestRewardHelper(
         if (questDetails is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "quest-unable_to_find_quest_in_db_no_quest_rewards",
                     questId
                 )
@@ -161,10 +150,7 @@ public class QuestRewardHelper(
         );
 
         // Calculate hideout management bonus as a percentage (up to 51% bonus)
-        var hideoutManagementSkill = _profileHelper.GetSkillFromProfile(
-            pmcData,
-            SkillTypes.HideoutManagement
-        );
+        var hideoutManagementSkill = pmcData.GetSkillFromProfile(SkillTypes.HideoutManagement);
 
         // 5100 becomes 0.51, add 1 to it, 1.51
         // We multiply the money reward bonuses by the hideout management skill multiplier, giving the new result

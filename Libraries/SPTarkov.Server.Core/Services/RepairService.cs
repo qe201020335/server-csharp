@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -28,12 +29,12 @@ public class RepairService(
     PaymentService _paymentService,
     ProfileHelper _profileHelper,
     RepairHelper _repairHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer,
     WeightedRandomHelper _weightedRandomHelper
 )
 {
-    protected RepairConfig _repairConfig = _configServer.GetConfig<RepairConfig>();
+    protected readonly RepairConfig _repairConfig = _configServer.GetConfig<RepairConfig>();
 
     /// <summary>
     ///     Use trader to repair an items durability
@@ -56,7 +57,7 @@ public class RepairService(
         if (itemToRepair is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "repair-unable_to_find_item_in_inventory_cant_repair",
                     repairItemDetails.Id
                 )
@@ -68,7 +69,10 @@ public class RepairService(
         if (traderRepairDetails is null)
         {
             _logger.Error(
-                _localisationService.GetText("repair-unable_to_find_trader_details_by_id", traderId)
+                _serverLocalisationService.GetText(
+                    "repair-unable_to_find_trader_details_by_id",
+                    traderId
+                )
             );
         }
 
@@ -94,7 +98,7 @@ public class RepairService(
         if (itemRepairCost is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "repair-unable_to_find_item_repair_cost",
                     itemToRepair.Template
                 )
@@ -198,7 +202,7 @@ public class RepairService(
             {
                 // No item found
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "repair-unable_to_find_item_in_db",
                         repairDetails.RepairedItem.Template
                     )
@@ -212,7 +216,7 @@ public class RepairService(
             if (repairDetails.RepairPoints is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "repair-item_has_no_repair_points",
                         repairDetails.RepairedItem.Template
                     )
@@ -260,7 +264,7 @@ public class RepairService(
             if (repairDetails.RepairPoints is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "repair-item_has_no_repair_points",
                         repairDetails.RepairedItem.Template
                     )
@@ -338,7 +342,7 @@ public class RepairService(
         if (itemToRepair is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "repair-item_not_found_unable_to_repair",
                     itemToRepairId
                 )
@@ -374,7 +378,7 @@ public class RepairService(
             if (repairKitInInventory is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "repair-repair_kit_not_found_in_inventory",
                         repairKit.Id
                     )
@@ -420,7 +424,7 @@ public class RepairService(
             .Intellect
             .RepairPointsCostReduction;
         var profileIntellectLevel =
-            _profileHelper.GetSkillFromProfile(pmcData, SkillTypes.Intellect)?.Progress ?? 0;
+            pmcData.GetSkillFromProfile(SkillTypes.Intellect)?.Progress ?? 0;
         var intellectPointReduction =
             intellectRepairPointsPerLevel * Math.Truncate(profileIntellectLevel / 100);
 
@@ -629,8 +633,7 @@ public class RepairService(
         // Skill < level 10 + repairing weapon
         if (
             itemSkillType == SkillTypes.WeaponTreatment
-            && _profileHelper.GetSkillFromProfile(pmcData, SkillTypes.WeaponTreatment)?.Progress
-                < 1000
+            && pmcData.GetSkillFromProfile(SkillTypes.WeaponTreatment)?.Progress < 1000
         )
         {
             return false;
@@ -641,7 +644,7 @@ public class RepairService(
             new HashSet<SkillTypes> { SkillTypes.LightVests, SkillTypes.HeavyVests }.Contains(
                 itemSkillType.Value
             )
-            && _profileHelper.GetSkillFromProfile(pmcData, itemSkillType.Value)?.Progress < 1000
+            && pmcData.GetSkillFromProfile(itemSkillType.Value)?.Progress < 1000
         )
         {
             return false;
@@ -670,13 +673,13 @@ public class RepairService(
         var receivedDurabilityMaxPercent = buffSettings.ReceivedDurabilityMaxPercent;
 
         var skillLevel = Math.Truncate(
-            (_profileHelper.GetSkillFromProfile(pmcData, itemSkillType.Value)?.Progress ?? 0) / 100
+            (pmcData.GetSkillFromProfile(itemSkillType.Value)?.Progress ?? 0) / 100
         );
 
         if (repairDetails.RepairPoints is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "repair-item_has_no_repair_points",
                     repairDetails.RepairedItem.Template
                 )

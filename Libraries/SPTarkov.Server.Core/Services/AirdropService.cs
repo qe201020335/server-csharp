@@ -1,6 +1,7 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Location;
 using SPTarkov.Server.Core.Models.Enums;
@@ -21,7 +22,7 @@ public class AirdropService(
     HashUtil _hashUtil,
     WeightedRandomHelper _weightedRandomHelper,
     ContainerHelper _containerHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ItemFilterService _itemFilterService,
     ItemHelper _itemHelper
 )
@@ -42,7 +43,7 @@ public class AirdropService(
         }
 
         _logger.Warning(
-            _localisationService.GetText(
+            _serverLocalisationService.GetText(
                 "airdrop-unable_to_find_container_id_generating_random",
                 request.ContainerId
             )
@@ -182,7 +183,7 @@ public class AirdropService(
     {
         var airdropContainer = new Item
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Template = string.Empty, // Chosen below later
             Upd = new Upd { SpawnedInSession = true, StackObjectsCount = 1 },
         };
@@ -234,7 +235,7 @@ public class AirdropService(
         if (!_airdropConfig.Loot.TryGetValue(airdropType.ToString(), out var lootSettingsByType))
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "location-unable_to_find_airdrop_drop_config_of_type",
                     airdropType
                 )
@@ -255,7 +256,7 @@ public class AirdropService(
             )
             .Select(templateItem => templateItem.Id)
             .ToHashSet();
-        var itemBlacklist = new HashSet<string>();
+        var itemBlacklist = new HashSet<MongoId>();
         itemBlacklist.UnionWith(lootSettingsByType.ItemBlacklist);
         itemBlacklist.UnionWith(_itemFilterService.GetItemRewardBlacklist());
         itemBlacklist.UnionWith(_itemFilterService.GetBossItems());

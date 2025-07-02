@@ -1,4 +1,6 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
@@ -15,16 +17,14 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class RewardHelper(
     ISptLogger<RewardHelper> _logger,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     ItemHelper _itemHelper,
     DatabaseService _databaseService,
     ProfileHelper _profileHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     TraderHelper _traderHelper,
     PresetHelper _presetHelper,
-    ICloner _cloner,
-    PlayerService _playerService
+    ICloner _cloner
 )
 {
     /// <summary>
@@ -81,7 +81,9 @@ public class RewardHelper(
                         int.Parse(reward.Value.ToString())
                     ); // this must occur first as the output object needs to take the modified profile exp value
                     // Recalculate level in event player leveled up
-                    pmcProfile.Info.Level = _playerService.CalculateLevel(pmcProfile);
+                    pmcProfile.Info.Level = pmcProfile.CalculateLevel(
+                        _databaseService.GetGlobals().Configuration.Exp.Level.ExperienceTable
+                    );
                     break;
                 case RewardType.TraderStanding:
                     _traderHelper.AddStandingToTrader(sessionId, reward.Target, reward.Value.Value);
@@ -126,7 +128,7 @@ public class RewardHelper(
                     break;
                 default:
                     _logger.Error(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "reward-type_not_handled",
                             new { rewardType = reward.Type, questId = rewardSourceId }
                         )
@@ -189,7 +191,7 @@ public class RewardHelper(
         if (matchingProductions.Count != 1)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "reward-unable_to_find_matching_hideout_production",
                     new { questId, matchCount = matchingProductions.Count }
                 )
@@ -352,7 +354,7 @@ public class RewardHelper(
             // This has all the original id relations since we reset the id to the original after the splitStack
             var itemsClone = new List<Item> { _cloner.Clone(target) };
             // Here we generate a new id for the root item
-            target.Id = _hashUtil.Generate();
+            target.Id = new MongoId();
 
             // Add cloned mods to root item array
             var clonedMods = _cloner.Clone(mods);

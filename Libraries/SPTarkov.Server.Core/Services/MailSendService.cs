@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -22,19 +23,19 @@ public class MailSendService(
     NotifierHelper _notifierHelper,
     DialogueHelper _dialogueHelper,
     NotificationSendHelper _notificationSendHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ItemHelper _itemHelper,
     TraderHelper _traderHelper,
     ICloner _cloner
 )
 {
     private const string _systemSenderId = "59e7125688a45068a6249071";
-    protected HashSet<MessageType> _messageTypes =
+    protected readonly HashSet<MessageType> _messageTypes =
     [
         MessageType.NpcTraderMessage,
         MessageType.FleamarketMessage,
     ];
-    protected HashSet<string> _slotNames = ["hideout", "main"];
+    protected readonly HashSet<string> _slotNames = ["hideout", "main"];
 
     /// <summary>
     ///     Send a message from an NPC (e.g. prapor) to the player with or without items using direct message text, do not look up any locale
@@ -61,7 +62,7 @@ public class MailSendService(
         if (trader is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "mailsend-missing_trader",
                     new { messageType, sessionId }
                 )
@@ -125,7 +126,7 @@ public class MailSendService(
         if (trader is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "mailsend-missing_trader",
                     new { messageType, sessionId }
                 )
@@ -195,7 +196,7 @@ public class MailSendService(
         {
             var rootItemParentId = _hashUtil.Generate();
 
-            details.Items.AddRange(_itemHelper.AdoptOrphanedItems(rootItemParentId, items));
+            details.Items.AddRange(items.AdoptOrphanedItems(rootItemParentId));
             details.ItemsMaxStorageLifetimeSeconds = maxStorageTimeSeconds;
         }
 
@@ -356,7 +357,9 @@ public class MailSendService(
             || !playerProfile.DialogueRecords.TryGetValue(targetNpcId, out var dialogWithNpc)
         )
         {
-            _logger.Error(_localisationService.GetText("mailsend-missing_npc_dialog", targetNpcId));
+            _logger.Error(
+                _serverLocalisationService.GetText("mailsend-missing_npc_dialog", targetNpcId)
+            );
             return;
         }
 
@@ -492,7 +495,7 @@ public class MailSendService(
             var parentItem = GetBaseItemFromRewards(messageDetails.Items);
             if (parentItem is null)
             {
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "mailsend-missing_parent",
                     new { traderId = messageDetails.Trader, sender = messageDetails.Sender }
                 );
@@ -523,7 +526,7 @@ public class MailSendService(
                 if (itemTemplate is null)
                 {
                     _logger.Error(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "dialog-missing_item_template",
                             new { tpl = reward.Template, type = dialogType }
                         )
@@ -569,7 +572,7 @@ public class MailSendService(
                     if (itemTemplate.Properties.StackSlots is not null)
                     {
                         _logger.Error(
-                            _localisationService.GetText(
+                            _serverLocalisationService.GetText(
                                 "mail-unable_to_give_gift_not_handled",
                                 itemTemplate.Id
                             )
@@ -634,7 +637,7 @@ public class MailSendService(
         if (senderId is null)
         {
             throw new Exception(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "mail-unable_to_find_message_sender_by_id",
                     messageDetails.Sender
                 )

@@ -1,5 +1,6 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Bots;
@@ -16,24 +17,22 @@ namespace SPTarkov.Server.Core.Generators;
 [Injectable]
 public class BotLootGenerator(
     ISptLogger<BotLootGenerator> _logger,
-    HashUtil _hashUtil,
     RandomUtil _randomUtil,
     ItemHelper _itemHelper,
     InventoryHelper _inventoryHelper,
-    DatabaseService _databaseService,
     HandbookHelper _handbookHelper,
     BotGeneratorHelper _botGeneratorHelper,
     BotWeaponGenerator _botWeaponGenerator,
     WeightedRandomHelper _weightedRandomHelper,
     BotHelper _botHelper,
     BotLootCacheService _botLootCacheService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer,
     ICloner _cloner
 )
 {
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
 
     /// <summary>
     /// </summary>
@@ -64,7 +63,7 @@ public class BotLootGenerator(
     /// <param name="sessionId">Session id</param>
     /// <param name="botJsonTemplate">Clone of Base JSON db file for the bot having its loot generated</param>
     /// <param name="isPmc">Will bot be a pmc</param>
-    /// <param name="botRole">Role of bot, e.g. asssult</param>
+    /// <param name="botRole">Role of bot, e.g. assault</param>
     /// <param name="botInventory">Inventory to add loot to</param>
     /// <param name="botLevel">Level of bot</param>
     public void GenerateLoot(
@@ -94,7 +93,7 @@ public class BotLootGenerator(
         )
         {
             _logger.Warning(
-                _localisationService.GetText("bot-unable_to_generate_bot_loot", botRole)
+                _serverLocalisationService.GetText("bot-unable_to_generate_bot_loot", botRole)
             );
             return;
         }
@@ -549,7 +548,7 @@ public class BotLootGenerator(
                 continue;
             }
 
-            var newRootItemId = _hashUtil.Generate();
+            var newRootItemId = new MongoId();
             List<Item> itemWithChildrenToAdd =
             [
                 new()
@@ -687,7 +686,7 @@ public class BotLootGenerator(
             [
                 new()
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = _weightedRandomHelper.GetWeightedValue(
                         _botConfig.WalletLoot.CurrencyWeight
                     ),
@@ -875,7 +874,7 @@ public class BotLootGenerator(
                 if (_logger.IsLogEnabled(LogLevel.Debug))
                 {
                     _logger.Debug(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "bot-item_spawn_limit_reached_skipping_item",
                             new
                             {
@@ -952,7 +951,7 @@ public class BotLootGenerator(
         }
 
         _logger.Warning(
-            _localisationService.GetText(
+            _serverLocalisationService.GetText(
                 "bot-unable_to_find_spawn_limits_fallback_to_defaults",
                 botRole
             )

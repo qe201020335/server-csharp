@@ -25,17 +25,17 @@
     "profileWhitelist": {
         "666314b4d7f171c4c20226c3": ["edge_of_darkness"]
     },
-    "questTemplateIds": {
+    "repeatableQuestTemplateIds": {
         "pmc": {
-            "elimination": "616052ea3054fc0e2c24ce6e",
-            "completion": "61604635c725987e815b1a46",
-            "exploration": "616041eb031af660100c9967"
+            "Elimination": "616052ea3054fc0e2c24ce6e",
+            "Completion": "61604635c725987e815b1a46",
+            "Exploration": "616041eb031af660100c9967"
         },
         "scav": {
-            "elimination": "62825ef60e88d037dc1eb428",
-            "completion": "628f588ebb558574b2260fe5",
-            "exploration": "62825ef60e88d037dc1eb42c",
-            "pickup": "628f588ebb558574b2260fe5"
+            "Elimination": "62825ef60e88d037dc1eb428",
+            "Completion": "628f588ebb558574b2260fe5",
+            "Exploration": "62825ef60e88d037dc1eb42c",
+            "Pickup": "628f588ebb558574b2260fe5"
         }
     },
     "showNonSeasonalEventQuests": false,
@@ -219,14 +219,14 @@
             "numQuests": 3,
             "minPlayerLevel": 5,
             "rewardScaling": {
-                "levels": [1, 10, 20, 30, 40, 50, 60],
+                "levels": [5, 10, 20, 30, 40, 50, 60],
                 "experience": [1000, 2000, 8000, 13000, 19000, 24000, 30000],
                 "roubles": [11000, 20000, 32000, 45000, 58000, 70000, 82000],
                 "gpCoins": [2, 3, 6, 6, 8, 8, 10],
-                "items": [2, 4, 5, 5, 5, 5, 5],
-                "reputation": [0.01, 0.01, 0.02, 0.02, 0.03, 0.03, 0.03],
-                "rewardSpread": 0.5,
-                "skillRewardChance": [0, 0.01, 0.05, 0.1, 0.1, 0.15, 0.15],
+                "items": [2, 3, 4, 5, 5, 5, 5],
+                "reputation": [0.01, 0.02, 0.03, 0.03, 0.03, 0.03, 0.03],
+                "rewardSpread": 0.40,
+                "skillRewardChance": [0, 1, 5, 10, 10, 15, 15],
                 "skillPointReward": [10, 15, 20, 25, 30, 35, 40]
             },
             "locations": {
@@ -395,7 +395,7 @@
                     "maxExtractsWithSpecificExit": 2,
                     "possibleSkillRewards": ["Endurance", "Strength", "Vitality"],
                     "specificExits": {
-                        "probability": 0.2,
+                        "chance": 20,
                         "passageRequirementWhitelist": [
                             "None",
                             "TransferItem",
@@ -440,7 +440,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.15,
+                        "bodyPartChance": 15,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -463,7 +463,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0,
+                        "specificLocationChance": 0,
                         "distLocationBlacklist": ["laboratory", "factory4_day", "factory4_night"],
                         "distProb": 0.15,
                         "maxDist": 75,
@@ -474,8 +474,8 @@
                         "minBossKills": 1,
                         "maxPmcKills": 2,
                         "minPmcKills": 1,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.15,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 15,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -666,7 +666,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.15,
+                        "bodyPartChance": 15,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -689,7 +689,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0.15,
+                        "specificLocationChance": 15,
                         "distLocationBlacklist": ["laboratory", "factory4_day", "factory4_night"],
                         "distProb": 0.25,
                         "maxDist": 100,
@@ -700,8 +700,8 @@
                         "minBossKills": 1,
                         "maxPmcKills": 5,
                         "minPmcKills": 2,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.15,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 15,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -887,7 +887,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.15,
+                        "bodyPartChance": 15,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -910,7 +910,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0.15,
+                        "specificLocationChance": 15,
                         "distLocationBlacklist": ["laboratory", "factory4_day", "factory4_night"],
                         "distProb": 0.25,
                         "maxDist": 100,
@@ -921,8 +921,8 @@
                         "minBossKills": 2,
                         "maxPmcKills": 6,
                         "minPmcKills": 3,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.15,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 15,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -1031,14 +1031,14 @@
             "numQuests": 1,
             "minPlayerLevel": 15,
             "rewardScaling": {
-                "levels": [1, 10, 20, 30, 40, 50, 60],
-                "experience": [5000, 15000, 27000, 80000, 210000, 260000, 350000],
-                "roubles": [20000, 50000, 175000, 350000, 540000, 710000, 880000],
+                "levels": [5, 10, 20, 30, 40, 50, 60],
+                "experience": [7500, 18000, 30000, 80000, 210000, 260000, 350000],
+                "roubles": [20000, 125000, 200000, 350000, 540000, 710000, 880000],
                 "gpCoins": [10, 10, 16, 16, 20, 30, 35],
-                "items": [4, 5, 5, 6, 6, 7, 7],
-                "reputation": [0.02, 0.03, 0.04, 0.04, 0.05, 0.05, 0.05],
+                "items": [3, 3, 4, 4, 5, 5, 5],
+                "reputation": [0.02, 0.03, 0.04, 0.04, 0.05, 0.06, 0.07],
                 "rewardSpread": 0.5,
-                "skillRewardChance": [0, 0.05, 0.1, 0.15, 0.2, 0.2, 0.2],
+                "skillRewardChance": [0, 5, 10, 15, 20, 20, 20],
                 "skillPointReward": [25, 35, 45, 50, 55, 60, 65]
             },
             "locations": {
@@ -1194,7 +1194,7 @@
                     "maxExtractsWithSpecificExit": 4,
                     "possibleSkillRewards": ["Endurance", "Strength", "Vitality"],
                     "specificExits": {
-                        "probability": 0.1,
+                        "chance": 10,
                         "passageRequirementWhitelist": [
                             "None",
                             "TransferItem",
@@ -1214,7 +1214,7 @@
                     "maxRequestedBulletAmount": 60,
                     "useWhitelist": true,
                     "useBlacklist": false,
-					"requiredItemsAreFiR": true,
+					          "requiredItemsAreFiR": true,
                     "requiredItemMinDurabilityMinMax": {
                         "min": 60,
                         "max": 80
@@ -1317,7 +1317,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.15,
+                        "bodyPartChance": 15,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -1340,7 +1340,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0.15,
+                        "specificLocationChance": 15,
                         "distLocationBlacklist": ["laboratory", "factory4_day", "factory4_night"],
                         "distProb": 0.15,
                         "maxDist": 75,
@@ -1351,8 +1351,8 @@
                         "minBossKills": 3,
                         "maxPmcKills": 8,
                         "minPmcKills": 5,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.2,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 20,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -1538,7 +1538,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.15,
+                        "bodyPartChance": 15,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -1561,7 +1561,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0.15,
+                        "specificLocationChance": 15,
                         "distLocationBlacklist": ["laboratory", "factory4_day", "factory4_night"],
                         "distProb": 0.15,
                         "maxDist": 75,
@@ -1572,8 +1572,8 @@
                         "minBossKills": 5,
                         "maxPmcKills": 15,
                         "minPmcKills": 10,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.15,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 15,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -1759,7 +1759,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.15,
+                        "bodyPartChance": 15,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -1782,7 +1782,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0.15,
+                        "specificLocationChance": 15,
                         "distLocationBlacklist": ["laboratory", "factory4_day", "factory4_night"],
                         "distProb": 0.15,
                         "maxDist": 100,
@@ -1793,8 +1793,8 @@
                         "minBossKills": 7,
                         "maxPmcKills": 25,
                         "minPmcKills": 10,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.2,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 20,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -1891,6 +1891,7 @@
             "rewardAmmoStackMinSize": 5,
             "freeChangesAvailable": 0,
             "freeChanges": 0,
+            "keepDailyQuestTypeOnReplacement": false,
             "standingChangeCost": [0, 0.01, 0.01]
         },
         {
@@ -1926,6 +1927,7 @@
             },
             "traderWhitelist": [
                 {
+                    "name": "fence",
                     "traderId": "579dc571d53a0658a154fbec",
                     "questTypes": ["Completion", "Exploration", "Elimination", "Pickup"],
                     "rewardBaseWhitelist": [
@@ -1945,7 +1947,7 @@
                     "maxExtracts": 3,
                     "maxExtractsWithSpecificExit": 1,
                     "specificExits": {
-                        "probability": 0.2,
+                        "chance": 20,
                         "passageRequirementWhitelist": ["None", "WorldEvent", "Train", "Reference", "Empty"]
                     }
                 },
@@ -2045,7 +2047,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.2,
+                        "bodyPartChance": 20,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -2068,7 +2070,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0.15,
+                        "specificLocationChance": 15,
                         "distLocationBlacklist": ["laboratory"],
                         "distProb": 0.2,
                         "maxDist": 75,
@@ -2079,8 +2081,8 @@
                         "minBossKills": 1,
                         "maxPmcKills": 2,
                         "minPmcKills": 1,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.3,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 30,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -2182,7 +2184,7 @@
                                 }
                             }
                         ],
-                        "bodyPartProb": 0.4,
+                        "bodyPartChance": 40,
                         "bodyParts": [
                             {
                                 "key": "Head",
@@ -2205,7 +2207,7 @@
                                 "data": ["LeftLeg", "RightLeg"]
                             }
                         ],
-                        "specificLocationProb": 0.25,
+                        "specificLocationChance": 25,
                         "distLocationBlacklist": ["laboratory"],
                         "distProb": 0.25,
                         "maxDist": 75,
@@ -2216,8 +2218,8 @@
                         "minBossKills": 1,
                         "maxPmcKills": 5,
                         "minPmcKills": 2,
-                        "weaponRequirementProb": 0,
-                        "weaponCategoryRequirementProb": 0.3,
+                        "weaponRequirementChance": 0,
+                        "weaponCategoryRequirementChance": 30,
                         "weaponCategoryRequirements": [
                             {
                                 "key": "Shotgun",
@@ -2314,6 +2316,7 @@
             "rewardAmmoStackMinSize": 5,
             "freeChangesAvailable": 0,
             "freeChanges": 0,
+            "keepDailyQuestTypeOnReplacement": false,
             "standingChangeCost": [0, 0.01]
         }
     ],

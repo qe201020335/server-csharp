@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 
 namespace SPTarkov.Server.Core.Utils;
 
@@ -8,40 +9,12 @@ public class TimeUtil
     public const int OneHourAsSeconds = 3600;
 
     /// <summary>
-    ///     Formats the time part of a date as a UTC string.
-    /// </summary>
-    /// <param name="dateTime">The date to format in UTC.</param>
-    /// <returns>The formatted time as 'HH-MM-SS'.</returns>
-    public string FormatTime(DateTimeOffset dateTime)
-    {
-        var hour = Pad(dateTime.ToUniversalTime().Hour);
-        var minute = Pad(dateTime.ToUniversalTime().Minute);
-        var second = Pad(dateTime.ToUniversalTime().Second);
-
-        return $"{hour}-{minute}-{second}";
-    }
-
-    /// <summary>
-    ///     Formats the date part of a date as a UTC string.
-    /// </summary>
-    /// <param name="dateTime">The date to format in UTC.</param>
-    /// <returns>The formatted date as 'YYYY-MM-DD'.</returns>
-    public string FormatDate(DateTimeOffset dateTime)
-    {
-        var day = Pad(dateTime.ToUniversalTime().Day);
-        var month = Pad(dateTime.ToUniversalTime().Month);
-        var year = Pad(dateTime.ToUniversalTime().Year);
-
-        return $"{year}-{month}-{day}";
-    }
-
-    /// <summary>
     ///     Gets the current date as a formatted UTC string.
     /// </summary>
     /// <returns>The current date as 'YYYY-MM-DD'.</returns>
     public string GetDate()
     {
-        return FormatDate(DateTimeOffset.UtcNow);
+        return DateTimeOffset.UtcNow.FormatToBsgDate();
     }
 
     public DateTime GetDateTimeNow()
@@ -55,7 +28,7 @@ public class TimeUtil
     /// <returns>The current time as 'HH-MM-SS'.</returns>
     public string GetTime()
     {
-        return FormatTime(DateTimeOffset.UtcNow);
+        return DateTimeOffset.UtcNow.FormatToBsgTime();
     }
 
     /// <summary>
@@ -107,7 +80,7 @@ public class TimeUtil
     /// </summary>
     /// <returns>The current time as 'HH:MM' in UTC.</returns>
     /// GetTimeMailFormat
-    public string GetTimeMailFormat()
+    public string GetBsgTimeMailFormat()
     {
         return DateTimeOffset.UtcNow.ToString("HH:mm");
     }
@@ -116,7 +89,7 @@ public class TimeUtil
     ///     Gets the current date in UTC in a format suitable for emails in EFT.
     /// </summary>
     /// <returns>The current date as 'DD.MM.YYYY' in UTC.</returns>
-    public string GetDateMailFormat()
+    public string GetBsgDateMailFormat()
     {
         return DateTimeOffset.UtcNow.ToString("dd.MM.yyyy");
     }
@@ -169,16 +142,6 @@ public class TimeUtil
         var lastFullHour = new DateTime(now.Year, now.Month, now.Day, hours, 0, 0);
 
         return ((DateTimeOffset)lastFullHour).ToUnixTimeSeconds();
-    }
-
-    /// <summary>
-    ///     Pads a number with a leading zero if it is less than 10.
-    /// </summary>
-    /// <param name="number">The number to pad.</param>
-    /// <returns>The padded number as a string.</returns>
-    private static string Pad(int number)
-    {
-        return number.ToString().PadLeft(2, '0');
     }
 
     /// <summary>

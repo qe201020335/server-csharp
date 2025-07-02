@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Bots;
@@ -22,7 +23,7 @@ public class BotGeneratorHelper(
     InventoryHelper _inventoryHelper,
     ContainerHelper _containerHelper,
     ProfileActivityService _profileActivityService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer
 )
 {
@@ -264,7 +265,7 @@ public class BotGeneratorHelper(
         if (botEquipmentSettings is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-missing_equipment_settings",
                     new
                     {
@@ -292,7 +293,7 @@ public class BotGeneratorHelper(
         }
 
         _logger.Warning(
-            _localisationService.GetText(
+            _serverLocalisationService.GetText(
                 "bot-missing_equipment_settings_property",
                 new
                 {
@@ -405,7 +406,7 @@ public class BotGeneratorHelper(
         if (!itemIsValid)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-invalid_item_compatibility_check",
                     new { itemTpl = tplToCheck, slot = equipmentSlot }
                 )
@@ -422,7 +423,7 @@ public class BotGeneratorHelper(
         if (itemToEquip?.Properties is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-compatibility_check_missing_props",
                     new
                     {
@@ -647,7 +648,7 @@ public class BotGeneratorHelper(
             if (!key)
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "bot-missing_container_with_tpl",
                         container.Template
                     )
@@ -800,10 +801,7 @@ public class BotGeneratorHelper(
         {
             // Check item in container for children, store for later insertion into `containerItemsToCheck`
             // (used later when figuring out how much space weapon takes up)
-            var itemWithChildItems = _itemHelper.FindAndReturnChildrenAsItems(
-                itemsWithoutLocation,
-                rootItem.Id
-            );
+            var itemWithChildItems = itemsWithoutLocation.FindAndReturnChildrenAsItems(rootItem.Id);
 
             // Item had children, replace existing data with item + its children
             result.Add(rootItem);

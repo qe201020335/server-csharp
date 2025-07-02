@@ -22,7 +22,7 @@ public class RagfairOfferService(
     RagfairServerHelper ragfairServerHelper,
     ItemHelper itemHelper,
     ProfileHelper profileHelper,
-    LocalisationService localisationService,
+    ServerLocalisationService localisationService,
     ICloner cloner,
     RagfairOfferHolder ragfairOfferHolder,
     NotifierHelper notifierHelper,
@@ -31,7 +31,7 @@ public class RagfairOfferService(
 )
 {
     private bool _playerOffersLoaded;
-    protected RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
+    protected readonly RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
 
     /// <summary>
     ///     Get all offers
@@ -192,7 +192,7 @@ public class RagfairOfferService(
         var isPlayer = profileHelper.IsPlayer(staleOffer.User.Id.RegexReplace("^pmc", ""));
         if (flagOfferAsExpired && !isPlayer)
         {
-            // Not trader/player offer
+            // Not trader or a player offer
             ragfairOfferHolder.FlagOfferAsExpired(staleOffer.Id);
         }
 

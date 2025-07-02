@@ -1,5 +1,7 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -16,14 +18,12 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class ItemHelper(
     ISptLogger<ItemHelper> _logger,
-    HashUtil _hashUtil,
     RandomUtil _randomUtil,
-    MathUtil _mathUtil,
     DatabaseService _databaseService,
     HandbookHelper _handbookHelper,
     ItemBaseClassService _itemBaseClassService,
     ItemFilterService _itemFilterService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     LocaleService _localeService,
     ICloner _cloner
 )
@@ -143,9 +143,7 @@ public class ItemHelper(
             );
 
         // Check if any item in the filtered pool matches the provided item
-        return filteredPool.FirstOrDefault(poolItem =>
-            poolItem.Template.Equals(tpl, StringComparison.OrdinalIgnoreCase)
-        );
+        return filteredPool.FirstOrDefault(poolItem => poolItem.Template.Equals(tpl));
     }
 
     /// <summary>
@@ -170,106 +168,13 @@ public class ItemHelper(
 
         foreach (var itemOf1 in item1)
         {
-            var itemOf2 = item2.FirstOrDefault(i2 =>
-                i2.Template.Equals(itemOf1.Template, StringComparison.OrdinalIgnoreCase)
-            );
+            var itemOf2 = item2.FirstOrDefault(i2 => i2.Template.Equals(itemOf1.Template));
             if (itemOf2 is null)
             {
                 return false;
             }
 
-            if (!IsSameItem(itemOf1, itemOf2, compareUpdProperties))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// This method will compare two items and see if they are equivalent
-    /// This method will NOT compare IDs on the items
-    /// </summary>
-    /// <param name="item1">first item to compare</param>
-    /// <param name="item2">second item to compare</param>
-    /// <param name="compareUpdProperties">Upd properties to compare between the items</param>
-    /// <returns>true if they are the same</returns>
-    public bool IsSameItem(Item item1, Item item2, HashSet<string>? compareUpdProperties = null)
-    {
-        // Different tpl == different item
-        if (item1.Template != item2.Template)
-        {
-            return false;
-        }
-
-        // Both lack upd object + same tpl = same
-        if (item1.Upd is null && item2.Upd is null)
-        {
-            return true;
-        }
-
-        // item1 lacks upd, item2 has one
-        if (item1.Upd is null && item2.Upd is not null)
-        {
-            return false;
-        }
-
-        // item1 has upd, item2 lacks one
-        if (item1.Upd is not null && item2.Upd is null)
-        {
-            return false;
-        }
-
-        // key = Upd property Type as string, value = comparison function that returns bool
-        var comparers = new Dictionary<string, Func<Upd, Upd, bool>>
-        {
-            { "Key", (upd1, upd2) => upd1.Key?.NumberOfUsages == upd2.Key?.NumberOfUsages },
-            {
-                "Buff",
-                (upd1, upd2) =>
-                    upd1.Buff?.Value == upd2.Buff?.Value
-                    && upd1.Buff?.BuffType == upd2.Buff?.BuffType
-            },
-            {
-                "CultistAmulet",
-                (upd1, upd2) =>
-                    upd1.CultistAmulet?.NumberOfUsages == upd2.CultistAmulet?.NumberOfUsages
-            },
-            { "Dogtag", (upd1, upd2) => upd1.Dogtag?.ProfileId == upd2.Dogtag?.ProfileId },
-            { "FaceShield", (upd1, upd2) => upd1.FaceShield?.Hits == upd2.FaceShield?.Hits },
-            {
-                "Foldable",
-                (upd1, upd2) =>
-                    upd1.Foldable?.Folded.GetValueOrDefault(false)
-                    == upd2.Foldable?.Folded.GetValueOrDefault(false)
-            },
-            { "FoodDrink", (upd1, upd2) => upd1.FoodDrink?.HpPercent == upd2.FoodDrink?.HpPercent },
-            { "MedKit", (upd1, upd2) => upd1.MedKit?.HpResource == upd2.MedKit?.HpResource },
-            {
-                "RecodableComponent",
-                (upd1, upd2) =>
-                    upd1.RecodableComponent?.IsEncoded == upd2.RecodableComponent?.IsEncoded
-            },
-            { "RepairKit", (upd1, upd2) => upd1.RepairKit?.Resource == upd2.RepairKit?.Resource },
-            {
-                "Resource",
-                (upd1, upd2) => upd1.Resource?.UnitsConsumed == upd2.Resource?.UnitsConsumed
-            },
-        };
-
-        // Choose above keys or passed in keys to compare items with
-        var valuesToCompare =
-            compareUpdProperties?.Count > 0 ? compareUpdProperties : comparers.Keys.ToHashSet();
-        foreach (var propertyName in valuesToCompare)
-        {
-            if (!comparers.TryGetValue(propertyName, out var comparer))
-            // Key not found, skip
-            {
-                continue;
-            }
-
-            if (!comparer(item1.Upd, item2.Upd))
+            if (!itemOf1.IsSameItem(itemOf2, compareUpdProperties))
             {
                 return false;
             }
@@ -401,7 +306,7 @@ public class ItemHelper(
     /// <param name="tpl">Item template id to check</param>
     /// <param name="baseClassTpl">Baseclass to check for</param>
     /// <returns>is the tpl a descendant</returns>
-    public bool IsOfBaseclass(string tpl, string baseClassTpl)
+    public bool IsOfBaseclass(MongoId tpl, string baseClassTpl)
     {
         return _itemBaseClassService.ItemHasBaseClass(tpl, [baseClassTpl]);
     }
@@ -415,6 +320,24 @@ public class ItemHelper(
     public bool IsOfBaseclasses(string tpl, ICollection<string> baseClassTpls)
     {
         return _itemBaseClassService.ItemHasBaseClass(tpl, baseClassTpls);
+    }
+
+    /// <summary>
+    /// Temporary until we have better MongoId handling
+    /// </summary>
+    /// <param name="tpl"></param>
+    /// <param name="baseClassTpls"></param>
+    /// <returns></returns>
+    public bool IsOfBaseclasses(string tpl, ICollection<MongoId> baseClassTpls)
+    {
+        List<string> MongoList = [];
+
+        foreach (var baseTpl in baseClassTpls)
+        {
+            MongoList.Add(baseTpl);
+        }
+
+        return _itemBaseClassService.ItemHasBaseClass(tpl, MongoList);
     }
 
     /// <summary>
@@ -518,7 +441,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpls">item tpls to look up the price of</param>
     /// <returns>Total price in roubles</returns>
-    public double GetItemAndChildrenPrice(IEnumerable<string> tpls)
+    public double GetItemAndChildrenPrice(IEnumerable<MongoId> tpls)
     {
         // Run getItemPrice for each tpl in tpls array, return sum
         return tpls.Aggregate(
@@ -587,22 +510,6 @@ public class ItemHelper(
         }
 
         return null;
-    }
-
-    /// <summary>
-    ///     Update items upd.StackObjectsCount to be 1 if its upd is missing or StackObjectsCount is undefined
-    /// </summary>
-    /// <param name="item">Item to update</param>
-    /// <returns>Fixed item</returns>
-    public Item FixItemStackCount(Item item)
-    {
-        // Ensure item has 'Upd' object
-        item.Upd ??= new Upd { StackObjectsCount = 1 };
-
-        // Ensure item has 'StackObjectsCount' property
-        item.Upd.StackObjectsCount ??= 1;
-
-        return item;
     }
 
     /// <summary>
@@ -806,7 +713,7 @@ public class ItemHelper(
         if (durability == 0)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "item-durability_value_invalid_use_default",
                     item.Template
                 )
@@ -816,76 +723,6 @@ public class ItemHelper(
         }
 
         return Math.Sqrt(durability ?? 0);
-    }
-
-    /// <summary>
-    /// Recursive function that looks at every item from parameter and gets their children's Ids + includes parent item in results
-    /// </summary>
-    /// <param name="items">List of items (item + possible children)</param>
-    /// <param name="baseItemId">Parent item's id</param>
-    /// <returns>list of child item ids</returns>
-    public List<string> FindAndReturnChildrenByItems(IEnumerable<Item> items, string baseItemId)
-    {
-        List<string> list = [];
-
-        foreach (var childItem in items)
-        {
-            if (string.Equals(childItem.ParentId, baseItemId, StringComparison.OrdinalIgnoreCase))
-            {
-                list.AddRange(FindAndReturnChildrenByItems(items, childItem.Id));
-            }
-        }
-
-        list.Add(baseItemId); // Required, push original item id onto array
-
-        return list;
-    }
-
-    /// <summary>
-    /// A variant of FindAndReturnChildren where the output is list of item objects instead of their ids.
-    /// </summary>
-    /// <param name="items">List of items (item + possible children)</param>
-    /// <param name="baseItemId">Parent item's id</param>
-    /// <param name="modsOnly">OPTIONAL - Include only mod items, exclude items stored inside root item</param>
-    /// <returns>list of Item objects</returns>
-    public List<Item> FindAndReturnChildrenAsItems(
-        IEnumerable<Item> items,
-        string baseItemId,
-        bool modsOnly = false
-    )
-    {
-        // Use dictionary to make key lookup faster, convert to list before being returned
-        OrderedDictionary<string, Item> result = [];
-        foreach (var childItem in items)
-        {
-            // Include itself
-            if (string.Equals(childItem.Id, baseItemId, StringComparison.Ordinal))
-            {
-                // Root item MUST be at 0 index for things like flea market offers
-                result.Insert(0, childItem.Id, childItem);
-                continue;
-            }
-
-            // Is stored in parent and disallowed
-            if (modsOnly && childItem.Location is not null)
-            {
-                continue;
-            }
-
-            // Items parentId matches root item AND returned items doesn't contain current child
-            if (
-                !result.ContainsKey(childItem.Id)
-                && string.Equals(childItem.ParentId, baseItemId, StringComparison.Ordinal)
-            )
-            {
-                foreach (var item in FindAndReturnChildrenAsItems(items, childItem.Id))
-                {
-                    result.Add(item.Id, item);
-                }
-            }
-        }
-
-        return result.Values.ToList();
     }
 
     /// <summary>
@@ -921,17 +758,6 @@ public class ItemHelper(
     }
 
     /// <summary>
-    /// Check if the passed in item has buy count restrictions
-    /// </summary>
-    /// <param name="itemToCheck">Item to check</param>
-    /// <returns>true if it has buy restrictions</returns>
-    public bool HasBuyRestrictions(Item itemToCheck)
-    {
-        return itemToCheck.Upd?.BuyRestrictionCurrent is not null
-            && itemToCheck.Upd?.BuyRestrictionMax is not null;
-    }
-
-    /// <summary>
     ///     Checks if the passed template id is a dog tag.
     /// </summary>
     /// <param name="tpl">Template id to check.</param>
@@ -939,23 +765,6 @@ public class ItemHelper(
     public bool IsDogtag(string tpl)
     {
         return _dogTagTpls.Contains(tpl);
-    }
-
-    /// <summary>
-    ///     Gets the identifier for a child using slotId, locationX and locationY.
-    /// </summary>
-    /// <param name="item">Item.</param>
-    /// <returns>SlotId OR slotid, locationX, locationY.</returns>
-    public string GetChildId(Item item)
-    {
-        if (item.Location is null)
-        {
-            return item.SlotId;
-        }
-
-        var LocationTyped = (ItemLocation)item.Location;
-
-        return $"{item.SlotId},{LocationTyped.X},{LocationTyped.Y}";
     }
 
     /// <summary>
@@ -1003,7 +812,7 @@ public class ItemHelper(
             var amount = Math.Min(remainingCount ?? 0, maxStackSize ?? 0);
             var newStackClone = _cloner.Clone(itemToSplit);
 
-            newStackClone.Id = _hashUtil.Generate();
+            newStackClone.Id = new MongoId();
             newStackClone.Upd.StackObjectsCount = amount;
             remainingCount -= amount;
             rootAndChildren.Add(newStackClone);
@@ -1081,7 +890,7 @@ public class ItemHelper(
             var amount = Math.Min(remainingCount ?? 0, itemMaxStackSize);
             var newItemClone = _cloner.Clone(itemToSplit);
 
-            newItemClone.Id = _hashUtil.Generate();
+            newItemClone.Id = new MongoId();
             newItemClone.Upd.StackObjectsCount = amount;
             remainingCount -= amount;
             result.Add([newItemClone]);
@@ -1114,9 +923,7 @@ public class ItemHelper(
         {
             var filterResult = itemsToSearch.Where(item =>
             {
-                return by == "tpl"
-                    ? item.Template.Equals(barterId, StringComparison.OrdinalIgnoreCase)
-                    : item.Id.Equals(barterId, StringComparison.OrdinalIgnoreCase);
+                return by == "tpl" ? item.Template.Equals(barterId) : item.Id.Equals(barterId);
             });
 
             matchingItems.AddRange(filterResult);
@@ -1165,16 +972,16 @@ public class ItemHelper(
     )
     {
         // Blacklist
-        var itemIdBlacklist = new HashSet<string>();
+        var itemIdBlacklist = new HashSet<MongoId>();
         itemIdBlacklist.UnionWith(
-            new List<string>
+            new List<MongoId>
             {
-                inventory.Equipment,
-                inventory.QuestRaidItems,
-                inventory.QuestStashItems,
-                inventory.SortingTable,
-                inventory.Stash,
-                inventory.HideoutCustomizationStashId,
+                inventory.Equipment.Value,
+                inventory.QuestRaidItems.Value,
+                inventory.QuestStashItems.Value,
+                inventory.SortingTable.Value,
+                inventory.Stash.Value,
+                inventory.HideoutCustomizationStashId.Value,
             }
         );
         itemIdBlacklist.UnionWith(inventory.HideoutAreaStashes.Values);
@@ -1182,7 +989,7 @@ public class ItemHelper(
         // Add insured items ids to blacklist
         if (insuredItems is not null)
         {
-            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId));
+            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId.Value));
         }
 
         foreach (var item in inventory.Items)
@@ -1193,7 +1000,7 @@ public class ItemHelper(
             }
 
             // Generate new id
-            var newId = _hashUtil.Generate();
+            var newId = new MongoId();
 
             // Keep copy of original id
             var originalId = item.Id;
@@ -1234,7 +1041,7 @@ public class ItemHelper(
         foreach (var item in items)
         {
             // Generate new id
-            var newId = _hashUtil.Generate();
+            var newId = new MongoId();
 
             // Keep copy of original id
             var originalId = item.Id;
@@ -1272,28 +1079,28 @@ public class ItemHelper(
     )
     {
         // Blacklist
-        var itemIdBlacklist = new HashSet<string>();
+        var itemIdBlacklist = new HashSet<MongoId>();
 
         if (pmcData != null)
         {
             itemIdBlacklist.UnionWith(
-                new List<string>
+                new List<MongoId>
                 {
-                    pmcData.Inventory.Equipment,
-                    pmcData.Inventory.QuestRaidItems,
-                    pmcData.Inventory.QuestStashItems,
-                    pmcData.Inventory.SortingTable,
-                    pmcData.Inventory.Stash,
-                    pmcData.Inventory.HideoutCustomizationStashId,
+                    pmcData.Inventory.Equipment.Value,
+                    pmcData.Inventory.QuestRaidItems.Value,
+                    pmcData.Inventory.QuestStashItems.Value,
+                    pmcData.Inventory.SortingTable.Value,
+                    pmcData.Inventory.Stash.Value,
+                    pmcData.Inventory.HideoutCustomizationStashId.Value,
                 }
             );
-            itemIdBlacklist.UnionWith(pmcData.Inventory.HideoutAreaStashes.Keys);
+            itemIdBlacklist.UnionWith(pmcData.Inventory.HideoutAreaStashes.Values);
         }
 
         // Add insured items ids to blacklist
         if (insuredItems is not null)
         {
-            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId));
+            itemIdBlacklist.UnionWith(insuredItems.Select(x => x.ItemId.Value));
         }
 
         foreach (var item in originalItems)
@@ -1304,7 +1111,7 @@ public class ItemHelper(
             }
 
             // Generate new id
-            var newId = _hashUtil.Generate();
+            var newId = new MongoId();
 
             // Keep copy of original id
             var originalId = item.Id;
@@ -1419,22 +1226,6 @@ public class ItemHelper(
     }
 
     /// <summary>
-    ///     Check if item is quest item
-    /// </summary>
-    /// <param name="tpl">Items tpl to check quest status of</param>
-    /// <returns>true if item is flagged as quest item</returns>
-    public bool IsQuestItem(string tpl)
-    {
-        var itemDetails = GetItem(tpl);
-        if (itemDetails.Key && itemDetails.Value.Properties.QuestItem.GetValueOrDefault(false))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
     ///     Checks to see if the item is *actually* moddable in-raid. Checks include the items existence in the database, the
     ///     parent items existence in the database, the existence (and value) of the items RaidModdable property, and that
     ///     the parents slot-required property exists, matches that of the item, and its value.
@@ -1486,7 +1277,7 @@ public class ItemHelper(
     /// <param name="itemId">The unique identifier of the item for which to find the main parent.</param>
     /// <param name="itemsMap">A Dictionary containing item IDs mapped to their corresponding Item objects for quick lookup.</param>
     /// <returns>The Item object representing the top-most parent of the given item, or null if no such parent exists.</returns>
-    public Item? GetAttachmentMainParent(string itemId, Dictionary<string, Item> itemsMap)
+    public Item? GetAttachmentMainParent(string itemId, Dictionary<MongoId, Item> itemsMap)
     {
         var currentItem = itemsMap.FirstOrDefault(x => x.Key == itemId).Value;
 
@@ -1557,10 +1348,7 @@ public class ItemHelper(
     public ItemSize GetItemSize(ICollection<Item> items, string rootItemId)
     {
         var rootTemplate = GetItem(
-            items
-                .Where(x => x.Id.Equals(rootItemId, StringComparison.OrdinalIgnoreCase))
-                .ToList()[0]
-                .Template
+            items.Where(x => x.Id.Equals(rootItemId)).ToList()[0].Template
         ).Value;
         var width = rootTemplate.Properties.Width;
         var height = rootTemplate.Properties.Height;
@@ -1575,7 +1363,7 @@ public class ItemHelper(
         var forcedLeft = 0;
         var forcedRight = 0;
 
-        var children = FindAndReturnChildrenAsItems(items, rootItemId);
+        var children = items.FindAndReturnChildrenAsItems(rootItemId);
         foreach (var ci in children)
         {
             var itemTemplate = GetItem(ci.Template).Value;
@@ -1652,11 +1440,7 @@ public class ItemHelper(
         var cartridgeMaxStackSize = cartridgeDetails.Value.Properties.StackMaxSize;
 
         // Exit early if ammo already exists in box
-        if (
-            ammoBox.Any(item =>
-                item.Template.Equals(cartridgeTpl, StringComparison.OrdinalIgnoreCase)
-            )
-        )
+        if (ammoBox.Any(item => item.Template.Equals(cartridgeTpl)))
         {
             return;
         }
@@ -1707,37 +1491,6 @@ public class ItemHelper(
         ammoBox.Add(
             CreateCartridges(ammoBox[0].Id, cartridgeTpl, (int)ammoBoxMaxCartridgeCount, 0)
         );
-    }
-
-    /// <summary>
-    /// Check if item is stored inside a container
-    /// </summary>
-    /// <param name="itemToCheck">Item to check is inside of container</param>
-    /// <param name="desiredContainerSlotId">Name of slot to check item is in e.g. SecuredContainer/Backpack</param>
-    /// <param name="items">Inventory with child parent items to check</param>
-    /// <returns>True when item is in container</returns>
-    public bool ItemIsInsideContainer(
-        Item itemToCheck,
-        string desiredContainerSlotId,
-        List<Item> items
-    )
-    {
-        // Get items parent
-        var parent = items.FirstOrDefault(item =>
-            item.Id.Equals(itemToCheck.ParentId, StringComparison.OrdinalIgnoreCase)
-        );
-        if (parent is null)
-        // No parent, end of line, not inside container
-        {
-            return false;
-        }
-
-        if (parent.SlotId == desiredContainerSlotId)
-        {
-            return true;
-        }
-
-        return ItemIsInsideContainer(parent, desiredContainerSlotId, items);
     }
 
     /// <summary>
@@ -1816,7 +1569,9 @@ public class ItemHelper(
         var cartridgeDetails = GetItem(cartridgeTpl);
         if (!cartridgeDetails.Key)
         {
-            _logger.Error(_localisationService.GetText("item-invalid_tpl_item", cartridgeTpl));
+            _logger.Error(
+                _serverLocalisationService.GetText("item-invalid_tpl_item", cartridgeTpl)
+            );
         }
 
         var cartridgeMaxStackSize = cartridgeDetails.Value?.Properties?.StackMaxSize;
@@ -1922,7 +1677,7 @@ public class ItemHelper(
         string caliber,
         Dictionary<string, List<StaticAmmoDetails>> staticAmmoDist,
         string? fallbackCartridgeTpl = null,
-        ICollection<string>? cartridgeWhitelist = null
+        ICollection<MongoId>? cartridgeWhitelist = null
     )
     {
         var ammos = staticAmmoDist.GetValueOrDefault(caliber, []);
@@ -1944,7 +1699,7 @@ public class ItemHelper(
             return null;
         }
 
-        var ammoArray = new ProbabilityObjectArray<string, float?>(_mathUtil, _cloner);
+        var ammoArray = new ProbabilityObjectArray<string, float?>(_cloner);
         foreach (var icd in ammos)
         {
             // Whitelist exists and tpl not inside it, skip
@@ -1978,28 +1733,13 @@ public class ItemHelper(
     {
         return new Item
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Template = ammoTpl,
             ParentId = parentId,
             SlotId = "cartridges",
             Location = location,
             Upd = new Upd { StackObjectsCount = stackCount },
         };
-    }
-
-    /// <summary>
-    ///     Get the size of a stack, return 1 if no stack object count property found
-    /// </summary>
-    /// <param name="item">Item to get stack size of</param>
-    /// <returns>size of stack</returns>
-    public int GetItemStackSize(Item item)
-    {
-        if (item.Upd?.StackObjectsCount is not null)
-        {
-            return (int)item.Upd.StackObjectsCount;
-        }
-
-        return 1;
     }
 
     /// <summary>
@@ -2024,7 +1764,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="desiredBaseType">Item base type wanted</param>
     /// <returns>Array of tpls</returns>
-    public List<string> GetItemTplsOfBaseType(string desiredBaseType)
+    public List<MongoId> GetItemTplsOfBaseType(string desiredBaseType)
     {
         return _databaseService
             .GetItems()
@@ -2049,7 +1789,7 @@ public class ItemHelper(
     )
     {
         var result = itemToAdd;
-        HashSet<string> incompatibleModTpls = [];
+        HashSet<MongoId> incompatibleModTpls = [];
         foreach (var slot in itemToAddTemplate.Properties.Slots)
         {
             // If only required mods is requested, skip non-essential
@@ -2100,8 +1840,8 @@ public class ItemHelper(
             // Create basic item structure ready to add to weapon array
             Item modItemToAdd = new()
             {
-                Id = _hashUtil.Generate(),
-                Template = chosenTpl,
+                Id = new MongoId(),
+                Template = chosenTpl.Value,
                 ParentId = result[0].Id,
                 SlotId = slot.Name,
             };
@@ -2124,9 +1864,9 @@ public class ItemHelper(
     /// <param name="possibleTpls">Tpls to randomly choose from</param>
     /// <param name="incompatibleModTpls">Incompatible tpls to not allow</param>
     /// <returns>Chosen tpl or undefined</returns>
-    public string? GetCompatibleTplFromArray(
-        HashSet<string> possibleTpls,
-        HashSet<string> incompatibleModTpls
+    public MongoId? GetCompatibleTplFromArray(
+        HashSet<MongoId> possibleTpls,
+        HashSet<MongoId> incompatibleModTpls
     )
     {
         if (!possibleTpls.Any())
@@ -2134,7 +1874,7 @@ public class ItemHelper(
             return null;
         }
 
-        string? chosenTpl = null;
+        MongoId? chosenTpl = null;
         var count = 0;
         while (chosenTpl is null)
         {
@@ -2182,7 +1922,7 @@ public class ItemHelper(
     public List<Item> ReparentItemAndChildren(Item rootItem, List<Item> itemWithChildren)
     {
         var oldRootId = itemWithChildren[0].Id;
-        Dictionary<string, string> idMappings = new();
+        Dictionary<string, MongoId> idMappings = new();
 
         idMappings[oldRootId] = rootItem.Id;
 
@@ -2190,21 +1930,21 @@ public class ItemHelper(
         {
             if (!idMappings.ContainsKey(mod.Id))
             {
-                idMappings[mod.Id] = _hashUtil.Generate();
+                idMappings[mod.Id] = new MongoId();
             }
 
             // Has parentId + no remapping exists for its parent
             if (
-                mod.ParentId is not null
+                mod.ParentId != null
                 && (!idMappings.ContainsKey(mod.ParentId) || idMappings?[mod.ParentId] is null)
             )
             // Make remapping for items parentId
             {
-                idMappings[mod.ParentId] = _hashUtil.Generate();
+                idMappings[mod.ParentId] = new MongoId();
             }
 
             mod.Id = idMappings[mod.Id];
-            if (mod.ParentId is not null)
+            if (mod.ParentId != null)
             {
                 mod.ParentId = idMappings[mod.ParentId];
             }
@@ -2228,18 +1968,18 @@ public class ItemHelper(
     // Optional: new id to use
     // Returns New root id
 
-    public string RemapRootItemId(List<Item> itemWithChildren, string? newId = null)
+    public string RemapRootItemId(List<Item> itemWithChildren, MongoId? newId = null)
     {
-        newId ??= _hashUtil.Generate();
+        newId ??= new MongoId();
 
         var rootItemExistingId = itemWithChildren[0].Id;
 
         foreach (var item in itemWithChildren)
         {
             // Root, update id
-            if (item.Id.Equals(rootItemExistingId, StringComparison.OrdinalIgnoreCase))
+            if (item.Id.Equals(rootItemExistingId))
             {
-                item.Id = newId;
+                item.Id = newId.Value;
 
                 continue;
             }
@@ -2254,45 +1994,6 @@ public class ItemHelper(
         }
 
         return newId;
-    }
-
-    // Adopts orphaned items by resetting them as root "hideout" items. Helpful in situations where a parent has been
-    // deleted from a group of items and there are children still referencing the missing parent. This method will
-    // remove the reference from the children to the parent and set item properties to root values.
-    //
-    // The ID of the "root" of the container.
-    // Array of Items that should be adjusted.
-    // Returns Array of Items that have been adopted.
-    public List<Item> AdoptOrphanedItems(string rootId, List<Item> items)
-    {
-        foreach (var item in items)
-        {
-            // Check if the item's parent exists.
-            var parentExists = items.Any(parentItem =>
-                parentItem.Id.Equals(item.ParentId, StringComparison.OrdinalIgnoreCase)
-            );
-
-            // If the parent does not exist and the item is not already a 'hideout' item, adopt the orphaned item by
-            // setting the parent ID to the PMCs inventory equipment ID, the slot ID to 'hideout', and remove the location.
-            if (!parentExists && item.ParentId != rootId && item.SlotId != "hideout")
-            {
-                item.ParentId = rootId;
-                item.SlotId = "hideout";
-                item.Location = null;
-            }
-        }
-
-        return items;
-    }
-
-    // Populate a Map object of items for quick lookup using their ID.
-    //
-    // An array of Items that should be added to a Map.
-    // Returns A Map where the keys are the item IDs and the values are the corresponding Item objects.
-    public Dictionary<string, Item> GenerateItemsMap(List<Item> items)
-    {
-        // Convert list to dictionary, keyed by items Id
-        return items.ToDictionary(item => item.Id);
     }
 
     // Add a blank upd object to passed in item if it does not exist already
@@ -2359,7 +2060,7 @@ public class ItemHelper(
                 return currentItem.Id;
             }
 
-            if (currentItem.Parent is null)
+            if (currentItem.Parent.IsEmpty())
             // No parent, reached root
             {
                 return currentItem.Id;
@@ -2370,19 +2071,6 @@ public class ItemHelper(
         }
 
         return null;
-    }
-
-    // Remove FiR status from passed in items
-    // Items to update FiR status of
-    public void RemoveSpawnedInSessionPropertyFromItems(List<Item> items)
-    {
-        foreach (var item in items)
-        {
-            if (item.Upd is not null)
-            {
-                item.Upd.SpawnedInSession = null;
-            }
-        }
     }
 
     /// <summary>

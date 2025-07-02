@@ -3,23 +3,17 @@ using SPTarkov.DI.Annotations;
 
 namespace SPTarkov.DI;
 
-public class DependencyInjectionHandler
+public class DependencyInjectionHandler(IServiceCollection serviceCollection)
 {
     private static List<Type>? _allLoadedTypes;
     private static List<ConstructorInfo>? _allConstructors;
 
     private readonly Dictionary<string, Type> _injectedTypeNames = new();
-    private readonly IServiceCollection _serviceCollection;
 
     private readonly Dictionary<string, object> _injectedValues = new();
     private readonly Lock _injectedValuesLock = new();
 
     private bool _oneTimeUseFlag;
-
-    public DependencyInjectionHandler(IServiceCollection serviceCollection)
-    {
-        _serviceCollection = serviceCollection;
-    }
 
     public void AddInjectableTypesFromAssembly(Assembly assembly)
     {
@@ -216,10 +210,10 @@ public class DependencyInjectionHandler
                 HandleSingletonRegistration(registrableInterface, implementationType);
                 break;
             case InjectionType.Transient:
-                _serviceCollection.AddTransient(registrableInterface, implementationType);
+                serviceCollection.AddTransient(registrableInterface, implementationType);
                 break;
             case InjectionType.Scoped:
-                _serviceCollection.AddScoped(registrableInterface, implementationType);
+                serviceCollection.AddScoped(registrableInterface, implementationType);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(
@@ -234,7 +228,7 @@ public class DependencyInjectionHandler
         var serviceKey = $"{implementationType.Namespace}.{implementationType.Name}";
         if (registrableInterface != implementationType)
         {
-            _serviceCollection.AddSingleton(
+            serviceCollection.AddSingleton(
                 registrableInterface,
                 (serviceProvider) =>
                 {
@@ -254,7 +248,7 @@ public class DependencyInjectionHandler
         }
         else
         {
-            _serviceCollection.AddSingleton(registrableInterface, implementationType);
+            serviceCollection.AddSingleton(registrableInterface, implementationType);
         }
     }
 

@@ -15,296 +15,459 @@ public record QuestConfig : BaseConfig
     ///     Hours to get/redeem items from quest mail keyed by profile type
     /// </summary>
     [JsonPropertyName("mailRedeemTimeHours")]
-    public Dictionary<string, double?>? MailRedeemTimeHours { get; set; }
-
-    [JsonPropertyName("questTemplateIds")]
-    public PlayerTypeQuestIds? QuestTemplateIds { get; set; }
+    public required Dictionary<string, double> MailRedeemTimeHours { get; set; }
 
     /// <summary>
-    ///     Show non-seasonal quests be shown to player
+    ///     Collection of quests by id only available to usec
     /// </summary>
-    [JsonPropertyName("showNonSeasonalEventQuests")]
-    public bool? ShowNonSeasonalEventQuests { get; set; }
-
-    [JsonPropertyName("eventQuests")]
-    public Dictionary<string, EventQuestData>? EventQuests { get; set; }
-
-    [JsonPropertyName("repeatableQuests")]
-    public List<RepeatableQuestConfig>? RepeatableQuests { get; set; }
-
-    [JsonPropertyName("locationIdMap")]
-    public Dictionary<string, string>? LocationIdMap { get; set; }
-
-    [JsonPropertyName("bearOnlyQuests")]
-    public HashSet<string>? BearOnlyQuests { get; set; }
-
     [JsonPropertyName("usecOnlyQuests")]
-    public HashSet<string>? UsecOnlyQuests { get; set; }
+    public required HashSet<MongoId> UsecOnlyQuests { get; set; }
+
+    /// <summary>
+    ///     Collection of quests by id only available to bears
+    /// </summary>
+    [JsonPropertyName("bearOnlyQuests")]
+    public required HashSet<MongoId> BearOnlyQuests { get; set; }
 
     /// <summary>
     ///     Quests that the keyed game version do not see/access
     /// </summary>
     [JsonPropertyName("profileBlacklist")]
-    public Dictionary<string, HashSet<string>>? ProfileBlacklist { get; set; }
+    public required Dictionary<string, HashSet<MongoId>> ProfileBlacklist { get; set; }
 
     /// <summary>
     ///     key=questid, gameversions that can see/access quest
     /// </summary>
     [JsonPropertyName("profileWhitelist")]
-    public Dictionary<string, HashSet<string>>? ProfileWhitelist { get; set; }
+    public required Dictionary<MongoId, HashSet<string>> ProfileWhitelist { get; set; }
+
+    /// <summary>
+    ///     Holds repeatable quest template ids for pmc's and scav's
+    /// </summary>
+    [JsonPropertyName("repeatableQuestTemplateIds")]
+    public required RepeatableQuestTemplates RepeatableQuestTemplates { get; set; }
+
+    /// <summary>
+    ///     Show non-seasonal quests be shown to players
+    /// </summary>
+    [JsonPropertyName("showNonSeasonalEventQuests")]
+    public required bool ShowNonSeasonalEventQuests { get; set; }
+
+    /// <summary>
+    ///     Collection of event quest data keyed by quest id.
+    /// </summary>
+    [JsonPropertyName("eventQuests")]
+    public required Dictionary<MongoId, EventQuestData> EventQuests { get; set; }
+
+    /// <summary>
+    ///     List of repeatable quest configs for; daily, weekly, and daily scav.
+    /// </summary>
+    [JsonPropertyName("repeatableQuests")]
+    public required List<RepeatableQuestConfig> RepeatableQuests { get; set; }
+
+    /// <summary>
+    ///     Maps internal map names to their mongoId: Key - internal :: val - Mongoid
+    /// </summary>
+    [JsonPropertyName("locationIdMap")]
+    public required Dictionary<string, string> LocationIdMap { get; set; }
 }
 
-public record PlayerTypeQuestIds
+public record RepeatableQuestTemplates
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
+    /// <summary>
+    ///     Pmc repeatable quest template ids keyed by type of quest
+    /// Keys: elimination, completion, exploration
+    /// </summary>
     [JsonPropertyName("pmc")]
-    public QuestTypeIds? Pmc { get; set; }
+    public required Dictionary<string, MongoId> Pmc { get; set; }
 
+    /// <summary>
+    ///     Scav repeatable quest template ids keyed by type of quest
+    /// Keys: elimination, completion, exploration, pickup
+    /// </summary>
     [JsonPropertyName("scav")]
-    public QuestTypeIds? Scav { get; set; }
-}
-
-public record QuestTypeIds
-{
-    [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
-
-    [JsonPropertyName("elimination")]
-    public string? Elimination { get; set; }
-
-    [JsonPropertyName("completion")]
-    public string? Completion { get; set; }
-
-    [JsonPropertyName("exploration")]
-    public string? Exploration { get; set; }
-
-    [JsonPropertyName("pickup")]
-    public string? Pickup { get; set; }
+    public required Dictionary<string, MongoId> Scav { get; set; }
 }
 
 public record EventQuestData
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
+    /// <summary>
+    ///     Name of the event quest
+    /// </summary>
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public required string Name { get; set; }
 
+    /// <summary>
+    ///     Season to which this quest belongs
+    /// </summary>
     [JsonPropertyName("season")]
-    public SeasonalEventType? Season { get; set; }
+    public required SeasonalEventType Season { get; set; }
 
+    /// <summary>
+    ///     Start timestamp
+    /// </summary>
     [JsonPropertyName("startTimestamp")]
-    public long? StartTimestamp { get; set; }
+    public required long StartTimestamp { get; set; }
 
+    /// <summary>
+    ///     End timestamp
+    /// </summary>
     [JsonPropertyName("endTimestamp")]
     [JsonConverter(typeof(StringToNumberFactoryConverter))]
-    public long? EndTimestamp { get; set; }
+    public required long EndTimestamp { get; set; }
 
+    /// <summary>
+    ///     Is this quest part of a yearly event, ex: Christmas
+    /// </summary>
     [JsonPropertyName("yearly")]
-    public bool? Yearly { get; set; }
+    public required bool Yearly { get; set; }
 }
 
 public record RepeatableQuestConfig
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
+    /// <summary>
+    ///     Id for type of repeatable quest
+    /// </summary>
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public required MongoId Id { get; set; }
 
+    /// <summary>
+    ///     Human-readable name for repeatable quest type
+    /// </summary>
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public required string Name { get; set; }
 
+    /// <summary>
+    ///     Side this config belongs to. Note: Random not implemented, do not use!
+    /// </summary>
     [JsonPropertyName("side")]
-    public string? Side { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public required PlayerGroup Side { get; set; }
 
+    /// <summary>
+    ///     Types of tasks this config can generate; ex: Elimination
+    /// </summary>
     [JsonPropertyName("types")]
-    public List<string>? Types { get; set; }
+    public required List<string> Types { get; set; }
 
+    /// <summary>
+    ///     How long does the task stay active for after accepting it
+    /// </summary>
     [JsonPropertyName("resetTime")]
-    public long? ResetTime { get; set; }
+    public required long ResetTime { get; set; }
 
+    /// <summary>
+    ///     How many quests should we provide per ResetTime
+    /// </summary>
     [JsonPropertyName("numQuests")]
-    public int? NumQuests { get; set; }
+    public required int NumQuests { get; set; }
 
+    /// <summary>
+    ///     Min player level required to receive a quest from this config
+    /// </summary>
     [JsonPropertyName("minPlayerLevel")]
-    public int? MinPlayerLevel { get; set; }
+    public required int MinPlayerLevel { get; set; }
 
+    /// <summary>
+    ///     Reward scaling config
+    /// </summary>
     [JsonPropertyName("rewardScaling")]
-    public RewardScaling? RewardScaling { get; set; }
+    public required RewardScaling RewardScaling { get; set; }
 
+    /// <summary>
+    ///     Location map
+    /// </summary>
     [JsonPropertyName("locations")]
-    public Dictionary<ELocationName, List<string>>? Locations { get; set; }
+    public required Dictionary<ELocationName, List<string>> Locations { get; set; }
 
+    /// <summary>
+    ///     Traders that are allowed to generate tasks from this config.
+    /// Includes quest types, reward whitelist, and whether rewards can be weapons.
+    /// </summary>
     [JsonPropertyName("traderWhitelist")]
-    public List<TraderWhitelist>? TraderWhitelist { get; set; }
+    public required List<TraderWhitelist> TraderWhitelist { get; set; }
 
+    /// <summary>
+    ///     Quest config, holds information on how a task should be generated
+    /// </summary>
     [JsonPropertyName("questConfig")]
-    public RepeatableQuestTypesConfig? QuestConfig { get; set; }
+    public required RepeatableQuestTypesConfig QuestConfig { get; set; }
 
     /// <summary>
     ///     Item base types to block when generating rewards
     /// </summary>
     [JsonPropertyName("rewardBaseTypeBlacklist")]
-    public HashSet<string>? RewardBaseTypeBlacklist { get; set; }
+    public required HashSet<MongoId> RewardBaseTypeBlacklist { get; set; }
 
     /// <summary>
     ///     Item tplIds to ignore when generating rewards
     /// </summary>
     [JsonPropertyName("rewardBlacklist")]
-    public HashSet<string>? RewardBlacklist { get; set; }
+    public required HashSet<MongoId> RewardBlacklist { get; set; }
 
+    /// <summary>
+    ///     Minimum stack size that an ammo reward should be generated with
+    /// </summary>
     [JsonPropertyName("rewardAmmoStackMinSize")]
-    public int? RewardAmmoStackMinSize { get; set; }
+    public required int RewardAmmoStackMinSize { get; set; }
 
+    /// <summary>
+    ///     How many free task changes are available from this config
+    /// </summary>
     [JsonPropertyName("freeChangesAvailable")]
-    public int? FreeChangesAvailable { get; set; }
+    public required int FreeChangesAvailable { get; set; }
 
+    /// <summary>
+    ///     How many free task changes remain from this config
+    /// </summary>
     [JsonPropertyName("freeChanges")]
-    public int? FreeChanges { get; set; }
+    public required int FreeChanges { get; set; }
 
+    /// <summary>
+    ///     Should the task replacement category be the same as the one its replacing
+    /// </summary>
     [JsonPropertyName("keepDailyQuestTypeOnReplacement")]
-    public bool? KeepDailyQuestTypeOnReplacement { get; set; }
+    public required bool KeepDailyQuestTypeOnReplacement { get; set; }
 
     /// <summary>
     ///     Reputation standing price for replacing a repeatable
     /// </summary>
     [JsonPropertyName("standingChangeCost")]
-    public IList<double>? StandingChangeCost { get; set; }
+    public required IList<double> StandingChangeCost { get; set; }
 }
 
 public record RewardScaling
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
+    /// <summary>
+    ///     Levels at which to increase to the next level of reward potential
+    /// </summary>
     [JsonPropertyName("levels")]
-    public List<double>? Levels { get; set; }
+    public required List<double> Levels { get; set; }
 
+    /// <summary>
+    ///     Experience reward tiers
+    /// </summary>
     [JsonPropertyName("experience")]
-    public List<double>? Experience { get; set; }
+    public required List<double> Experience { get; set; }
 
+    /// <summary>
+    ///     Rouble reward tiers
+    /// </summary>
     [JsonPropertyName("roubles")]
-    public List<double>? Roubles { get; set; }
+    public required List<double> Roubles { get; set; }
 
+    /// <summary>
+    ///     Gp coin reward tiers
+    /// </summary>
     [JsonPropertyName("gpCoins")]
-    public List<double>? GpCoins { get; set; }
+    public required List<double> GpCoins { get; set; }
 
+    /// <summary>
+    ///     Item amount reward tiers
+    /// </summary>
     [JsonPropertyName("items")]
-    public List<double>? Items { get; set; }
+    public required List<double> Items { get; set; }
 
+    /// <summary>
+    ///     reputation amount reward tiers
+    /// </summary>
     [JsonPropertyName("reputation")]
-    public List<double>? Reputation { get; set; }
+    public required List<double> Reputation { get; set; }
 
+    /// <summary>
+    ///     Reward spread
+    /// </summary>
     [JsonPropertyName("rewardSpread")]
-    public double? RewardSpread { get; set; }
+    public required double RewardSpread { get; set; }
 
+    /// <summary>
+    ///     Skill reward chance tiers
+    /// </summary>
     [JsonPropertyName("skillRewardChance")]
-    public List<double>? SkillRewardChance { get; set; }
+    public required List<double> SkillRewardChance { get; set; }
 
+    /// <summary>
+    ///     Skill reward amount tiers
+    /// </summary>
     [JsonPropertyName("skillPointReward")]
-    public List<double>? SkillPointReward { get; set; }
+    public required List<double> SkillPointReward { get; set; }
 }
 
 public record TraderWhitelist
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
-    [JsonPropertyName("name")]
-    public string? Name { get; set; }
-
+    /// <summary>
+    ///     Trader Id
+    /// </summary>
     [JsonPropertyName("traderId")]
-    public string? TraderId { get; set; }
+    public required MongoId TraderId { get; set; }
 
+    /// <summary>
+    ///     Human-readable name
+    /// </summary>
+    [JsonPropertyName("name")]
+    public required string Name { get; set; }
+
+    /// <summary>
+    ///     Quest types this trader can provide: Completion/Exploration/Elimination.
+    /// </summary>
     [JsonPropertyName("questTypes")]
-    public List<string>? QuestTypes { get; set; }
+    public required List<string> QuestTypes { get; set; }
 
+    /// <summary>
+    ///     Item categories that the reward can be
+    /// </summary>
     [JsonPropertyName("rewardBaseWhitelist")]
-    public List<string>? RewardBaseWhitelist { get; set; }
+    public required List<MongoId> RewardBaseWhitelist { get; set; }
 
+    /// <summary>
+    ///     Can this reward be a weapon?
+    /// </summary>
     [JsonPropertyName("rewardCanBeWeapon")]
-    public bool? RewardCanBeWeapon { get; set; }
+    public required bool RewardCanBeWeapon { get; set; }
 
+    /// <summary>
+    ///     Chance that the reward is a weapon
+    /// </summary>
     [JsonPropertyName("weaponRewardChancePercent")]
-    public double? WeaponRewardChancePercent { get; set; }
+    public required double WeaponRewardChancePercent { get; set; }
 }
 
 public record RepeatableQuestTypesConfig
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
+    /// <summary>
+    ///     Defines exploration repeatable task generation parameters
+    /// </summary>
     [JsonPropertyName("Exploration")]
-    public Exploration? Exploration { get; set; }
+    public required Exploration Exploration { get; set; }
 
+    /// <summary>
+    ///     Defines completion repeatable task generation parameters
+    /// </summary>
     [JsonPropertyName("Completion")]
-    public Completion? Completion { get; set; }
+    public required Completion Completion { get; set; }
 
+    /// <summary>
+    ///     Defines pickup repeatable task generation parameters - TODO: Not implemented/No Data
+    /// </summary>
     [JsonPropertyName("Pickup")]
     public Pickup? Pickup { get; set; }
 
+    /// <summary>
+    ///     Defines elimination repeatable task generation parameters
+    /// </summary>
     [JsonPropertyName("Elimination")]
-    public List<EliminationConfig>? Elimination { get; set; }
+    public required List<EliminationConfig> Elimination { get; set; }
 }
 
 public record Exploration : BaseQuestConfig
 {
+    /// <summary>
+    ///     Maximum extract count that a per map extract requirement can be generated with
+    /// </summary>
     [JsonPropertyName("maxExtracts")]
-    public int? MaximumExtracts { get; set; }
+    public required int MaximumExtracts { get; set; }
 
+    /// <summary>
+    ///     Maximum extract count that a specific extract can be generated with
+    /// </summary>
     [JsonPropertyName("maxExtractsWithSpecificExit")]
-    public int? MaximumExtractsWithSpecificExit { get; set; }
+    public required int MaximumExtractsWithSpecificExit { get; set; }
 
+    /// <summary>
+    ///     Specific extract generation data
+    /// </summary>
     [JsonPropertyName("specificExits")]
-    public SpecificExits? SpecificExits { get; set; }
+    public required SpecificExits SpecificExits { get; set; }
 }
 
 public record SpecificExits
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
-    [JsonPropertyName("probability")]
-    public double? Probability { get; set; }
+    /// <summary>
+    ///     Chance that an operational task is generated with a specific extract
+    /// </summary>
+    [JsonPropertyName("chance")]
+    public required double Chance { get; set; }
 
+    /// <summary>
+    ///     Whitelist of specific extract types
+    /// </summary>
     [JsonPropertyName("passageRequirementWhitelist")]
-    public List<string>? PassageRequirementWhitelist { get; set; }
+    public required List<string> PassageRequirementWhitelist { get; set; }
 }
 
 public record Completion : BaseQuestConfig
 {
+    /// <summary>
+    ///     Minimum item count that can be requested
+    /// </summary>
     [JsonPropertyName("minRequestedAmount")]
-    public int? MinimumRequestedAmount { get; set; }
-
-    [JsonPropertyName("maxRequestedAmount")]
-    public int? MaximumRequestedAmount { get; set; }
-
-    [JsonPropertyName("uniqueItemCount")]
-    public int? UniqueItemCount { get; set; }
-
-    [JsonPropertyName("minRequestedBulletAmount")]
-    public int? MinimumRequestedBulletAmount { get; set; }
-
-    [JsonPropertyName("maxRequestedBulletAmount")]
-    public int? MaximumRequestedBulletAmount { get; set; }
-
-    [JsonPropertyName("useWhitelist")]
-    public bool? UseWhitelist { get; set; }
-
-    [JsonPropertyName("useBlacklist")]
-    public bool? UseBlacklist { get; set; }
+    public required int MinimumRequestedAmount { get; set; }
 
     /// <summary>
-    ///     Should supplied items be required FiR
+    ///     Maximum item count that can be requested
+    /// </summary>
+    [JsonPropertyName("maxRequestedAmount")]
+    public required int MaximumRequestedAmount { get; set; }
+
+    /// <summary>
+    ///     How many unique items should be requested - TODO: This needs to be a range
+    /// </summary>
+    [JsonPropertyName("uniqueItemCount")]
+    public required int UniqueItemCount { get; set; }
+
+    /// <summary>
+    ///     Minimum bullet count that can be requested - TODO: Not implemented
+    /// </summary>
+    [JsonPropertyName("minRequestedBulletAmount")]
+    public required int MinimumRequestedBulletAmount { get; set; }
+
+    /// <summary>
+    ///     Maximum bullet count that can be requested - TODO: Not implemented
+    /// </summary>
+    [JsonPropertyName("maxRequestedBulletAmount")]
+    public required int MaximumRequestedBulletAmount { get; set; }
+
+    /// <summary>
+    ///     Should the item whitelist be used
+    /// </summary>
+    [JsonPropertyName("useWhitelist")]
+    public required bool UseWhitelist { get; set; }
+
+    /// <summary>
+    ///     Should the item blacklist be used
+    /// </summary>
+    [JsonPropertyName("useBlacklist")]
+    public required bool UseBlacklist { get; set; }
+
+    /// <summary>
+    ///     Should the supplied items be required FiR
     /// </summary>
     [JsonPropertyName("requiredItemsAreFiR")]
     public bool? RequiredItemsAreFiR { get; set; }
 
     /// <summary>
-    ///     Should supplied items be required FiR
+    ///     Should the supplied items be required FiR
     /// </summary>
     [JsonPropertyName("requiredItemMinDurabilityMinMax")]
     public MinMax<double>? RequiredItemMinDurabilityMinMax { get; set; }
@@ -313,7 +476,7 @@ public record Completion : BaseQuestConfig
     ///     Blacklisted item types to not collect
     /// </summary>
     [JsonPropertyName("requiredItemTypeBlacklist")]
-    public HashSet<string>? RequiredItemTypeBlacklist { get; set; }
+    public HashSet<MongoId>? RequiredItemTypeBlacklist { get; set; }
 }
 
 public record Pickup : BaseQuestConfig
@@ -330,7 +493,7 @@ public record Pickup : BaseQuestConfig
 public record PickupTypeWithMaxCount
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("itemType")]
     public string? ItemType { get; set; }
@@ -344,81 +507,149 @@ public record PickupTypeWithMaxCount
 
 public record EliminationConfig : BaseQuestConfig
 {
+    /// <summary>
+    ///     Level range at which elimination tasks should be generated from this config
+    /// </summary>
     [JsonPropertyName("levelRange")]
-    public MinMax<int>? LevelRange { get; set; }
+    public required MinMax<int> LevelRange { get; set; }
 
+    /// <summary>
+    ///     Target data probabilities
+    /// </summary>
     [JsonPropertyName("targets")]
-    public List<ProbabilityObject<string, BossInfo>>? Targets { get; set; }
+    public required List<ProbabilityObject<string, BossInfo>> Targets { get; set; }
 
-    [JsonPropertyName("bodyPartProb")]
-    public double? BodyPartProbability { get; set; }
+    /// <summary>
+    ///     Chance that a specific body part is needed as a requirement
+    /// </summary>
+    [JsonPropertyName("bodyPartChance")]
+    public required int BodyPartChance { get; set; }
 
+    /// <summary>
+    ///     If the specific body part requirement is chosen, pick from these body parts
+    /// </summary>
     [JsonPropertyName("bodyParts")]
-    public List<ProbabilityObject<string, List<string>>>? BodyParts { get; set; }
+    public required List<ProbabilityObject<string, List<string>>> BodyParts { get; set; }
 
-    [JsonPropertyName("specificLocationProb")]
-    public double? SpecificLocationProbability { get; set; }
+    /// <summary>
+    ///     Chance that a specific location modifier is selected
+    /// </summary>
+    [JsonPropertyName("specificLocationChance")]
+    public required int SpecificLocationChance { get; set; }
 
+    /// <summary>
+    ///     Locations that should be blacklisted as a requirement
+    /// </summary>
     [JsonPropertyName("distLocationBlacklist")]
-    public List<string>? DistLocationBlacklist { get; set; }
+    public required List<string> DistLocationBlacklist { get; set; }
 
+    /// <summary>
+    ///     Probability that a distance requirement is chosen
+    /// </summary>
     [JsonPropertyName("distProb")]
-    public double? DistanceProbability { get; set; }
+    public required double DistanceProbability { get; set; }
 
+    /// <summary>
+    ///     Maximum distance in meters that can be chosen
+    /// </summary>
     [JsonPropertyName("maxDist")]
-    public double? MaxDistance { get; set; }
+    public required double MaxDistance { get; set; }
 
+    /// <summary>
+    ///     Minimum distance in meters that can be chosen
+    /// </summary>
     [JsonPropertyName("minDist")]
-    public double? MinDistance { get; set; }
+    public required double MinDistance { get; set; }
 
+    /// <summary>
+    ///     Maximum amount of kills that can be chosen
+    /// </summary>
     [JsonPropertyName("maxKills")]
-    public int? MaxKills { get; set; }
+    public required int MaxKills { get; set; }
 
+    /// <summary>
+    ///     Minimum amount of kills that can be chosen
+    /// </summary>
     [JsonPropertyName("minKills")]
-    public int? MinKills { get; set; }
+    public required int MinKills { get; set; }
 
-    [JsonPropertyName("minBossKills")]
-    public int? MinBossKills { get; set; }
-
+    /// <summary>
+    ///     Maximum amount of boss kills that can be chosen
+    /// </summary>
     [JsonPropertyName("maxBossKills")]
-    public int? MaxBossKills { get; set; }
+    public required int MaxBossKills { get; set; }
 
-    [JsonPropertyName("minPmcKills")]
-    public int? MinPmcKills { get; set; }
+    /// <summary>
+    ///     Minimum amount of boss kills that can be chosen
+    /// </summary>
+    [JsonPropertyName("minBossKills")]
+    public required int MinBossKills { get; set; }
 
+    /// <summary>
+    ///     Maximum amount of PMC kills that can be chosen
+    /// </summary>
     [JsonPropertyName("maxPmcKills")]
-    public int? MaxPmcKills { get; set; }
+    public required int MaxPmcKills { get; set; }
 
-    [JsonPropertyName("weaponCategoryRequirementProb")]
-    public double? WeaponCategoryRequirementProbability { get; set; }
+    /// <summary>
+    ///     Minimum amount of PMC kills that can be chosen
+    /// </summary>
+    [JsonPropertyName("minPmcKills")]
+    public required int MinPmcKills { get; set; }
 
+    /// <summary>
+    ///     Chance that a specific weapon requirement is chosen
+    /// </summary>
+    [JsonPropertyName("weaponRequirementChance")]
+    public required int WeaponRequirementChance { get; set; }
+
+    /// <summary>
+    ///     Chance that a weapon category requirement is chosen
+    /// </summary>
+    [JsonPropertyName("weaponCategoryRequirementChance")]
+    public required int WeaponCategoryRequirementChance { get; set; }
+
+    /// <summary>
+    ///     If a weapon category requirement is chosen, pick from these categories
+    /// </summary>
     [JsonPropertyName("weaponCategoryRequirements")]
-    public List<ProbabilityObject<string, List<string>>>? WeaponCategoryRequirements { get; set; }
+    public required List<
+        ProbabilityObject<string, List<MongoId>>
+    > WeaponCategoryRequirements { get; set; }
 
-    [JsonPropertyName("weaponRequirementProb")]
-    public double? WeaponRequirementProbability { get; set; }
-
+    /// <summary>
+    ///     If a weapon requirement is chosen, pick from these weapons
+    /// </summary>
     [JsonPropertyName("weaponRequirements")]
-    public List<ProbabilityObject<string, List<string>>>? WeaponRequirements { get; set; }
+    public required List<ProbabilityObject<string, List<MongoId>>> WeaponRequirements { get; set; }
 }
 
 public record BaseQuestConfig
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
+    /// <summary>
+    ///     Possible skills that can be rewarded expirence points
+    /// </summary>
     [JsonPropertyName("possibleSkillRewards")]
-    public List<string>? PossibleSkillRewards { get; set; }
+    public List<string> PossibleSkillRewards { get; set; }
 }
 
 public record BossInfo
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
+    /// <summary>
+    ///     Is this target a boss
+    /// </summary>
     [JsonPropertyName("isBoss")]
     public bool? IsBoss { get; set; }
 
+    /// <summary>
+    ///     Is ths target a PMC
+    /// </summary>
     [JsonPropertyName("isPmc")]
     public bool? IsPmc { get; set; }
 }

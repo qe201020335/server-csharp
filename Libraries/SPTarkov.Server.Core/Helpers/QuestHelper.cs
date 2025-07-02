@@ -1,6 +1,7 @@
 using System.Globalization;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
@@ -24,13 +25,12 @@ public class QuestHelper(
     TimeUtil _timeUtil,
     ItemHelper _itemHelper,
     DatabaseService _databaseService,
-    QuestConditionHelper _questConditionHelper,
     EventOutputHolder _eventOutputHolder,
     LocaleService _localeService,
     ProfileHelper _profileHelper,
     QuestRewardHelper _questRewardHelper,
     RewardHelper _rewardHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     SeasonalEventService _seasonalEventService,
     MailSendService _mailSendService,
     ConfigServer _configServer,
@@ -51,7 +51,10 @@ public class QuestHelper(
     /// </summary>
     protected virtual Dictionary<string, List<QuestCondition>> SellToTraderQuestConditionCache
     {
-        get { return _sellToTraderQuestConditionCache ??= GetSellToTraderQuests(); }
+        get
+        {
+            return _sellToTraderQuestConditionCache ??= GetSellToTraderQuests(GetQuestsFromDb());
+        }
     }
 
     /// <summary>
@@ -95,7 +98,7 @@ public class QuestHelper(
                 return playerLevel == conditionValue;
             default:
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "quest-unable_to_find_compare_condition",
                         condition.CompareMethod
                     )
@@ -215,7 +218,7 @@ public class QuestHelper(
         )
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "quest-unable_to_find_trader_in_profile",
                     questProperties.Target
                 )
@@ -248,7 +251,7 @@ public class QuestHelper(
         )
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "quest-unable_to_find_trader_in_profile",
                     questProperties.Target
                 )
@@ -288,7 +291,10 @@ public class QuestHelper(
 
             default:
                 _logger.Error(
-                    _localisationService.GetText("quest-compare_operator_unhandled", compareMethod)
+                    _serverLocalisationService.GetText(
+                        "quest-compare_operator_unhandled",
+                        compareMethod
+                    )
                 );
 
                 return false;
@@ -347,7 +353,7 @@ public class QuestHelper(
         if (questDbData is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "quest-unable_to_find_quest_in_db",
                     new { questId = acceptedQuest.QuestId, questType = acceptedQuest.Type }
                 )
@@ -451,9 +457,8 @@ public class QuestHelper(
                     return false;
                 }
 
-                var standingRequirements = _questConditionHelper.GetStandingConditions(
-                    quest.Conditions.AvailableForStart
-                );
+                var standingRequirements =
+                    quest.Conditions.AvailableForStart.GetStandingConditions();
                 foreach (var condition in standingRequirements)
                 {
                     if (!TraderStandingRequirementCheck(condition, profile))
@@ -462,9 +467,7 @@ public class QuestHelper(
                     }
                 }
 
-                var loyaltyRequirements = _questConditionHelper.GetLoyaltyConditions(
-                    quest.Conditions.AvailableForStart
-                );
+                var loyaltyRequirements = quest.Conditions.AvailableForStart.GetLoyaltyConditions();
                 foreach (var condition in loyaltyRequirements)
                 {
                     if (!TraderLoyaltyLevelRequirementCheck(condition, profile))
@@ -480,7 +483,7 @@ public class QuestHelper(
                     );
             });
 
-        return GetQuestsWithOnlyLevelRequirementStartCondition(eligibleQuests);
+        return GetQuestsWithOnlyLevelRequirementStartCondition(eligibleQuests).ToList();
     }
 
     /// <summary>
@@ -513,7 +516,7 @@ public class QuestHelper(
 
         // Should non-season event quests be shown to player
         if (
-            !(_questConfig.ShowNonSeasonalEventQuests ?? false)
+            !_questConfig.ShowNonSeasonalEventQuests
             && _seasonalEventService.IsQuestRelatedToEvent(questId, SeasonalEventType.None)
         )
         {
@@ -620,7 +623,7 @@ public class QuestHelper(
             return quests;
         }
 
-        return GetQuestsWithOnlyLevelRequirementStartCondition(quests);
+        return GetQuestsWithOnlyLevelRequirementStartCondition(quests).ToList();
     }
 
     /// <summary>
@@ -644,7 +647,7 @@ public class QuestHelper(
         if (inventoryItemIndex < 0)
         {
             _logger.Error(
-                _localisationService.GetText("quest-item_not_found_in_inventory", itemId)
+                _serverLocalisationService.GetText("quest-item_not_found_in_inventory", itemId)
             );
 
             return;
@@ -657,7 +660,7 @@ public class QuestHelper(
 
             item.Upd.StackObjectsCount = newStackSize;
 
-            AddItemStackSizeChangeIntoEventResponse(output, sessionID, item);
+            output.AddItemStackSizeChangeIntoEventResponse(sessionID, item);
         }
         else
         {
@@ -669,40 +672,15 @@ public class QuestHelper(
     }
 
     /// <summary>
-    /// Add item stack change object into output route event response
-    /// </summary>
-    /// <param name="output">Response to add item change event into</param>
-    /// <param name="sessionId">Session id</param>
-    /// <param name="item">Item that was adjusted</param>
-    protected void AddItemStackSizeChangeIntoEventResponse(
-        ItemEventRouterResponse output,
-        string sessionId,
-        Item item
-    )
-    {
-        output
-            .ProfileChanges[sessionId]
-            .Items.ChangedItems.Add(
-                new Item
-                {
-                    Id = item.Id,
-                    Template = item.Template,
-                    ParentId = item.ParentId,
-                    SlotId = item.SlotId,
-                    Location = item.Location,
-                    Upd = new Upd { StackObjectsCount = item.Upd.StackObjectsCount },
-                }
-            );
-    }
-
-    /// <summary>
     /// Get quests, strip all requirement conditions except level
     /// </summary>
     /// <param name="quests">quests to process</param>
     /// <returns>quest list without conditions</returns>
-    protected List<Quest> GetQuestsWithOnlyLevelRequirementStartCondition(IEnumerable<Quest> quests)
+    protected IEnumerable<Quest> GetQuestsWithOnlyLevelRequirementStartCondition(
+        IEnumerable<Quest> quests
+    )
     {
-        return quests.Select(GetQuestWithOnlyLevelRequirementStartCondition).ToList();
+        return quests.Select(RemoveQuestConditionsExceptLevel);
     }
 
     /// <summary>
@@ -710,7 +688,7 @@ public class QuestHelper(
     /// </summary>
     /// <param name="quest">quest to clean</param>
     /// <returns>Quest</returns>
-    public Quest GetQuestWithOnlyLevelRequirementStartCondition(Quest quest)
+    public Quest RemoveQuestConditionsExceptLevel(Quest quest)
     {
         var updatedQuest = _cloner.Clone(quest);
         updatedQuest.Conditions.AvailableForStart = updatedQuest
@@ -724,12 +702,13 @@ public class QuestHelper(
     /// Get all quests with finish condition `SellItemToTrader`.
     /// The first time this method is called it will cache the conditions by quest id in <see cref="SellToTraderQuestConditionCache"/>` and return that thereafter.
     /// </summary>
+    /// <param name="quests">Quests to process</param>
     /// <returns>List of quests with `SellItemToTrader` finish condition(s)</returns>
-    protected Dictionary<string, List<QuestCondition>> GetSellToTraderQuests()
+    protected Dictionary<string, List<QuestCondition>> GetSellToTraderQuests(List<Quest> quests)
     {
         // Create cache
         var result = new Dictionary<string, List<QuestCondition>>();
-        foreach (var quest in GetQuestsFromDb())
+        foreach (var quest in quests)
         {
             foreach (var cond in quest.Conditions.AvailableForFinish)
             {
@@ -753,9 +732,7 @@ public class QuestHelper(
 
         if (_logger.IsLogEnabled(LogLevel.Debug))
         {
-            _logger.Debug(
-                $"GetSellToTraderQuests found: {SellToTraderQuestConditionCache.Count} quests"
-            );
+            _logger.Debug($"GetSellToTraderQuests found: {result.Count} quests");
         }
 
         return result;
@@ -802,7 +779,7 @@ public class QuestHelper(
             if (!SellToTraderQuestConditionCache.TryGetValue(counter.SourceId, out var conditions))
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "quest_unable_to_find_quest_in_db_no_type",
                         counter.SourceId
                     )
@@ -846,7 +823,7 @@ public class QuestHelper(
             if (itemDetails is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "trader-unable_to_find_inventory_item_for_selltotrader_counter",
                         taskCounter.SourceId
                     )
@@ -1175,10 +1152,10 @@ public class QuestHelper(
     {
         if (!_questConfig.MailRedeemTimeHours.TryGetValue(pmcData.Info.GameVersion, out var hours))
         {
-            return _questConfig.MailRedeemTimeHours["default"] ?? 48;
+            return _questConfig.MailRedeemTimeHours["default"];
         }
 
-        return hours ?? 48;
+        return hours;
     }
 
     /// <summary>
@@ -1336,15 +1313,9 @@ public class QuestHelper(
                 continue;
             }
 
-            var questRequirements = _questConditionHelper.GetQuestConditions(
-                quest.Conditions.AvailableForStart
-            );
-            var loyaltyRequirements = _questConditionHelper.GetLoyaltyConditions(
-                quest.Conditions.AvailableForStart
-            );
-            var standingRequirements = _questConditionHelper.GetStandingConditions(
-                quest.Conditions.AvailableForStart
-            );
+            var questRequirements = quest.Conditions.AvailableForStart.GetQuestConditions();
+            var loyaltyRequirements = quest.Conditions.AvailableForStart.GetLoyaltyConditions();
+            var standingRequirements = quest.Conditions.AvailableForStart.GetStandingConditions();
 
             // Quest has no conditions, standing or loyalty conditions, add to visible quest list
             if (
@@ -1382,7 +1353,7 @@ public class QuestHelper(
 
                 // Prereq does not have its status requirement fulfilled
                 // Some bsg status ids are strings, MUST convert to number before doing includes check
-                if (!conditionToFulfil.Status.Contains(prerequisiteQuest.Status.Value))
+                if (!conditionToFulfil.Status.Contains(prerequisiteQuest.Status))
                 {
                     haveCompletedPreviousQuest = false;
                     break;
@@ -1393,7 +1364,7 @@ public class QuestHelper(
                 {
                     // Compare current time to unlock time for previous quest
                     prerequisiteQuest.StatusTimers.TryGetValue(
-                        prerequisiteQuest.Status.Value,
+                        prerequisiteQuest.Status,
                         out var previousQuestCompleteTime
                     );
                     var unlockTime = previousQuestCompleteTime + conditionToFulfil.AvailableAfter;
@@ -1706,7 +1677,7 @@ public class QuestHelper(
         if (repeatableInScavProfile is null)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "quest-unable_to_remove_scav_quest_from_profile",
                     new { scavQuestId = questIdToRemove, profileId = sessionId }
                 )
@@ -1758,9 +1729,7 @@ public class QuestHelper(
             return true;
         }
 
-        var levelConditions = _questConditionHelper.GetLevelConditions(
-            quest.Conditions.AvailableForStart
-        );
+        var levelConditions = quest.Conditions.AvailableForStart.GetLevelConditions();
         if (levelConditions is not null)
         {
             foreach (var levelCondition in levelConditions)

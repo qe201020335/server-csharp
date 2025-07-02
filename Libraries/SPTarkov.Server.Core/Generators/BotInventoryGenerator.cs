@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Match;
 using SPTarkov.Server.Core.Models.Enums;
@@ -17,9 +18,7 @@ namespace SPTarkov.Server.Core.Generators;
 [Injectable]
 public class BotInventoryGenerator(
     ISptLogger<BotInventoryGenerator> _logger,
-    HashUtil _hashUtil,
     RandomUtil _randomUtil,
-    DatabaseService _databaseService,
     ProfileActivityService _profileActivityService,
     BotWeaponGenerator _botWeaponGenerator,
     BotLootGenerator _botLootGenerator,
@@ -29,7 +28,7 @@ public class BotInventoryGenerator(
     WeightedRandomHelper _weightedRandomHelper,
     ItemHelper _itemHelper,
     WeatherHelper _weatherHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     BotEquipmentFilterService _botEquipmentFilterService,
     BotEquipmentModPoolService _botEquipmentModPoolService,
     BotEquipmentModGenerator _botEquipmentModGenerator,
@@ -132,12 +131,12 @@ public class BotInventoryGenerator(
     /// <returns>PmcInventory object</returns>
     public BotBaseInventory GenerateInventoryBase()
     {
-        var equipmentId = _hashUtil.Generate();
-        var stashId = _hashUtil.Generate();
-        var questRaidItemsId = _hashUtil.Generate();
-        var questStashItemsId = _hashUtil.Generate();
-        var sortingTableId = _hashUtil.Generate();
-        var hideoutCustomizationStashId = _hashUtil.Generate();
+        var equipmentId = new MongoId();
+        var stashId = new MongoId();
+        var questRaidItemsId = new MongoId();
+        var questStashItemsId = new MongoId();
+        var sortingTableId = new MongoId();
+        var hideoutCustomizationStashId = new MongoId();
 
         return new BotBaseInventory
         {
@@ -159,8 +158,8 @@ public class BotInventoryGenerator(
             QuestRaidItems = questRaidItemsId,
             QuestStashItems = questStashItemsId,
             SortingTable = sortingTableId,
-            HideoutAreaStashes = new Dictionary<string, string>(),
-            FastPanel = new Dictionary<string, string>(),
+            HideoutAreaStashes = new Dictionary<string, MongoId>(),
+            FastPanel = new Dictionary<string, MongoId>(),
             FavoriteItems = [],
             HideoutCustomizationStashId = hideoutCustomizationStashId,
         };
@@ -410,7 +409,7 @@ public class BotInventoryGenerator(
     /// <param name="templateInventory"></param>
     /// <param name="isPmc">is bot a PMC</param>
     /// <returns></returns>
-    protected Dictionary<string, double> GetPocketPoolByGameEdition(
+    protected Dictionary<string, double>? GetPocketPoolByGameEdition(
         string chosenGameVersion,
         BotTypeInventory templateInventory,
         bool isPmc
@@ -497,7 +496,7 @@ public class BotInventoryGenerator(
         if (!spawnChance.HasValue)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-no_spawn_chance_defined_for_equipment_slot",
                     settings.RootEquipmentSlot
                 )
@@ -510,7 +509,7 @@ public class BotInventoryGenerator(
         var shouldSpawn = _randomUtil.GetChance100(spawnChance ?? 0);
         if (shouldSpawn && settings.RootEquipmentPool.Any())
         {
-            TemplateItem pickedItemDb = null;
+            TemplateItem? pickedItemDb = null;
             var found = false;
 
             // Limit attempts to find a compatible item as it's expensive to check them all
@@ -531,7 +530,10 @@ public class BotInventoryGenerator(
                 if (!dbResult.Key)
                 {
                     _logger.Error(
-                        _localisationService.GetText("bot-missing_item_template", chosenItemTpl)
+                        _serverLocalisationService.GetText(
+                            "bot-missing_item_template",
+                            chosenItemTpl
+                        )
                     );
                     if (_logger.IsLogEnabled(LogLevel.Debug))
                     {
@@ -575,7 +577,7 @@ public class BotInventoryGenerator(
             }
 
             // Create root item
-            var id = _hashUtil.Generate();
+            var id = new MongoId();
             Item item = new()
             {
                 Id = id,
@@ -590,7 +592,7 @@ public class BotInventoryGenerator(
 
             var botEquipBlacklist = _botEquipmentFilterService.GetBotEquipmentBlacklist(
                 settings.BotData.EquipmentRole,
-                settings.GeneratingPlayerLevel.Value
+                settings.GeneratingPlayerLevel.GetValueOrDefault(1)
             );
 
             // Edge case: Filter the armor items mod pool if bot exists in config dict + config has armor slot
@@ -642,36 +644,42 @@ public class BotInventoryGenerator(
     /// <param name="itemTpl">Item mod pool is being retrieved and filtered</param>
     /// <param name="equipmentBlacklist">Blacklist to filter mod pool with</param>
     /// <returns>Filtered pool of mods</returns>
-    public Dictionary<string, HashSet<string>> GetFilteredDynamicModsForItem(
+    public Dictionary<string, HashSet<MongoId>> GetFilteredDynamicModsForItem(
         string itemTpl,
-        Dictionary<string, HashSet<string>> equipmentBlacklist
+        Dictionary<string, HashSet<MongoId>> equipmentBlacklist
     )
     {
         var modPool = _botEquipmentModPoolService.GetModsForGearSlot(itemTpl);
-        foreach (var modSlot in modPool)
-        {
-            // Get blacklist
-            if (!equipmentBlacklist.TryGetValue(modSlot.Key, out var blacklistedMods))
-            {
-                blacklistedMods = [];
-            }
-            ;
 
-            // Get mods not on blacklist
-            var filteredMods = modPool[modSlot.Key]
-                .Where(slotName => !blacklistedMods.Contains(slotName));
-            if (!filteredMods.Any())
+        return modPool.ToDictionary(
+            kvp => kvp.Key,
+            kvp =>
             {
+                var (modSlot, modsForSlot) = kvp;
+
+                if (!equipmentBlacklist.TryGetValue(modSlot, out var blacklistedMods))
+                {
+                    // No blacklist for slot, return all mods
+                    return modsForSlot;
+                }
+
+                var filteredMods = modsForSlot
+                    .Where(mod => !blacklistedMods.Contains(mod))
+                    .ToHashSet();
+                if (filteredMods.Any())
+                {
+                    // There's at least one tpl remaining, send it
+                    return filteredMods;
+                }
+
                 _logger.Warning(
-                    $"Filtering {modSlot.Key} pool resulting in 0 items, skipping filter"
+                    $"Filtering: '{modSlot}' resulted in 0 mods. Reverting to original set for slot"
                 );
-                continue;
+
+                // Return original
+                return modsForSlot;
             }
-
-            modPool[modSlot.Key] = filteredMods.ToHashSet();
-        }
-
-        return modPool.ToDictionary();
+        );
     }
 
     /// <summary>

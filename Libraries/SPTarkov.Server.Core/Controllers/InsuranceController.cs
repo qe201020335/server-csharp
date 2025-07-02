@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -36,14 +37,15 @@ public class InsuranceController(
     DatabaseService _databaseService,
     MailSendService _mailSendService,
     RagfairPriceService _ragfairPriceService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     SaveServer _saveServer,
     TraderStore _traderStore,
     ConfigServer _configServer,
     ICloner _cloner
 )
 {
-    protected InsuranceConfig _insuranceConfig = _configServer.GetConfig<InsuranceConfig>();
+    protected readonly InsuranceConfig _insuranceConfig =
+        _configServer.GetConfig<InsuranceConfig>();
 
     /// <summary>
     ///     Process insurance items of all profiles prior to being given back to the player through the mail service
@@ -123,7 +125,7 @@ public class InsuranceController(
             var rootItemParentId = _hashUtil.Generate();
 
             // Update the insured items to have the new root parent ID for root/orphaned items
-            insured.Items = _itemHelper.AdoptOrphanedItems(rootItemParentId, insured.Items);
+            insured.Items = insured.Items.AdoptOrphanedItems(rootItemParentId);
 
             var simulateItemsBeingTaken = _insuranceConfig.SimulateItemsBeingTaken;
             if (simulateItemsBeingTaken)
@@ -135,7 +137,7 @@ public class InsuranceController(
                 RemoveItemsFromInsurance(insured, itemsToDelete);
 
                 // There's a chance we've orphaned weapon attachments, so adopt any orphaned items again
-                insured.Items = _itemHelper.AdoptOrphanedItems(rootItemParentId, insured.Items);
+                insured.Items = insured.Items.AdoptOrphanedItems(rootItemParentId);
             }
 
             SendMail(sessionId, insured);
@@ -192,7 +194,7 @@ public class InsuranceController(
 
         // Populate a Map object of items for quick lookup by their ID and use it to populate a Map of main-parent items
         // and each of their attachments. For example, a gun mapped to each of its attachments.
-        var itemsMap = _itemHelper.GenerateItemsMap(insured.Items);
+        var itemsMap = insured.Items.GenerateItemsMap();
         var parentAttachmentsMap = PopulateParentAttachmentsMap(
             rootItemParentId,
             insured,
@@ -242,7 +244,7 @@ public class InsuranceController(
     protected Dictionary<string, List<Item>> PopulateParentAttachmentsMap(
         string rootItemParentID,
         Insurance insured,
-        Dictionary<string, Item> itemsMap
+        Dictionary<MongoId, Item> itemsMap
     )
     {
         var mainParentToAttachmentsMap = new Dictionary<string, List<Item>>();
@@ -255,7 +257,7 @@ public class InsuranceController(
             if (parentItem is null && insuredItem.ParentId != rootItemParentID)
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "insurance-unable_to_find_parent_of_item",
                         new
                         {
@@ -279,7 +281,7 @@ public class InsuranceController(
             if (!_itemHelper.GetItem(insuredItem.Template).Key)
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "insurance-unable_to_find_attachment_in_db",
                         new
                         {
@@ -298,7 +300,7 @@ public class InsuranceController(
             {
                 // Odd. The parent couldn't be found. Skip this attachment and warn.
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "insurance-unable_to_find_main_parent_for_attachment",
                         new
                         {
@@ -338,7 +340,7 @@ public class InsuranceController(
     /// <returns></returns>
     protected Dictionary<string, List<Item>> RemoveNonModdableAttachments(
         Dictionary<string, List<Item>> parentAttachmentsMap,
-        Dictionary<string, Item> itemsMap
+        Dictionary<MongoId, Item> itemsMap
     )
     {
         var updatedMap = new Dictionary<string, List<Item>>();
@@ -406,13 +408,12 @@ public class InsuranceController(
             if (itemRoll ?? false)
             {
                 // Check to see if this item is a parent in the parentAttachmentsMap. If so, do a look-up for *all* of
-                // its children and mark them for deletion as well. Additionally remove the parent (and its children)
+                // its children and mark them for deletion as well. Also remove parent (and its children)
                 // from the parentAttachmentsMap so that it's children are not rolled for later in the process.
                 if (parentAttachmentsMap.ContainsKey(insuredItem.Id))
                 {
                     // This call will also return the parent item itself, queueing it for deletion as well.
-                    var itemAndChildren = _itemHelper.FindAndReturnChildrenAsItems(
-                        insured.Items,
+                    var itemAndChildren = insured.Items.FindAndReturnChildrenAsItems(
                         insuredItem.Id
                     );
                     foreach (var item in itemAndChildren)
@@ -441,7 +442,7 @@ public class InsuranceController(
     /// <param name="toDelete">Tracked attachment ids to be removed</param>
     protected void ProcessAttachments(
         Dictionary<string, List<Item>> mainParentToAttachmentsMap,
-        Dictionary<string, Item> itemsMap,
+        Dictionary<MongoId, Item> itemsMap,
         string? insuredTraderId,
         HashSet<string> toDelete
     )
@@ -493,14 +494,11 @@ public class InsuranceController(
         );
 
         // Create prob array and add all attachments with rouble price as the weight
-        var attachmentsProbabilityArray = new ProbabilityObjectArray<string, double?>(
-            _mathUtil,
-            _cloner
-        );
-        foreach (var attachmentTpl in weightedAttachmentByPrice)
+        var attachmentsProbabilityArray = new ProbabilityObjectArray<string, double?>(_cloner);
+        foreach (var (itemTpl, price) in weightedAttachmentByPrice)
         {
             attachmentsProbabilityArray.Add(
-                new ProbabilityObject<string, double?>(attachmentTpl.Key, attachmentTpl.Value, null)
+                new ProbabilityObject<string, double?>(itemTpl, price, null)
             );
         }
 

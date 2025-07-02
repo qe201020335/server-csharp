@@ -11,13 +11,13 @@ namespace SPTarkov.Server.Core.Utils;
 [Injectable]
 public class WatermarkLocale
 {
-    protected List<string> description;
-    protected List<string> modding;
-    protected List<string> warning;
+    protected readonly List<string> Description;
+    protected readonly List<string> Modding;
+    protected readonly List<string> Warning;
 
-    public WatermarkLocale(LocalisationService localisationService)
+    public WatermarkLocale(ServerLocalisationService localisationService)
     {
-        description =
+        Description =
         [
             localisationService.GetText("watermark-discord_url"),
             "",
@@ -25,7 +25,7 @@ public class WatermarkLocale
             localisationService.GetText("watermark-paid_scammed"),
             localisationService.GetText("watermark-commercial_use_prohibited"),
         ];
-        warning =
+        Warning =
         [
             "",
             localisationService.GetText("watermark-testing_build"),
@@ -36,7 +36,7 @@ public class WatermarkLocale
             "",
             localisationService.GetText("watermark-use_at_own_risk"),
         ];
-        modding =
+        Modding =
         [
             "",
             localisationService.GetText("watermark-modding_disabled"),
@@ -48,17 +48,17 @@ public class WatermarkLocale
 
     public List<string> GetDescription()
     {
-        return description;
+        return Description;
     }
 
     public List<string> GetWarning()
     {
-        return warning;
+        return Warning;
     }
 
     public List<string> GetModding()
     {
-        return modding;
+        return Modding;
     }
 }
 
@@ -66,7 +66,7 @@ public class WatermarkLocale
 public class Watermark : IOnLoad
 {
     protected ConfigServer _configServer;
-    protected LocalisationService _localisationService;
+    protected ServerLocalisationService _serverLocalisationService;
 
     protected ISptLogger<Watermark> _logger;
     protected WatermarkLocale _watermarkLocale;
@@ -77,13 +77,13 @@ public class Watermark : IOnLoad
     public Watermark(
         ISptLogger<Watermark> logger,
         ConfigServer configServer,
-        LocalisationService localisationService,
+        ServerLocalisationService localisationService,
         WatermarkLocale watermarkLocale
     )
     {
         _logger = logger;
         _configServer = configServer;
-        _localisationService = localisationService;
+        _serverLocalisationService = localisationService;
         _watermarkLocale = watermarkLocale;
         sptConfig = _configServer.GetConfig<CoreConfig>();
     }
@@ -114,12 +114,20 @@ public class Watermark : IOnLoad
         {
             foreach (var key in sptConfig.CustomWatermarkLocaleKeys)
             {
-                text.AddRange(["", _localisationService.GetText(key)]);
+                text.AddRange(["", _serverLocalisationService.GetText(key)]);
             }
         }
 
         SetTitle();
-        Draw();
+
+        if (ProgramStatics.DEBUG())
+        {
+            Draw(LogTextColor.Magenta);
+        }
+        else
+        {
+            Draw();
+        }
 
         return Task.CompletedTask;
     }
@@ -133,7 +141,7 @@ public class Watermark : IOnLoad
     {
         var sptVersion = ProgramStatics.SPT_VERSION() ?? sptConfig.SptVersion;
         var versionTag = /*ProgramStatics.DEBUG*/
-            $"{sptVersion} - {_localisationService.GetText("bleeding_edge_build")}";
+            $"{sptVersion} - {_serverLocalisationService.GetText("bleeding_edge_build")}";
 
         if (withEftVersion)
         {
@@ -170,7 +178,7 @@ public class Watermark : IOnLoad
     /// <summary>
     ///     Draw watermark on screen
     /// </summary>
-    protected void Draw()
+    protected void Draw(LogTextColor color = LogTextColor.Yellow)
     {
         var result = new List<string>();
 
@@ -207,7 +215,7 @@ public class Watermark : IOnLoad
         // Log watermark to screen
         foreach (var text in result)
         {
-            _logger.LogWithColor(text, LogTextColor.Yellow);
+            _logger.LogWithColor(text, color);
         }
     }
 }

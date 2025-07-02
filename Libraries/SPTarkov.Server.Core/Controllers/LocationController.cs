@@ -31,14 +31,14 @@ public class LocationController(
         // keyed by _id location property
         var locationResult = new Dictionary<string, LocationBase>();
 
-        foreach (var kvp in maps)
+        foreach (var (locationId, location) in maps)
         {
-            var mapBase = kvp.Value.Base;
+            var mapBase = location.Base;
             if (mapBase == null)
             {
                 if (_logger.IsLogEnabled(LogLevel.Debug))
                 {
-                    _logger.Debug($"Map: {kvp} has no base json file, skipping generation");
+                    _logger.Debug($"Map: {locationId} has no base json file, skipping generation");
                 }
 
                 continue;

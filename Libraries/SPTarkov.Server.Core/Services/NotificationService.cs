@@ -6,7 +6,7 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class NotificationService
 {
-    protected Dictionary<string, List<WsNotificationEvent>> _messageQueue = new();
+    protected readonly Dictionary<string, List<WsNotificationEvent>> _messageQueue = new();
 
     public Dictionary<string, List<WsNotificationEvent>> GetMessageQueue()
     {

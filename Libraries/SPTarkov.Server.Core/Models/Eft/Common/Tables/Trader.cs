@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Services;
 using SPTarkov.Server.Core.Utils.Json.Converters;
@@ -8,7 +9,7 @@ namespace SPTarkov.Server.Core.Models.Eft.Common.Tables;
 public record Trader
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("assort")]
     public TraderAssort? Assort { get; set; }
@@ -32,13 +33,13 @@ public record Trader
 public record TraderBase
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("refreshTraderRagfairOffers")]
     public bool? RefreshTraderRagfairOffers { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("availableInRaid")]
     public bool? AvailableInRaid { get; set; }
@@ -85,6 +86,10 @@ public record TraderBase
     [JsonPropertyName("items_buy_prohibited")]
     public ItemBuyData? ItemsBuyProhibited { get; set; }
 
+    [JsonConverter(typeof(ArrayToObjectFactoryConverter))]
+    [JsonPropertyName("items_sell")]
+    public Dictionary<string, ItemSellData>? ItemsSell { get; set; }
+
     [JsonPropertyName("isCanTransferItems")]
     public bool? IsCanTransferItems { get; set; }
 
@@ -129,28 +134,40 @@ public record TraderBase
 public record ItemBuyData
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     // MongoId
     [JsonPropertyName("category")]
-    public List<string>? Category { get; set; }
+    public required List<MongoId> Category { get; set; }
 
     // MongoId
     [JsonPropertyName("id_list")]
-    public List<string>? IdList { get; set; }
+    public required List<MongoId> IdList { get; set; }
+}
+
+public record ItemSellData
+{
+    [JsonExtensionData]
+    public Dictionary<string, object>? ExtensionData { get; set; }
+
+    [JsonPropertyName("category")]
+    public required List<MongoId> Category { get; set; }
+
+    [JsonPropertyName("id_list")]
+    public required List<MongoId> IdList { get; set; }
 }
 
 public record TraderInsurance
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("availability")]
     public bool? Availability { get; set; }
 
     // MongoId
     [JsonPropertyName("excluded_category")]
-    public List<string>? ExcludedCategory { get; set; }
+    public List<MongoId>? ExcludedCategory { get; set; }
 
     // Confirmed in client
     [JsonPropertyName("max_return_hour")]
@@ -171,7 +188,7 @@ public record TraderInsurance
 public record TraderLoyaltyLevel
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("buy_price_coef")]
     public double? BuyPriceCoefficient { get; set; }
@@ -203,13 +220,13 @@ public record TraderLoyaltyLevel
 public record TraderRepair
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("availability")]
     public bool? Availability { get; set; }
 
     [JsonPropertyName("currency")]
-    public string? Currency { get; set; }
+    public MongoId Currency { get; set; }
 
     [JsonPropertyName("currency_coefficient")]
     public double? CurrencyCoefficient { get; set; }
@@ -234,7 +251,7 @@ public record TraderRepair
 public record TraderAssort
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("nextResupply")]
     public double? NextResupply { get; set; }
@@ -252,14 +269,14 @@ public record TraderAssort
 public record BarterScheme
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     // Confirmed in client
     [JsonPropertyName("count")]
     public double? Count { get; set; }
 
     [JsonPropertyName("_tpl")]
-    public string? Template { get; set; }
+    public MongoId Template { get; set; }
 
     [JsonPropertyName("onlyFunctional")]
     public bool? OnlyFunctional { get; set; }
@@ -278,7 +295,7 @@ public record BarterScheme
 public record Suit
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
     public string? Id { get; set; }
@@ -311,7 +328,7 @@ public record Suit
 public record SuitRequirements
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("achievementRequirements")]
     public List<string>? AchievementRequirements { get; set; }
@@ -342,7 +359,7 @@ public record SuitRequirements
 public record ItemRequirement
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("count")]
     public double? Count { get; set; }

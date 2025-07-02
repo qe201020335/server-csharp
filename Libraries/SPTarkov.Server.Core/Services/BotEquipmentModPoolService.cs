@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Utils;
@@ -12,33 +13,45 @@ public class BotEquipmentModPoolService(
     ISptLogger<BotEquipmentModPoolService> logger,
     ItemHelper itemHelper,
     DatabaseService databaseService,
-    LocalisationService localisationService
+    ServerLocalisationService localisationService
 )
 {
     private readonly Lock _lockObject = new();
 
     private ConcurrentDictionary<
         string,
-        ConcurrentDictionary<string, HashSet<string>>
+        ConcurrentDictionary<string, HashSet<MongoId>>
     >? _gearModPool;
     protected ConcurrentDictionary<
         string,
-        ConcurrentDictionary<string, HashSet<string>>
+        ConcurrentDictionary<string, HashSet<MongoId>>
     > GearModPool
     {
-        get { return _gearModPool ??= GenerateGearPool(); }
+        get
+        {
+            lock (_lockObject)
+            {
+                return _gearModPool ??= GenerateGearPool();
+            }
+        }
     }
 
     private ConcurrentDictionary<
         string,
-        ConcurrentDictionary<string, HashSet<string>>
+        ConcurrentDictionary<string, HashSet<MongoId>>
     >? _weaponModPool;
     protected ConcurrentDictionary<
         string,
-        ConcurrentDictionary<string, HashSet<string>>
+        ConcurrentDictionary<string, HashSet<MongoId>>
     > WeaponModPool
     {
-        get { return _weaponModPool ??= GenerateWeaponPool(); }
+        get
+        {
+            lock (_lockObject)
+            {
+                return _weaponModPool ??= GenerateWeaponPool();
+            }
+        }
     }
 
     /// <summary>
@@ -48,7 +61,7 @@ public class BotEquipmentModPoolService(
     /// <param name="poolType"> Mod pool to choose from e.g. "weapon" for weaponModPool </param>
     protected ConcurrentDictionary<
         string,
-        ConcurrentDictionary<string, HashSet<string>>
+        ConcurrentDictionary<string, HashSet<MongoId>>
     > GeneratePool(IEnumerable<TemplateItem>? inputItems, string poolType)
     {
         if (inputItems is null || !inputItems.Any())
@@ -61,7 +74,7 @@ public class BotEquipmentModPoolService(
         }
 
         var pool =
-            new ConcurrentDictionary<string, ConcurrentDictionary<string, HashSet<string>>>();
+            new ConcurrentDictionary<string, ConcurrentDictionary<string, HashSet<MongoId>>>();
         foreach (var item in inputItems)
         {
             if (item.Properties is null)
@@ -83,9 +96,9 @@ public class BotEquipmentModPoolService(
             }
 
             // Add base item (weapon/armor) to pool
-            pool.TryAdd(item.Id, new ConcurrentDictionary<string, HashSet<string>>());
+            pool.TryAdd(item.Id, new ConcurrentDictionary<string, HashSet<MongoId>>());
 
-            // iterate over each items mod slots e.g. mod_muzzle
+            // Iterate over each items mod slots e.g. mod_muzzle
             foreach (var slot in item.Properties.Slots)
             {
                 // Get mods that fit into the current mod slot
@@ -108,6 +121,8 @@ public class BotEquipmentModPoolService(
 
                     var subItemDetails = itemHelper.GetItem(itemToAddTpl).Value;
                     var hasSubItemsToAdd = (subItemDetails?.Properties?.Slots?.Count ?? 0) > 0;
+
+                    // Item has Slots + pool doesn't have value
                     if (hasSubItemsToAdd && !pool.ContainsKey(subItemDetails.Id))
                     // Recursive call
                     {
@@ -120,7 +135,7 @@ public class BotEquipmentModPoolService(
         return pool;
     }
 
-    private bool SetContainsTpl(HashSet<string> itemSet, string tpl)
+    private bool SetContainsTpl(HashSet<MongoId> itemSet, string tpl)
     {
         lock (_lockObject)
         {
@@ -128,7 +143,7 @@ public class BotEquipmentModPoolService(
         }
     }
 
-    private bool AddTplToSet(HashSet<string> itemSet, string itemToAddTpl)
+    private bool AddTplToSet(HashSet<MongoId> itemSet, string itemToAddTpl)
     {
         lock (_lockObject)
         {
@@ -137,7 +152,7 @@ public class BotEquipmentModPoolService(
     }
 
     private bool InitSetInDict(
-        ConcurrentDictionary<string, HashSet<string>> dictionary,
+        ConcurrentDictionary<string, HashSet<MongoId>> dictionary,
         string slotName
     )
     {
@@ -161,7 +176,7 @@ public class BotEquipmentModPoolService(
     /// <param name="itemTpl"> Item to look up </param>
     /// <param name="slotName"> Slot to get compatible mods for </param>
     /// <returns> Hashset of tpls that fit the slot </returns>
-    public HashSet<string> GetCompatibleModsForWeaponSlot(string itemTpl, string slotName)
+    public HashSet<MongoId> GetCompatibleModsForWeaponSlot(string itemTpl, string slotName)
     {
         if (WeaponModPool.TryGetValue(itemTpl, out var value))
         {
@@ -180,7 +195,7 @@ public class BotEquipmentModPoolService(
     /// </summary>
     /// <param name="itemTpl"> Items tpl to look up mods for </param>
     /// <returns> Dictionary of mods (keys are mod slot names) with array of compatible mod tpls as value </returns>
-    public ConcurrentDictionary<string, HashSet<string>> GetModsForGearSlot(string itemTpl)
+    public ConcurrentDictionary<string, HashSet<MongoId>> GetModsForGearSlot(string itemTpl)
     {
         return GearModPool.TryGetValue(itemTpl, out var value) ? value : [];
     }
@@ -190,7 +205,7 @@ public class BotEquipmentModPoolService(
     /// </summary>
     /// <param name="itemTpl"> Weapons tpl to look up mods for </param>
     /// <returns> Dictionary of mods (keys are mod slot names) with array of compatible mod tpls as value </returns>
-    public ConcurrentDictionary<string, HashSet<string>> GetModsForWeaponSlot(string itemTpl)
+    public ConcurrentDictionary<string, HashSet<MongoId>> GetModsForWeaponSlot(string itemTpl)
     {
         return WeaponModPool.TryGetValue(itemTpl, out var value) ? value : [];
     }
@@ -200,9 +215,9 @@ public class BotEquipmentModPoolService(
     /// </summary>
     /// <param name="itemTpl"> Weapons tpl to look up mods for </param>
     /// <returns> Dictionary of mods (keys are mod slot names) with array of compatible mod tpls as value </returns>
-    public Dictionary<string, HashSet<string>>? GetRequiredModsForWeaponSlot(string itemTpl)
+    public Dictionary<string, HashSet<MongoId>>? GetRequiredModsForWeaponSlot(string itemTpl)
     {
-        var result = new Dictionary<string, HashSet<string>>();
+        var result = new Dictionary<string, HashSet<MongoId>>();
 
         // Get item from db
         var itemDb = itemHelper.GetItem(itemTpl).Value;
@@ -234,17 +249,18 @@ public class BotEquipmentModPoolService(
     /// </summary>
     protected ConcurrentDictionary<
         string,
-        ConcurrentDictionary<string, HashSet<string>>
+        ConcurrentDictionary<string, HashSet<MongoId>>
     > GenerateWeaponPool()
     {
-        var weapons = databaseService
+        var weaponsAndMods = databaseService
             .GetItems()
             .Values.Where(item =>
                 string.Equals(item.Type, "Item", StringComparison.OrdinalIgnoreCase)
-                && itemHelper.IsOfBaseclass(item.Id, BaseClasses.WEAPON)
+                && itemHelper.IsOfBaseclasses(item.Id, [BaseClasses.WEAPON, BaseClasses.MOD])
             );
+        logger.Warning("generating weapon pool");
 
-        return GeneratePool(weapons, "weapon");
+        return GeneratePool(weaponsAndMods, "weapon");
     }
 
     /// <summary>
@@ -252,10 +268,10 @@ public class BotEquipmentModPoolService(
     /// </summary>
     protected ConcurrentDictionary<
         string,
-        ConcurrentDictionary<string, HashSet<string>>
+        ConcurrentDictionary<string, HashSet<MongoId>>
     > GenerateGearPool()
     {
-        var gear = databaseService
+        var gearAndMods = databaseService
             .GetItems()
             .Values.Where(item =>
                 string.Equals(item.Type, "Item", StringComparison.OrdinalIgnoreCase)
@@ -266,10 +282,11 @@ public class BotEquipmentModPoolService(
                         BaseClasses.VEST,
                         BaseClasses.ARMOR,
                         BaseClasses.HEADWEAR,
+                        BaseClasses.MOD,
                     ]
                 )
             );
 
-        return GeneratePool(gear, "gear");
+        return GeneratePool(gearAndMods, "gear");
     }
 }

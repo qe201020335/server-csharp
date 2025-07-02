@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -21,19 +22,19 @@ public class InsuranceService(
     DatabaseService _databaseService,
     RandomUtil _randomUtil,
     ItemHelper _itemHelper,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     SaveServer _saveServer,
     TraderHelper _traderHelper,
     ProfileHelper _profileHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     MailSendService _mailSendService,
     ConfigServer _configServer,
     ICloner _cloner
 )
 {
-    protected InsuranceConfig _insuranceConfig = _configServer.GetConfig<InsuranceConfig>();
-    protected Dictionary<string, Dictionary<string, List<Item>>?> _insured = new();
+    protected readonly InsuranceConfig _insuranceConfig =
+        _configServer.GetConfig<InsuranceConfig>();
+    protected readonly Dictionary<string, Dictionary<string, List<Item>>?> _insured = new();
 
     /// <summary>
     ///     Does player have insurance dictionary exists
@@ -80,7 +81,7 @@ public class InsuranceService(
             if (traderBase is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "insurance-unable_to_find_trader_by_id",
                         traderKvP.Key
                     )
@@ -93,7 +94,7 @@ public class InsuranceService(
             if (dialogueTemplates is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "insurance-trader_lacks_dialogue_property",
                         traderKvP.Key
                     )
@@ -104,8 +105,8 @@ public class InsuranceService(
 
             var systemData = new SystemData
             {
-                Date = _timeUtil.GetDateMailFormat(),
-                Time = _timeUtil.GetTimeMailFormat(),
+                Date = _timeUtil.GetBsgDateMailFormat(),
+                Time = _timeUtil.GetBsgTimeMailFormat(),
                 Location = mapId,
             };
 
@@ -302,13 +303,13 @@ public class InsuranceService(
     /// <returns>True if item</returns>
     protected bool ItemCannotBeLostOnDeath(Item lostItem, List<Item> inventoryItems)
     {
-        if (lostItem.SlotId?.ToLower().StartsWith("specialslot") ?? false)
+        if (lostItem.SlotId?.StartsWith("specialslot", StringComparison.OrdinalIgnoreCase) ?? false)
         {
             return true;
         }
 
         // We check secure container items even tho they are omitted from lostInsuredItems, just in case
-        if (_itemHelper.ItemIsInsideContainer(lostItem, "SecuredContainer", inventoryItems))
+        if (lostItem.ItemIsInsideContainer("SecuredContainer", inventoryItems))
         {
             return true;
         }

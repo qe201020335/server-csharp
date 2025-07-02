@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Game;
@@ -11,7 +12,6 @@ using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
-using SPTarkov.Server.Core.Utils.Cloners;
 using SPTarkov.Server.Core.Utils.Json;
 using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
@@ -25,30 +25,22 @@ public class GameController(
     DatabaseService _databaseService,
     TimeUtil _timeUtil,
     HttpServerHelper _httpServerHelper,
-    InventoryHelper _inventoryHelper,
-    RandomUtil _randomUtil,
     HideoutHelper _hideoutHelper,
     ProfileHelper _profileHelper,
     ProfileFixerService _profileFixerService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     PostDbLoadService _postDbLoadService,
-    CustomLocationWaveService _customLocationWaveService,
-    OpenZoneService _openZoneService,
     SeasonalEventService _seasonalEventService,
-    ItemBaseClassService _itemBaseClassService,
     GiftService _giftService,
     RaidTimeAdjustmentService _raidTimeAdjustmentService,
-    ProfileActivityService _profileActivityService,
-    CreateProfileService _createProfileService,
-    ICloner _cloner
+    ProfileActivityService _profileActivityService
 )
 {
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
-    protected double _deviation = 0.0001;
-    protected HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
-    protected HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
-    protected RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly double _deviation = 0.0001;
+    protected readonly HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
+    protected readonly HttpConfig _httpConfig = _configServer.GetConfig<HttpConfig>();
 
     /// <summary>
     ///     Handle client/game/start
@@ -135,9 +127,12 @@ public class GameController(
 
         if (pmcProfile.Hideout is not null)
         {
-            _profileFixerService.AddMissingHideoutBonusesToProfile(pmcProfile);
+            _profileFixerService.AddMissingHideoutBonusesToProfile(
+                pmcProfile,
+                _databaseService.GetHideout().Areas
+            );
             _hideoutHelper.SetHideoutImprovementsToCompleted(pmcProfile);
-            _hideoutHelper.UnlockHideoutWallInProfile(pmcProfile);
+            pmcProfile.UnlockHideoutWallInProfile();
 
             // Handle if player has been inactive for a long time, catch up on hideout update before the user goes to his hideout
             if (
@@ -301,11 +296,11 @@ public class GameController(
     /// <param name="pmcProfile">Player profile</param>
     protected void WarnOnActiveBotReloadSkill(PmcData pmcProfile)
     {
-        var botReloadSkill = _profileHelper.GetSkillFromProfile(pmcProfile, SkillTypes.BotReload);
+        var botReloadSkill = pmcProfile.GetSkillFromProfile(SkillTypes.BotReload);
         if (botReloadSkill?.Progress > 0)
         {
             _logger.Warning(
-                _localisationService.GetText("server_start_player_active_botreload_skill")
+                _serverLocalisationService.GetText("server_start_player_active_botreload_skill")
             );
         }
     }
@@ -412,26 +407,26 @@ public class GameController(
             }
 
             // Look for effects
-            foreach (var effectKvP in bodyPart.Effects)
+            foreach (var (effectId, effect) in bodyPart.Effects)
             {
                 // remove effects below 1, .e.g. bleeds at -1
-                if (effectKvP.Value.Time < 1)
+                if (effect.Time < 1)
                 {
                     // More than 30 minutes has passed
                     if (diffSeconds > 1800)
                     {
-                        bodyPart.Effects.Remove(effectKvP.Key);
+                        bodyPart.Effects.Remove(effectId);
                     }
 
                     continue;
                 }
 
                 // Decrement effect time value by difference between current time and time health was last updated
-                effectKvP.Value.Time -= diffSeconds;
-                if (effectKvP.Value.Time < 1)
+                effect.Time -= diffSeconds;
+                if (effect.Time < 1)
                 // Effect time was sub 1, set floor it can be
                 {
-                    effectKvP.Value.Time = 1;
+                    effect.Time = 1;
                 }
             }
         }

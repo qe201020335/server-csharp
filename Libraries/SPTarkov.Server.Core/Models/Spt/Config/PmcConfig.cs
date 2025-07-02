@@ -41,7 +41,7 @@ public record PmcConfig : BaseConfig
     public required SlotLootSettings BackpackLoot { get; set; }
 
     [JsonPropertyName("globalLootBlacklist")]
-    public required List<string> GlobalLootBlacklist { get; set; }
+    public required List<MongoId> GlobalLootBlacklist { get; set; }
 
     /// <summary>
     ///     Use difficulty defined in config/bot.json/difficulty instead of chosen difficulty dropdown value
@@ -164,7 +164,7 @@ public record PmcConfig : BaseConfig
 public record HostilitySettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Bot roles that are 100% an enemy
@@ -200,19 +200,19 @@ public record HostilitySettings
 public record SlotLootSettings
 {
     [JsonExtensionData]
-    public Dictionary<string, object> ExtensionData { get; set; }
+    public Dictionary<string, object>? ExtensionData { get; set; }
 
     /// <summary>
     ///     Item Type whitelist
     /// </summary>
     [JsonPropertyName("whitelist")]
-    public HashSet<string> Whitelist { get; set; } = [];
+    public HashSet<MongoId> Whitelist { get; set; } = [];
 
     /// <summary>
     ///     Item tpl blacklist
     /// </summary>
     [JsonPropertyName("blacklist")]
-    public HashSet<string> Blacklist { get; set; } = [];
+    public HashSet<MongoId> Blacklist { get; set; } = [];
 }
 
 public record MinMaxLootValue : MinMax<int>

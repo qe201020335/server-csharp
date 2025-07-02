@@ -5,10 +5,8 @@ using SPTarkov.Server.Core.Models.Eft.PresetBuild;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Routers;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Controllers;
@@ -16,11 +14,9 @@ namespace SPTarkov.Server.Core.Controllers;
 [Injectable]
 public class BuildController(
     ISptLogger<BuildController> _logger,
-    HashUtil _hashUtil,
-    EventOutputHolder _eventOutputHolder,
     DatabaseService _databaseService,
     ProfileHelper _profileHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ItemHelper _itemHelper,
     SaveServer _saveServer,
     ICloner _cloner
@@ -266,6 +262,8 @@ public class BuildController(
         }
 
         // Not found in weapons,equipment or magazines, not good
-        _logger.Error(_localisationService.GetText("build-unable_to_delete_preset", idToRemove));
+        _logger.Error(
+            _serverLocalisationService.GetText("build-unable_to_delete_preset", idToRemove)
+        );
     }
 }

@@ -1,6 +1,8 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators.WeaponGen;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -18,7 +20,6 @@ namespace SPTarkov.Server.Core.Generators;
 [Injectable(InjectionType.Singleton)]
 public class BotWeaponGenerator(
     ISptLogger<BotWeaponGenerator> _logger,
-    HashUtil _hashUtil,
     DatabaseService _databaseService,
     ItemHelper _itemHelper,
     WeightedRandomHelper _weightedRandomHelper,
@@ -27,7 +28,7 @@ public class BotWeaponGenerator(
     BotWeaponGeneratorHelper _botWeaponGeneratorHelper,
     BotWeaponModLimitService _botWeaponModLimitService,
     BotEquipmentModGenerator _botEquipmentModGenerator,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     RepairService _repairService,
     ICloner _cloner,
     ConfigServer _configServer,
@@ -35,12 +36,12 @@ public class BotWeaponGenerator(
 )
 {
     protected const string _modMagazineSlotId = "mod_magazine";
-    protected BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
-    protected IEnumerable<IInventoryMagGen> _inventoryMagGenComponents = MagGenSetUp(
+    protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
+    protected readonly IEnumerable<IInventoryMagGen> _inventoryMagGenComponents = MagGenSetUp(
         inventoryMagGenComponents
     );
-    protected PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
-    protected RepairConfig _repairConfig = _configServer.GetConfig<RepairConfig>();
+    protected readonly PmcConfig _pmcConfig = _configServer.GetConfig<PmcConfig>();
+    protected readonly RepairConfig _repairConfig = _configServer.GetConfig<RepairConfig>();
 
     protected static List<IInventoryMagGen> MagGenSetUp(IEnumerable<IInventoryMagGen> components)
     {
@@ -136,7 +137,9 @@ public class BotWeaponGenerator(
 
         if (weaponItemTemplate is null)
         {
-            _logger.Error(_localisationService.GetText("bot-missing_item_template", weaponTpl));
+            _logger.Error(
+                _serverLocalisationService.GetText("bot-missing_item_template", weaponTpl)
+            );
             _logger.Error($"WeaponSlot -> {slotName}");
 
             return null;
@@ -145,8 +148,10 @@ public class BotWeaponGenerator(
         // Find ammo to use when filling magazines/chamber
         if (botTemplateInventory.Ammo is null)
         {
-            _logger.Error(_localisationService.GetText("bot-no_ammo_found_in_bot_json", botRole));
-            _logger.Error(_localisationService.GetText("bot-generation_failed"));
+            _logger.Error(
+                _serverLocalisationService.GetText("bot-no_ammo_found_in_bot_json", botRole)
+            );
+            _logger.Error(_serverLocalisationService.GetText("bot-generation_failed"));
         }
 
         var ammoTpl = GetWeightedCompatibleAmmo(botTemplateInventory.Ammo, weaponItemTemplate);
@@ -192,7 +197,7 @@ public class BotWeaponGenerator(
                 },
                 ModLimits = modLimits,
                 WeaponStats = new WeaponStats(),
-                ConflictingItemTpls = new HashSet<string>(),
+                ConflictingItemTpls = [],
             };
             weaponWithModsArray = _botEquipmentModGenerator.GenerateModsForWeapon(
                 sessionId,
@@ -285,7 +290,7 @@ public class BotWeaponGenerator(
                 weaponWithModsList.Add(
                     new Item
                     {
-                        Id = _hashUtil.Generate(),
+                        Id = new MongoId(),
                         Template = ammoTemplate,
                         ParentId = weaponWithModsList[0].Id,
                         SlotId = slotId,
@@ -324,7 +329,7 @@ public class BotWeaponGenerator(
         [
             new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = weaponTemplate,
                 ParentId = weaponParentId,
                 SlotId = equipmentSlot,
@@ -355,7 +360,7 @@ public class BotWeaponGenerator(
     {
         // Invalid weapon generated, fallback to preset
         _logger.Warning(
-            _localisationService.GetText(
+            _serverLocalisationService.GetText(
                 "bot-weapon_generated_incorrect_using_default",
                 $"{weaponTemplate} - {itemTemplate.Name}"
             )
@@ -389,7 +394,7 @@ public class BotWeaponGenerator(
         else
         {
             _logger.Error(
-                _localisationService.GetText("bot-missing_weapon_preset", weaponTemplate)
+                _serverLocalisationService.GetText("bot-missing_weapon_preset", weaponTemplate)
             );
         }
 
@@ -426,7 +431,7 @@ public class BotWeaponGenerator(
                 if (!hasWeaponSlotItem)
                 {
                     _logger.Warning(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "bot-weapons_required_slot_missing_item",
                             new
                             {
@@ -473,7 +478,7 @@ public class BotWeaponGenerator(
         if (magTemplate is null)
         {
             _logger.Error(
-                _localisationService.GetText("bot-unable_to_find_magazine_item", magazineTpl)
+                _serverLocalisationService.GetText("bot-unable_to_find_magazine_item", magazineTpl)
             );
 
             return;
@@ -484,7 +489,7 @@ public class BotWeaponGenerator(
         if (!ammoTemplate.Key)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-unable_to_find_ammo_item",
                     generatedWeaponResult.ChosenAmmoTemplate
                 )
@@ -580,7 +585,7 @@ public class BotWeaponGenerator(
     {
         for (var i = 0; i < stackCount; i++)
         {
-            var id = _hashUtil.Generate();
+            var id = new MongoId();
             _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
                 new HashSet<EquipmentSlots> { EquipmentSlots.SecuredContainer },
                 id,
@@ -619,7 +624,7 @@ public class BotWeaponGenerator(
             // return default mag tpl
             if (weaponTemplate.Properties.ReloadMode == ReloadMode.OnlyBarrel)
             {
-                return _botWeaponGeneratorHelper.GetWeaponsDefaultMagazineTpl(weaponTemplate);
+                return weaponTemplate.GetWeaponsDefaultMagazineTpl();
             }
 
             // log error if no magazine AND not a chamber loaded weapon (e.g. shotgun revolver)
@@ -627,16 +632,15 @@ public class BotWeaponGenerator(
             // Shouldn't happen
             {
                 _logger.Warning(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "bot-weapon_missing_magazine_or_chamber",
                         new { weaponId = weaponTemplate.Id, botRole }
                     )
                 );
             }
 
-            var defaultMagTplId = _botWeaponGeneratorHelper.GetWeaponsDefaultMagazineTpl(
-                weaponTemplate
-            );
+            var defaultMagTplId = weaponTemplate.GetWeaponsDefaultMagazineTpl();
+
             if (_logger.IsLogEnabled(LogLevel.Debug))
             {
                 _logger.Debug(
@@ -670,7 +674,7 @@ public class BotWeaponGenerator(
             if (_logger.IsLogEnabled(LogLevel.Debug))
             {
                 _logger.Debug(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "bot-no_caliber_data_for_weapon_falling_back_to_default",
                         new
                         {
@@ -749,7 +753,9 @@ public class BotWeaponGenerator(
     /// </summary>
     /// <param name="weaponTemplate">Weapon db template to get cartridges for</param>
     /// <returns>List of cartridge tpls</returns>
-    protected HashSet<string> GetCompatibleCartridgesFromWeaponTemplate(TemplateItem weaponTemplate)
+    protected HashSet<MongoId> GetCompatibleCartridgesFromWeaponTemplate(
+        TemplateItem weaponTemplate
+    )
     {
         ArgumentNullException.ThrowIfNull(weaponTemplate);
 
@@ -771,7 +777,7 @@ public class BotWeaponGenerator(
     /// <param name="weaponTemplate">Weapon db template to get magazine cartridges for</param>
     /// <returns>Hashset of cartridge tpls</returns>
     /// <exception cref="ArgumentNullException">Thrown when weaponTemplate is null.</exception>
-    protected HashSet<string> GetCompatibleCartridgesFromMagazineTemplate(
+    protected HashSet<MongoId> GetCompatibleCartridgesFromMagazineTemplate(
         TemplateItem weaponTemplate
     )
     {
@@ -855,7 +861,10 @@ public class BotWeaponGenerator(
         if (magazineTemplate is null)
         {
             _logger.Error(
-                _localisationService.GetText("bot-unable_to_find_magazine_item", magazine.Template)
+                _serverLocalisationService.GetText(
+                    "bot-unable_to_find_magazine_item",
+                    magazine.Template
+                )
             );
 
             return;
@@ -886,14 +895,14 @@ public class BotWeaponGenerator(
     ///     Add desired ammo template as item to weapon modifications list, placed as child to UBGL.
     /// </summary>
     /// <param name="weaponMods">Weapon with children.</param>
-    /// <param name="ubglMod">UBGL item.</param>
+    /// <param name="ubglMod">Underbarrrel grenade launcher item.</param>
     /// <param name="ubglAmmoTpl">Grenade ammo template.</param>
     protected void FillUbgl(List<Item> weaponMods, Item ubglMod, string ubglAmmoTpl)
     {
         weaponMods.Add(
             new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = ubglAmmoTpl,
                 ParentId = ubglMod.Id,
                 SlotId = "patron_in_weapon",

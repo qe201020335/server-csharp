@@ -22,14 +22,11 @@ namespace SPTarkov.Server.Core.Controllers;
 [Injectable]
 public class HideoutController(
     ISptLogger<HideoutController> _logger,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     DatabaseService _databaseService,
-    RandomUtil _randomUtil,
     InventoryHelper _inventoryHelper,
     ItemHelper _itemHelper,
     SaveServer _saveServer,
-    PlayerService _playerService,
     PresetHelper _presetHelper,
     PaymentHelper _paymentHelper,
     EventOutputHolder _eventOutputHolder,
@@ -37,7 +34,7 @@ public class HideoutController(
     ProfileHelper _profileHelper,
     HideoutHelper _hideoutHelper,
     ScavCaseRewardGenerator _scavCaseRewardGenerator,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ProfileActivityService _profileActivityService,
     FenceService _fenceService,
     CircleOfCultistService _circleOfCultistService,
@@ -47,7 +44,7 @@ public class HideoutController(
 {
     public const string NameTaskConditionCountersCraftingId = "673f5d6fdd6ed700c703afdc";
 
-    protected List<HideoutAreas> _hideoutAreas =
+    protected readonly HashSet<HideoutAreas> _areasWithResources =
     [
         HideoutAreas.AirFilteringUnit,
         HideoutAreas.WaterCollector,
@@ -55,7 +52,7 @@ public class HideoutController(
         HideoutAreas.BitcoinFarm,
     ];
 
-    protected HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
+    protected readonly HideoutConfig _hideoutConfig = _configServer.GetConfig<HideoutConfig>();
 
     /// <summary>
     ///     Handle HideoutUpgrade event
@@ -88,7 +85,7 @@ public class HideoutController(
             if (item.inventoryItem is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "hideout-unable_to_find_item_in_inventory",
                         item.requestedItem.Id
                     )
@@ -120,7 +117,7 @@ public class HideoutController(
         if (profileHideoutArea is null)
         {
             _logger.Error(
-                _localisationService.GetText("hideout-unable_to_find_area", request.AreaType)
+                _serverLocalisationService.GetText("hideout-unable_to_find_area", request.AreaType)
             );
             _httpResponseUtil.AppendErrorToOutput(output);
 
@@ -133,7 +130,7 @@ public class HideoutController(
         if (hideoutDataDb is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_area_in_database",
                     request.AreaType
                 )
@@ -184,7 +181,7 @@ public class HideoutController(
         if (profileHideoutArea is null)
         {
             _logger.Error(
-                _localisationService.GetText("hideout-unable_to_find_area", request.AreaType)
+                _serverLocalisationService.GetText("hideout-unable_to_find_area", request.AreaType)
             );
             _httpResponseUtil.AppendErrorToOutput(output);
 
@@ -202,7 +199,7 @@ public class HideoutController(
         if (hideoutData is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_area_in_database",
                     request.AreaType
                 )
@@ -333,24 +330,13 @@ public class HideoutController(
             );
         }
 
-        // Don't inform client when upgraded area is hall of fame or equipment stand, BSG doesn't inform client this specific upgrade has occurred
-        // will break client if sent
-
-        if (
-            ShouldAddContainerUpgradeToClientResponse(
-                dbHideoutArea,
-                profileParentHideoutArea.Level.GetValueOrDefault(1)
-            )
-        )
-        {
-            AddContainerUpgradeToClientOutput(
-                sessionId,
-                keyForHideoutAreaStash,
-                dbHideoutArea,
-                hideoutStage,
-                output
-            );
-        }
+        AddContainerUpgradeToClientOutput(
+            sessionId,
+            keyForHideoutAreaStash,
+            dbHideoutArea,
+            hideoutStage,
+            output
+        );
 
         // Some hideout areas (Gun stand) have child areas linked to it
         var childDbArea = _databaseService
@@ -364,7 +350,7 @@ public class HideoutController(
 
         // Add key/value to `hideoutAreaStashes` dictionary - used to link hideout area to inventory stash by its id
         var childAreaTypeKey = ((int)childDbArea.Type).ToString();
-        if (pmcData.Inventory.HideoutAreaStashes.GetValueOrDefault(childAreaTypeKey) is null)
+        if (!pmcData.Inventory.HideoutAreaStashes.ContainsKey(childAreaTypeKey))
         {
             pmcData.Inventory.HideoutAreaStashes[childAreaTypeKey] = childDbArea.Id;
         }
@@ -401,22 +387,6 @@ public class HideoutController(
             childDbAreaStage,
             output
         );
-    }
-
-    /// <summary>
-    /// Should the newly completed hideout area container upgrade/addition be included in client response
-    /// Deny when: area is place of fame + we're upgrading to level 1
-    /// </summary>
-    /// <param name="dbHideoutArea">Hideout area upgraded</param>
-    /// <param name="areaLevel">Level of area upgraded to</param>
-    /// <returns>True = it should be included</returns>
-    private bool ShouldAddContainerUpgradeToClientResponse(HideoutArea dbHideoutArea, int areaLevel)
-    {
-        HashSet<HideoutAreas> areaBlacklist = [HideoutAreas.PlaceOfFame];
-        var isOnAreaBlacklist = areaBlacklist.Contains(dbHideoutArea.Type ?? HideoutAreas.NotSet);
-        var isFirstStage = areaLevel == 1;
-
-        return isOnAreaBlacklist && !isFirstStage;
     }
 
     /// <summary>
@@ -513,7 +483,7 @@ public class HideoutController(
         if (hideoutArea is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_area_in_database",
                     addItemToHideoutRequest.AreaType
                 )
@@ -526,7 +496,7 @@ public class HideoutController(
             if (item.inventoryItem is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "hideout-unable_to_find_item_in_inventory",
                         new { itemId = item.requestedItem.Id, area = hideoutArea.Type }
                     )
@@ -588,7 +558,7 @@ public class HideoutController(
         if (hideoutArea is null)
         {
             _logger.Error(
-                _localisationService.GetText("hideout-unable_to_find_area", request.AreaType)
+                _serverLocalisationService.GetText("hideout-unable_to_find_area", request.AreaType)
             );
             return _httpResponseUtil.AppendErrorToOutput(output);
         }
@@ -596,7 +566,7 @@ public class HideoutController(
         if (hideoutArea.Slots is null || hideoutArea.Slots.Count == 0)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_item_to_remove_from_area",
                     hideoutArea.Type
                 )
@@ -605,7 +575,7 @@ public class HideoutController(
         }
 
         // Handle areas that have resources that can be placed in/taken out of slots from the area
-        if (_hideoutAreas.Contains(hideoutArea.Type ?? HideoutAreas.NotSet))
+        if (_areasWithResources.Contains(hideoutArea.Type ?? HideoutAreas.NotSet))
         {
             var response = RemoveResourceFromArea(sessionID, pmcData, request, output, hideoutArea);
 
@@ -615,7 +585,7 @@ public class HideoutController(
         }
 
         throw new Exception(
-            _localisationService.GetText(
+            _serverLocalisationService.GetText(
                 "hideout-unhandled_remove_item_from_area_request",
                 hideoutArea.Type
             )
@@ -712,7 +682,7 @@ public class HideoutController(
         if (hideoutArea is null)
         {
             _logger.Error(
-                _localisationService.GetText("hideout-unable_to_find_area", request.AreaType)
+                _serverLocalisationService.GetText("hideout-unable_to_find_area", request.AreaType)
             );
             return _httpResponseUtil.AppendErrorToOutput(output);
         }
@@ -809,7 +779,7 @@ public class HideoutController(
             if (inventoryItem is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "hideout-unable_to_find_scavcase_requested_item_in_profile_inventory",
                         requestedItem.Id
                     )
@@ -836,7 +806,7 @@ public class HideoutController(
         if (recipe is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_scav_case_recipie_in_database",
                     request.RecipeId
                 )
@@ -966,7 +936,7 @@ public class HideoutController(
         }
 
         _logger.Error(
-            _localisationService.GetText(
+            _serverLocalisationService.GetText(
                 "hideout-unable_to_find_production_in_profile_by_recipie_id",
                 request.RecipeId
             )
@@ -994,27 +964,29 @@ public class HideoutController(
         // Validate that we have a matching production
         var productionDict = pmcData.Hideout.Production;
         string? prodId = null;
-        foreach (var production in productionDict)
+        foreach (var (productionId, production) in productionDict)
         {
             // Skip undefined production objects
-            if (production.Value is null)
+            if (production is null)
+            {
+                continue;
+            }
+
+            if (production.RecipeId != request.RecipeId)
             {
                 continue;
             }
 
             // Production or ScavCase
-            if (production.Value.RecipeId == request.RecipeId)
-            {
-                prodId = production.Key; // Set to objects key
-                break;
-            }
+            prodId = productionId; // Set to objects key
+            break;
         }
 
         // If we're unable to find the production, send an error to the client
         if (prodId is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_production_in_profile_by_recipie_id",
                     request.RecipeId
                 )
@@ -1022,7 +994,7 @@ public class HideoutController(
 
             _httpResponseUtil.AppendErrorToOutput(
                 output,
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_production_in_profile_by_recipie_id",
                     request.RecipeId
                 )
@@ -1104,7 +1076,7 @@ public class HideoutController(
         {
             _httpResponseUtil.AppendErrorToOutput(
                 output,
-                _localisationService.GetText("inventory-no_stash_space"),
+                _serverLocalisationService.GetText("inventory-no_stash_space"),
                 BackendErrorCodes.NotEnoughSpace
             );
             return;
@@ -1216,7 +1188,7 @@ public class HideoutController(
             // Create root item
             var rewardToAdd = new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = recipe.EndProduct,
                 Upd = new Upd { StackObjectsCount = recipe.Count },
             };
@@ -1234,7 +1206,7 @@ public class HideoutController(
         if (!rewardIsPreset)
         {
             itemAndChildrenToSendToPlayer.Add(
-                [new Item { Id = _hashUtil.Generate(), Template = recipe.EndProduct }]
+                [new Item { Id = new MongoId(), Template = recipe.EndProduct }]
             );
         }
 
@@ -1323,7 +1295,7 @@ public class HideoutController(
         if (prodId == null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_production_in_profile_by_recipie_id",
                     request.RecipeId
                 )
@@ -1524,7 +1496,7 @@ public class HideoutController(
             if (item.inventoryItem is null)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "hideout-unable_to_find_item_in_inventory",
                         item.requestedItem.Id
                     )
@@ -1553,7 +1525,7 @@ public class HideoutController(
         if (profileHideoutArea is null)
         {
             _logger.Error(
-                _localisationService.GetText("hideout-unable_to_find_area", request.AreaType)
+                _serverLocalisationService.GetText("hideout-unable_to_find_area", request.AreaType)
             );
             return _httpResponseUtil.AppendErrorToOutput(output);
         }
@@ -1564,7 +1536,7 @@ public class HideoutController(
         if (hideoutDbData is null)
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "hideout-unable_to_find_area_in_database",
                     request.AreaType
                 )
@@ -1746,7 +1718,7 @@ public class HideoutController(
             // No child, add it
             if (existingMannequin is null)
             {
-                var standId = _hashUtil.Generate();
+                var standId = new MongoId();
                 var mannequinToAdd = new Item
                 {
                     Id = standId,
@@ -1759,7 +1731,7 @@ public class HideoutController(
                 // Add pocket child item
                 var mannequinPocketItemToAdd = new Item
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = pmcData
                         .Inventory.Items.FirstOrDefault(item =>
                             item.SlotId == "Pockets" && item.ParentId == pmcData.Inventory.Equipment
@@ -1823,17 +1795,17 @@ public class HideoutController(
     /// </summary>
     public void Update()
     {
-        foreach (var sessionID in _saveServer.GetProfiles())
+        foreach (var (sessionId, profile) in _saveServer.GetProfiles())
         {
             if (
-                sessionID.Value.CharacterData.PmcData.Hideout is not null
+                profile.CharacterData.PmcData.Hideout is not null
                 && _profileActivityService.ActiveWithinLastMinutes(
-                    sessionID.Key,
+                    sessionId,
                     _hideoutConfig.UpdateProfileHideoutWhenActiveWithinMinutes
                 )
             )
             {
-                _hideoutHelper.UpdatePlayerHideout(sessionID.Key);
+                _hideoutHelper.UpdatePlayerHideout(sessionId);
             }
         }
     }

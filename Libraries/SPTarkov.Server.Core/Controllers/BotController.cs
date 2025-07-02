@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json.Serialization;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -27,7 +28,7 @@ public class BotController(
     BotGenerator _botGenerator,
     BotHelper _botHelper,
     BotDifficultyHelper _botDifficultyHelper,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     SeasonalEventService _seasonalEventService,
     MatchBotDetailsCacheService _matchBotDetailsCacheService,
     ProfileHelper _profileHelper,
@@ -51,7 +52,7 @@ public class BotController(
         if (!_botConfig.PresetBatch.TryGetValue(type, out var limit))
         {
             _logger.Warning(
-                _localisationService.GetText("bot-bot_preset_count_value_missing", type)
+                _serverLocalisationService.GetText("bot-bot_preset_count_value_missing", type)
             );
 
             return 10;
@@ -96,7 +97,7 @@ public class BotController(
         if (!(raidConfig != null || ignoreRaidSettings))
         {
             _logger.Error(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-missing_application_context",
                     "RAID_CONFIGURATION"
                 )
@@ -132,13 +133,13 @@ public class BotController(
             return result;
         }
         //Get all bot types as sting array
-        var botTypes = Enum.GetValues<WildSpawnType>().Select(item => item.ToString()).ToList();
+        var botTypes = Enum.GetValues<WildSpawnType>();
         foreach (var botType in botTypes)
         {
             // If bot is usec/bear, swap to different name
-            var botTypeLower = _botHelper.IsBotPmc(botType)
-                ? _botHelper.GetPmcSideByRole(botType).ToLower()
-                : botType.ToLower();
+            var botTypeLower = botType.IsPmc()
+                ? (botType.GetPmcSideByRole() ?? "usec").ToLower()
+                : botType.ToString().ToLower();
 
             // Get details from db
             if (!botTypesDb.TryGetValue(botTypeLower, out var botDetails))
@@ -148,7 +149,7 @@ public class BotController(
                 if (_logger.IsLogEnabled(LogLevel.Debug))
                 {
                     _logger.Debug(
-                        $"Unable to find bot: {botTypeLower} in db, copying '{Roles.Assault}'"
+                        $"Unable to find bot: {botTypeLower} in db, copying: '{Roles.Assault}'"
                     );
                 }
 
@@ -164,7 +165,7 @@ public class BotController(
                 continue;
             }
 
-            var botNameKey = botType.ToLower();
+            var botNameKey = botType.ToString().ToLower();
             foreach (var (difficultyName, _) in botDetails.BotDifficulty)
             {
                 // Bot doesn't exist in result, add
@@ -173,9 +174,9 @@ public class BotController(
                     result.TryAdd(botNameKey, new Dictionary<string, DifficultyCategories>());
                 }
 
-                // Store all difficulty values in dict keyed by difficulty type e.g. easy/normal/impossible
+                // Store all difficulty values in dict keyed by difficulty type e.g. easy/normal/hard/impossible
                 result[botNameKey]
-                    .Add(
+                    .TryAdd(
                         difficultyName,
                         GetBotDifficulty(string.Empty, botNameKey, difficultyName, true)
                     );
@@ -292,9 +293,16 @@ public class BotController(
             );
         }
 
+        var maxThreads = botGenerationDetails.BotCountToGenerate.Value;
+
+#if DEBUG
+        // Make debugging bot gen easier
+        maxThreads = 1;
+#endif
+
         Parallel.For(
             0,
-            botGenerationDetails.BotCountToGenerate.Value,
+            maxThreads,
             (i) =>
             {
                 BotBase bot = null;
@@ -353,7 +361,9 @@ public class BotController(
         if (raidConfiguration is null)
         {
             _logger.Warning(
-                _localisationService.GetText("bot-unable_to_load_raid_settings_from_appcontext")
+                _serverLocalisationService.GetText(
+                    "bot-unable_to_load_raid_settings_from_appcontext"
+                )
             );
         }
 
@@ -428,7 +438,7 @@ public class BotController(
         if (location == "default")
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "bot-no_bot_cap_found_for_location",
                     location.ToLower()
                 )

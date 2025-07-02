@@ -18,7 +18,7 @@ public class SaveServer(
     IEnumerable<SaveLoadRouter> _saveLoadRouters,
     JsonUtil _jsonUtil,
     HashUtil _hashUtil,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     ISptLogger<SaveServer> _logger,
     ConfigServer _configServer
 )
@@ -29,8 +29,8 @@ public class SaveServer(
     protected readonly Dictionary<string, Func<SptProfile, SptProfile>> onBeforeSaveCallbacks =
         new();
 
-    protected ConcurrentDictionary<string, SptProfile> profiles = new();
-    protected ConcurrentDictionary<string, string> saveMd5 = new();
+    protected readonly ConcurrentDictionary<string, SptProfile> profiles = new();
+    protected readonly ConcurrentDictionary<string, string> saveMd5 = new();
 
     /// <summary>
     ///     Add callback to occur prior to saving profile changes
@@ -241,7 +241,7 @@ public class SaveServer(
             catch (Exception e)
             {
                 _logger.Error(
-                    _localisationService.GetText(
+                    _serverLocalisationService.GetText(
                         "profile_save_callback_error",
                         new { callback, error = e }
                     )

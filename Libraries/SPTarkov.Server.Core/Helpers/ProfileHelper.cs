@@ -1,5 +1,7 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -21,22 +23,21 @@ public class ProfileHelper(
     SaveServer _saveServer,
     DatabaseService _databaseService,
     Watermark _watermark,
-    ItemHelper _itemHelper,
     TimeUtil _timeUtil,
-    LocalisationService _localisationService,
-    HashUtil _hashUtil,
+    ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer
 )
 {
-    protected static readonly FrozenSet<string> gameEditionsWithFreeRefresh =
+    protected static readonly FrozenSet<string> _gameEditionsWithFreeRefresh =
     [
         "edge_of_darkness",
         "unheard_edition",
     ];
-    protected InventoryConfig _inventoryConfig = _configServer.GetConfig<InventoryConfig>();
+    protected readonly InventoryConfig _inventoryConfig =
+        _configServer.GetConfig<InventoryConfig>();
 
     /// <summary>
-    ///     Remove/reset a completed quest condtion from players profile quest data
+    ///     Remove/reset a completed quest condition from players profile quest data
     /// </summary>
     /// <param name="sessionID">Session id</param>
     /// <param name="questConditionId">Quest with condition to remove</param>
@@ -211,9 +212,9 @@ public class ProfileHelper(
         return new Spt
         {
             Version = _watermark.GetVersionTag(true),
-            Mods = new List<ModDetails>(),
-            ReceivedGifts = new List<ReceivedGift>(),
-            BlacklistedItemTemplates = new HashSet<string>(),
+            Mods = [],
+            ReceivedGifts = [],
+            BlacklistedItemTemplates = [],
             FreeRepeatableRefreshUsedCount = new Dictionary<string, int>(),
             Migrations = new Dictionary<string, long>(),
             CultistRewards = new Dictionary<string, AcceptedCultistReward>(),
@@ -237,12 +238,12 @@ public class ProfileHelper(
     /// </summary>
     /// <param name="accountId">Account ID to find</param>
     /// <returns></returns>
-    public SptProfile? GetFullProfileByAccountId(string accountID)
+    public SptProfile? GetFullProfileByAccountId(string accountId)
     {
-        var check = int.TryParse(accountID, out var aid);
+        var check = int.TryParse(accountId, out var aid);
         if (!check)
         {
-            _logger.Error($"Account {accountID} does not exist");
+            _logger.Error($"Account {accountId} does not exist");
         }
 
         return _saveServer
@@ -296,9 +297,7 @@ public class ProfileHelper(
     /// <returns>PmcData object</returns>
     public PmcData? GetPmcProfile(string sessionID)
     {
-        var fullProfile = GetFullProfile(sessionID);
-
-        return fullProfile?.CharacterData?.PmcData;
+        return GetFullProfile(sessionID)?.CharacterData?.PmcData;
     }
 
     /// <summary>
@@ -332,16 +331,16 @@ public class ProfileHelper(
         {
             Eft = new EftStats
             {
-                CarriedQuestItems = new List<string>(),
+                CarriedQuestItems = [],
                 DamageHistory = new DamageHistory
                 {
                     LethalDamagePart = "Head",
                     LethalDamage = null,
                     BodyParts = new BodyPartsDamageHistory(),
                 },
-                DroppedItems = new List<DroppedItem>(),
+                DroppedItems = [],
                 ExperienceBonusMult = 0,
-                FoundInRaidItems = new List<FoundInRaidItem>(),
+                FoundInRaidItems = [],
                 LastPlayerState = null,
                 LastSessionDate = 0,
                 OverallCounters = new OverallCounters { Items = [] },
@@ -350,7 +349,7 @@ public class ProfileHelper(
                 SurvivorClass = "Unknown",
                 TotalInGameTime = 0,
                 TotalSessionExperience = 0,
-                Victims = new List<Victim>(),
+                Victims = [],
             },
         };
     }
@@ -360,7 +359,7 @@ public class ProfileHelper(
     /// </summary>
     /// <param name="sessionID">Profile id</param>
     /// <returns>True if profile is to be wiped of data/progress</returns>
-    /// TODO: logic doesnt feel right to have IsWiped being nullable
+    /// TODO: logic doesn't feel right to have IsWiped being nullable
     protected bool IsWiped(string sessionID)
     {
         return _saveServer.GetProfile(sessionID)?.ProfileInfo?.IsWiped ?? false;
@@ -378,8 +377,7 @@ public class ProfileHelper(
         if (secureContainer is not null)
         {
             // Find and remove container + children
-            var childItemsInSecureContainer = _itemHelper.FindAndReturnChildrenByItems(
-                items,
+            var childItemsInSecureContainer = items.FindAndReturnChildrenByItems(
                 secureContainer.Id
             );
 
@@ -394,7 +392,7 @@ public class ProfileHelper(
 
     /// <summary>
     ///     Flag a profile as having received a gift
-    ///     Store giftid in profile spt object
+    ///     Store giftId in profile spt object
     /// </summary>
     /// <param name="playerId">Player to add gift flag to</param>
     /// <param name="giftId">Gift player received</param>
@@ -402,7 +400,7 @@ public class ProfileHelper(
     public void FlagGiftReceivedInProfile(string playerId, string giftId, int maxCount)
     {
         var profileToUpdate = GetFullProfile(playerId);
-        profileToUpdate.SptData.ReceivedGifts ??= new List<ReceivedGift>();
+        profileToUpdate.SptData.ReceivedGifts ??= [];
 
         var giftData = profileToUpdate.SptData.ReceivedGifts.FirstOrDefault(g =>
             g.GiftId == giftId
@@ -426,13 +424,13 @@ public class ProfileHelper(
     }
 
     /// <summary>
-    ///     Check if profile has recieved a gift by id
+    ///     Check if profile has received a gift by id
     /// </summary>
     /// <param name="playerId">Player profile to check for gift</param>
     /// <param name="giftId">Gift to check for</param>
     /// <param name="maxGiftCount">Max times gift can be given to player</param>
-    /// <returns>True if player has recieved gift previously</returns>
-    public bool PlayerHasRecievedMaxNumberOfGift(string playerId, string giftId, int maxGiftCount)
+    /// <returns>True if player has received gift previously</returns>
+    public bool PlayerHasReceivedMaxNumberOfGift(string playerId, string giftId, int maxGiftCount)
     {
         var profile = GetFullProfile(playerId);
         if (profile == null)
@@ -445,12 +443,7 @@ public class ProfileHelper(
             return false;
         }
 
-        if (profile.SptData.ReceivedGifts == null)
-        {
-            return false;
-        }
-
-        var giftDataFromProfile = profile.SptData.ReceivedGifts.FirstOrDefault(g =>
+        var giftDataFromProfile = profile.SptData.ReceivedGifts?.FirstOrDefault(g =>
             g.GiftId == giftId
         );
         if (giftDataFromProfile == null)
@@ -493,7 +486,7 @@ public class ProfileHelper(
         var profileSkill = profileSkills.FirstOrDefault(s => s.Id == skill);
         if (profileSkill == null)
         {
-            _logger.Error(_localisationService.GetText("quest-no_skill_found", skill));
+            _logger.Error(_serverLocalisationService.GetText("quest-no_skill_found", skill));
             return false;
         }
 
@@ -505,21 +498,19 @@ public class ProfileHelper(
     /// </summary>
     /// <param name="pmcProfile">Player profile with skill</param>
     /// <param name="skill">Skill to add points to</param>
-    /// <param name="pointsToAdd">Points to add</param>
+    /// <param name="pointsToAddToSkill">Points to add</param>
     /// <param name="useSkillProgressRateMultiplier">Skills are multiplied by a value in globals, default is off to maintain compatibility with legacy code</param>
     public void AddSkillPointsToPlayer(
         PmcData pmcProfile,
         SkillTypes skill,
-        double? pointsToAdd,
+        double? pointsToAddToSkill,
         bool useSkillProgressRateMultiplier = false
     )
     {
-        var pointsToAddToSkill = pointsToAdd;
-
         if (pointsToAddToSkill < 0D)
         {
             _logger.Warning(
-                _localisationService.GetText(
+                _serverLocalisationService.GetText(
                     "player-attempt_to_increment_skill_with_negative_value",
                     skill
                 )
@@ -531,7 +522,7 @@ public class ProfileHelper(
         if (profileSkills == null)
         {
             _logger.Warning(
-                $"Unable to add {pointsToAddToSkill} points to {skill}, Profile has no skills"
+                $"Unable to add: {pointsToAddToSkill} points to {skill}, Profile has no skills"
             );
             return;
         }
@@ -539,7 +530,7 @@ public class ProfileHelper(
         var profileSkill = profileSkills.FirstOrDefault(s => s.Id == skill);
         if (profileSkill == null)
         {
-            _logger.Error(_localisationService.GetText("quest-no_skill_found", skill));
+            _logger.Error(_serverLocalisationService.GetText("quest-no_skill_found", skill));
             return;
         }
 
@@ -563,25 +554,6 @@ public class ProfileHelper(
         profileSkill.PointsEarnedDuringSession += pointsToAddToSkill;
 
         profileSkill.LastAccess = _timeUtil.GetTimeStamp();
-    }
-
-    /// <summary>
-    ///     Get a specific common skill from supplied profile
-    /// </summary>
-    /// <param name="pmcData">Player profile</param>
-    /// <param name="skill">Skill to look up and return value from</param>
-    /// <returns>Common skill object from desired profile</returns>
-    public CommonSkill? GetSkillFromProfile(PmcData pmcData, SkillTypes skill)
-    {
-        var skillToReturn = pmcData?.Skills?.Common.FirstOrDefault(s => s.Id == skill);
-        if (skillToReturn == null)
-        {
-            _logger.Warning(
-                $"Profile {pmcData.SessionId} does not have a skill named: {skill.ToString()}"
-            );
-        }
-
-        return skillToReturn;
     }
 
     /// <summary>
@@ -615,7 +587,7 @@ public class ProfileHelper(
             profile!.Bonuses.Add(
                 new Bonus
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     Value = rowsToAdd,
                     Type = BonusType.StashRows,
                     IsPassive = true,
@@ -639,7 +611,7 @@ public class ProfileHelper(
     public double GetBonusValueFromProfile(PmcData pmcProfile, BonusType desiredBonus)
     {
         var bonuses = pmcProfile?.Bonuses?.Where(b => b.Type == desiredBonus);
-        if (!bonuses.Any())
+        if (bonuses is null || !bonuses.Any())
         {
             return 0;
         }
@@ -648,17 +620,9 @@ public class ProfileHelper(
         return bonuses?.Sum(bonus => bonus?.Value ?? 0) ?? 0;
     }
 
-    public bool PlayerIsFleaBanned(PmcData pmcProfile)
-    {
-        var currentTimestamp = _timeUtil.GetTimeStamp();
-        return pmcProfile?.Info?.Bans?.Any(b =>
-                b.BanType == BanType.RagFair && currentTimestamp < b.DateTime
-            ) ?? false;
-    }
-
     public bool HasAccessToRepeatableFreeRefreshSystem(PmcData pmcProfile)
     {
-        return gameEditionsWithFreeRefresh.Contains(pmcProfile.Info.GameVersion);
+        return _gameEditionsWithFreeRefresh.Contains(pmcProfile.Info.GameVersion);
     }
 
     /// <summary>
@@ -686,18 +650,6 @@ public class ProfileHelper(
     }
 
     /// <summary>
-    ///     Return all quest items current in the supplied profile
-    /// </summary>
-    /// <param name="profile">Profile to get quest items from</param>
-    /// <returns>List of item objects</returns>
-    public List<Item> GetQuestItemsInProfile(PmcData profile)
-    {
-        return profile
-            ?.Inventory?.Items.Where(i => i.ParentId == profile.Inventory.QuestRaidItems)
-            .ToList();
-    }
-
-    /// <summary>
     ///     Return a favorites list in the format expected by the GetOtherProfile call
     /// </summary>
     /// <param name="profile"></param>
@@ -709,10 +661,7 @@ public class ProfileHelper(
         foreach (var itemId in profile.Inventory?.FavoriteItems ?? [])
         {
             // When viewing another users profile, the client expects a full item with children, so get that
-            var itemAndChildren = _itemHelper.FindAndReturnChildrenAsItems(
-                profile.Inventory.Items,
-                itemId
-            );
+            var itemAndChildren = profile.Inventory.Items.FindAndReturnChildrenAsItems(itemId);
             if (itemAndChildren?.Count > 0)
             {
                 // To get the client to actually see the items, we set the main item's parent to null, so it's treated as a root item
@@ -787,26 +736,6 @@ public class ProfileHelper(
             }
 
             fullProfile.CustomisationUnlocks.Add(rewardToStore);
-        }
-    }
-
-    /// <summary>
-    ///     Add the given number of extra repeatable quests for the given type of repeatable to the users profile
-    /// </summary>
-    /// <param name="fullProfile">Profile to add the extra repeatable to</param>
-    /// <param name="repeatableId">The ID of the type of repeatable to increase</param>
-    /// <param name="rewardValue">The number of extra repeatables to add</param>
-    public void AddExtraRepeatableQuest(
-        SptProfile fullProfile,
-        string repeatableId,
-        double rewardValue
-    )
-    {
-        fullProfile.SptData.ExtraRepeatableQuests ??= new Dictionary<string, double>();
-
-        if (!fullProfile.SptData.ExtraRepeatableQuests.TryAdd(repeatableId, 0))
-        {
-            fullProfile.SptData.ExtraRepeatableQuests[repeatableId] += rewardValue;
         }
     }
 

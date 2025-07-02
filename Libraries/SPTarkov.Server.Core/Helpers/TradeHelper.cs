@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
@@ -24,7 +25,7 @@ public class TradeHelper(
     QuestHelper _questHelper,
     PaymentService _paymentService,
     FenceService _fenceService,
-    LocalisationService _localisationService,
+    ServerLocalisationService _serverLocalisationService,
     HttpResponseUtil _httpResponseUtil,
     InventoryHelper _inventoryHelper,
     RagfairServer _ragfairServer,
@@ -76,8 +77,7 @@ public class TradeHelper(
                     var itemPurchased = offerWithItem.Items.FirstOrDefault();
 
                     // Ensure purchase does not exceed trader item limit
-                    var assortHasBuyRestrictions = _itemHelper.HasBuyRestrictions(itemPurchased);
-                    if (assortHasBuyRestrictions)
+                    if (itemPurchased.HasBuyRestrictions())
                     {
                         CheckPurchaseIsWithinTraderItemLimit(
                             sessionID,
@@ -146,16 +146,15 @@ public class TradeHelper(
                         );
                     }
 
-                    var message = _localisationService.GetText("ragfair-offer_no_longer_exists");
+                    var message = _serverLocalisationService.GetText(
+                        "ragfair-offer_no_longer_exists"
+                    );
                     _httpResponseUtil.AppendErrorToOutput(output, message);
 
                     return;
                 }
 
-                offerItems = _itemHelper.FindAndReturnChildrenAsItems(
-                    fenceItems,
-                    buyRequestData.ItemId
-                );
+                offerItems = fenceItems.FindAndReturnChildrenAsItems(buyRequestData.ItemId);
             }
             else
             {
@@ -170,8 +169,7 @@ public class TradeHelper(
                     );
 
                     // Ensure purchase does not exceed trader item limit
-                    var assortHasBuyRestrictions = _itemHelper.HasBuyRestrictions(itemPurchased);
-                    if (assortHasBuyRestrictions)
+                    if (itemPurchased.HasBuyRestrictions())
                     // Will throw error if check fails
                     {
                         CheckPurchaseIsWithinTraderItemLimit(
@@ -195,7 +193,7 @@ public class TradeHelper(
                     // Decrement trader item count
                     itemPurchased.Upd.StackObjectsCount -= buyCount;
 
-                    if (assortHasBuyRestrictions)
+                    if (itemPurchased.HasBuyRestrictions())
                     {
                         var itemPurchaseDat = new PurchaseDetails
                         {
@@ -224,10 +222,7 @@ public class TradeHelper(
                     .Items;
 
                 // Get item + children for purchase
-                var relevantItems = _itemHelper.FindAndReturnChildrenAsItems(
-                    traderItems,
-                    buyRequestData.ItemId
-                );
+                var relevantItems = traderItems.FindAndReturnChildrenAsItems(buyRequestData.ItemId);
                 if (relevantItems.Count == 0)
                 {
                     _logger.Error(

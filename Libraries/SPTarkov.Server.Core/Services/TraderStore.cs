@@ -13,7 +13,7 @@ namespace SPTarkov.Server.Core.Services;
 public class TraderStore(
     DatabaseService databaseService,
     IEnumerable<ITrader> injectedTraders,
-    LocalisationService localisationService,
+    ServerLocalisationService localisationService,
     ISptLogger<TraderStore> logger
 ) : IOnLoad
 {
@@ -73,12 +73,7 @@ public class TraderStore(
     /// <returns></returns>
     public ITrader? GetTraderById(string traderId)
     {
-        if (_traders.TryGetValue(traderId, out var trader))
-        {
-            return trader;
-        }
-
-        return null;
+        return _traders.GetValueOrDefault(traderId);
     }
 
     /// <summary>

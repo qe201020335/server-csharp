@@ -1,18 +1,16 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
 using SPTarkov.Server.Core.Models.Eft.Quests;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Routers;
-using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
-using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
 namespace SPTarkov.Server.Core.Controllers;
 
@@ -22,24 +20,14 @@ public class QuestController(
     TimeUtil _timeUtil,
     HttpResponseUtil _httpResponseUtil,
     EventOutputHolder _eventOutputHolder,
-    DatabaseService _databaseService,
     ItemHelper _itemHelper,
-    DialogueHelper _dialogueHelper,
     MailSendService _mailSendService,
-    ProfileHelper _profileHelper,
-    TraderHelper _traderHelper,
     QuestHelper _questHelper,
     QuestRewardHelper _questRewardHelper,
-    QuestConditionHelper _questConditionHelper,
-    PlayerService _playerService,
-    LocaleService _localeService,
-    LocalisationService _localisationService,
-    ConfigServer _configServer,
+    ServerLocalisationService _serverLocalisationService,
     ICloner _cloner
 )
 {
-    protected QuestConfig _questConfig = _configServer.GetConfig<QuestConfig>();
-
     /// <summary>
     ///     Handle client/quest/list
     ///     Get all quests visible to player
@@ -248,7 +236,7 @@ public class QuestController(
                 if (handedInCount <= 0)
                 {
                     _logger.Error(
-                        _localisationService.GetText(
+                        _serverLocalisationService.GetText(
                             "repeatable-quest_handover_failed_condition_already_satisfied",
                             new
                             {
@@ -324,8 +312,7 @@ public class QuestController(
             else
             {
                 // Remove item with children
-                var toRemove = _itemHelper.FindAndReturnChildrenByItems(
-                    pmcData.Inventory.Items,
+                var toRemove = pmcData.Inventory.Items.FindAndReturnChildrenByItems(
                     itemHandover.Id
                 );
                 var index = pmcData.Inventory.Items.Count;
@@ -348,8 +335,7 @@ public class QuestController(
                         // element `location` properties of the parent so they are sequential, while retaining order
                         if (removedItem.Location?.GetType() == typeof(int))
                         {
-                            var childItems = _itemHelper.FindAndReturnChildrenAsItems(
-                                pmcData.Inventory.Items,
+                            var childItems = pmcData.Inventory.Items.FindAndReturnChildrenAsItems(
                                 removedItem.ParentId
                             );
                             childItems.RemoveAt(0); // Remove the parent
@@ -390,7 +376,7 @@ public class QuestController(
         ItemEventRouterResponse output
     )
     {
-        var errorMessage = _localisationService.GetText(
+        var errorMessage = _serverLocalisationService.GetText(
             "repeatable-quest_handover_failed_condition_invalid",
             new { questId, conditionId }
         );
@@ -414,7 +400,7 @@ public class QuestController(
         ItemEventRouterResponse output
     )
     {
-        var errorMessage = _localisationService.GetText(
+        var errorMessage = _serverLocalisationService.GetText(
             "quest-handover_wrong_item",
             new
             {

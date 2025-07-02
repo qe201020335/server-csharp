@@ -1,12 +1,12 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Generators;
@@ -14,20 +14,19 @@ namespace SPTarkov.Server.Core.Generators;
 [Injectable]
 public class FenceBaseAssortGenerator(
     ISptLogger<FenceBaseAssortGenerator> logger,
-    HashUtil hashUtil,
     DatabaseService databaseService,
     HandbookHelper handbookHelper,
     ItemHelper itemHelper,
     PresetHelper presetHelper,
     ItemFilterService itemFilterService,
     SeasonalEventService seasonalEventService,
-    LocalisationService localisationService,
+    ServerLocalisationService localisationService,
     ConfigServer configServer,
     FenceService fenceService,
     ICloner _cloner
 )
 {
-    protected TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
+    protected readonly TraderConfig traderConfig = configServer.GetConfig<TraderConfig>();
 
     /// <summary>
     ///     Create base fence assorts dynamically and store in memory
@@ -92,7 +91,7 @@ public class FenceBaseAssortGenerator(
             {
                 new()
                 {
-                    Id = hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = rootItemDb.Id,
                     ParentId = "hideout",
                     SlotId = "hideout",
@@ -236,7 +235,7 @@ public class FenceBaseAssortGenerator(
     ///     Get the penetration power value of an ammo, works with ammo boxes and raw ammos
     /// </summary>
     /// <param name="rootItemDb"> Ammo box or ammo item from items.db </param>
-    /// <returns> Penetration power of passed in item, undefined if it doesnt have a power </returns>
+    /// <returns> Penetration power of passed in item, undefined if it doesn't have a power </returns>
     protected double? GetAmmoPenetrationPower(TemplateItem rootItemDb)
     {
         if (itemHelper.IsOfBaseclass(rootItemDb.Id, BaseClasses.AMMO_BOX))
@@ -305,7 +304,7 @@ public class FenceBaseAssortGenerator(
 
                 var mod = new Item
                 {
-                    Id = hashUtil.Generate(),
+                    Id = new MongoId(),
                     Template = plateTpl,
                     ParentId = armor[0].Id,
                     SlotId = requiredSlot.Name,
@@ -342,7 +341,7 @@ public class FenceBaseAssortGenerator(
                 armor.Add(
                     new Item
                     {
-                        Id = hashUtil.Generate(),
+                        Id = new MongoId(),
                         Template = plateSlot.Props.Filters[0].Plate, // `Plate` property appears to be the 'default' item for slot
                         ParentId = armor[0].Id,
                         SlotId = plateSlot.Name,
