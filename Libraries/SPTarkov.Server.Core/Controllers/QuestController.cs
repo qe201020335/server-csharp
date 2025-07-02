@@ -151,7 +151,7 @@ public class QuestController(
         {
             if (pmcData.TaskConditionCounters.TryGetValue(condition.Id, out _))
             {
-                _logger.Error(
+                _logger.Warning(
                     $"Unable to add new task condition counter: {condition.ConditionType} for quest: {questId} to profile: {pmcData.SessionId} as it already exists"
                 );
             }
