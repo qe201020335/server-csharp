@@ -87,7 +87,7 @@ public record Info
     ///     main profile id
     /// </summary>
     [JsonPropertyName("id")]
-    public string? ProfileId { get; set; }
+    public MongoId? ProfileId { get; set; }
 
     [JsonPropertyName("scavId")]
     public string? ScavengerId { get; set; }

@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Location;
@@ -29,7 +30,7 @@ public class LocationController(
         var maps = locationsFromDb.GetDictionary();
 
         // keyed by _id location property
-        var locationResult = new Dictionary<string, LocationBase>();
+        var locationResult = new Dictionary<MongoId, LocationBase>();
 
         foreach (var (locationId, location) in maps)
         {
@@ -47,7 +48,7 @@ public class LocationController(
             // Clear out loot array
             mapBase.Loot = [];
             // Add map base data to dictionary
-            locationResult.Add(mapBase.IdField!, mapBase);
+            locationResult.Add(mapBase.IdField, mapBase);
         }
 
         return new LocationsGenerateAllResponse

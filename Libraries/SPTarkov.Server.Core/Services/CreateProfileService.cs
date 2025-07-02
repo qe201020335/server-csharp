@@ -21,7 +21,6 @@ namespace SPTarkov.Server.Core.Services;
 public class CreateProfileService(
     ISptLogger<CreateProfileService> _logger,
     TimeUtil _timeUtil,
-    HashUtil _hashUtil,
     DatabaseService _databaseService,
     ServerLocalisationService _serverLocalisationService,
     ProfileHelper _profileHelper,
