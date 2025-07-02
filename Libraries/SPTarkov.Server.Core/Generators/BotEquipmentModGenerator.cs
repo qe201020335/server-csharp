@@ -185,7 +185,8 @@ public class BotEquipmentModGenerator(
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE
+                    or Result.NO_DEFAULT_FILTER:
                         if (_logger.IsLogEnabled(LogLevel.Debug))
                         {
                             _logger.Debug(
@@ -634,12 +635,12 @@ public class BotEquipmentModGenerator(
                 continue;
             }
 
-            var modToAddTemplate = modToAdd.Value;
+            var modToAddTemplate = modToAdd.Value.Value;
             // Skip adding mod to weapon if type limit reached
             if (
                 _botWeaponModLimitService.WeaponModHasReachedLimit(
                     request.BotData.EquipmentRole,
-                    modToAddTemplate.Value,
+                    modToAddTemplate,
                     request.ModLimits,
                     request.ParentTemplate,
                     request.Weapon
@@ -650,7 +651,7 @@ public class BotEquipmentModGenerator(
             }
 
             // If item is a mount for scopes, set scope chance to 100%, this helps fix empty mounts appearing on weapons
-            if (ModSlotCanHoldScope(modSlot, modToAddTemplate.Value.Parent))
+            if (ModSlotCanHoldScope(modSlot, modToAddTemplate.Parent))
             {
                 // mod_mount was picked to be added to weapon, force scope chance to ensure its filled
                 List<string> scopeSlots =
@@ -669,7 +670,7 @@ public class BotEquipmentModGenerator(
                 {
                     AddCompatibleModsForProvidedMod(
                         "mod_scope",
-                        modToAddTemplate.Value,
+                        modToAddTemplate,
                         request.ModPool,
                         botEquipBlacklist
                     );
@@ -677,7 +678,7 @@ public class BotEquipmentModGenerator(
             }
 
             // If picked item is muzzle adapter that can hold a child, adjust spawn chance
-            if (ModSlotCanHoldMuzzleDevices(modSlot, modToAddTemplate.Value.Parent))
+            if (ModSlotCanHoldMuzzleDevices(modSlot, modToAddTemplate.Parent))
             {
                 List<string> muzzleSlots = ["mod_muzzle", "mod_muzzle_000", "mod_muzzle_001"];
                 // Make chance of muzzle devices 95%, nearly certain but not guaranteed
@@ -685,7 +686,7 @@ public class BotEquipmentModGenerator(
             }
 
             // If front/rear sight are to be added, set opposite to 100% chance
-            if (ModIsFrontOrRearSight(modSlot, modToAddTemplate.Value.Id))
+            if (ModIsFrontOrRearSight(modSlot, modToAddTemplate.Id))
             {
                 request.ModSpawnChances["mod_sight_front"] = 100;
                 request.ModSpawnChances["mod_sight_rear"] = 100;
@@ -695,7 +696,7 @@ public class BotEquipmentModGenerator(
             // Force spawn chance to be 100% to ensure it gets added
             if (
                 modSlot == "mod_handguard"
-                && modToAddTemplate.Value.Properties.Slots.Any(slot => slot.Name == "mod_handguard")
+                && modToAddTemplate.Properties.Slots.Any(slot => slot.Name == "mod_handguard")
                 && !request.Weapon.Any(item => item.SlotId == "mod_launcher")
             )
             // Needed for handguards with lower
@@ -705,7 +706,7 @@ public class BotEquipmentModGenerator(
 
             // If stock mod can take a sub stock mod, force spawn chance to be 100% to ensure sub-stock gets added
             // Or if bot has stock force enabled
-            if (ShouldForceSubStockSlots(modSlot, botEquipConfig, modToAddTemplate.Value))
+            if (ShouldForceSubStockSlots(modSlot, botEquipConfig, modToAddTemplate))
             {
                 // Stock mod can take additional stocks, could be a locking device, force 100% chance
                 List<string> subStockSlots =
@@ -719,7 +720,7 @@ public class BotEquipmentModGenerator(
             }
 
             // Gather stats on mods being added to weapon
-            if (_itemHelper.IsOfBaseclass(modToAddTemplate.Value.Id, BaseClasses.IRON_SIGHT))
+            if (_itemHelper.IsOfBaseclass(modToAddTemplate.Id, BaseClasses.IRON_SIGHT))
             {
                 if (modSlot == "mod_sight_front")
                 {
@@ -732,7 +733,7 @@ public class BotEquipmentModGenerator(
             }
             else if (
                 !(request.WeaponStats.HasOptic ?? false)
-                && _itemHelper.IsOfBaseclass(modToAddTemplate.Value.Id, BaseClasses.SIGHTS)
+                && _itemHelper.IsOfBaseclass(modToAddTemplate.Id, BaseClasses.SIGHTS)
             )
             {
                 request.WeaponStats.HasOptic = true;
@@ -742,16 +743,16 @@ public class BotEquipmentModGenerator(
             request.Weapon.Add(
                 CreateModItem(
                     modId,
-                    modToAddTemplate.Value.Id,
+                    modToAddTemplate.Id,
                     request.WeaponId,
                     modSlot,
-                    modToAddTemplate.Value,
+                    modToAddTemplate,
                     request.BotData.Role
                 )
             );
 
             // Update conflicting item list now item has been chosen
-            foreach (var conflictingItem in modToAddTemplate.Value.Properties.ConflictingItems)
+            foreach (var conflictingItem in modToAddTemplate.Properties.ConflictingItems)
             {
                 request.ConflictingItemTpls.Add(conflictingItem);
             }
@@ -760,30 +761,30 @@ public class BotEquipmentModGenerator(
             // However, the recursion doesn't go over the slots of the parent mod but over the modPool which is given by the bot config
             // where we decided to keep cartridges instead of camoras. And since a CylinderMagazine only has one cartridge entry and
             // this entry is not to be filled, we need a special handling for the CylinderMagazine
-            var modParentItem = _itemHelper.GetItem(modToAddTemplate.Value.Parent).Value;
+            var modParentItem = _itemHelper.GetItem(modToAddTemplate.Parent).Value;
             if (_botWeaponGeneratorHelper.MagazineIsCylinderRelated(modParentItem.Name))
             {
                 // We don't have child mods, we need to create the camoras for the magazines instead
-                FillCamora(request.Weapon, request.ModPool, modId, modToAddTemplate.Value);
+                FillCamora(request.Weapon, request.ModPool, modId, modToAddTemplate);
             }
             else
             {
-                var containsModInPool = request.ModPool.ContainsKey(modToAddTemplate.Value.Id);
+                var containsModInPool = request.ModPool.ContainsKey(modToAddTemplate.Id);
 
                 // Sometimes randomised slots are missing sub-mods, if so, get values from mod pool service
                 // Check for a randomisable slot + without data in modPool + item being added as additional slots
                 if (
                     isRandomisableSlot
                     && !containsModInPool
-                    && modToAddTemplate.Value.Properties.Slots.Any()
+                    && modToAddTemplate.Properties.Slots.Any()
                 )
                 {
                     var modFromService = _botEquipmentModPoolService.GetModsForWeaponSlot(
-                        modToAddTemplate.Value.Id
+                        modToAddTemplate.Id
                     );
                     if (modFromService?.Count > 0)
                     {
-                        request.ModPool[modToAddTemplate.Value.Id] = modFromService.ToDictionary();
+                        request.ModPool[modToAddTemplate.Id] = modFromService.ToDictionary();
                         containsModInPool = true;
                     }
                 }
@@ -793,11 +794,11 @@ public class BotEquipmentModGenerator(
                 {
                     // Check for required mods the item we've added needs to be classified as 'valid'
                     var modFromService = _botEquipmentModPoolService.GetRequiredModsForWeaponSlot(
-                        modToAddTemplate.Value.Id
+                        modToAddTemplate.Id
                     );
                     if (modFromService?.Count > 0)
                     {
-                        request.ModPool[modToAddTemplate.Value.Id] = modFromService;
+                        request.ModPool[modToAddTemplate.Id] = modFromService;
                         containsModInPool = true;
                     }
                 }
@@ -809,7 +810,7 @@ public class BotEquipmentModGenerator(
                         Weapon = request.Weapon,
                         ModPool = request.ModPool,
                         WeaponId = modId,
-                        ParentTemplate = modToAddTemplate.Value,
+                        ParentTemplate = modToAddTemplate,
                         ModSpawnChances = request.ModSpawnChances,
                         AmmoTpl = request.AmmoTpl,
                         BotData = new BotData
