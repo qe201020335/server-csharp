@@ -108,21 +108,21 @@ public class ItemHelper(
     /// Does the provided pool of items contain the desired item
     /// </summary>
     /// <param name="itemPool">Item collection to check</param>
-    /// <param name="item">Item to look for</param>
+    /// <param name="itemTpl">Item to look for</param>
     /// <param name="slotId">OPTIONAL - slotId of desired item</param>
     /// <returns>True if pool contains item</returns>
-    public bool HasItemWithTpl(IEnumerable<Item> itemPool, string item, string slotId = "")
+    public bool HasItemWithTpl(IEnumerable<Item> itemPool, string itemTpl, string slotId = "")
     {
         // Filter the pool by slotId if provided
         var filteredPool = string.IsNullOrEmpty(slotId)
             ? itemPool
-            : itemPool.Where(item =>
-                item.SlotId?.StartsWith(slotId, StringComparison.OrdinalIgnoreCase) ?? false
+            : itemPool.Where(itemInPool =>
+                itemInPool.SlotId?.StartsWith(slotId, StringComparison.OrdinalIgnoreCase) ?? false
             );
 
         // Check if any item in the filtered pool matches the provided item
         return filteredPool.Any(poolItem =>
-            string.Equals(poolItem.Template, item, StringComparison.OrdinalIgnoreCase)
+            string.Equals(poolItem.Template, itemTpl, StringComparison.OrdinalIgnoreCase)
         );
     }
 
@@ -133,7 +133,7 @@ public class ItemHelper(
     /// <param name="tpl">Item tpl to find</param>
     /// <param name="slotId">OPTIONAL - slotId of desired item</param>
     /// <returns>Item or null if no item found</returns>
-    public Item GetItemFromPoolByTpl(IEnumerable<Item> itemPool, string tpl, string slotId = "")
+    public Item GetItemFromPoolByTpl(IEnumerable<Item> itemPool, MongoId tpl, string slotId = "")
     {
         // Filter the pool by slotId if provided
         var filteredPool = string.IsNullOrEmpty(slotId)
@@ -143,7 +143,7 @@ public class ItemHelper(
             );
 
         // Check if any item in the filtered pool matches the provided item
-        return filteredPool.FirstOrDefault(poolItem => poolItem.Template.Equals(tpl));
+        return filteredPool.FirstOrDefault(poolItem => poolItem.Template == tpl);
     }
 
     /// <summary>
@@ -1345,11 +1345,9 @@ public class ItemHelper(
     /// <param name="items">Item with children</param>
     /// <param name="rootItemId">The base items root id</param>
     /// <returns>ItemSize object (width and height)</returns>
-    public ItemSize GetItemSize(ICollection<Item> items, string rootItemId)
+    public ItemSize GetItemSize(ICollection<Item> items, MongoId rootItemId)
     {
-        var rootTemplate = GetItem(
-            items.Where(x => x.Id.Equals(rootItemId)).ToList()[0].Template
-        ).Value;
+        var rootTemplate = GetItem(items.FirstOrDefault(x => x.Id == rootItemId)?.Template).Value;
         var width = rootTemplate.Properties.Width;
         var height = rootTemplate.Properties.Height;
 
@@ -1364,9 +1362,9 @@ public class ItemHelper(
         var forcedRight = 0;
 
         var children = items.FindAndReturnChildrenAsItems(rootItemId);
-        foreach (var ci in children)
+        foreach (var child in children)
         {
-            var itemTemplate = GetItem(ci.Template).Value;
+            var itemTemplate = GetItem(child.Template).Value;
 
             // Calculating child ExtraSize
             if (itemTemplate.Properties.ExtraSizeForceAdd ?? false)
