@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Bots;
@@ -595,15 +596,15 @@ public class BotGeneratorHelper(
     /// </summary>
     /// <param name="equipmentSlots">Slot to add item+children into</param>
     /// <param name="rootItemId">Root item id to use as mod items parentId</param>
-    /// <param name="rootItemTplId">Root itms tpl id</param>
+    /// <param name="rootItemTplId">Root items tpl id</param>
     /// <param name="itemWithChildren">Item to add</param>
     /// <param name="inventory">Inventory to add item+children into</param>
     /// <param name="containersIdFull"></param>
     /// <returns>ItemAddedResult result object</returns>
     public ItemAddedResult AddItemWithChildrenToEquipmentSlot(
         HashSet<EquipmentSlots> equipmentSlots,
-        string rootItemId,
-        string? rootItemTplId,
+        MongoId rootItemId,
+        MongoId rootItemTplId,
         List<Item> itemWithChildren,
         BotBaseInventory inventory,
         HashSet<string>? containersIdFull = null

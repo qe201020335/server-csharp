@@ -606,7 +606,7 @@ public class BotLootGenerator(
             var itemAddedResult = _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
                 equipmentSlots,
                 newRootItemId,
-                itemToAddTemplate?.Id,
+                itemToAddTemplate.Id,
                 itemWithChildrenToAdd,
                 inventoryToAddItemsTo,
                 containersIdFull

@@ -668,7 +668,7 @@ public class InventoryHelper(
     /// <param name="itemId">Items id to get size of</param>
     /// <param name="inventoryItems"></param>
     /// <returns>[width, height]</returns>
-    public (int, int) GetItemSize(string? itemTpl, string itemId, List<Item> inventoryItems)
+    public (int, int) GetItemSize(MongoId itemTpl, MongoId itemId, List<Item> inventoryItems)
     {
         // -> Prepares item Width and height returns [sizeX, sizeY]
         return GetSizeByInventoryItemHash(itemTpl, itemId, GetInventoryItemHash(inventoryItems));
