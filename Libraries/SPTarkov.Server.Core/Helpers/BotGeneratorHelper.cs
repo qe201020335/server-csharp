@@ -21,7 +21,6 @@ public class BotGeneratorHelper(
     DurabilityLimitsHelper _durabilityLimitsHelper,
     ItemHelper _itemHelper,
     InventoryHelper _inventoryHelper,
-    ContainerHelper _containerHelper,
     ProfileActivityService _profileActivityService,
     ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer
@@ -665,7 +664,7 @@ public class BotGeneratorHelper(
             }
 
             // Get x/y grid size of item
-            var itemSize = _inventoryHelper.GetItemSize(
+            var (width, height) = _inventoryHelper.GetItemSize(
                 rootItemTplId,
                 rootItemId,
                 itemWithChildren
@@ -680,7 +679,7 @@ public class BotGeneratorHelper(
                 if (
                     slotGrid.Props?.CellsH == 0
                     || slotGrid.Props?.CellsV == 0
-                    || itemSize[0] * itemSize[1] > slotGrid.Props?.CellsV * slotGrid.Props?.CellsH
+                    || width * height > slotGrid.Props?.CellsV * slotGrid.Props?.CellsH
                 )
                 {
                     continue;
@@ -718,11 +717,7 @@ public class BotGeneratorHelper(
                     );
 
                     // Try to fit item into grid
-                    var findSlotResult = _containerHelper.FindSlotForItem(
-                        slotGridMap,
-                        itemSize[0],
-                        itemSize[1]
-                    );
+                    var findSlotResult = slotGridMap.FindSlotForItem(width, height);
 
                     // Free slot found, add item
                     if (findSlotResult.Success ?? false)
@@ -768,7 +763,7 @@ public class BotGeneratorHelper(
             }
 
             // if the item was a one by one, we know it must be full. Or if the maps cant find a slot for a one by one
-            if (itemSize[0] == 1 && itemSize[1] == 1)
+            if (width == 1 && height == 1)
             {
                 containersIdFull.Add(equipmentSlotId.ToString());
             }

@@ -1,4 +1,6 @@
-﻿using SPTarkov.Server.Core.Models.Common;
+﻿using System.Text.Json;
+using SPTarkov.Common.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
@@ -341,6 +343,43 @@ namespace SPTarkov.Server.Core.Extensions
                 Desc = item.Desc,
                 ExtensionData = item.ExtensionData,
             };
+        }
+
+        public static ItemLocation? GetParsedLocation(this Item item)
+        {
+            if (item.Location is null)
+            {
+                return null;
+            }
+
+            if (item.Location is JsonElement element)
+            {
+                // TODO: when is this true
+                return element.ToObject<ItemLocation>();
+            }
+
+            return (ItemLocation)item.Location;
+        }
+
+        /// <summary>
+        ///     Get a list of the item IDs (NOT tpls) inside a secure container
+        /// </summary>
+        /// <param name="items">Inventory items to look for secure container in</param>
+        /// <returns>List of ids</returns>
+        public static List<string> GetSecureContainerItems(this List<Item> items)
+        {
+            var secureContainer = items.First(x => x.SlotId == "SecuredContainer");
+
+            // No container found, drop out
+            if (secureContainer is null)
+            {
+                return [];
+            }
+
+            var itemsInSecureContainer = items.FindAndReturnChildrenByItems(secureContainer.Id);
+
+            // Return all items returned and exclude the secure container item itself
+            return itemsInSecureContainer.Where(x => x != secureContainer.Id).ToList();
         }
     }
 }
