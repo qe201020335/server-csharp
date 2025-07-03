@@ -30,7 +30,7 @@ public class BotCallbacks(BotController _botController, HttpResponseUtil _httpRe
     public ValueTask<string> GetBotDifficulty(string url, EmptyRequestData _, string sessionID)
     {
         var splitUrl = url.Split('/');
-        var type = splitUrl[^2].ToLower();
+        var type = splitUrl[^2].ToLowerInvariant();
         var difficulty = splitUrl[^1];
         if (difficulty == "core")
         {

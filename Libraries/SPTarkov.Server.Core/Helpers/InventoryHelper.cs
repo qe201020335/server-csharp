@@ -1303,7 +1303,7 @@ public class InventoryHelper(
         // Reset fast panel value if item was moved to a container other than pocket/rig (cant be used from fastpanel)
         HashSet<string> slots = ["pockets", "tacticalvest"];
         var wasMovedToFastPanelAccessibleContainer = slots.Contains(
-            itemParent?.SlotId?.ToLower() ?? ""
+            itemParent?.SlotId?.ToLowerInvariant() ?? ""
         );
         if (!wasMovedToFastPanelAccessibleContainer)
         {

@@ -387,8 +387,8 @@ public class SeasonalEventService(
         {
             var propInfo = props.FirstOrDefault(p =>
                 string.Equals(
-                    p.Name.ToLower(),
-                    lootContainerKey.ToLower(),
+                    p.Name.ToLowerInvariant(),
+                    lootContainerKey.ToLowerInvariant(),
                     StringComparison.OrdinalIgnoreCase
                 )
             );
@@ -871,7 +871,7 @@ public class SeasonalEventService(
 
     protected void AddEventWavesToMaps(string eventType)
     {
-        var wavesToAddByMap = _seasonalEventConfig.EventWaves[eventType.ToLower()];
+        var wavesToAddByMap = _seasonalEventConfig.EventWaves[eventType.ToLowerInvariant()];
 
         if (wavesToAddByMap is null)
         {
@@ -903,7 +903,7 @@ public class SeasonalEventService(
     {
         if (
             !_seasonalEventConfig.EventBossSpawns.TryGetValue(
-                eventType.ToLower(),
+                eventType.ToLowerInvariant(),
                 out var botsToAddPerMap
             )
         )
@@ -1018,7 +1018,7 @@ public class SeasonalEventService(
         // Iterate over bots with changes to apply
         foreach (var botKvP in botGearChanges)
         {
-            var botToUpdate = _databaseService.GetBots().Types[botKvP.Key.ToLower()];
+            var botToUpdate = _databaseService.GetBots().Types[botKvP.Key.ToLowerInvariant()];
             if (botToUpdate is null)
             {
                 _logger.Warning(
@@ -1068,7 +1068,7 @@ public class SeasonalEventService(
         // Iterate over bots with changes to apply
         foreach (var botKvpP in botLootChanges)
         {
-            var botToUpdate = _databaseService.GetBots().Types[botKvpP.Key.ToLower()];
+            var botToUpdate = _databaseService.GetBots().Types[botKvpP.Key.ToLowerInvariant()];
             if (botToUpdate is null)
             {
                 _logger.Warning(

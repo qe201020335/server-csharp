@@ -58,7 +58,7 @@ public class LocationLootGenerator(
 
         // Pull location-specific spawn limits from db
         var itemsWithSpawnCountLimitsClone = _cloner.Clone(
-            _locationConfig.LootMaxSpawnLimits.GetValueOrDefault(locationId.ToLower())
+            _locationConfig.LootMaxSpawnLimits.GetValueOrDefault(locationId.ToLowerInvariant())
         );
 
         // Store items with spawn count limits inside so they can be accessed later inside static/dynamic loot spawn methods
@@ -68,13 +68,13 @@ public class LocationLootGenerator(
         }
 
         // Create containers with loot
-        result.AddRange(GenerateStaticContainers(locationId.ToLower(), staticAmmoDist));
+        result.AddRange(GenerateStaticContainers(locationId.ToLowerInvariant(), staticAmmoDist));
 
         // Add dynamic loot to output loot
         var dynamicSpawnPoints = GenerateDynamicLoot(
             _cloner.Clone(locationDetails.LooseLoot.Value),
             staticAmmoDist,
-            locationId.ToLower()
+            locationId.ToLowerInvariant()
         );
 
         // Merge dynamic spawns into result

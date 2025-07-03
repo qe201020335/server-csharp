@@ -78,7 +78,7 @@ public class LocaleService(
                 StringComparison.OrdinalIgnoreCase
             )
                 ? GetPlatformForClientLocale()
-                : _localeConfig.GameLocale.ToLower(); // Use custom locale value
+                : _localeConfig.GameLocale.ToLowerInvariant(); // Use custom locale value
         }
 
         return _chosenClientLocale;
@@ -99,7 +99,7 @@ public class LocaleService(
                 StringComparison.OrdinalIgnoreCase
             )
                 ? GetPlatformForServerLocale()
-                : _localeConfig.ServerLocale.ToLower(); // Use custom locale value
+                : _localeConfig.ServerLocale.ToLowerInvariant(); // Use custom locale value
         }
 
         return _chosenServerLocale;
@@ -136,7 +136,7 @@ public class LocaleService(
             return "en";
         }
 
-        var baseNameCode = platformLocale.TwoLetterISOLanguageName.ToLower();
+        var baseNameCode = platformLocale.TwoLetterISOLanguageName.ToLowerInvariant();
         if (_localeConfig.ServerSupportedLocales.Contains(baseNameCode))
         {
             // Found a matching locale
@@ -144,7 +144,7 @@ public class LocaleService(
         }
 
         // Check if base language (e.g. CN / EN / DE) exists
-        var languageCode = platformLocale.Name.ToLower();
+        var languageCode = platformLocale.Name.ToLowerInvariant();
         if (_localeConfig.ServerSupportedLocales.Contains(languageCode))
         {
             if (baseNameCode == "zh")
@@ -183,13 +183,13 @@ public class LocaleService(
         }
 
         var locales = _databaseServer.GetTables().Locales;
-        var baseNameCode = platformLocale.TwoLetterISOLanguageName.ToLower();
+        var baseNameCode = platformLocale.TwoLetterISOLanguageName.ToLowerInvariant();
         if (locales.Global.ContainsKey(baseNameCode))
         {
             return baseNameCode;
         }
 
-        var languageCode = platformLocale.Name.ToLower();
+        var languageCode = platformLocale.Name.ToLowerInvariant();
         if (locales.Global.ContainsKey(languageCode))
         {
             return languageCode;

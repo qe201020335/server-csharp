@@ -22,10 +22,10 @@ public class BotHelper(
 {
     private static readonly FrozenSet<string> _pmcTypeIds =
     [
-        Sides.Usec.ToLower(),
-        Sides.Bear.ToLower(),
-        Sides.PmcBear.ToLower(),
-        Sides.PmcUsec.ToLower(),
+        Sides.Usec.ToLowerInvariant(),
+        Sides.Bear.ToLowerInvariant(),
+        Sides.PmcBear.ToLowerInvariant(),
+        Sides.PmcUsec.ToLowerInvariant(),
     ];
 
     private readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
@@ -39,7 +39,7 @@ public class BotHelper(
     /// <returns>BotType object</returns>
     public BotType? GetBotTemplate(string role)
     {
-        if (!_databaseService.GetBots().Types.TryGetValue(role?.ToLower(), out var bot))
+        if (!_databaseService.GetBots().Types.TryGetValue(role?.ToLowerInvariant(), out var bot))
         {
             _logger.Error($"Unable to get bot of type: {role} from DB");
 
@@ -56,7 +56,7 @@ public class BotHelper(
     /// <returns>true if is pmc</returns>
     public bool IsBotPmc(string? botRole)
     {
-        return _pmcTypeIds.Contains(botRole?.ToLower());
+        return _pmcTypeIds.Contains(botRole?.ToLowerInvariant());
     }
 
     public bool IsBotBoss(string botRole)
@@ -135,10 +135,10 @@ public class BotHelper(
     {
         HashSet<string> listToCheck =
         [
-            _pmcConfig.UsecType.ToLower(),
-            _pmcConfig.BearType.ToLower(),
+            _pmcConfig.UsecType.ToLowerInvariant(),
+            _pmcConfig.BearType.ToLowerInvariant(),
         ];
-        return listToCheck.Contains(botRole.ToLower());
+        return listToCheck.Contains(botRole.ToLowerInvariant());
     }
 
     /// <summary>
@@ -227,7 +227,7 @@ public class BotHelper(
             )
             {
                 _logger.Error($"Unknown faction: {chosenFaction} Defaulting to: {Sides.Usec}");
-                chosenFaction = Sides.Usec.ToLower();
+                chosenFaction = Sides.Usec.ToLowerInvariant();
                 chosenFactionDetails = _databaseService.GetBots().Types[chosenFaction];
             }
 

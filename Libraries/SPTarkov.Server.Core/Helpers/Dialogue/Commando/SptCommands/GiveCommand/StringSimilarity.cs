@@ -14,8 +14,8 @@ public static class StringSimilarity
     {
         if (!caseSensitive)
         {
-            str1 = str1.ToLower();
-            str2 = str2.ToLower();
+            str1 = str1.ToLowerInvariant();
+            str2 = str2.ToLowerInvariant();
         }
 
         if (str1.Length < substringLength || str2.Length < substringLength)

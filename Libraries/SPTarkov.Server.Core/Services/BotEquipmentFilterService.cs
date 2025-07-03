@@ -51,7 +51,7 @@ public class BotEquipmentFilterService(
         );
 
         RandomisationDetails? randomisationDetails = null;
-        if (_botEquipmentConfig.TryGetValue(botRole.ToLower(), out var botEquipmentConfig))
+        if (_botEquipmentConfig.TryGetValue(botRole.ToLowerInvariant(), out var botEquipmentConfig))
         {
             randomisationDetails = botHelper.GetBotRandomizationDetails(
                 botLevel,

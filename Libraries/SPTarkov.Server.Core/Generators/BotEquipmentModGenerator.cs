@@ -174,12 +174,12 @@ public class BotEquipmentModGenerator(
             // Slot can hold armor plates + we are filtering possible items by bot level, handle
             if (
                 settings.BotEquipmentConfig.FilterPlatesByLevel.GetValueOrDefault(false)
-                && _itemHelper.IsRemovablePlateSlot(modSlotName.ToLower())
+                && _itemHelper.IsRemovablePlateSlot(modSlotName.ToLowerInvariant())
             )
             {
                 var plateSlotFilteringOutcome = FilterPlateModsForSlotByLevel(
                     settings,
-                    modSlotName.ToLower(),
+                    modSlotName.ToLowerInvariant(),
                     compatibleModsPool.GetValueOrDefault(modSlotName),
                     parentTemplate
                 );
@@ -889,7 +889,7 @@ public class BotEquipmentModGenerator(
     /// <returns>true if it can hold a scope</returns>
     public bool ModSlotCanHoldScope(string modSlot, string modsParentId)
     {
-        return _scopeIds.Contains(modSlot.ToLower()) && modsParentId == BaseClasses.MOUNT;
+        return _scopeIds.Contains(modSlot.ToLowerInvariant()) && modsParentId == BaseClasses.MOUNT;
     }
 
     /// <summary>
@@ -932,7 +932,7 @@ public class BotEquipmentModGenerator(
     /// <returns>True if modSlot can have muzzle-related items</returns>
     public bool ModSlotCanHoldMuzzleDevices(string modSlot, string? modsParentId)
     {
-        return _muzzleIds.Contains(modSlot.ToLower());
+        return _muzzleIds.Contains(modSlot.ToLowerInvariant());
     }
 
     /// <summary>
@@ -1057,7 +1057,7 @@ public class BotEquipmentModGenerator(
     /// <returns>Slot item</returns>
     public Slot? GetModItemSlotFromDb(string modSlot, TemplateItem parentTemplate)
     {
-        var modSlotLower = modSlot.ToLower();
+        var modSlotLower = modSlot.ToLowerInvariant();
         switch (modSlotLower)
         {
             case "patron_in_weapon":
@@ -1100,7 +1100,7 @@ public class BotEquipmentModGenerator(
         }
 
         var spawnMod = _randomUtil.RollChance(
-            modSpawnChances.GetValueOrDefault(modSlotName.ToLower())
+            modSpawnChances.GetValueOrDefault(modSlotName.ToLowerInvariant())
         );
         if (
             !spawnMod
@@ -1556,8 +1556,8 @@ public class BotEquipmentModGenerator(
         var parentSlotCompatibleItems = request
             .ParentTemplate.Properties.Slots?.FirstOrDefault(slot =>
                 string.Equals(
-                    slot.Name.ToLower(),
-                    request.ModSlot.ToLower(),
+                    slot.Name.ToLowerInvariant(),
+                    request.ModSlot.ToLowerInvariant(),
                     StringComparison.Ordinal
                 )
             )

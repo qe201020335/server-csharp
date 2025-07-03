@@ -65,7 +65,9 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
         {
             if (
                 _fileUtil.GetFileExtension(file) != "json"
-                || _filesToIgnore.Contains(_fileUtil.GetFileNameAndExtension(file).ToLower())
+                || _filesToIgnore.Contains(
+                    _fileUtil.GetFileNameAndExtension(file).ToLowerInvariant()
+                )
             )
             {
                 continue;
@@ -127,7 +129,7 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
 
             // Get the set method to update the object
             var setMethod = GetSetMethod(
-                _fileUtil.StripExtension(file).ToLower(),
+                _fileUtil.StripExtension(file).ToLowerInvariant(),
                 loadedType,
                 out var propertyType,
                 out var isDictionary
@@ -253,8 +255,8 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
             var matchedProperty = type.GetProperties()
                 .FirstOrDefault(prop =>
                     string.Equals(
-                        prop.Name.ToLower(),
-                        _fileUtil.StripExtension(propertyName).ToLower(),
+                        prop.Name.ToLowerInvariant(),
+                        _fileUtil.StripExtension(propertyName).ToLowerInvariant(),
                         StringComparison.Ordinal
                     )
                 );
