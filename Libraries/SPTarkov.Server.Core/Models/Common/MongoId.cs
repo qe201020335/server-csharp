@@ -1,15 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using SPTarkov.Server.Core.Extensions;
 
 namespace SPTarkov.Server.Core.Models.Common;
 
-public readonly partial struct MongoId : IEquatable<MongoId>
+public readonly struct MongoId : IEquatable<MongoId>
 {
     private readonly string _stringId;
 
     public MongoId(
-        string id,
+        string? id,
         // TODO: TEMPORARY REMOVE ME WHEN DONE!!!!
         [CallerFilePath] string callerFilePath = "",
         [CallerMemberName] string methodName = "",
@@ -17,9 +16,11 @@ public readonly partial struct MongoId : IEquatable<MongoId>
     )
     {
         // This is temporary, otherwise item buying is broken as when LINQ searches for string id's it's possible null is passed
-        if (id == null)
+        if (string.IsNullOrEmpty(id))
         {
-            id = string.Empty;
+            _stringId = string.Intern("000000000000000000000000");
+
+            return;
         }
 
         if (id.Length != 24)
@@ -92,7 +93,7 @@ public readonly partial struct MongoId : IEquatable<MongoId>
     {
         if (other is null)
         {
-            return other == this;
+            return this == null;
         }
 
         return other.Equals(ToString(), StringComparison.InvariantCultureIgnoreCase);
