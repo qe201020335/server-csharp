@@ -207,7 +207,10 @@ public class ProfileController(
         foreach (var profile in allProfiles)
         {
             var pmcProfile = profile?.CharacterData?.PmcData;
-            if (!pmcProfile?.Info?.LowerNickname?.Contains(request.Nickname.ToLowerInvariant()) ?? false)
+            if (
+                !pmcProfile?.Info?.LowerNickname?.Contains(request.Nickname.ToLowerInvariant())
+                ?? false
+            )
             {
                 continue;
             }

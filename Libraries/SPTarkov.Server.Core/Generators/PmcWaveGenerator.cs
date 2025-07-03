@@ -58,7 +58,12 @@ public class PmcWaveGenerator(
     /// <param name="location"> Location Object </param>
     public void ApplyWaveChangesToMap(LocationBase location)
     {
-        if (!_pmcConfig.CustomPmcWaves.TryGetValue(location.Id.ToLowerInvariant(), out var pmcWavesToAdd))
+        if (
+            !_pmcConfig.CustomPmcWaves.TryGetValue(
+                location.Id.ToLowerInvariant(),
+                out var pmcWavesToAdd
+            )
+        )
         {
             return;
         }

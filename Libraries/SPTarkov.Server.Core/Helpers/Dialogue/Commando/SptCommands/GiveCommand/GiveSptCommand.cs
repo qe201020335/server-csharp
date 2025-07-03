@@ -210,7 +210,8 @@ public class GiveSptCommand(
                 .GetItems()
                 .Where(IsItemAllowed)
                 .FirstOrDefault(i =>
-                    (localizedGlobal[$"{i?.Id} Name"]?.ToLowerInvariant() ?? i.Properties.Name) == item
+                    (localizedGlobal[$"{i?.Id} Name"]?.ToLowerInvariant() ?? i.Properties.Name)
+                    == item
                 )
                 .Id
             : item;

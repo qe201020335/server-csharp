@@ -390,7 +390,11 @@ public class ItemHelper(
         }
 
         // Check if item has slots that match soft insert name ids
-        if (itemDbDetails.Value.Properties.Slots.Any(slot => IsSoftInsertId(slot.Name.ToLowerInvariant())))
+        if (
+            itemDbDetails.Value.Properties.Slots.Any(slot =>
+                IsSoftInsertId(slot.Name.ToLowerInvariant())
+            )
+        )
         {
             return true;
         }

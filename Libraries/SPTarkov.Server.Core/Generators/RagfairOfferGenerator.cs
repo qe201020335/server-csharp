@@ -495,7 +495,9 @@ public class RagfairOfferGenerator(
         }
 
         var plateSlots = presetWithChildren
-            .Where(item => itemHelper.GetRemovablePlateSlotIds().Contains(item.SlotId?.ToLowerInvariant()))
+            .Where(item =>
+                itemHelper.GetRemovablePlateSlotIds().Contains(item.SlotId?.ToLowerInvariant())
+            )
             .ToList();
         if (plateSlots.Count == 0)
         // Has no plate slots e.g. "front_plate", exit
