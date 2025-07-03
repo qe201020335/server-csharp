@@ -102,7 +102,7 @@ public class EventOutputHolder(
         profileChanges.Skills.Common = cloner.Clone(pmcData.Skills.Common); // Always send skills for Item event route response
         profileChanges.Skills.Mastering = cloner.Clone(pmcData.Skills.Mastering);
 
-        // Clone productions to ensure we preseve the profile jsons data
+        // Clone productions to ensure we preserve the profile jsons data
         profileChanges.Production = GetProductionsFromProfileAndFlagComplete(
             cloner.Clone(pmcData.Hideout.Production),
             sessionId

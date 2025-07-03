@@ -533,10 +533,7 @@ public class InventoryHelper(
         var insuredItems = profile.InsuredItems;
 
         // We have output object, inform client of root item deletion, not children
-        if (output is not null)
-        {
-            output.ProfileChanges[sessionId].Items.DeletedItems.Add(new Item { Id = itemId });
-        }
+        output?.ProfileChanges[sessionId].Items.DeletedItems.Add(new DeletedItem { Id = itemId });
 
         foreach (var item in itemAndChildrenToRemove)
         {

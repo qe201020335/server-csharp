@@ -168,7 +168,13 @@ public record ItemChanges
     public List<Item>? ChangedItems { get; set; }
 
     [JsonPropertyName("del")]
-    public List<Item> DeletedItems { get; set; } // Only needs _id property
+    public List<DeletedItem> DeletedItems { get; set; } // Only needs _id property
+}
+
+public record DeletedItem
+{
+    [JsonPropertyName("_id")]
+    public string Id { get; set; }
 }
 
 /// <summary>

@@ -666,7 +666,9 @@ public class QuestHelper(
         {
             // this case is probably dead Code right now, since the only calling function
             // checks explicitly for Value > 0.
-            output.ProfileChanges[sessionID].Items.DeletedItems.Add(new Item { Id = itemId });
+            output
+                .ProfileChanges[sessionID]
+                .Items.DeletedItems.Add(new DeletedItem { Id = itemId });
             pmcData.Inventory.Items.RemoveAt(inventoryItemIndex);
         }
     }

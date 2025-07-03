@@ -1074,7 +1074,9 @@ public class InventoryController(
         }
 
         destinationItem.Upd.StackObjectsCount += sourceItem.Upd.StackObjectsCount; // Add source stackcount to destination
-        output.ProfileChanges[sessionID].Items.DeletedItems.Add(new Item { Id = sourceItem.Id }); // Inform client source item being deleted
+        output
+            .ProfileChanges[sessionID]
+            .Items.DeletedItems.Add(new DeletedItem { Id = sourceItem.Id }); // Inform client source item being deleted
 
         var indexOfItemToRemove = inventoryItems.From.FindIndex(x => x.Id == sourceItem.Id);
         if (indexOfItemToRemove == -1)
