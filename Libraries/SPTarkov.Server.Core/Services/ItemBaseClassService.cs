@@ -53,9 +53,9 @@ public class ItemBaseClassService(
     protected void AddBaseItems(string itemIdToUpdate, TemplateItem item)
     {
         _itemBaseClassesCache[itemIdToUpdate].Add(item.Parent);
-        var parent = _databaseService.GetItems()[item.Parent];
+        _databaseService.GetItems().TryGetValue(item.Parent, out var parent);
 
-        if (!string.IsNullOrEmpty(parent.Parent))
+        if (parent is not null && !string.IsNullOrEmpty(parent.Parent))
         {
             AddBaseItems(itemIdToUpdate, parent);
         }
