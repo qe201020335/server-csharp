@@ -1301,7 +1301,7 @@ public class FenceService(
             var modItemToAdjust = armorItemAndMods.FirstOrDefault(mod =>
                 string.Equals(
                     mod.SlotId,
-                    requiredSlot.Name.ToLower(),
+                    requiredSlot.Name.ToLowerInvariant(),
                     StringComparison.OrdinalIgnoreCase
                 )
             );

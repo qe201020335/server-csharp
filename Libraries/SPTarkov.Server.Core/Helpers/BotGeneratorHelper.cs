@@ -37,7 +37,7 @@ public class BotGeneratorHelper(
         EquipmentSlots.ArmBand.ToString(),
     ];
 
-    private static readonly string[] _pmcTypes = [Sides.PmcBear.ToLower(), Sides.PmcUsec.ToLower()];
+    private static readonly string[] _pmcTypes = [Sides.PmcBear.ToLowerInvariant(), Sides.PmcUsec.ToLowerInvariant()];
 
     private readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
 

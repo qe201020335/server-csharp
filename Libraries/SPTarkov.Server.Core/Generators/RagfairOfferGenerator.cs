@@ -495,7 +495,7 @@ public class RagfairOfferGenerator(
         }
 
         var plateSlots = presetWithChildren
-            .Where(item => itemHelper.GetRemovablePlateSlotIds().Contains(item.SlotId?.ToLower()))
+            .Where(item => itemHelper.GetRemovablePlateSlotIds().Contains(item.SlotId?.ToLowerInvariant()))
             .ToList();
         if (plateSlots.Count == 0)
         // Has no plate slots e.g. "front_plate", exit
@@ -507,7 +507,7 @@ public class RagfairOfferGenerator(
         foreach (var plateSlot in plateSlots)
         {
             var plateDetails = itemHelper.GetItem(plateSlot.Template).Value;
-            if (plateSettings.IgnoreSlots.Contains(plateSlot.SlotId.ToLower()))
+            if (plateSettings.IgnoreSlots.Contains(plateSlot.SlotId.ToLowerInvariant()))
             {
                 continue;
             }
@@ -631,7 +631,7 @@ public class RagfairOfferGenerator(
         }
 
         var offerItemPlatesToRemove = itemWithChildren.Where(item =>
-            armorConfig.PlateSlotIdToRemovePool.Contains(item.SlotId?.ToLower())
+            armorConfig.PlateSlotIdToRemovePool.Contains(item.SlotId?.ToLowerInvariant())
         );
 
         // Latest first, to ensure we don't move later items off by 1 each time we remove an item below it

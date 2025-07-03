@@ -123,8 +123,8 @@ public class ProfileHelper(
             && !StringsMatch(p.ProfileInfo.ProfileId, sessionID)
             && // SessionIds dont match
             StringsMatch(
-                p.CharacterData.PmcData.Info.LowerNickname.ToLower(),
-                nicknameRequest.Nickname.ToLower()
+                p.CharacterData.PmcData.Info.LowerNickname.ToLowerInvariant(),
+                nicknameRequest.Nickname.ToLowerInvariant()
             )
         ); // Nicknames do
     }
@@ -564,7 +564,7 @@ public class ProfileHelper(
     public bool IsDeveloperAccount(string sessionID)
     {
         return GetFullProfile(sessionID)
-                ?.ProfileInfo?.Edition?.ToLower()
+                ?.ProfileInfo?.Edition?.ToLowerInvariant()
                 .StartsWith("spt developer") ?? false;
     }
 

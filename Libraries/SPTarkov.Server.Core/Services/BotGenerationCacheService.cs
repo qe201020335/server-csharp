@@ -115,6 +115,6 @@ public class BotGenerationCacheService(
 
     public string CreateCacheKey(string? role, string? difficulty)
     {
-        return $"{role?.ToLower()}{difficulty?.ToLower()}";
+        return $"{role?.ToLowerInvariant()}{difficulty?.ToLowerInvariant()}";
     }
 }

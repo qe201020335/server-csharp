@@ -158,7 +158,7 @@ namespace SPTarkov.Server.Core.Extensions
             }
 
             // Dev profile additions
-            if (fullProfile.ProfileInfo.Edition.ToLower().Contains("developer"))
+            if (fullProfile.ProfileInfo.Edition.ToLowerInvariant().Contains("developer"))
             // CyberTark background
             {
                 fullProfile.CustomisationUnlocks.Add(
@@ -185,7 +185,7 @@ namespace SPTarkov.Server.Core.Extensions
 
             // Edge case - profile not created yet, fall back to what launcher has set
             var launcherEdition = fullProfile.ProfileInfo.Edition;
-            switch (launcherEdition.ToLower())
+            switch (launcherEdition.ToLowerInvariant())
             {
                 case "edge of darkness":
                     return GameEditions.EDGE_OF_DARKNESS;

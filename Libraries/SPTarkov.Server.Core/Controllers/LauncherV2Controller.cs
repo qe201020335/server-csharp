@@ -196,7 +196,7 @@ public class LauncherV2Controller(
         var timeStampStr = Convert.ToString(timeStamp, 16).PadLeft(8, '0');
         var counterStr = Convert.ToString(counter, 16).PadLeft(16, '0');
 
-        return timeStampStr.ToLower() + counterStr.ToLower();
+        return timeStampStr.ToLowerInvariant() + counterStr.ToLowerInvariant();
     }
 
     protected string? GetSessionId(LoginRequestData info)

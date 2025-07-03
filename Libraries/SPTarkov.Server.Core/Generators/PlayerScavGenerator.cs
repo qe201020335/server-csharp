@@ -80,7 +80,7 @@ public class PlayerScavGenerator(
 
         var scavData = _botGenerator.GeneratePlayerScav(
             sessionID,
-            playerScavKarmaSettings.BotTypeForLoot.ToLower(),
+            playerScavKarmaSettings.BotTypeForLoot.ToLowerInvariant(),
             "easy",
             baseBotNode,
             pmcDataClone

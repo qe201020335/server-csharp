@@ -384,7 +384,7 @@ public class ItemTplGenerator(
         }
 
         // Add "DAMAGED" for damaged items
-        if (item.Name.ToLower().Contains("damaged"))
+        if (item.Name.ToLowerInvariant().Contains("damaged"))
         {
             suffix += "_DAMAGED";
         }

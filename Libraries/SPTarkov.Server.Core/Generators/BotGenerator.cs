@@ -188,7 +188,7 @@ public class BotGenerator(
         BotGenerationDetails botGenerationDetails
     )
     {
-        var botRoleLowercase = botGenerationDetails.Role.ToLower();
+        var botRoleLowercase = botGenerationDetails.Role.ToLowerInvariant();
         var botLevel = _botLevelGenerator.GenerateBotLevel(
             botJsonTemplate.BotExperience.Level,
             botGenerationDetails,
@@ -215,7 +215,7 @@ public class BotGenerator(
 
         // Only Pmcs should have a lower nickname
         bot.Info.LowerNickname = botGenerationDetails.IsPmc.GetValueOrDefault(false)
-            ? bot.Info.Nickname.ToLower()
+            ? bot.Info.Nickname.ToLowerInvariant()
             : string.Empty;
 
         // Only run when generating a 'fake' playerscav, not actual player scav
@@ -351,7 +351,7 @@ public class BotGenerator(
         string role
     )
     {
-        if (!experiences.TryGetValue(botDifficulty.ToLower(), out var result))
+        if (!experiences.TryGetValue(botDifficulty.ToLowerInvariant(), out var result))
         {
             if (_logger.IsLogEnabled(LogLevel.Debug))
             {
@@ -386,7 +386,7 @@ public class BotGenerator(
         string role
     )
     {
-        if (!standingsForKill.TryGetValue(botDifficulty.ToLower(), out var result))
+        if (!standingsForKill.TryGetValue(botDifficulty.ToLowerInvariant(), out var result))
         {
             _logger.Warning(
                 $"Unable to find standing for kill value for: {role} {botDifficulty}, falling back to `normal`"
@@ -411,7 +411,7 @@ public class BotGenerator(
         string role
     )
     {
-        if (!aggressorBonuses.TryGetValue(botDifficulty.ToLower(), out var result))
+        if (!aggressorBonuses.TryGetValue(botDifficulty.ToLowerInvariant(), out var result))
         {
             _logger.Warning(
                 $"Unable to find aggressor bonus for kill value for: {role} {botDifficulty}, falling back to `normal`"

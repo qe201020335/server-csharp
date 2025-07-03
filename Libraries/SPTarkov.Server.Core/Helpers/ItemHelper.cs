@@ -359,7 +359,7 @@ public class ItemHelper(
         var itemTemplate = GetItem(itemTpl);
 
         return itemTemplate.Value.Properties.Slots.Any(slot =>
-            _removablePlateSlotIds.Contains(slot.Name.ToLower())
+            _removablePlateSlotIds.Contains(slot.Name.ToLowerInvariant())
         );
     }
 
@@ -390,7 +390,7 @@ public class ItemHelper(
         }
 
         // Check if item has slots that match soft insert name ids
-        if (itemDbDetails.Value.Properties.Slots.Any(slot => IsSoftInsertId(slot.Name.ToLower())))
+        if (itemDbDetails.Value.Properties.Slots.Any(slot => IsSoftInsertId(slot.Name.ToLowerInvariant())))
         {
             return true;
         }
@@ -1782,9 +1782,9 @@ public class ItemHelper(
             if (modSpawnChanceDict is not null && !(slot.Required ?? false))
             {
                 // only roll chance to not include mod if dict exists and has value for this mod type (e.g. front_plate)
-                if (modSpawnChanceDict.ContainsKey(slot.Name.ToLower()))
+                if (modSpawnChanceDict.ContainsKey(slot.Name.ToLowerInvariant()))
                 {
-                    if (!_randomUtil.GetChance100(modSpawnChanceDict[slot.Name.ToLower()]))
+                    if (!_randomUtil.GetChance100(modSpawnChanceDict[slot.Name.ToLowerInvariant()]))
                     {
                         continue;
                     }
@@ -1885,7 +1885,7 @@ public class ItemHelper(
     /// <returns>True if it is a slot that holds a removable plate</returns>
     public bool IsRemovablePlateSlot(string slotName)
     {
-        return GetRemovablePlateSlotIds().Contains(slotName.ToLower());
+        return GetRemovablePlateSlotIds().Contains(slotName.ToLowerInvariant());
     }
 
     // Get a list of slot names that hold removable plates

@@ -181,7 +181,7 @@ public class PmcChatResponseService(
 
         if (StripCapitalisation(isVictim))
         {
-            responseText = responseText.ToLower();
+            responseText = responseText.ToLowerInvariant();
         }
 
         if (AllCaps(isVictim))

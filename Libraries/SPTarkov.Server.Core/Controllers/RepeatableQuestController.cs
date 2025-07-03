@@ -137,7 +137,7 @@ public class RepeatableQuestController(
         }
 
         // Subtype name of quest - daily/weekly/scav
-        var repeatableTypeLower = repeatablesOfTypeInProfile.Name.ToLower();
+        var repeatableTypeLower = repeatablesOfTypeInProfile.Name.ToLowerInvariant();
 
         // Save for later standing loss calculation
         var replacedQuestTraderId = questToReplace.TraderId;
@@ -575,7 +575,7 @@ public class RepeatableQuestController(
                 repeatableConfig,
                 pmcData
             );
-            var repeatableTypeLower = repeatableConfig.Name.ToLower();
+            var repeatableTypeLower = repeatableConfig.Name.ToLowerInvariant();
 
             var canAccessRepeatables = CanProfileAccessRepeatableQuests(repeatableConfig, pmcData);
             if (!canAccessRepeatables)

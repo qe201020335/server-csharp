@@ -171,7 +171,7 @@ public class ProfileController(
             var pmcData = _profileHelper.GetPmcProfile(sessionId);
 
             pmcData.Info.Nickname = request.Nickname;
-            pmcData.Info.LowerNickname = request.Nickname.ToLower();
+            pmcData.Info.LowerNickname = request.Nickname.ToLowerInvariant();
         }
 
         return output;
@@ -207,7 +207,7 @@ public class ProfileController(
         foreach (var profile in allProfiles)
         {
             var pmcProfile = profile?.CharacterData?.PmcData;
-            if (!pmcProfile?.Info?.LowerNickname?.Contains(request.Nickname.ToLower()) ?? false)
+            if (!pmcProfile?.Info?.LowerNickname?.Contains(request.Nickname.ToLowerInvariant()) ?? false)
             {
                 continue;
             }

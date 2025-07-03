@@ -115,7 +115,7 @@ public class BotLootGenerator(
         var grenadeCount = _weightedRandomHelper.GetWeightedValue(itemCounts.Grenades.Weights);
 
         // If bot has been flagged as not having loot, set below counts to 0
-        if (_botConfig.DisableLootOnBotTypes.Contains(botRole.ToLower()))
+        if (_botConfig.DisableLootOnBotTypes.Contains(botRole.ToLowerInvariant()))
         {
             backpackLootCount = 0;
             pocketLootCount = 0;
@@ -945,9 +945,9 @@ public class BotLootGenerator(
             return _botConfig.ItemSpawnLimits["pmc"];
         }
 
-        if (_botConfig.ItemSpawnLimits.ContainsKey(botRole.ToLower()))
+        if (_botConfig.ItemSpawnLimits.ContainsKey(botRole.ToLowerInvariant()))
         {
-            return _botConfig.ItemSpawnLimits[botRole.ToLower()];
+            return _botConfig.ItemSpawnLimits[botRole.ToLowerInvariant()];
         }
 
         _logger.Warning(

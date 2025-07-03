@@ -211,7 +211,7 @@ public class ExplorationQuestGenerator(
     /// <returns>List of Exit objects</returns>
     protected List<Exit>? GetLocationExitsForSide(string locationKey, PlayerGroup playerGroup)
     {
-        var mapExtracts = databaseService.GetLocation(locationKey.ToLower())?.AllExtracts;
+        var mapExtracts = databaseService.GetLocation(locationKey.ToLowerInvariant())?.AllExtracts;
 
         return mapExtracts?.Where(exit => exit.Side == Enum.GetName(playerGroup)).ToList();
     }
