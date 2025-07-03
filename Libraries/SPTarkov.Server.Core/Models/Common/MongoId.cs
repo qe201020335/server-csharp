@@ -5,7 +5,7 @@ namespace SPTarkov.Server.Core.Models.Common;
 
 public readonly struct MongoId : IEquatable<MongoId>
 {
-    private readonly string _stringId;
+    private readonly string? _stringId;
 
     public MongoId(
         string? id,
@@ -18,7 +18,7 @@ public readonly struct MongoId : IEquatable<MongoId>
         // This is temporary, otherwise item buying is broken as when LINQ searches for string id's it's possible null is passed
         if (string.IsNullOrEmpty(id))
         {
-            _stringId = string.Intern("000000000000000000000000");
+            _stringId = null;
 
             return;
         }
@@ -136,7 +136,7 @@ public readonly struct MongoId : IEquatable<MongoId>
 
     public override int GetHashCode()
     {
-        return _stringId.GetHashCode();
+        return (_stringId ?? string.Empty).GetHashCode();
     }
 
     public bool IsEmpty()
