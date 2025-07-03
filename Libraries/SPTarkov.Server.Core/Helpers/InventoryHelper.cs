@@ -108,7 +108,7 @@ public class InventoryHelper(
         var itemWithModsToAddClone = _cloner.Clone(request.ItemWithModsToAdd);
 
         // Get stash layouts ready for use
-        var stashFS2D = GetStashSlotMap(pmcData, sessionId);
+        var stashFS2D = GetStashSlotMap(pmcData);
         if (stashFS2D is null)
         {
             _logger.Error($"Unable to get stash map for players: {sessionId} stash");
@@ -224,7 +224,7 @@ public class InventoryHelper(
     {
         var pmcData = _profileHelper.GetPmcProfile(sessionId);
 
-        var stashFS2D = _cloner.Clone(GetStashSlotMap(pmcData, sessionId));
+        var stashFS2D = _cloner.Clone(GetStashSlotMap(pmcData));
         if (stashFS2D is null)
         {
             _logger.Error($"Unable to get stash map for players: {sessionId} stash");
@@ -370,7 +370,7 @@ public class InventoryHelper(
     /// <summary>
     ///     Find a location to place an item into inventory and place it
     /// </summary>
-    /// <param name="stashFS2D">2-dimensional representation of the container slots</param>
+    /// <param name="stashFS2D">2-dimensional representation of the container</param>
     /// <param name="sortingTableFS2D">2-dimensional representation of the sorting table slots</param>
     /// <param name="itemWithChildren">Item to place with children</param>
     /// <param name="playerInventory">Players inventory</param>
@@ -1055,14 +1055,13 @@ public class InventoryHelper(
     ///     0 value = free, 1 = taken
     /// </summary>
     /// <param name="pmcData">Player profile</param>
-    /// <param name="sessionID">session id</param>
     /// <returns>2-dimensional array</returns>
-    protected int[][]? GetStashSlotMap(PmcData pmcData, string sessionID)
+    protected int[][] GetStashSlotMap(PmcData pmcData)
     {
-        var playerStashSize = GetPlayerStashSize(sessionID);
+        var (horizontal, vertical) = GetPlayerStashSize(pmcData);
         return GetContainerMap(
-            playerStashSize[0],
-            playerStashSize[1],
+            horizontal,
+            vertical,
             pmcData.Inventory.Items,
             pmcData.Inventory.Stash
         );
@@ -1097,57 +1096,59 @@ public class InventoryHelper(
     /// <summary>
     ///     Get Players Stash Size
     /// </summary>
-    /// <param name="sessionId">Players id</param>
-    /// <returns>Dictionary of 2 values, horizontal and vertical stash size</returns>
-    protected List<int> GetPlayerStashSize(string sessionId)
+    /// <param name="pmcData">Profile to get stash size of</param>
+    /// <returns>Horizontal and vertical size of stash</returns>
+    protected (int, int) GetPlayerStashSize(PmcData pmcData)
     {
-        var profile = _profileHelper.GetPmcProfile(sessionId);
-        var stashRowBonus = profile.Bonuses.FirstOrDefault(bonus =>
-            bonus.Type == BonusType.StashRows
-        );
-
-        // this sets automatically a stash size from items.json (it's not added anywhere yet because we still use base stash)
-        var stashTPL = GetStashType(sessionId);
-        if (stashTPL is null)
+        // TODO: what??
+        // This sets automatically a stash size from items.json (it's not added anywhere yet because we still use base stash)
+        var stashTpl = GetProfileStashTpl(pmcData);
+        if (stashTpl is null)
         {
             _logger.Error(_serverLocalisationService.GetText("inventory-missing_stash_size"));
+
+            return (0, 0);
         }
 
-        var stashItemResult = _itemHelper.GetItem(stashTPL);
-        if (!stashItemResult.Key)
+        // Look up details of stash in db
+        var (isValidItem, stashItemDbItem) = _itemHelper.GetItem(stashTpl);
+        if (!isValidItem)
         {
             _logger.Error(
-                _serverLocalisationService.GetText("inventory-stash_not_found", stashTPL)
+                _serverLocalisationService.GetText("inventory-stash_not_found", stashTpl)
             );
 
-            return new List<int>();
+            return (0, 0);
         }
 
-        var stashItemDetails = stashItemResult.Value;
-        var firstStashItemGrid = stashItemDetails.Properties.Grids[0];
+        // Find the main 'grid' of the stash we can use to get size
+        var firstStashItemGrid = stashItemDbItem?.Properties?.Grids?.FirstOrDefault();
 
+        // Get horizontal and vertical size
         var stashH = firstStashItemGrid.Props.CellsH != 0 ? firstStashItemGrid.Props.CellsH : 10;
         var stashV = firstStashItemGrid.Props.CellsV != 0 ? firstStashItemGrid.Props.CellsV : 66;
 
         // Player has a bonus, apply to vertical size
+        var stashRowBonus = pmcData.Bonuses.FirstOrDefault(bonus =>
+            bonus.Type == BonusType.StashRows
+        );
         if (stashRowBonus is not null)
         {
             stashV += (int)stashRowBonus.Value;
         }
 
-        return [stashH.Value, stashV.Value];
+        return (stashH.Value, stashV.Value);
     }
 
     /// <summary>
     ///     Get the players stash items tpl
     /// </summary>
-    /// <param name="sessionId">Player id</param>
+    /// <param name="profile">Profile to get tpl</param>
     /// <returns>Stash tpl</returns>
-    protected string? GetStashType(string sessionId)
+    protected string? GetProfileStashTpl(PmcData profile)
     {
-        var pmcData = _profileHelper.GetPmcProfile(sessionId);
-        var stashObj = pmcData.Inventory.Items.FirstOrDefault(item =>
-            item.Id == pmcData.Inventory.Stash
+        var stashObj = profile.Inventory.Items.FirstOrDefault(item =>
+            item.Id == profile.Inventory.Stash
         );
         if (stashObj is null)
         {
