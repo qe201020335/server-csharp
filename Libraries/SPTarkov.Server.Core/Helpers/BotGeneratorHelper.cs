@@ -669,7 +669,7 @@ public class BotGeneratorHelper(
             }
 
             // Get x/y grid size of item
-            var (width, height) = _inventoryHelper.GetItemSize(
+            var (itemWidth, itemHeight) = _inventoryHelper.GetItemSize(
                 rootItemTplId,
                 rootItemId,
                 itemWithChildren
@@ -684,7 +684,7 @@ public class BotGeneratorHelper(
                 if (
                     slotGrid.Props?.CellsH == 0
                     || slotGrid.Props?.CellsV == 0
-                    || width * height > slotGrid.Props?.CellsV * slotGrid.Props?.CellsH
+                    || itemWidth * itemHeight > slotGrid.Props?.CellsV * slotGrid.Props?.CellsH
                 )
                 {
                     continue;
@@ -722,7 +722,7 @@ public class BotGeneratorHelper(
                     );
 
                     // Try to fit item into grid
-                    var findSlotResult = slotGridMap.FindSlotForItem(width, height);
+                    var findSlotResult = slotGridMap.FindSlotForItem(itemWidth, itemHeight);
 
                     // Free slot found, add item
                     if (findSlotResult.Success ?? false)
@@ -768,7 +768,7 @@ public class BotGeneratorHelper(
             }
 
             // if the item was a one by one, we know it must be full. Or if the maps cant find a slot for a one by one
-            if (width == 1 && height == 1)
+            if (itemWidth == 1 && itemHeight == 1)
             {
                 containersIdFull.Add(equipmentSlotId.ToString());
             }
@@ -796,7 +796,7 @@ public class BotGeneratorHelper(
         }
 
         // Filter out all items without location prop, (child items)
-        var itemsWithoutLocation = inventoryItems.Where(item => item.Location is null).ToList();
+        var itemsWithoutLocation = inventoryItems.Where(item => item.Location is null);
         foreach (var rootItem in containerRootItems)
         {
             // Check item in container for children, store for later insertion into `containerItemsToCheck`

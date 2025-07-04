@@ -91,15 +91,15 @@ namespace SPTarkov.Server.Core.Extensions
         ///     Find a free slot for an item to be placed at
         /// </summary>
         /// <param name="container2D">Container to place item in</param>
-        /// <param name="desiredColumnPositionX">Container y size</param>
-        /// <param name="desiredRowPositionY">Container x size</param>
+        /// <param name="columnStartPositionX">Container y size</param>
+        /// <param name="rowStartPositionY">Container x size</param>
         /// <param name="itemXWidth">Items width</param>
         /// <param name="itemYHeight">Items height</param>
         /// <param name="isRotated">is item rotated</param>
         public static void FillContainerMapWithItem(
             this int[,] container2D,
-            int desiredColumnPositionX,
-            int desiredRowPositionY,
+            int columnStartPositionX,
+            int rowStartPositionY,
             int? itemXWidth,
             int? itemYHeight,
             bool isRotated
@@ -112,14 +112,17 @@ namespace SPTarkov.Server.Core.Extensions
             var itemWidth = isRotated ? itemYHeight : itemXWidth;
             var itemHeight = isRotated ? itemXWidth : itemYHeight;
 
-            for (var tmpY = desiredRowPositionY; tmpY < itemHeight; tmpY++)
+            var itemRowEndPosition = rowStartPositionY + itemHeight;
+            var itemColumnEndPosition = columnStartPositionX + itemWidth;
+
+            for (var y = rowStartPositionY; y < itemRowEndPosition; y++)
             {
-                for (var tmpX = desiredColumnPositionX; tmpX < itemWidth; tmpX++)
+                for (var x = columnStartPositionX; x < itemColumnEndPosition; x++)
                 {
-                    if (container2D[tmpY, tmpX] == 0)
+                    if (container2D[y, x] == 0)
                     {
                         // Flag slot as used
-                        container2D[tmpY, tmpX] = 1;
+                        container2D[y, x] = 1;
                     }
                     else
                     {
@@ -202,8 +205,8 @@ namespace SPTarkov.Server.Core.Extensions
         /// <param name="itemXWidth">Items width</param>
         /// <param name="itemYHeight">Items height</param>
         /// <returns>True - slot found</returns>
-        private static bool CanItemBePlacedInContainerAtPosition(
-            int[,] container,
+        public static bool CanItemBePlacedInContainerAtPosition(
+            this int[,] container,
             int startXPos,
             int startYPos,
             int itemXWidth,
@@ -229,12 +232,13 @@ namespace SPTarkov.Server.Core.Extensions
                 return container[startXPos, startYPos] == 0;
             }
 
-            // Check each slot, is any filled
-            for (var checkY = startYPos; checkY < startYPos + itemYHeight; checkY++)
+            var itemEndColPosition = startXPos + itemXWidth;
+            var itemEndRowPosition = startYPos + itemYHeight;
+            for (var y = startYPos; y < itemEndColPosition; y++)
             {
-                for (var checkX = startXPos; checkX < startXPos + itemXWidth; checkX++)
+                for (var x = startXPos; x < itemEndRowPosition; x++)
                 {
-                    if (container[checkY, checkX] == 1)
+                    if (container[y, x] == 1)
                     {
                         // Occupied by something
                         return false;
