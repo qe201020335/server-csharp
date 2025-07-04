@@ -19,15 +19,11 @@ namespace SPTarkov.Server.Core.Controllers;
 [Injectable]
 public class InventoryController(
     ISptLogger<InventoryController> _logger,
-    HashUtil _hashUtil,
-    RandomUtil _randomUtil,
     HttpResponseUtil _httpResponseUtil,
     PresetHelper _presetHelper,
     InventoryHelper _inventoryHelper,
-    QuestHelper _questHelper,
     HideoutHelper _hideoutHelper,
     ProfileHelper _profileHelper,
-    PaymentHelper _paymentHelper,
     TraderHelper _traderHelper,
     ItemHelper _itemHelper,
     DatabaseService _databaseService,

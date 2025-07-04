@@ -25,8 +25,6 @@ namespace SPTarkov.Server.Core.Controllers;
 public class InsuranceController(
     ISptLogger<InsuranceController> _logger,
     RandomUtil _randomUtil,
-    MathUtil _mathUtil,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     EventOutputHolder _eventOutputHolder,
     ItemHelper _itemHelper,

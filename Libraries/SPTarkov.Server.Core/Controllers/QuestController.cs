@@ -20,7 +20,6 @@ public class QuestController(
     TimeUtil _timeUtil,
     HttpResponseUtil _httpResponseUtil,
     EventOutputHolder _eventOutputHolder,
-    ItemHelper _itemHelper,
     MailSendService _mailSendService,
     QuestHelper _questHelper,
     QuestRewardHelper _questRewardHelper,
