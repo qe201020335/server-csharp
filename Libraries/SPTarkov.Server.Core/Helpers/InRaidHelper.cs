@@ -14,7 +14,6 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class InRaidHelper(
     InventoryHelper _inventoryHelper,
-    ItemHelper _itemHelper,
     ConfigServer _configServer,
     ICloner _cloner,
     DatabaseService _databaseService

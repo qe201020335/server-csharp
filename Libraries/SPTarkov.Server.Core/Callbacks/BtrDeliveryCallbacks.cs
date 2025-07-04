@@ -18,8 +18,7 @@ public class BtrDeliveryCallbacks(
     BtrDeliveryService _btrDeliveryService,
     TimeUtil _timeUtil,
     ConfigServer _configServer,
-    SaveServer _saveServer,
-    HashUtil _hashUtil
+    SaveServer _saveServer
 ) : IOnUpdate
 {
     private readonly BtrDeliveryConfig _btrDeliveryConfig =

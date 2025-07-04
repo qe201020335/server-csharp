@@ -6,7 +6,6 @@ using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Services.Mod;
@@ -14,12 +13,10 @@ namespace SPTarkov.Server.Core.Services.Mod;
 [Injectable]
 public class CustomItemService(
     ISptLogger<CustomItemService> logger,
-    HashUtil hashUtil,
     DatabaseService databaseService,
     ItemHelper itemHelper,
     ItemBaseClassService itemBaseClassService,
-    ICloner cloner,
-    LocaleService localeService
+    ICloner cloner
 )
 {
     /// <summary>

@@ -13,7 +13,6 @@ namespace SPTarkov.Server.Core.Generators;
 public class BotLevelGenerator(
     ISptLogger<BotLevelGenerator> _logger,
     RandomUtil _randomUtil,
-    MathUtil _mathUtil,
     DatabaseService _databaseService
 )
 {

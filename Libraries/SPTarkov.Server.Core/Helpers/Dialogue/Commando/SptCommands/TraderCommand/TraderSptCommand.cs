@@ -10,14 +10,12 @@ using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Dialog;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.TraderCommand;
 
 [Injectable]
 public class TraderSptCommand(
     ISptLogger<TraderSptCommand> _logger,
-    HashUtil _hashUtil,
     TraderHelper _traderHelper,
     MailSendService _mailSendService
 ) : ISptCommand

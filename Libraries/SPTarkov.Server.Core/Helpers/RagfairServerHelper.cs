@@ -18,7 +18,6 @@ public class RagfairServerHelper(
     TimeUtil timeUtil,
     DatabaseService databaseService,
     ItemHelper itemHelper,
-    TraderHelper traderHelper,
     WeightedRandomHelper weightedRandomHelper,
     MailSendService mailSendService,
     ServerLocalisationService localisationService,

@@ -12,7 +12,7 @@ public class BotGenerationCacheService(
     ServerLocalisationService _serverLocalisationService
 )
 {
-    protected Queue<BotBase> _activeBotsInRaid = [];
+    protected readonly Queue<BotBase> _activeBotsInRaid = [];
     protected readonly ConcurrentDictionary<string, List<BotBase>> _storedBots = new();
 
     /// <summary>

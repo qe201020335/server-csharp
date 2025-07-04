@@ -10,7 +10,6 @@ using SPTarkov.Server.Core.Models.Spt.Server;
 using SPTarkov.Server.Core.Models.Spt.Templates;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Utils;
 using Hideout = SPTarkov.Server.Core.Models.Spt.Hideout.Hideout;
 using Locations = SPTarkov.Server.Core.Models.Spt.Server.Locations;
 using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
@@ -24,8 +23,7 @@ namespace SPTarkov.Server.Core.Services;
 public class DatabaseService(
     ISptLogger<DatabaseService> _logger,
     DatabaseServer _databaseServer,
-    ServerLocalisationService _serverLocalisationService,
-    HashUtil _hashUtil
+    ServerLocalisationService _serverLocalisationService
 )
 {
     private bool _isDataValid = true;

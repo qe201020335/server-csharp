@@ -16,7 +16,6 @@ namespace SPTarkov.Server.Core.Helpers;
 public class NotificationSendHelper(
     ISptLogger<NotificationSendHelper> _logger,
     SptWebSocketConnectionHandler _sptWebSocketConnectionHandler,
-    HashUtil _hashUtil,
     SaveServer _saveServer,
     NotificationService _notificationService,
     TimeUtil _timeUtil,

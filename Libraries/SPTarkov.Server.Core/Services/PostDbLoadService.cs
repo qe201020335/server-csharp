@@ -5,7 +5,6 @@ using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Services;
@@ -13,7 +12,6 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class PostDbLoadService(
     ISptLogger<PostDbLoadService> _logger,
-    HashUtil _hashUtil,
     DatabaseService _databaseService,
     ServerLocalisationService _serverLocalisationService,
     SeasonalEventService _seasonalEventService,

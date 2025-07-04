@@ -6,7 +6,6 @@ using SPTarkov.Server.Core.Models.Eft.Insurance;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Callbacks;
@@ -14,7 +13,6 @@ namespace SPTarkov.Server.Core.Callbacks;
 [Injectable(TypePriority = OnUpdateOrder.InsuranceCallbacks)]
 public class InsuranceCallbacks(
     InsuranceController _insuranceController,
-    InsuranceService _insuranceService,
     HttpResponseUtil _httpResponseUtil,
     ConfigServer _configServer
 ) : IOnUpdate

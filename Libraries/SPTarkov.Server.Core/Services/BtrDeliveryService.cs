@@ -17,7 +17,6 @@ public class BtrDeliveryService(
     ISptLogger<BtrDeliveryService> _logger,
     DatabaseService _databaseService,
     RandomUtil _randomUtil,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     SaveServer _saveServer,
     MailSendService _mailSendService,

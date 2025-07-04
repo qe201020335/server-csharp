@@ -11,10 +11,10 @@ namespace SPTarkov.Server.Core.Servers;
 public class ConfigServer
 {
     protected readonly string[] acceptableFileExtensions = ["json", "jsonc"];
-    protected FileUtil _fileUtil;
-    protected JsonUtil _jsonUtil;
-    protected ISptLogger<ConfigServer> _logger;
-    private static Dictionary<string, object> _configs = new();
+    protected readonly FileUtil _fileUtil;
+    protected readonly JsonUtil _jsonUtil;
+    protected readonly ISptLogger<ConfigServer> _logger;
+    private static readonly Dictionary<string, object> _configs = new();
 
     public ConfigServer(ISptLogger<ConfigServer> logger, JsonUtil jsonUtil, FileUtil fileUtil)
     {

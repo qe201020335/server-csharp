@@ -19,7 +19,6 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class PaymentService(
     ISptLogger<PaymentService> _logger,
-    HashUtil _hashUtil,
     HttpResponseUtil _httpResponseUtil,
     HandbookHelper _handbookHelper,
     TraderHelper _traderHelper,

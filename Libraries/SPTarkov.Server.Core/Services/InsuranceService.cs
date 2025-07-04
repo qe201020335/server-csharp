@@ -10,7 +10,6 @@ using SPTarkov.Server.Core.Models.Spt.Services;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Utils;
-using SPTarkov.Server.Core.Utils.Cloners;
 using Insurance = SPTarkov.Server.Core.Models.Eft.Profile.Insurance;
 using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
@@ -28,8 +27,7 @@ public class InsuranceService(
     ProfileHelper _profileHelper,
     ServerLocalisationService _serverLocalisationService,
     MailSendService _mailSendService,
-    ConfigServer _configServer,
-    ICloner _cloner
+    ConfigServer _configServer
 )
 {
     protected readonly InsuranceConfig _insuranceConfig =

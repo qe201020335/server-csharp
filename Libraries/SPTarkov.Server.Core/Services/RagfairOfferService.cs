@@ -17,7 +17,6 @@ namespace SPTarkov.Server.Core.Services;
 public class RagfairOfferService(
     ISptLogger<RagfairOfferService> logger,
     TimeUtil timeUtil,
-    HashUtil hashUtil,
     DatabaseService databaseService,
     SaveServer saveServer,
     RagfairServerHelper ragfairServerHelper,

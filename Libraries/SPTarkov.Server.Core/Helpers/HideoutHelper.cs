@@ -21,7 +21,6 @@ public class HideoutHelper(
     ISptLogger<HideoutHelper> _logger,
     TimeUtil _timeUtil,
     ServerLocalisationService _serverLocalisationService,
-    HashUtil _hashUtil,
     DatabaseService _databaseService,
     EventOutputHolder _eventOutputHolder,
     HttpResponseUtil _httpResponseUtil,

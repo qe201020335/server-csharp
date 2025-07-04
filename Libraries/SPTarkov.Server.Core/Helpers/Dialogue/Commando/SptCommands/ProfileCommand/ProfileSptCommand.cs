@@ -9,14 +9,12 @@ using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Dialog;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.ProfileCommand;
 
 [Injectable]
 public class ProfileSptCommand(
     ISptLogger<ProfileSptCommand> _logger,
-    HashUtil _hashUtil,
     MailSendService _mailSendService,
     ProfileHelper _profileHelper
 ) : ISptCommand

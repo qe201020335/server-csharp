@@ -17,7 +17,6 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable]
 public class MailSendService(
     ISptLogger<MailSendService> _logger,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     SaveServer _saveServer,
     DatabaseService _databaseService,
@@ -26,7 +25,6 @@ public class MailSendService(
     NotificationSendHelper _notificationSendHelper,
     ServerLocalisationService _serverLocalisationService,
     ItemHelper _itemHelper,
-    TraderHelper _traderHelper,
     ICloner _cloner
 )
 {

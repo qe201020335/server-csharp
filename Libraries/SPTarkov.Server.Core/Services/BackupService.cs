@@ -15,15 +15,15 @@ public class BackupService
     protected const string _profileDir = "./user/profiles";
 
     protected readonly List<string> _activeServerMods;
-    protected BackupConfig _backupConfig;
+    protected readonly BackupConfig _backupConfig;
 
     // Runs Init() every x minutes
     protected Timer _backupIntervalTimer;
-    protected FileUtil _fileUtil;
-    protected JsonUtil _jsonUtil;
-    protected ISptLogger<BackupService> _logger;
-    protected TimeUtil _timeUtil;
-    protected IReadOnlyList<SptMod> _loadedMods;
+    protected readonly FileUtil _fileUtil;
+    protected readonly JsonUtil _jsonUtil;
+    protected readonly ISptLogger<BackupService> _logger;
+    protected readonly TimeUtil _timeUtil;
+    protected readonly IReadOnlyList<SptMod> _loadedMods;
 
     public BackupService(
         ISptLogger<BackupService> logger,

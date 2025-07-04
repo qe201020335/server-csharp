@@ -15,11 +15,9 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class PmcChatResponseService(
     ISptLogger<OpenZoneService> _logger,
-    HashUtil _hashUtil,
     RandomUtil _randomUtil,
     NotificationSendHelper _notificationSendHelper,
     WeightedRandomHelper _weightedRandomHelper,
-    DatabaseService _databaseService,
     ServerLocalisationService _serverLocalisationService,
     GiftService _giftService,
     LocaleService _localeService,

@@ -28,7 +28,6 @@ public class LocationLifecycleService
     protected ICloner _cloner;
     protected ConfigServer _configServer;
     protected DatabaseService _databaseService;
-    protected HashUtil _hashUtil;
     protected HealthHelper _healthHelper;
     protected HideoutConfig _hideoutConfig;
     protected InRaidConfig _inRaidConfig;
@@ -97,7 +96,6 @@ public class LocationLifecycleService
         _timeUtil = timeUtil;
         _databaseService = databaseService;
         _profileHelper = profileHelper;
-        _hashUtil = hashUtil;
         _profileActivityService = profileActivityService;
         _botGenerationCacheService = botGenerationCacheService;
         _botNameService = botNameService;

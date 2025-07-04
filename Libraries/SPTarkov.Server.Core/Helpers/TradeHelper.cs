@@ -19,7 +19,6 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class TradeHelper(
     ISptLogger<TradeHelper> _logger,
-    DatabaseService _databaseService,
     TraderHelper _traderHelper,
     ItemHelper _itemHelper,
     QuestHelper _questHelper,

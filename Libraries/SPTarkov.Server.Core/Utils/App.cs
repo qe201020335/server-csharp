@@ -13,7 +13,6 @@ namespace SPTarkov.Server.Core.Utils;
 public class App(
     IServiceProvider _serviceProvider,
     ISptLogger<App> _logger,
-    DatabaseImporter _databaseImporter,
     TimeUtil _timeUtil,
     RandomUtil _randomUtil,
     ServerLocalisationService _serverLocalisationService,

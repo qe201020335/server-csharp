@@ -21,7 +21,6 @@ namespace SPTarkov.Server.Core.Helpers;
 public class RagfairOfferHelper(
     ISptLogger<RagfairOfferHelper> _logger,
     TimeUtil _timeUtil,
-    HashUtil _hashUtil,
     BotHelper _botHelper,
     RagfairSortHelper _ragfairSortHelper,
     PresetHelper _presetHelper,

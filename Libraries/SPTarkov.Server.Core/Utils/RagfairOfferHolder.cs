@@ -15,7 +15,6 @@ public class RagfairOfferHolder(
     ISptLogger<RagfairOfferHolder> _logger,
     RagfairServerHelper _ragfairServerHelper,
     ProfileHelper _profileHelper,
-    HashUtil _hashUtil,
     ServerLocalisationService _serverLocalisationService,
     ItemHelper _itemHelper
 )

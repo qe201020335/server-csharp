@@ -10,7 +10,6 @@ namespace SPTarkov.Server.Core.Callbacks;
 
 [Injectable(TypePriority = OnUpdateOrder.DialogueCallbacks)]
 public class DialogueCallbacks(
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     HttpResponseUtil _httpResponseUtil,
     DialogueController _dialogueController
