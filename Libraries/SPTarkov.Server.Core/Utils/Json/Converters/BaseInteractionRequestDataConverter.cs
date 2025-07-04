@@ -18,10 +18,7 @@ namespace SPTarkov.Server.Core.Utils.Json.Converters;
 
 public class BaseInteractionRequestDataConverter : JsonConverter<BaseInteractionRequestData>
 {
-    private static Dictionary<
-        string,
-        Func<string, JsonSerializerOptions, BaseInteractionRequestData?>
-    > _modHandlers = [];
+    private static Dictionary<string, Func<string, BaseInteractionRequestData?>> _modHandlers = [];
 
     public override BaseInteractionRequestData? Read(
         ref Utf8JsonReader reader,
@@ -250,7 +247,7 @@ public class BaseInteractionRequestDataConverter : JsonConverter<BaseInteraction
             default:
                 if (_modHandlers.TryGetValue(action, out var handler))
                 {
-                    return handler(jsonText, options);
+                    return handler(jsonText);
                 }
                 throw new Exception(
                     $"Unhandled action type {action}, make sure the BaseInteractionRequestDataConverter has the deserialization for this action handled."
@@ -260,7 +257,7 @@ public class BaseInteractionRequestDataConverter : JsonConverter<BaseInteraction
 
     public static void RegisterModDataHandler(
         string action,
-        Func<string, JsonSerializerOptions, BaseInteractionRequestData?> handler
+        Func<string, BaseInteractionRequestData?> handler
     )
     {
         if (!_modHandlers.TryAdd(action, handler))
