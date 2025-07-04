@@ -2081,6 +2081,7 @@ public class ItemHelper(
     /// <returns>Two-dimensional representation of container</returns>
     public int[,] GetBlankContainerMap(int horizontalSizeX, int verticalSizeY)
     {
-        return new int[horizontalSizeX, verticalSizeY];
+        // Rows / Columns
+        return new int[verticalSizeY, horizontalSizeX];
     }
 }

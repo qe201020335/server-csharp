@@ -8,20 +8,20 @@ namespace SPTarkov.Server.Core.Extensions
         ///     Finds a slot for an item in a given 2D container map
         /// </summary>
         /// <param name="container2D">List of container with positions filled/free</param>
-        /// <param name="itemX">Width of item</param>
-        /// <param name="itemY">Height of item</param>
+        /// <param name="itemWidthX">Width of item</param>
+        /// <param name="itemHeightY">Height of item</param>
         /// <returns>Location to place item in container</returns>
         public static FindSlotResult FindSlotForItem(
             this int[,] container2D,
-            int? itemX,
-            int? itemY
+            int? itemWidthX,
+            int? itemHeightY
         )
         {
             // Assume not rotated
             var rotation = false;
 
             // Find the min volume the item will take up
-            var minVolume = (itemX < itemY ? itemX : itemY) - 1;
+            var minVolume = (itemWidthX < itemHeightY ? itemWidthX : itemHeightY) - 1;
             var containerY = container2D.GetLength(0); // rows
             var containerX = container2D.GetLength(1); // columns
             var limitY = containerY - minVolume;
@@ -50,8 +50,8 @@ namespace SPTarkov.Server.Core.Extensions
                             container2D,
                             x,
                             y,
-                            itemX.Value,
-                            itemY.Value
+                            itemWidthX.Value,
+                            itemHeightY.Value
                         )
                     )
                     {
@@ -59,7 +59,7 @@ namespace SPTarkov.Server.Core.Extensions
                         return new FindSlotResult(true, x, y, rotation);
                     }
 
-                    if (!ItemBiggerThan1X1(itemX.Value, itemY.Value))
+                    if (!ItemBiggerThan1X1(itemWidthX.Value, itemHeightY.Value))
                     {
                         // Doesn't fit AND rotating won't help
                         continue;
@@ -71,8 +71,8 @@ namespace SPTarkov.Server.Core.Extensions
                             container2D,
                             x,
                             y,
-                            itemY.Value, // Swapped
-                            itemX.Value // Swapped
+                            itemHeightY.Value, // Swapped
+                            itemWidthX.Value // Swapped
                         )
                     )
                     {
@@ -91,27 +91,30 @@ namespace SPTarkov.Server.Core.Extensions
         ///     Find a free slot for an item to be placed at
         /// </summary>
         /// <param name="container2D">Container to place item in</param>
-        /// <param name="x">Container x size</param>
-        /// <param name="y">Container y size</param>
+        /// <param name="desiredRowPositionY">Container x size</param>
+        /// <param name="desiredColumnPositionX">Container y size</param>
         /// <param name="itemXWidth">Items width</param>
         /// <param name="itemYHeight">Items height</param>
         /// <param name="isRotated">is item rotated</param>
         public static void FillContainerMapWithItem(
             this int[,] container2D,
-            int x,
-            int y,
+            int desiredRowPositionY,
+            int desiredColumnPositionX,
             int? itemXWidth,
             int? itemYHeight,
             bool isRotated
         )
         {
+            var containerY = container2D.GetLength(0); // rows
+            var containerX = container2D.GetLength(1); // columns
+
             // Swap height/width if item needs to be rotated to fit
             var itemWidth = isRotated ? itemYHeight : itemXWidth;
             var itemHeight = isRotated ? itemXWidth : itemYHeight;
 
-            for (var tmpY = y; tmpY < y + itemHeight; tmpY++)
+            for (var tmpY = desiredRowPositionY; tmpY < containerY + itemHeight; tmpY++)
             {
-                for (var tmpX = x; tmpX < x + itemWidth; tmpX++)
+                for (var tmpX = desiredColumnPositionX; tmpX < containerX + itemWidth; tmpX++)
                 {
                     if (container2D[tmpY, tmpX] == 0)
                     {
@@ -121,7 +124,7 @@ namespace SPTarkov.Server.Core.Extensions
                     else
                     {
                         throw new Exception(
-                            $"Slot at({x}, {y}) is already filled. Cannot fit a {itemXWidth} by {itemYHeight} item"
+                            $"Slot at({containerX}, {containerY}) is already filled. Cannot fit a {itemXWidth} by {itemYHeight} item"
                         );
                     }
                 }
@@ -137,7 +140,7 @@ namespace SPTarkov.Server.Core.Extensions
         private static bool RowIsFull(int[,] container2D, int rowIndex)
         {
             var rowFull = true;
-            var containerColumnCount = container2D.GetLength(1); // columns
+            var containerColumnCount = container2D.GetLength(1); // Column
             for (var col = 0; col < containerColumnCount; col++)
             {
                 if (container2D[rowIndex, col] == 0)
@@ -225,7 +228,7 @@ namespace SPTarkov.Server.Core.Extensions
             {
                 for (var checkX = startXPos; checkX < startXPos + itemXWidth; checkX++)
                 {
-                    if (container[checkY, checkX] == 1)
+                    if (container[checkX, checkY] == 1)
                     {
                         // Occupied by something
                         return false;
