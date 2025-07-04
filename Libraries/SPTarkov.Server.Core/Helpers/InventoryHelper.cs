@@ -899,23 +899,23 @@ public class InventoryHelper(
                 continue;
             }
 
-            // Get x/y size of item
-            var (itemXWidth, itemYHeight) = GetSizeByInventoryItemHash(
+            // Get x/y size of item (without rotation)
+            var (rawItemXWidth, rawItemYHeight) = GetSizeByInventoryItemHash(
                 rootItem.Template,
                 rootItem.Id,
                 inventoryItemHash
             );
             // Items horizontal size
-            var itemHSize = itemLocation.IsVertical() ? itemXWidth : itemYHeight;
+            var itemHeight = itemLocation.IsVertical() ? rawItemXWidth : rawItemYHeight;
 
             // Items vertical size
-            var itemWSize = itemLocation.IsVertical() ? itemYHeight : itemXWidth;
+            var itemWidth = itemLocation.IsVertical() ? rawItemYHeight : rawItemXWidth;
 
-            // vertical
-            for (var yOffset = 0; yOffset < itemHSize; yOffset++)
+            // vertical (row)
+            for (var yOffset = 0; yOffset < itemHeight; yOffset++)
             {
-                // horizontal
-                for (var xOffset = 0; xOffset < itemWSize; xOffset++)
+                // horizontal (column)
+                for (var xOffset = 0; xOffset < itemWidth; xOffset++)
                 {
                     var currentY = itemLocation.Y.Value + yOffset;
                     var currentX = itemLocation.X.Value + xOffset;
@@ -935,7 +935,7 @@ public class InventoryHelper(
                     {
                         // Out of bounds
                         var message =
-                            $"Item: {rootItem.Id} at: {itemLocation.X}, {itemLocation.Y} size: {itemHSize}x{itemWSize} extends outside the containers bounds";
+                            $"Item: {rootItem.Id} at: {itemLocation.X}, {itemLocation.Y} size: {itemHeight}x{itemWidth} extends outside the containers bounds";
 
                         _logger.Error(
                             _serverLocalisationService.GetText(

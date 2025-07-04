@@ -34,29 +34,29 @@ namespace SPTarkov.Server.Core.Extensions
             }
 
             // Down = y, iterate over rows
-            for (var y = 0; y < limitY; y++)
+            for (var row = 0; row < limitY; row++)
             {
-                if (RowIsFull(container2D, y))
+                if (RowIsFull(container2D, row))
                 {
                     continue;
                 }
 
                 // Left to right across columns, look for free position
-                for (var x = 0; x < limitX; x++)
+                for (var column = 0; column < limitX; column++)
                 {
                     // Does item fit
                     if (
                         CanItemBePlacedInContainerAtPosition(
                             container2D,
-                            x,
-                            y,
+                            column,
+                            row,
                             itemWidthX.Value,
                             itemHeightY.Value
                         )
                     )
                     {
                         // Success, found a spot it fits
-                        return new FindSlotResult(true, x, y, rotation);
+                        return new FindSlotResult(true, column, row, rotation);
                     }
 
                     if (!ItemBiggerThan1X1(itemWidthX.Value, itemHeightY.Value))
@@ -69,8 +69,8 @@ namespace SPTarkov.Server.Core.Extensions
                     if (
                         CanItemBePlacedInContainerAtPosition(
                             container2D,
-                            x,
-                            y,
+                            column,
+                            row,
                             itemHeightY.Value, // Swapped
                             itemWidthX.Value // Swapped
                         )
@@ -78,7 +78,7 @@ namespace SPTarkov.Server.Core.Extensions
                     {
                         // Found a position for the item when rotated
                         rotation = true;
-                        return new FindSlotResult(true, x, y, rotation);
+                        return new FindSlotResult(true, column, row, rotation);
                     }
                 }
             }
@@ -91,15 +91,15 @@ namespace SPTarkov.Server.Core.Extensions
         ///     Find a free slot for an item to be placed at
         /// </summary>
         /// <param name="container2D">Container to place item in</param>
-        /// <param name="desiredRowPositionY">Container x size</param>
         /// <param name="desiredColumnPositionX">Container y size</param>
+        /// <param name="desiredRowPositionY">Container x size</param>
         /// <param name="itemXWidth">Items width</param>
         /// <param name="itemYHeight">Items height</param>
         /// <param name="isRotated">is item rotated</param>
         public static void FillContainerMapWithItem(
             this int[,] container2D,
-            int desiredRowPositionY,
             int desiredColumnPositionX,
+            int desiredRowPositionY,
             int? itemXWidth,
             int? itemYHeight,
             bool isRotated
@@ -112,9 +112,9 @@ namespace SPTarkov.Server.Core.Extensions
             var itemWidth = isRotated ? itemYHeight : itemXWidth;
             var itemHeight = isRotated ? itemXWidth : itemYHeight;
 
-            for (var tmpY = desiredRowPositionY; tmpY < containerY + itemHeight; tmpY++)
+            for (var tmpY = desiredRowPositionY; tmpY < itemHeight; tmpY++)
             {
-                for (var tmpX = desiredColumnPositionX; tmpX < containerX + itemWidth; tmpX++)
+                for (var tmpX = desiredColumnPositionX; tmpX < itemWidth; tmpX++)
                 {
                     if (container2D[tmpY, tmpX] == 0)
                     {
@@ -223,12 +223,18 @@ namespace SPTarkov.Server.Core.Extensions
                 return false;
             }
 
+            // Single slot item, do direct check
+            if (itemXWidth == 1 && itemYHeight == 1)
+            {
+                return container[startXPos, startYPos] == 0;
+            }
+
             // Check each slot, is any filled
             for (var checkY = startYPos; checkY < startYPos + itemYHeight; checkY++)
             {
                 for (var checkX = startXPos; checkX < startXPos + itemXWidth; checkX++)
                 {
-                    if (container[checkX, checkY] == 1)
+                    if (container[checkY, checkX] == 1)
                     {
                         // Occupied by something
                         return false;
