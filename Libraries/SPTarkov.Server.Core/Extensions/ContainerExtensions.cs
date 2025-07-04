@@ -207,8 +207,8 @@ namespace SPTarkov.Server.Core.Extensions
             int itemYHeight
         )
         {
-            var containerHeight = container.GetLength(0); // Rows
-            var containerWidth = container.GetLength(1); // Columns
+            var containerHeight = container.GetLength(1); // Rows
+            var containerWidth = container.GetLength(0); // Columns
 
             // Check item isn't bigger than container when at position
             if (
