@@ -200,5 +200,32 @@ namespace SPTarkov.Server.Core.Extensions
 
             return pmcData.Info.Level;
         }
+
+        /// <summary>
+        ///     Does the provided item have a root item with the provided id
+        /// </summary>
+        /// <param name="pmcData">Profile with items</param>
+        /// <param name="item">Item to check</param>
+        /// <param name="rootId">Root item id to check for</param>
+        /// <returns>True when item has rootId, false when not</returns>
+        public static bool DoesItemHaveRootId(this PmcData pmcData, Item item, string rootId)
+        {
+            var currentItem = item;
+            while (currentItem is not null)
+            {
+                // If we've found the equipment root ID, return true
+                if (currentItem.Id == rootId)
+                {
+                    return true;
+                }
+
+                // Otherwise get the parent item
+                currentItem = pmcData.Inventory.Items.FirstOrDefault(item =>
+                    item.Id == currentItem.ParentId
+                );
+            }
+
+            return false;
+        }
     }
 }

@@ -243,14 +243,10 @@ public class InRaidHelper(
                 }
 
                 // Pocket items are lost on death
-                // Ensure we dont pick up pocket items from manniquins
+                // Ensure we don't pick up pocket items from mannequins
                 if (
                     item.SlotId.StartsWith("pocket")
-                    && _inventoryHelper.DoesItemHaveRootId(
-                        pmcProfile,
-                        item,
-                        pmcProfile.Inventory.Equipment
-                    )
+                    && pmcProfile.DoesItemHaveRootId(item, pmcProfile.Inventory.Equipment)
                 )
                 {
                     return true;

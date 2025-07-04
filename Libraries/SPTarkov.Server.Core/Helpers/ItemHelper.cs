@@ -2070,17 +2070,17 @@ public class ItemHelper(
         var height = containerTemplate.Properties.Grids[0].Props.CellsV;
         var width = containerTemplate.Properties.Grids[0].Props.CellsH;
 
-        return GetBlankContainerMap(height.Value, width.Value);
+        return GetBlankContainerMap(width.Value, height.Value);
     }
 
     /// <summary>
     ///     Get a blank two-dimensional representation of a container
     /// </summary>
-    /// <param name="containerY">Horizontal size of container</param>
-    /// <param name="containerX">Vertical size of container</param>
+    /// <param name="horizontalSizeX">Width of container (columns)</param>
+    /// <param name="verticalSizeY">Height of container (rows)</param>
     /// <returns>Two-dimensional representation of container</returns>
-    public int[,] GetBlankContainerMap(int containerY, int containerX)
+    public int[,] GetBlankContainerMap(int horizontalSizeX, int verticalSizeY)
     {
-        return new int[containerX, containerY];
+        return new int[horizontalSizeX, verticalSizeY];
     }
 }

@@ -857,15 +857,23 @@ public class InventoryHelper(
     /// <summary>
     ///     Get a 2d mapping of a container with what grid slots are filled
     /// </summary>
-    /// <param name="sizeX">Horizontal size of container</param>
-    /// <param name="sizeY">Vertical size of container</param>
+    /// <param name="containerSizeHorizontalX">Horizontal (Column) size of container</param>
+    /// <param name="containerSizeVerticalY">Vertical (Row) size of container</param>
     /// <param name="itemList">Players inventory items</param>
     /// <param name="containerId">Id of the container</param>
     /// <returns>Two-dimensional representation of container</returns>
-    public int[,] GetContainerMap(int sizeX, int sizeY, List<Item> itemList, string containerId)
+    public int[,] GetContainerMap(
+        int containerSizeHorizontalX,
+        int containerSizeVerticalY,
+        List<Item> itemList,
+        string containerId
+    )
     {
         // Create blank 2d map of container
-        var containerYX = _itemHelper.GetBlankContainerMap(sizeY, sizeX);
+        var container = _itemHelper.GetBlankContainerMap(
+            containerSizeHorizontalX, // Column count
+            containerSizeVerticalY // Row count
+        );
 
         // Get all items in players inventory keyed by their parentId and by ItemId
         var inventoryItemHash = GetInventoryItemHash(itemList);
@@ -874,7 +882,7 @@ public class InventoryHelper(
         if (!inventoryItemHash.ByParentId.TryGetValue(containerId, out var rootItemsInContainer))
         {
             // No items in container, exit early and return the blank container map
-            return containerYX;
+            return container;
         }
 
         // Add every root items size (with mods attached) found in container
@@ -892,26 +900,36 @@ public class InventoryHelper(
             }
 
             // Get x/y size of item
-            var (xSize, ySize) = GetSizeByInventoryItemHash(
+            var (itemXWidth, itemYHeight) = GetSizeByInventoryItemHash(
                 rootItem.Template,
                 rootItem.Id,
                 inventoryItemHash
             );
-            var itemHSize = itemLocation.IsVertical() ? xSize : ySize;
-            var itemWSize = itemLocation.IsVertical() ? ySize : xSize;
+            // Items horizontal size
+            var itemHSize = itemLocation.IsVertical() ? itemXWidth : itemYHeight;
 
+            // Items vertical size
+            var itemWSize = itemLocation.IsVertical() ? itemYHeight : itemXWidth;
+
+            // vertical
             for (var yOffset = 0; yOffset < itemHSize; yOffset++)
             {
+                // horizontal
                 for (var xOffset = 0; xOffset < itemWSize; xOffset++)
                 {
                     var currentY = itemLocation.Y.Value + yOffset;
                     var currentX = itemLocation.X.Value + xOffset;
 
                     // Check still in containers bounds
-                    if (currentY >= 0 && currentY < sizeY && currentX >= 0 && currentX < sizeX)
+                    if (
+                        currentY >= 0
+                        && currentY < containerSizeVerticalY
+                        && currentX >= 0
+                        && currentX < containerSizeHorizontalX
+                    )
                     {
                         // mark slot used
-                        containerYX[currentY, currentX] = 1;
+                        container[currentY, currentX] = 1;
                     }
                     else
                     {
@@ -933,7 +951,7 @@ public class InventoryHelper(
             }
         }
 
-        return containerYX;
+        return container;
     }
 
     protected InventoryItemHash GetInventoryItemHash(List<Item> inventoryItems)
@@ -1060,10 +1078,13 @@ public class InventoryHelper(
         var containerTemplate = _itemHelper.GetItem(containerTpl).Value;
 
         var firstContainerGrid = containerTemplate.Properties.Grids.FirstOrDefault();
-        var containerH = firstContainerGrid.Props.CellsH;
-        var containerV = firstContainerGrid.Props.CellsV;
+        var containerRowCount = firstContainerGrid.Props.CellsH;
+        var containerColumnCount = firstContainerGrid.Props.CellsV;
 
-        return _itemHelper.GetBlankContainerMap(containerH.Value, containerV.Value);
+        return _itemHelper.GetBlankContainerMap(
+            containerColumnCount.Value,
+            containerRowCount.Value
+        );
     }
 
     /// <summary>
@@ -1153,7 +1174,7 @@ public class InventoryHelper(
         InventoryMoveRequestData request
     )
     {
-        HandleCartridges(sourceItems, request);
+        HandleCartridgeMove(sourceItems, request);
 
         // Get all children item has, they need to move with item
         var idsToMove = sourceItems.FindAndReturnChildrenByItems(request.Item);
@@ -1210,7 +1231,7 @@ public class InventoryHelper(
     )
     {
         errorMessage = string.Empty;
-        HandleCartridges(inventoryItems, moveRequest);
+        HandleCartridgeMove(inventoryItems, moveRequest);
 
         // Find item we want to 'move'
         var matchingInventoryItem = inventoryItems.FirstOrDefault(item =>
@@ -1312,9 +1333,11 @@ public class InventoryHelper(
     }
 
     /// <summary>
-    ///     Internal helper function to handle cartridges in inventory if any of them exist.
+    /// Helper function to handle cartridges in inventory if any of them exist.
     /// </summary>
-    protected void HandleCartridges(List<Item> items, InventoryMoveRequestData request)
+    /// <param name="items"></param>
+    /// <param name="request"></param>
+    protected void HandleCartridgeMove(List<Item> items, InventoryMoveRequestData request)
     {
         // Not moving item into a cartridge slot, skip
         if (request.To.Container != "cartridges")
@@ -1333,9 +1356,11 @@ public class InventoryHelper(
     /// </summary>
     /// <param name="itemTpl">Container being opened</param>
     /// <returns>Reward details</returns>
-    public RewardDetails GetRandomLootContainerRewardDetails(string itemTpl)
+    public RewardDetails? GetRandomLootContainerRewardDetails(string itemTpl)
     {
-        return _inventoryConfig.RandomLootContainers[itemTpl];
+        _inventoryConfig.RandomLootContainers.TryGetValue(itemTpl, out var result);
+
+        return result;
     }
 
     /// <summary>
@@ -1361,33 +1386,6 @@ public class InventoryHelper(
         throw new Exception(
             "This profile is not compatible with SPT, See above for a list of incompatible IDs that is not compatible. Loading of SPT has been halted, use another profile or create a new one"
         );
-    }
-
-    /// <summary>
-    ///     Does the provided item have a root item with the provided id
-    /// </summary>
-    /// <param name="pmcData">Profile with items</param>
-    /// <param name="item">Item to check</param>
-    /// <param name="rootId">Root item id to check for</param>
-    /// <returns>True when item has rootId, false when not</returns>
-    public bool DoesItemHaveRootId(PmcData pmcData, Item item, string rootId)
-    {
-        var currentItem = item;
-        while (currentItem is not null)
-        {
-            // If we've found the equipment root ID, return true
-            if (currentItem.Id == rootId)
-            {
-                return true;
-            }
-
-            // Otherwise get the parent item
-            currentItem = pmcData.Inventory.Items.FirstOrDefault(item =>
-                item.Id == currentItem.ParentId
-            );
-        }
-
-        return false;
     }
 }
 
