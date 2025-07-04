@@ -1,10 +1,12 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
+using static SPTarkov.Server.Core.Extensions.StringExtensions;
 using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
 namespace SPTarkov.Server.Core.Utils;
@@ -17,7 +19,6 @@ public class App(
     RandomUtil _randomUtil,
     ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer,
-    EncodingUtil _encodingUtil,
     HttpServer _httpServer,
     DatabaseService _databaseService,
     IHostApplicationLifetime _appLifeTime,
@@ -48,7 +49,7 @@ public class App(
             _logger.Debug($"Ran as admin: {Environment.IsPrivilegedProcess}");
             _logger.Debug($"CPU cores: {Environment.ProcessorCount}");
             _logger.Debug(
-                $"PATH: {_encodingUtil.ToBase64(Environment.ProcessPath ?? "null returned")}"
+                $"PATH: {(Environment.ProcessPath ?? "null returned").Encode(EncodeType.BASE64)}"
             );
             _logger.Debug($"Server: {ProgramStatics.SPT_VERSION() ?? _coreConfig.SptVersion}");
 

@@ -168,8 +168,7 @@ public class InsuranceService(
             return _timeUtil.GetTimeStamp() + _insuranceConfig.ReturnTimeOverrideSeconds;
         }
 
-        var insuranceReturnTimeBonusSum = _profileHelper.GetBonusValueFromProfile(
-            pmcData,
+        var insuranceReturnTimeBonusSum = pmcData.GetBonusValueFromProfile(
             BonusType.InsuranceReturnTime
         );
 

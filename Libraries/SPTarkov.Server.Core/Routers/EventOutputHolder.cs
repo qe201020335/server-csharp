@@ -123,7 +123,7 @@ public class EventOutputHolder(
     ///     Required as continuous productions don't reset and stay at 100% completion but client thinks it hasn't started
     /// </summary>
     /// <param name="productions"> Productions in a profile </param>
-    private void CleanUpCompleteCraftsInProfile(Dictionary<string, Production>? productions)
+    protected void CleanUpCompleteCraftsInProfile(Dictionary<string, Production>? productions)
     {
         foreach (var production in productions)
         {
@@ -156,7 +156,7 @@ public class EventOutputHolder(
     /// </summary>
     /// <param name="pmcData"> Player profile </param>
     /// <returns> Dictionary of hideout improvements </returns>
-    private Dictionary<string, HideoutImprovement>? GetImprovementsFromProfileAndFlagComplete(
+    protected Dictionary<string, HideoutImprovement>? GetImprovementsFromProfileAndFlagComplete(
         PmcData pmcData
     )
     {
@@ -185,7 +185,7 @@ public class EventOutputHolder(
     /// <param name="productions"> Productions from player profile </param>
     /// <param name="sessionId"> Player session ID</param>
     /// <returns> Dictionary of hideout productions </returns>
-    private Dictionary<string, Production>? GetProductionsFromProfileAndFlagComplete(
+    protected Dictionary<string, Production>? GetProductionsFromProfileAndFlagComplete(
         Dictionary<string, Production>? productions,
         string sessionId
     )
@@ -240,7 +240,7 @@ public class EventOutputHolder(
         return productions.Keys.Count > 0 ? productions : null;
     }
 
-    private void ResetMoneyTransferLimit(MoneyTransferLimits limit)
+    protected void ResetMoneyTransferLimit(MoneyTransferLimits limit)
     {
         if (limit.NextResetTime < timeUtil.GetTimeStamp())
         {
@@ -254,7 +254,7 @@ public class EventOutputHolder(
     /// </summary>
     /// <param name="traderData"> Server data for traders </param>
     /// <returns> Dict of trader id + TraderData </returns>
-    private Dictionary<string, TraderData> ConstructTraderRelations(
+    protected Dictionary<string, TraderData> ConstructTraderRelations(
         Dictionary<string, TraderInfo> traderData
     )
     {

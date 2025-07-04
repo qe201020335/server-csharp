@@ -11,8 +11,7 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class AssortHelper(
     ISptLogger<AssortHelper> _logger,
-    ServerLocalisationService _serverLocalisationService,
-    QuestHelper _questHelper
+    ServerLocalisationService _serverLocalisationService
 )
 {
     /// <summary>
@@ -55,10 +54,7 @@ public class AssortHelper(
             }
 
             // Remove assort if quest in profile does not have status that unlocks assort
-            var questStatusInProfile = _questHelper.GetQuestStatus(
-                pmcProfile,
-                unlockValues.Value.Key
-            );
+            var questStatusInProfile = pmcProfile.GetQuestStatus(unlockValues.Value.Key);
             if (!unlockValues.Value.Value.Contains(questStatusInProfile))
             {
                 strippedTraderAssorts = traderAssorts.RemoveItemFromAssort(assortId.Key, isFlea);

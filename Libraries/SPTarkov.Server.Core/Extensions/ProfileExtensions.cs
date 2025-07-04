@@ -227,5 +227,18 @@ namespace SPTarkov.Server.Core.Extensions
 
             return false;
         }
+
+        /// <summary>
+        ///     Get status of a quest in player profile by its id
+        /// </summary>
+        /// <param name="pmcData">Profile to search</param>
+        /// <param name="questId">Quest id to look up</param>
+        /// <returns>QuestStatus enum</returns>
+        public static QuestStatusEnum GetQuestStatus(this PmcData pmcData, string questId)
+        {
+            var quest = pmcData.Quests?.FirstOrDefault(q => q.QId == questId);
+
+            return quest?.Status ?? QuestStatusEnum.Locked;
+        }
     }
 }

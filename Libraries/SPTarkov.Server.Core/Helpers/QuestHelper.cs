@@ -58,19 +58,6 @@ public class QuestHelper(
     }
 
     /// <summary>
-    ///     Get status of a quest in player profile by its id
-    /// </summary>
-    /// <param name="pmcData">Profile to search</param>
-    /// <param name="questId">Quest id to look up</param>
-    /// <returns>QuestStatus enum</returns>
-    public QuestStatusEnum GetQuestStatus(PmcData pmcData, string questId)
-    {
-        var quest = pmcData.Quests?.FirstOrDefault(q => q.QId == questId);
-
-        return quest?.Status ?? QuestStatusEnum.Locked;
-    }
-
-    /// <summary>
     ///     returns true if the level condition is satisfied
     /// </summary>
     /// <param name="playerLevel">Players level</param>
@@ -967,7 +954,7 @@ public class QuestHelper(
     /// <param name="pmcData">Profile to update</param>
     /// <param name="newQuestState">New state the quest should be in</param>
     /// <param name="questId">Id of the quest to alter the status of</param>
-    public void UpdateQuestState(PmcData pmcData, QuestStatusEnum newQuestState, string questId)
+    protected void UpdateQuestState(PmcData pmcData, QuestStatusEnum newQuestState, string questId)
     {
         // Find quest in profile, update status to desired status
         var questToUpdate = pmcData.Quests.FirstOrDefault(quest => quest.QId == questId);
@@ -1606,12 +1593,12 @@ public class QuestHelper(
         );
     }
 
-    /**
-     * Look for newly available quests after completing a quest with a requirement to wait x minutes (time-locked) before being available and add data to profile
-     * @param pmcData Player profile to update
-     * @param quests Quests to look for wait conditions in
-     * @param completedQuestId Quest just completed
-     */
+    /// <summary>
+    /// Look for newly available quests after completing a quest with a requirement to wait x minutes (time-locked) before being available and add data to profile
+    /// </summary>
+    /// <param name="pmcData">Player profile to update</param>
+    /// <param name="quests">Quests to look for wait conditions in</param>
+    /// <param name="completedQuestId">Quest just completed</param>
     protected void AddTimeLockedQuestsToProfile(
         PmcData pmcData,
         List<Quest> quests,

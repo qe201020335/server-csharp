@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using System.Globalization;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -118,7 +119,7 @@ public class BotEquipmentModGenerator(
         foreach (var (modSlotName, modPool) in compatibleModsPool ?? [])
         {
             // Get the templates slot object from db
-            var itemSlotTemplate = GetModItemSlotFromDb(modSlotName, parentTemplate);
+            var itemSlotTemplate = GetModItemSlotFromDbTemplate(modSlotName, parentTemplate);
             if (itemSlotTemplate is null)
             {
                 _logger.Error(
@@ -185,7 +186,8 @@ public class BotEquipmentModGenerator(
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE
+                    or Result.NO_DEFAULT_FILTER:
                         if (_logger.IsLogEnabled(LogLevel.Debug))
                         {
                             _logger.Debug(
@@ -406,7 +408,7 @@ public class BotEquipmentModGenerator(
                     );
                 }
 
-                var defaultPlate = GetDefaultPlateTpl(armorItem, modSlot);
+                var defaultPlate = armorItem.GetDefaultPlateTpl(modSlot);
                 if (defaultPlate is not null)
                 {
                     // Return Default Plates cause couldn't get lowest level available from original selection
@@ -475,21 +477,6 @@ public class BotEquipmentModGenerator(
     }
 
     /// <summary>
-    ///     Get the default plate an armor has in its db item
-    /// </summary>
-    /// <param name="armorItem">Item to look up default plate</param>
-    /// <param name="modSlot">front/back</param>
-    /// <returns>Tpl of plate</returns>
-    protected string? GetDefaultPlateTpl(TemplateItem armorItem, string modSlot)
-    {
-        var relatedItemDbModSlot = armorItem.Properties.Slots?.FirstOrDefault(slot =>
-            string.Equals(slot.Name, modSlot, StringComparison.OrdinalIgnoreCase)
-        );
-
-        return relatedItemDbModSlot?.Props?.Filters.FirstOrDefault()?.Plate;
-    }
-
-    /// <summary>
     ///     Get the matching armor slot from the default preset matching passed in armor tpl
     /// </summary>
     /// <param name="armorItemTpl"></param>
@@ -555,7 +542,7 @@ public class BotEquipmentModGenerator(
         foreach (var modSlot in sortedModKeys)
         {
             // Check weapon has slot for mod to fit in
-            var modsParentSlot = GetModItemSlotFromDb(modSlot, request.ParentTemplate);
+            var modsParentSlot = GetModItemSlotFromDbTemplate(modSlot, request.ParentTemplate);
             if (modsParentSlot is null)
             {
                 _logger.Error(
@@ -1055,7 +1042,7 @@ public class BotEquipmentModGenerator(
     /// <param name="modSlot">e.g patron_in_weapon</param>
     /// <param name="parentTemplate">item template</param>
     /// <returns>Slot item</returns>
-    public Slot? GetModItemSlotFromDb(string modSlot, TemplateItem parentTemplate)
+    public Slot? GetModItemSlotFromDbTemplate(string modSlot, TemplateItem parentTemplate)
     {
         var modSlotLower = modSlot.ToLowerInvariant();
         switch (modSlotLower)
@@ -1317,7 +1304,7 @@ public class BotEquipmentModGenerator(
     /// <param name="request"></param>
     /// <param name="modPool">Pool of mods that can be picked from</param>
     /// <param name="parentSlot">Slot the picked mod will have as a parent</param>
-    /// <param name="choiceTypeEnum">How should chosen tpl be treated: DEFAULT_MOD/SPAWN/SKIP</param>
+    /// <param name="choiceTypeEnum">How should the chosen tpl be handled: DEFAULT_MOD/SPAWN/SKIP</param>
     /// <param name="weapon">Array of weapon items chosen item will be added to</param>
     /// <param name="modSlotName">Name of slot picked mod will be placed into</param>
     /// <returns>Chosen weapon details</returns>

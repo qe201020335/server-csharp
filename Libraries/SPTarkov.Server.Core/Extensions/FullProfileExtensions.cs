@@ -215,5 +215,16 @@ namespace SPTarkov.Server.Core.Extensions
                 fullProfile.SptData.ExtraRepeatableQuests[repeatableId] += rewardValue;
             }
         }
+
+        /// <summary>
+        ///     Is the provided session id for a developer account
+        /// </summary>
+        /// <param name="fullProfile">Profile to check</param>
+        /// <returns>True if account is developer</returns>
+        public static bool IsDeveloperAccount(this SptProfile fullProfile)
+        {
+            return fullProfile?.ProfileInfo?.Edition?.ToLowerInvariant().StartsWith("spt developer")
+                ?? false;
+        }
     }
 }

@@ -602,24 +602,6 @@ public class ProfileHelper(
         }
     }
 
-    /// <summary>
-    ///     Iterate over all bonuses and sum up all bonuses of desired type in provided profile
-    /// </summary>
-    /// <param name="pmcProfile">Player profile</param>
-    /// <param name="desiredBonus">Bonus to sum up</param>
-    /// <returns>Summed bonus value or 0 if no bonus found</returns>
-    public double GetBonusValueFromProfile(PmcData pmcProfile, BonusType desiredBonus)
-    {
-        var bonuses = pmcProfile?.Bonuses?.Where(b => b.Type == desiredBonus);
-        if (bonuses is null || !bonuses.Any())
-        {
-            return 0;
-        }
-
-        // Sum all bonuses found above
-        return bonuses?.Sum(bonus => bonus?.Value ?? 0) ?? 0;
-    }
-
     public bool HasAccessToRepeatableFreeRefreshSystem(PmcData pmcProfile)
     {
         return _gameEditionsWithFreeRefresh.Contains(pmcProfile.Info.GameVersion);

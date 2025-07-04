@@ -9,11 +9,11 @@ using SPTarkov.Server.Core.Services;
 namespace SPTarkov.Server.Core.Utils;
 
 [Injectable]
-public class HttpResponseUtil
+public class HttpResponseUtil(
+    JsonUtil jsonUtil,
+    ServerLocalisationService serverLocalisationService
+)
 {
-    protected readonly JsonUtil _jsonUtil;
-    protected readonly ServerLocalisationService _serverLocalisationService;
-
     protected readonly ImmutableList<Regex> _cleanupRegexList =
     [
         new("[\\b]"),
@@ -22,12 +22,6 @@ public class HttpResponseUtil
         new("[\\r]"),
         new("[\\t]"),
     ];
-
-    public HttpResponseUtil(JsonUtil jsonUtil, ServerLocalisationService localisationService)
-    {
-        _serverLocalisationService = localisationService;
-        _jsonUtil = jsonUtil;
-    }
 
     protected string ClearString(string? s)
     {
@@ -47,7 +41,7 @@ public class HttpResponseUtil
      */
     public string NoBody<T>(T data)
     {
-        return ClearString(_jsonUtil.Serialize(data));
+        return ClearString(jsonUtil.Serialize(data));
     }
 
     /**
@@ -75,7 +69,7 @@ public class HttpResponseUtil
         string? errmsg = null
     )
     {
-        return _jsonUtil.Serialize(
+        return jsonUtil.Serialize(
             new GetBodyResponseData<T>
             {
                 Err = err,
@@ -115,7 +109,7 @@ public class HttpResponseUtil
     {
         if (string.IsNullOrEmpty(message))
         {
-            message = _serverLocalisationService.GetText("http-unknown_error");
+            message = serverLocalisationService.GetText("http-unknown_error");
         }
 
         if (output.Warnings?.Count > 0)

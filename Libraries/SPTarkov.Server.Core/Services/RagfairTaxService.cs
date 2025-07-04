@@ -98,8 +98,7 @@ public class RagfairTaxService(
         itemPriceMult = Math.Pow(4.0, itemPriceMult);
         requirementPriceMult = Math.Pow(4.0, requirementPriceMult);
 
-        var hideoutFleaTaxDiscountBonusSum = _profileHelper.GetBonusValueFromProfile(
-            pmcData,
+        var hideoutFleaTaxDiscountBonusSum = pmcData.GetBonusValueFromProfile(
             BonusType.RagfairCommission
         );
         // A negative bonus implies a lower discount, since we subtract later, invert the value here

@@ -596,8 +596,7 @@ public class HideoutHelper(
             * GetTimeElapsedSinceLastServerTick(pmcData, isGeneratorOn);
 
         // Get all fuel consumption bonuses, returns an empty array if none found
-        var profileFuelConsomptionBonusSum = _profileHelper.GetBonusValueFromProfile(
-            pmcData,
+        var profileFuelConsomptionBonusSum = pmcData.GetBonusValueFromProfile(
             BonusType.FuelConsumption
         );
 
