@@ -22,9 +22,9 @@ public class BaseSptLoggerReferenceConverter : JsonConverter<BaseSptLoggerRefere
             switch (typeElement.GetString())
             {
                 case "File":
-                    return jsonDocument.Deserialize<FileSptLoggerReference>();
+                    return jsonDocument.Deserialize<FileSptLoggerReference>(options);
                 case "Console":
-                    return jsonDocument.Deserialize<ConsoleSptLoggerReference>();
+                    return jsonDocument.Deserialize<ConsoleSptLoggerReference>(options);
                 default:
                     throw new Exception(
                         $"The logger type '{typeElement.GetString()}' does not exist."
