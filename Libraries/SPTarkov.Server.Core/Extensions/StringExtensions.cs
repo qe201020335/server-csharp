@@ -18,19 +18,14 @@ namespace SPTarkov.Server.Core.Extensions
 
         public static string Decode(this string value, EncodeType encode)
         {
-            switch (encode)
+            return encode switch
             {
-                case EncodeType.BASE64:
-                    return Encoding.UTF8.GetString(Convert.FromBase64String(value));
-                case EncodeType.HEX:
-                    return Encoding.UTF8.GetString(Convert.FromHexString(value));
-                case EncodeType.ASCII:
-                    return Encoding.ASCII.GetString(Encoding.Default.GetBytes(value));
-                case EncodeType.UTF8:
-                    return Encoding.UTF8.GetString(Encoding.Default.GetBytes(value));
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(encode), encode, null);
-            }
+                EncodeType.BASE64 => Encoding.UTF8.GetString(Convert.FromBase64String(value)),
+                EncodeType.HEX => Encoding.UTF8.GetString(Convert.FromHexString(value)),
+                EncodeType.ASCII => Encoding.ASCII.GetString(Encoding.Default.GetBytes(value)),
+                EncodeType.UTF8 => Encoding.UTF8.GetString(Encoding.Default.GetBytes(value)),
+                _ => throw new ArgumentOutOfRangeException(nameof(encode), encode, null),
+            };
         }
 
         public enum EncodeType
