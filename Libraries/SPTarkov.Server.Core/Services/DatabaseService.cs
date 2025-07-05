@@ -280,7 +280,7 @@ public class DatabaseService(
     }
 
     /// <returns> assets/database/templates/prices.json </returns>
-    public Dictionary<string, double> GetPrices()
+    public Dictionary<MongoId, double> GetPrices()
     {
         if (_databaseServer.GetTables().Templates?.Prices == null)
         {

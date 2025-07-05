@@ -392,7 +392,7 @@ public class SeasonalEventService(
                     StringComparison.OrdinalIgnoreCase
                 )
             );
-            var prop = (Dictionary<string, double>?)propInfo.GetValue(botInventory.Items);
+            var prop = (Dictionary<MongoId, double>?)propInfo.GetValue(botInventory.Items);
 
             if (prop is null)
             {

@@ -358,7 +358,7 @@ public record GenerationData
     /// </summary>
     [JsonPropertyName("whitelist")]
     [JsonConverter(typeof(ArrayToObjectFactoryConverter))]
-    public Dictionary<string, double>? Whitelist { get; set; }
+    public Dictionary<MongoId, double>? Whitelist { get; set; }
 }
 
 public record GenerationWeightingItems
@@ -496,15 +496,15 @@ public record ItemPools
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    public Dictionary<string, double>? Backpack { get; set; }
+    public Dictionary<MongoId, double>? Backpack { get; set; }
 
-    public Dictionary<string, double>? Pockets { get; set; }
+    public Dictionary<MongoId, double>? Pockets { get; set; }
 
-    public Dictionary<string, double>? SecuredContainer { get; set; }
+    public Dictionary<MongoId, double>? SecuredContainer { get; set; }
 
-    public Dictionary<string, double>? SpecialLoot { get; set; }
+    public Dictionary<MongoId, double>? SpecialLoot { get; set; }
 
-    public Dictionary<string, double>? TacticalVest { get; set; }
+    public Dictionary<MongoId, double>? TacticalVest { get; set; }
 }
 
 public record BotDbSkills

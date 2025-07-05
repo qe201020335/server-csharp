@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Utils.Json.Converters;
 
@@ -14,7 +15,7 @@ public record Reward
     public double? Value { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("type")]
     [JsonConverter(typeof(JsonStringEnumConverter))]

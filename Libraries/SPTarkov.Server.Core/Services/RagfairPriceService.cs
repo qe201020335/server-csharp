@@ -29,7 +29,7 @@ public class RagfairPriceService(
 )
 {
     private readonly RagfairConfig _ragfairConfig = _configServer.GetConfig<RagfairConfig>();
-    protected Dictionary<string, double>? _staticPrices;
+    protected Dictionary<MongoId, double>? _staticPrices;
 
     /// <summary>
     ///     Generate static (handbook) and dynamic (prices.json) flea prices, store inside class as dictionaries
@@ -50,7 +50,7 @@ public class RagfairPriceService(
     /// </summary>
     public void RefreshStaticPrices()
     {
-        _staticPrices = new Dictionary<string, double>();
+        _staticPrices = new Dictionary<MongoId, double>();
         foreach (
             var item in _databaseService
                 .GetItems()
@@ -77,9 +77,9 @@ public class RagfairPriceService(
     /// </summary>
     /// <param name="tplId">Item tpl id to get price for</param>
     /// <returns>price in roubles</returns>
-    public double GetFleaPriceForItem(string tplId)
+    public double GetFleaPriceForItem(MongoId tplId)
     {
-        // Get dynamic price (templates/prices), if that doesnt exist get price from static array (templates/handbook)
+        // Get dynamic price (templates/prices), if that doesn't exist get price from static array (templates/handbook)
         var itemPrice = _itemHelper.GetDynamicItemPrice(tplId) ?? GetStaticPriceForItem(tplId);
         if (itemPrice is null)
         {
@@ -122,7 +122,7 @@ public class RagfairPriceService(
     /// </summary>
     /// <param name="itemTpl"> Item template id to look up </param>
     /// <returns> Price in roubles </returns>
-    public double? GetDynamicPriceForItem(string itemTpl)
+    public double? GetDynamicPriceForItem(MongoId itemTpl)
     {
         _databaseService.GetPrices().TryGetValue(itemTpl, out var value);
 
@@ -134,7 +134,7 @@ public class RagfairPriceService(
     /// </summary>
     /// <param name="itemTpl">item template id to look up</param>
     /// <returns>price in roubles</returns>
-    public double? GetStaticPriceForItem(string itemTpl)
+    public double? GetStaticPriceForItem(MongoId itemTpl)
     {
         return _handbookHelper.GetTemplatePrice(itemTpl);
     }
@@ -144,7 +144,7 @@ public class RagfairPriceService(
     ///     This will refresh the caches prior to building the output
     /// </summary>
     /// <returns>Dictionary of item tpls and rouble cost</returns>
-    public Dictionary<string, double> GetAllFleaPrices()
+    public Dictionary<MongoId, double> GetAllFleaPrices()
     {
         var dynamicPrices = _databaseService.GetPrices();
         // Use dynamic prices first, fill in any gaps with data from static prices (handbook)
@@ -154,7 +154,7 @@ public class RagfairPriceService(
             .ToDictionary(x => x.Key, x => x.First().Value);
     }
 
-    public Dictionary<string, double> GetAllStaticPrices()
+    public Dictionary<MongoId, double> GetAllStaticPrices()
     {
         // Refresh the cache so we include any newly added custom items
         if (_staticPrices is null)
@@ -251,10 +251,10 @@ public class RagfairPriceService(
     /// <param name="isPackOffer"></param>
     /// <returns></returns>
     public double? GetDynamicItemPrice(
-        string itemTemplateId,
+        MongoId itemTemplateId,
         string desiredCurrency,
-        Item item = null,
-        List<Item> offerItems = null,
+        Item? item = null,
+        List<Item>? offerItems = null,
         bool? isPackOffer = null
     )
     {

@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Spt.Helper;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
@@ -111,7 +112,7 @@ public class WeightedRandomHelper(
     ///     Find the greated common divisor of all weights and use it on the passed in dictionary
     /// </summary>
     /// <param name="weightedDict">Values to reduce</param>
-    public void ReduceWeightValues(IDictionary<string, double> weightedDict)
+    public void ReduceWeightValues(IDictionary<MongoId, double> weightedDict)
     {
         // No values, nothing to reduce
         if (weightedDict.Count == 0)

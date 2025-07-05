@@ -458,7 +458,7 @@ public class BotLootGenerator(
     {
         // surv12
         AddLootFromPool(
-            new Dictionary<string, double> { { "5d02797c86f774203f38e30a", 1 } },
+            new Dictionary<MongoId, double> { { "5d02797c86f774203f38e30a", 1 } },
             [EquipmentSlots.SecuredContainer],
             1,
             botInventory,
@@ -470,7 +470,7 @@ public class BotLootGenerator(
 
         // AFAK
         AddLootFromPool(
-            new Dictionary<string, double> { { "60098ad7c2240c0fe85c570a", 1 } },
+            new Dictionary<MongoId, double> { { "60098ad7c2240c0fe85c570a", 1 } },
             [EquipmentSlots.SecuredContainer],
             10,
             botInventory,
@@ -494,7 +494,7 @@ public class BotLootGenerator(
     /// <param name="totalValueLimitRub">Total value of loot allowed in roubles</param>
     /// <param name="isPmc">Is bot being generated for a pmc</param>
     protected void AddLootFromPool(
-        Dictionary<string, double> pool,
+        Dictionary<MongoId, double> pool,
         HashSet<EquipmentSlots> equipmentSlots,
         double totalItemCount,
         BotBaseInventory inventoryToAddItemsTo,

@@ -132,7 +132,7 @@ public class RagfairAssortGenerator(
     /// <param name="tplId"> tplid to add to item </param>
     /// <param name="id"> id to add to item </param>
     /// <returns> Hydrated Item object </returns>
-    protected Item CreateRagfairAssortRootItem(string tplId, MongoId? id = null)
+    protected Item CreateRagfairAssortRootItem(MongoId tplId, MongoId? id = null)
     {
         if (string.IsNullOrEmpty(id))
         {

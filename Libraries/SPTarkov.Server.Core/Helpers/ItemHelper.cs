@@ -57,7 +57,7 @@ public class ItemHelper(
         nameof(EquipmentSlots.Scabbard),
     ];
 
-    protected static readonly FrozenSet<string> _dogTagTpls =
+    protected static readonly FrozenSet<MongoId> _dogTagTpls =
     [
         ItemTpl.BARTER_DOGTAG_BEAR,
         ItemTpl.BARTER_DOGTAG_BEAR_EOD,
@@ -111,7 +111,7 @@ public class ItemHelper(
     /// <param name="itemTpl">Item to look for</param>
     /// <param name="slotId">OPTIONAL - slotId of desired item</param>
     /// <returns>True if pool contains item</returns>
-    public bool HasItemWithTpl(IEnumerable<Item> itemPool, string itemTpl, string slotId = "")
+    public bool HasItemWithTpl(IEnumerable<Item> itemPool, MongoId itemTpl, string slotId = "")
     {
         // Filter the pool by slotId if provided
         var filteredPool = string.IsNullOrEmpty(slotId)
@@ -442,7 +442,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Item to look price up of</param>
     /// <returns>Price in roubles</returns>
-    public double? GetItemPrice(string tpl)
+    public double? GetItemPrice(MongoId tpl)
     {
         var handbookPrice = GetStaticItemPrice(tpl);
         if (handbookPrice >= 1)
@@ -459,7 +459,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Item to look price up of</param>
     /// <returns>Price in roubles</returns>
-    public double GetItemMaxPrice(string tpl)
+    public double GetItemMaxPrice(MongoId tpl)
     {
         var staticPrice = GetStaticItemPrice(tpl);
         var dynamicPrice = GetDynamicItemPrice(tpl);
@@ -472,7 +472,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Items tpl id to look up price</param>
     /// <returns>Price in roubles (0 if not found)</returns>
-    public double GetStaticItemPrice(string tpl)
+    public double GetStaticItemPrice(MongoId tpl)
     {
         var handbookPrice = _handbookHelper.GetTemplatePrice(tpl);
         if (handbookPrice >= 1)
@@ -488,7 +488,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Items tpl id to look up price</param>
     /// <returns>Price in roubles (undefined if not found)</returns>
-    public double? GetDynamicItemPrice(string tpl)
+    public double? GetDynamicItemPrice(MongoId tpl)
     {
         if (_databaseService.GetPrices().TryGetValue(tpl, out var price))
         {
@@ -543,7 +543,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Id of the item to check</param>
     /// <returns>true if the item is in the database</returns>
-    public bool IsItemInDb(string itemTpl)
+    public bool IsItemInDb(MongoId itemTpl)
     {
         return _databaseService.GetItems().ContainsKey(itemTpl);
     }
@@ -748,7 +748,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Template id to check.</param>
     /// <returns>True if it is a dogtag.</returns>
-    public bool IsDogtag(string tpl)
+    public bool IsDogtag(MongoId tpl)
     {
         return _dogTagTpls.Contains(tpl);
     }
@@ -758,7 +758,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Item to check.</param>
     /// <returns>True if it can be stacked.</returns>
-    public bool? IsItemTplStackable(string tpl)
+    public bool? IsItemTplStackable(MongoId tpl)
     {
         if (!_databaseService.GetItems().TryGetValue(tpl, out var item))
         {
@@ -1178,7 +1178,7 @@ public class ItemHelper(
     /// <param name="tpl">Items tpl to check parents of</param>
     /// <param name="tplsToCheck">Tpl values to check if parents of item match</param>
     /// <returns>bool Match found</returns>
-    public bool DoesItemOrParentsIdMatch(string tpl, List<string> tplsToCheck)
+    public bool DoesItemOrParentsIdMatch(MongoId tpl, List<MongoId> tplsToCheck)
     {
         var itemDetails = GetItem(tpl);
         var itemExists = itemDetails.Key;
@@ -2007,7 +2007,7 @@ public class ItemHelper(
 
     // Return all tpls from Money enum
     // Returns string tpls
-    public List<string> GetMoneyTpls()
+    public List<MongoId> GetMoneyTpls()
     {
         return [Money.ROUBLES, Money.DOLLARS, Money.EUROS, Money.GP];
     }
@@ -2026,7 +2026,7 @@ public class ItemHelper(
             );
     }
 
-    public string? GetItemBaseType(string tpl, bool rootOnly = true)
+    public string? GetItemBaseType(MongoId tpl, bool rootOnly = true)
     {
         var result = GetItem(tpl);
         if (!result.Key)

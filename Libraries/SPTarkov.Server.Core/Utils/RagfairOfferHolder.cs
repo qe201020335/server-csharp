@@ -27,17 +27,17 @@ public class RagfairOfferHolder(
     /// <summary>
     /// Ragfair offer cache, keyed by offer Id
     /// </summary>
-    private readonly ConcurrentDictionary<string, RagfairOffer> _offersById = new();
+    private readonly ConcurrentDictionary<MongoId, RagfairOffer> _offersById = new();
 
     /// <summary>
     /// Offer Ids keyed by tpl
     /// </summary>
-    private readonly ConcurrentDictionary<string, HashSet<string>> _offersByTemplate = new();
+    private readonly ConcurrentDictionary<MongoId, HashSet<string>> _offersByTemplate = new();
 
     /// <summary>
     /// Offer ids keyed by trader Id
     /// </summary>
-    private readonly ConcurrentDictionary<string, HashSet<string>> _offersByTrader = new();
+    private readonly ConcurrentDictionary<MongoId, HashSet<string>> _offersByTrader = new();
 
     private readonly Lock _expiredOfferIdsLock = new();
     private readonly Lock _ragfairOperationLock = new();
@@ -47,7 +47,7 @@ public class RagfairOfferHolder(
     /// </summary>
     /// <param name="id">Ragfair offer id</param>
     /// <returns>RagfairOffer</returns>
-    public RagfairOffer? GetOfferById(string id)
+    public RagfairOffer? GetOfferById(MongoId id)
     {
         return _offersById.GetValueOrDefault(id);
     }

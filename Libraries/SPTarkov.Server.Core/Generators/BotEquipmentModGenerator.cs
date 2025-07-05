@@ -186,7 +186,8 @@ public class BotEquipmentModGenerator(
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE
+                    or Result.NO_DEFAULT_FILTER:
                         if (_logger.IsLogEnabled(LogLevel.Debug))
                         {
                             _logger.Debug(
@@ -207,7 +208,7 @@ public class BotEquipmentModGenerator(
             }
 
             // Choose random mod from pool and check its compatibility
-            string? modTpl = null;
+            MongoId? modTpl = null;
             var found = false;
             var exhaustableModPool = CreateExhaustableArray(modPoolToChooseFrom);
             while (exhaustableModPool.HasValues())
@@ -216,7 +217,7 @@ public class BotEquipmentModGenerator(
                 if (
                     modTpl is not null
                     && !_botGeneratorHelper
-                        .IsItemIncompatibleWithCurrentItems(equipment, modTpl, modSlotName)
+                        .IsItemIncompatibleWithCurrentItems(equipment, modTpl.Value, modSlotName)
                         .Incompatible.GetValueOrDefault(false)
                 )
                 {
@@ -244,7 +245,7 @@ public class BotEquipmentModGenerator(
             }
 
             // Get chosen mods db template and check it fits into slot
-            var modTemplate = _itemHelper.GetItem(modTpl);
+            var modTemplate = _itemHelper.GetItem(modTpl.Value);
             if (
                 !IsModValidForSlot(
                     modTemplate,
@@ -855,7 +856,7 @@ public class BotEquipmentModGenerator(
     /// <param name="modSlot">Slot to check</param>
     /// <param name="tpl"></param>
     /// <returns>true if it's a front/rear sight</returns>
-    public bool ModIsFrontOrRearSight(string modSlot, string tpl)
+    public bool ModIsFrontOrRearSight(string modSlot, MongoId tpl)
     {
         // Gas block /w front sight is special case, deem it a 'front sight' too
         if (modSlot == "mod_gas_block" && tpl == "5ae30e795acfc408fb139a0b")
@@ -1705,7 +1706,7 @@ public class BotEquipmentModGenerator(
     /// <param name="modSlot">Slot to get mod to fill</param>
     /// <param name="items">Items to ensure picked mod is compatible with</param>
     /// <returns>Item tpl</returns>
-    public string? GetRandomModTplFromItemDb(
+    public MongoId? GetRandomModTplFromItemDb(
         string fallbackModTpl,
         Slot parentSlot,
         string modSlot,

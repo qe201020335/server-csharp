@@ -526,7 +526,7 @@ public class TraderHelper(
     /// </summary>
     /// <param name="tpl">Item to look up highest price for</param>
     /// <returns>highest rouble cost for item</returns>
-    public double GetHighestTraderPriceRouble(string tpl)
+    public double GetHighestTraderPriceRouble(MongoId tpl)
     {
         if (_highestTraderPriceItems is not null)
         {
@@ -580,7 +580,7 @@ public class TraderHelper(
     /// </summary>
     /// <param name="tpl">Item to look up best trader sell-to price</param>
     /// <returns>Rouble price</returns>
-    public double GetHighestSellToTraderPrice(string tpl)
+    public double GetHighestSellToTraderPrice(MongoId tpl)
     {
         // Find largest trader price for item
         var highestPrice = 1d; // Default price

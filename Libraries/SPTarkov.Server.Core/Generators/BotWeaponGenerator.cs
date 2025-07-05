@@ -545,7 +545,7 @@ public class BotWeaponGenerator(
         GenerationData ubglMinMax = new()
         {
             Weights = new Dictionary<double, double> { { 1, 1 }, { 2, 1 } },
-            Whitelist = new Dictionary<string, double>(),
+            Whitelist = new Dictionary<MongoId, double>(),
         };
 
         // get ammo template from db

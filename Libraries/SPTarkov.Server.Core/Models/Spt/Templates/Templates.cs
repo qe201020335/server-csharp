@@ -44,7 +44,7 @@ public record Templates
     ///     Flea prices of items - gathered from online flea market dump
     /// </summary>
     [JsonPropertyName("prices")]
-    public Dictionary<string, double>? Prices { get; set; }
+    public Dictionary<MongoId, double>? Prices { get; set; }
 
     /// <summary>
     ///     Default equipment loadouts that show on main inventory screen

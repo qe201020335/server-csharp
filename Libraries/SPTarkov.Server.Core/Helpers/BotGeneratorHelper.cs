@@ -386,7 +386,7 @@ public class BotGeneratorHelper(
     /// <returns>false if no incompatibilities, also has incompatibility reason</returns>
     public ChooseRandomCompatibleModResult IsItemIncompatibleWithCurrentItems(
         List<Item> itemsEquipped,
-        string tplToCheck,
+        MongoId tplToCheck,
         string equipmentSlot
     )
     {
@@ -817,7 +817,7 @@ public class BotGeneratorHelper(
     /// <param name="slotGrid">Items sub-grid we want to place item inside</param>
     /// <param name="itemTpl">Item tpl being placed</param>
     /// <returns>True if allowed</returns>
-    protected bool ItemAllowedInContainer(Grid? slotGrid, string? itemTpl)
+    protected bool ItemAllowedInContainer(Grid? slotGrid, MongoId itemTpl)
     {
         var propFilters = slotGrid?.Props?.Filters;
         var excludedFilter = propFilters?.FirstOrDefault()?.ExcludedFilter ?? [];

@@ -1012,7 +1012,7 @@ public class FenceService(
         return ItemInPreventDupeCategoryList(itemDbDetails.Id);
     }
 
-    protected bool ItemInPreventDupeCategoryList(string tpl)
+    protected bool ItemInPreventDupeCategoryList(MongoId tpl)
     {
         // Item type in config list
         return itemHelper.IsOfBaseclasses(tpl, traderConfig.Fence.PreventDuplicateOffersOfCategory);

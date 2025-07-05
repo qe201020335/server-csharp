@@ -599,7 +599,7 @@ public class InventoryController(
     /// <param name="request"></param>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>Item tpl</returns>
-    protected string? GetExaminedItemTpl(InventoryExamineRequestData request, string? sessionId)
+    protected MongoId? GetExaminedItemTpl(InventoryExamineRequestData request, string? sessionId)
     {
         if (_presetHelper.IsPreset(request.Item))
         {

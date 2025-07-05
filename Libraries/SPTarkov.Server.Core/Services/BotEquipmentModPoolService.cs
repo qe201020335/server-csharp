@@ -135,7 +135,7 @@ public class BotEquipmentModPoolService(
         return pool;
     }
 
-    private bool SetContainsTpl(HashSet<MongoId> itemSet, string tpl)
+    private bool SetContainsTpl(HashSet<MongoId> itemSet, MongoId tpl)
     {
         lock (_lockObject)
         {
@@ -143,7 +143,7 @@ public class BotEquipmentModPoolService(
         }
     }
 
-    private bool AddTplToSet(HashSet<MongoId> itemSet, string itemToAddTpl)
+    private bool AddTplToSet(HashSet<MongoId> itemSet, MongoId itemToAddTpl)
     {
         lock (_lockObject)
         {

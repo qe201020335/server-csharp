@@ -42,12 +42,12 @@ public class RagfairOfferService(
         return ragfairOfferHolder.GetOffers();
     }
 
-    public RagfairOffer? GetOfferByOfferId(string offerId)
+    public RagfairOffer? GetOfferByOfferId(MongoId offerId)
     {
         return ragfairOfferHolder.GetOfferById(offerId);
     }
 
-    public List<RagfairOffer>? GetOffersOfType(string templateId)
+    public List<RagfairOffer>? GetOffersOfType(MongoId templateId)
     {
         return ragfairOfferHolder.GetOffersByTemplate(templateId);
     }

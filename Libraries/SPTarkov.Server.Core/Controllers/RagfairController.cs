@@ -1326,12 +1326,12 @@ public class RagfairController
     ///     Get prices for all items on flea
     /// </summary>
     /// <returns>Dictionary of tpl and item price</returns>
-    public Dictionary<string, double> GetAllFleaPrices()
+    public Dictionary<MongoId, double> GetAllFleaPrices()
     {
         return _ragfairPriceService.GetAllFleaPrices();
     }
 
-    public Dictionary<string, double> GetStaticPrices()
+    public Dictionary<MongoId, double> GetStaticPrices()
     {
         return _ragfairPriceService.GetAllStaticPrices();
     }

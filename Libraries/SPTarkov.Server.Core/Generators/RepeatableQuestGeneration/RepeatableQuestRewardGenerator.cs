@@ -656,7 +656,7 @@ public class RepeatableQuestRewardGenerator(
     /// <param name="foundInRaid"> If generated Item is found in raid, default True </param>
     /// <returns> Object of "Reward"-item-type </returns>
     protected Reward GeneratePresetReward(
-        string tpl,
+        MongoId tpl,
         int count,
         int index,
         List<Item>? preset,

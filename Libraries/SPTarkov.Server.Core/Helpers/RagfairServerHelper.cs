@@ -1,5 +1,6 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -145,7 +146,7 @@ public class RagfairServerHelper(
         );
     }
 
-    public int CalculateDynamicStackCount(string tplId, bool isPreset)
+    public int CalculateDynamicStackCount(MongoId tplId, bool isPreset)
     {
         var config = ragfairConfig.Dynamic;
 

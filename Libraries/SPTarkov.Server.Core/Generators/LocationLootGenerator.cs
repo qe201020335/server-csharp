@@ -696,7 +696,7 @@ public class LocationLootGenerator(
     /// <param name="containerTypeId">Container to get possible loot for</param>
     /// <param name="staticLootDist">staticLoot.json</param>
     /// <returns>ProbabilityObjectArray of item tpls + probability</returns>
-    protected ProbabilityObjectArray<string, float?> GetPossibleLootItemsForContainer(
+    protected ProbabilityObjectArray<MongoId, float?> GetPossibleLootItemsForContainer(
         string containerTypeId,
         Dictionary<string, StaticLootDetails> staticLootDist
     )
@@ -704,7 +704,7 @@ public class LocationLootGenerator(
         var seasonalEventActive = _seasonalEventService.SeasonalEventEnabled();
         var seasonalItemTplBlacklist = _seasonalEventService.GetInactiveSeasonalEventItems();
 
-        var itemDistribution = new ProbabilityObjectArray<string, float?>(_cloner);
+        var itemDistribution = new ProbabilityObjectArray<MongoId, float?>(_cloner);
 
         var itemContainerDistribution = staticLootDist[containerTypeId]?.ItemDistribution;
         if (itemContainerDistribution is null)
@@ -734,7 +734,7 @@ public class LocationLootGenerator(
             }
 
             itemDistribution.Add(
-                new ProbabilityObject<string, float?>(icd.Tpl, icd.RelativeProbability.Value, null)
+                new ProbabilityObject<MongoId, float?>(icd.Tpl, icd.RelativeProbability.Value, null)
             );
         }
 

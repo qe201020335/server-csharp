@@ -25,9 +25,9 @@ public class PMCLootGenerator(
     private readonly PmcConfig _pmcConfig = configServer.GetConfig<PmcConfig>();
 
     // Store loot against its type, usec/bear
-    private readonly Dictionary<string, Dictionary<string, double>>? _backpackLootPool = [];
-    private readonly Dictionary<string, Dictionary<string, double>>? _pocketLootPool = [];
-    private readonly Dictionary<string, Dictionary<string, double>>? _vestLootPool = [];
+    private readonly Dictionary<string, Dictionary<MongoId, double>>? _backpackLootPool = [];
+    private readonly Dictionary<string, Dictionary<MongoId, double>>? _pocketLootPool = [];
+    private readonly Dictionary<string, Dictionary<MongoId, double>>? _vestLootPool = [];
 
     protected readonly Lock BackpackLock = new();
     protected readonly Lock PocketLock = new();
@@ -38,7 +38,7 @@ public class PMCLootGenerator(
     /// </summary>
     /// <param name="pmcRole">Role of PMC having loot generated (bear or usec)</param>
     /// <returns>Dictionary of string and number</returns>
-    public Dictionary<string, double> GeneratePMCPocketLootPool(string pmcRole)
+    public Dictionary<MongoId, double> GeneratePMCPocketLootPool(string pmcRole)
     {
         lock (PocketLock)
         {
@@ -72,7 +72,7 @@ public class PMCLootGenerator(
     /// </summary>
     /// <param name="pmcRole">Role of PMC having loot generated (bear or usec)</param>
     /// <returns>Dictionary item template ids and a weighted chance of being picked</returns>
-    public Dictionary<string, double> GeneratePMCVestLootPool(string pmcRole)
+    public Dictionary<MongoId, double> GeneratePMCVestLootPool(string pmcRole)
     {
         lock (VestLock)
         {
@@ -107,7 +107,7 @@ public class PMCLootGenerator(
     /// </summary>
     /// <param name="pmcRole">Role of PMC having loot generated (bear or usec)</param>
     /// <returns>Dictionary of string and number</returns>
-    public Dictionary<string, double> GeneratePMCBackpackLootPool(string pmcRole)
+    public Dictionary<MongoId, double> GeneratePMCBackpackLootPool(string pmcRole)
     {
         lock (BackpackLock)
         {
@@ -137,14 +137,14 @@ public class PMCLootGenerator(
     /// <param name="itemTplAndParentBlacklist">Item and parent blacklist</param>
     /// <param name="genericItemCheck">An optional delegate to validate the TemplateItem object being processed</param>
     /// <returns>Dictionary of items and weights inversely tied to the items price</returns>
-    protected Dictionary<string, double> GenerateLootPool(
+    protected Dictionary<MongoId, double> GenerateLootPool(
         string pmcRole,
         HashSet<MongoId> allowedItemTypeWhitelist,
         HashSet<MongoId> itemTplAndParentBlacklist,
         Func<TemplateItem, bool>? genericItemCheck
     )
     {
-        var lootPool = new Dictionary<string, double>();
+        var lootPool = new Dictionary<MongoId, double>();
         var items = databaseService.GetItems();
 
         // Grab price overrides if they exist for the pmcRole passed in
@@ -207,7 +207,7 @@ public class PMCLootGenerator(
     /// </summary>
     /// <param name="pmcRole">role of PMC to look up</param>
     /// <returns>Dictionary of overrides</returns>
-    protected Dictionary<string, double>? GetPMCPriceOverrides(string pmcRole)
+    protected Dictionary<MongoId, double>? GetPMCPriceOverrides(string pmcRole)
     {
         var pmcType = string.Equals(pmcRole, "pmcbear", StringComparison.OrdinalIgnoreCase)
             ? "bear"
@@ -229,7 +229,10 @@ public class PMCLootGenerator(
     /// <param name="tpl">Item tpl to get price of</param>
     /// <param name="pmcPriceOverrides"></param>
     /// <returns>Rouble price</returns>
-    protected double GetItemPrice(string tpl, Dictionary<string, double>? pmcPriceOverrides = null)
+    protected double GetItemPrice(
+        MongoId tpl,
+        Dictionary<MongoId, double>? pmcPriceOverrides = null
+    )
     {
         if (
             pmcPriceOverrides is not null

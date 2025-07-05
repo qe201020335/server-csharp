@@ -492,11 +492,11 @@ public class InsuranceController(
         );
 
         // Create prob array and add all attachments with rouble price as the weight
-        var attachmentsProbabilityArray = new ProbabilityObjectArray<string, double?>(_cloner);
+        var attachmentsProbabilityArray = new ProbabilityObjectArray<MongoId, double?>(_cloner);
         foreach (var (itemTpl, price) in weightedAttachmentByPrice)
         {
             attachmentsProbabilityArray.Add(
-                new ProbabilityObject<string, double?>(itemTpl, price, null)
+                new ProbabilityObject<MongoId, double?>(itemTpl, price, null)
             );
         }
 
@@ -525,9 +525,9 @@ public class InsuranceController(
     /// <param name="attachments"></param>
     /// <param name="attachmentPrices"></param>
     protected void LogAttachmentsBeingRemoved(
-        List<string> attachmentIdsToRemove,
+        List<MongoId> attachmentIdsToRemove,
         List<Item> attachments,
-        Dictionary<string, double> attachmentPrices
+        Dictionary<MongoId, double> attachmentPrices
     )
     {
         var index = 1;
@@ -550,9 +550,9 @@ public class InsuranceController(
     /// </summary>
     /// <param name="attachments">Item attachments</param>
     /// <returns></returns>
-    protected Dictionary<string, double> WeightAttachmentsByPrice(List<Item> attachments)
+    protected Dictionary<MongoId, double> WeightAttachmentsByPrice(List<Item> attachments)
     {
-        var result = new Dictionary<string, double>();
+        var result = new Dictionary<MongoId, double>();
 
         // Get a dictionary of item tpls + their rouble price
         foreach (var attachment in attachments)
@@ -579,7 +579,7 @@ public class InsuranceController(
     /// <param name="traderId">Trader the attachment is insured against</param>
     /// <returns>Attachment count to remove</returns>
     protected double GetAttachmentCountToRemove(
-        Dictionary<string, double> weightedAttachmentByPrice,
+        Dictionary<MongoId, double> weightedAttachmentByPrice,
         string? traderId
     )
     {

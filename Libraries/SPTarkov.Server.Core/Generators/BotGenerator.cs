@@ -474,7 +474,7 @@ public class BotGenerator(
     /// <param name="botInventory">Bot to filter</param>
     public void RemoveBlacklistedLootFromBotTemplate(BotTypeInventory botInventory)
     {
-        var containersToProcess = new List<Dictionary<string, double>>
+        var containersToProcess = new List<Dictionary<MongoId, double>>
         {
             botInventory.Items.Backpack,
             botInventory.Items.Pockets,

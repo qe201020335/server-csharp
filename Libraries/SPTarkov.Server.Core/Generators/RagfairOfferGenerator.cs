@@ -786,7 +786,7 @@ public class RagfairOfferGenerator(
     /// </summary>
     /// <param name="tpl"> Item to look for matching condition object</param>
     /// <returns> Condition ID </returns>
-    protected string? GetDynamicConditionIdForTpl(string tpl)
+    protected string? GetDynamicConditionIdForTpl(MongoId tpl)
     {
         // Get keys from condition config dictionary
         var configConditions = ragfairConfig.Dynamic.Condition.Keys;
