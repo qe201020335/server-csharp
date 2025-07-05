@@ -1171,7 +1171,7 @@ public class LocationLootGenerator(
             var itemWithChildren = lootItems.FindAndReturnChildrenAsItems(chosenItem.Id);
 
             // Ensure all IDs are unique
-            itemWithChildren = _itemHelper.ReplaceIDs(_cloner.Clone(itemWithChildren));
+            itemWithChildren = _cloner.Clone(itemWithChildren).ReplaceIDs().ToList();
 
             if (_locationConfig.TplsToStripChildItemsFrom.Contains(chosenItem.Template))
             // Strip children from parent before adding
@@ -1280,12 +1280,12 @@ public class LocationLootGenerator(
         var defaultPreset = _presetHelper.GetDefaultPreset(chosenTpl);
         if (defaultPreset is not null)
         {
-            var presetAndMods = _itemHelper.ReplaceIDs(_cloner.Clone(defaultPreset.Items));
-            _itemHelper.RemapRootItemId(presetAndMods);
+            var presetAndModsClone = _cloner.Clone(defaultPreset.Items).ReplaceIDs().ToList();
+            _itemHelper.RemapRootItemId(presetAndModsClone);
 
             // Use original items parentId otherwise item doesn't get added to container correctly
-            presetAndMods.FirstOrDefault().ParentId = rootItem.ParentId;
-            items = presetAndMods;
+            presetAndModsClone.FirstOrDefault().ParentId = rootItem.ParentId;
+            items = presetAndModsClone;
         }
         else
         {

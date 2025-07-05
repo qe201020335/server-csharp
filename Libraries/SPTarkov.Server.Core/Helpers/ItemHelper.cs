@@ -837,7 +837,7 @@ public class ItemHelper(
         while (remainingCount.Value != 0)
         {
             // Clone item and make IDs unique
-            var itemWithChildrenClone = ReplaceIDs(_cloner.Clone(itemWithChildren));
+            var itemWithChildrenClone = _cloner.Clone(itemWithChildren).ReplaceIDs().ToList();
 
             // Set stack count to new value
             var amount = Math.Min(remainingCount ?? 0, maxStackSize ?? 0);
@@ -1015,37 +1015,6 @@ public class ItemHelper(
                 inventory.FastPanel[originalId] = newId;
             }
         }
-    }
-
-    /// <summary>
-    ///     Regenerate all GUIDs with new IDs, except special item types (e.g. quest, sorting table, etc.)
-    /// </summary>
-    /// <param name="items"></param>
-    /// <returns></returns>
-    public List<Item> ReplaceIDs(List<Item> items)
-    {
-        foreach (var item in items)
-        {
-            // Generate new id
-            var newId = new MongoId();
-
-            // Keep copy of original id
-            var originalId = item.Id;
-
-            // Update items id to new one we generated
-            item.Id = newId;
-
-            // Find all children of item and update their parent ids to match
-            var childItems = items.Where(x =>
-                string.Equals(x.ParentId, originalId, StringComparison.OrdinalIgnoreCase)
-            );
-            foreach (var childItem in childItems)
-            {
-                childItem.ParentId = newId;
-            }
-        }
-
-        return items;
     }
 
     /// <summary>

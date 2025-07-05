@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -200,12 +201,13 @@ public class LootGenerator(
                     for (var i = 0; i < randomisedItemCount; i++)
                     {
                         // Clone preset and alter Ids to be unique
-                        var presetWithUniqueIds = _itemHelper.ReplaceIDs(
-                            _cloner.Clone(preset.Items)
-                        );
+                        var presetWithUniqueIdsClone = _cloner
+                            .Clone(preset.Items)
+                            .ReplaceIDs()
+                            .ToList();
 
                         // Add to results
-                        result.Add(presetWithUniqueIds);
+                        result.Add(presetWithUniqueIdsClone);
                     }
                 }
 
@@ -497,13 +499,13 @@ public class LootGenerator(
             return false;
         }
 
-        var presetAndMods = _itemHelper.ReplaceIDs(_cloner.Clone(chosenPreset.Items));
-        _itemHelper.RemapRootItemId(presetAndMods);
+        var presetAndModsClone = _cloner.Clone(chosenPreset.Items).ReplaceIDs().ToList();
+        _itemHelper.RemapRootItemId(presetAndModsClone);
 
-        _itemHelper.SetFoundInRaid(presetAndMods);
+        _itemHelper.SetFoundInRaid(presetAndModsClone);
 
         // Add chosen preset tpl to result array
-        result.Add(presetAndMods);
+        result.Add(presetAndModsClone);
 
         if (itemLimitCount is not null)
         // Increment item count as item has been chosen and its inside itemLimitCount dictionary
@@ -565,13 +567,13 @@ public class LootGenerator(
         }
 
         // Clean up Ids to ensure they're all unique and prevent collisions
-        var presetAndMods = _itemHelper.ReplaceIDs(_cloner.Clone(chosenWeaponPreset.Items));
-        _itemHelper.RemapRootItemId(presetAndMods);
+        var presetAndModsClone = _cloner.Clone(chosenWeaponPreset.Items).ReplaceIDs().ToList();
+        _itemHelper.RemapRootItemId(presetAndModsClone);
 
         // Add preset to return object
-        itemsToReturn.Add(presetAndMods);
+        itemsToReturn.Add(presetAndModsClone);
 
-        // Get a random collection of weapon mods related to chosen weawpon and add them to result array
+        // Get a random collection of weapon mods related to chosen weapon and add them to result array
         var linkedItemsToWeapon = _ragfairLinkedItemService.GetLinkedDbItems(chosenWeaponTpl);
         itemsToReturn.AddRange(
             GetSealedContainerWeaponModRewards(
@@ -763,7 +765,7 @@ public class LootGenerator(
                 var preset = _presetHelper.GetDefaultPreset(chosenRewardItemTpl);
 
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
-                var presetAndMods = _itemHelper.ReplaceIDs(preset.Items);
+                var presetAndMods = preset.Items.ReplaceIDs().ToList();
 
                 _itemHelper.RemapRootItemId(presetAndMods);
                 itemsToReturn.Add(presetAndMods);

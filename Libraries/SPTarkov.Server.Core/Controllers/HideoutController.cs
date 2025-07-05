@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -1215,10 +1216,12 @@ public class HideoutController(
         var countOfItemsToReward = recipe.Count;
         for (var index = 1; index < countOfItemsToReward; index++)
         {
-            var itemAndMods = _itemHelper.ReplaceIDs(
-                _cloner.Clone(itemAndChildrenToSendToPlayer.FirstOrDefault())
-            );
-            itemAndChildrenToSendToPlayer.AddRange([itemAndMods]);
+            var firstItemWithChildrenClone = _cloner
+                .Clone(itemAndChildrenToSendToPlayer.FirstOrDefault())
+                .ReplaceIDs()
+                .ToList();
+
+            itemAndChildrenToSendToPlayer.AddRange([firstItemWithChildrenClone]);
         }
     }
 
@@ -1231,12 +1234,12 @@ public class HideoutController(
         var defaultPreset = _presetHelper.GetDefaultPreset(recipe.EndProduct);
 
         // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
-        var presetAndMods = _itemHelper.ReplaceIDs(_cloner.Clone(defaultPreset.Items));
+        var presetAndModsClone = _cloner.Clone(defaultPreset.Items).ReplaceIDs().ToList();
 
-        _itemHelper.RemapRootItemId(presetAndMods);
+        _itemHelper.RemapRootItemId(presetAndModsClone);
 
         // Store preset items in array
-        return [presetAndMods];
+        return [presetAndModsClone];
     }
 
     /// <summary>

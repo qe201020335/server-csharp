@@ -858,9 +858,10 @@ public class FenceService(
             }
 
             // MUST randomise Ids as its possible to add the same base fence assort twice = duplicate IDs = dead client
-            desiredAssortItemAndChildrenClone = itemHelper.ReplaceIDs(
-                _cloner.Clone(desiredAssortItemAndChildrenClone)
-            );
+            desiredAssortItemAndChildrenClone = _cloner
+                .Clone(desiredAssortItemAndChildrenClone)
+                .ReplaceIDs()
+                .ToList();
             itemHelper.RemapRootItemId(desiredAssortItemAndChildrenClone);
 
             var rootItemBeingAdded = desiredAssortItemAndChildrenClone[0];

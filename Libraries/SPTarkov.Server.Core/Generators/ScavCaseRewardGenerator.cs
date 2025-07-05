@@ -1,5 +1,6 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -403,7 +404,7 @@ public class ScavCaseRewardGenerator(
                 }
 
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
-                var presetAndMods = _itemHelper.ReplaceIDs(_cloner.Clone(preset.Items));
+                var presetAndMods = _cloner.Clone(preset.Items).ReplaceIDs().ToList();
                 _itemHelper.RemapRootItemId(presetAndMods);
 
                 resultItem = presetAndMods;

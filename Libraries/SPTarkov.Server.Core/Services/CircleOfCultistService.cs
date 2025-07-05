@@ -399,7 +399,7 @@ public class CircleOfCultistService(
                 }
 
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
-                var presetAndMods = _itemHelper.ReplaceIDs(defaultPreset.Items);
+                var presetAndMods = defaultPreset.Items.ReplaceIDs().ToList();
                 _itemHelper.RemapRootItemId(presetAndMods);
 
                 // Set item as FiR
@@ -494,7 +494,7 @@ public class CircleOfCultistService(
                 }
 
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
-                var presetAndMods = _itemHelper.ReplaceIDs(defaultPreset.Items);
+                var presetAndMods = defaultPreset.Items.ReplaceIDs().ToList();
                 _itemHelper.RemapRootItemId(presetAndMods);
 
                 // Set item as FiR

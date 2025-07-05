@@ -1,4 +1,5 @@
 ﻿using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -65,22 +66,22 @@ public class RagfairAssortGenerator(
         foreach (var preset in presets)
         {
             // Update Ids and clone
-            var presetAndMods = itemHelper.ReplaceIDs(cloner.Clone(preset.Items));
-            itemHelper.RemapRootItemId(presetAndMods);
+            var presetAndModsClone = cloner.Clone(preset.Items).ReplaceIDs().ToList();
+            itemHelper.RemapRootItemId(presetAndModsClone);
 
             // Add presets base item tpl to the processed list so its skipped later on when processing items
             processedArmorItems.Add(preset.Items[0].Template);
 
-            presetAndMods[0].ParentId = "hideout";
-            presetAndMods[0].SlotId = "hideout";
-            presetAndMods[0].Upd = new Upd
+            presetAndModsClone[0].ParentId = "hideout";
+            presetAndModsClone[0].SlotId = "hideout";
+            presetAndModsClone[0].Upd = new Upd
             {
                 StackObjectsCount = 99999999,
                 UnlimitedCount = true,
                 SptPresetId = preset.Id,
             };
 
-            results.Add(presetAndMods);
+            results.Add(presetAndModsClone);
         }
 
         foreach (var item in dbItemsClone)
