@@ -339,7 +339,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Armor item</param>
     /// <returns>True if item needs some kind of insert</returns>
-    public bool ArmorItemHasRemovableOrSoftInsertSlots(string itemTpl)
+    public bool ArmorItemHasRemovableOrSoftInsertSlots(MongoId itemTpl)
     {
         if (!ArmorItemCanHoldMods(itemTpl))
         {
@@ -354,7 +354,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Item tpl to check for plate support</param>
     /// <returns>True when armor can hold plates</returns>
-    public bool ArmorItemHasRemovablePlateSlots(string itemTpl)
+    public bool ArmorItemHasRemovablePlateSlots(MongoId itemTpl)
     {
         var itemTemplate = GetItem(itemTpl);
 
@@ -368,7 +368,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Item tpl to check</param>
     /// <returns>True if it needs armor inserts</returns>
-    public bool ItemRequiresSoftInserts(string itemTpl)
+    public bool ItemRequiresSoftInserts(MongoId itemTpl)
     {
         // Not a slot that takes soft-inserts
         if (!ArmorItemCanHoldMods(itemTpl))
@@ -717,7 +717,7 @@ public class ItemHelper(
     /// <param name="itemIdToFind">Template id of item to check for</param>
     /// <param name="assort">List of items to check in</param>
     /// <returns>List of children of requested item</returns>
-    public List<Item> FindAndReturnChildrenByAssort(string itemIdToFind, List<Item> assort)
+    public List<Item> FindAndReturnChildrenByAssort(MongoId itemIdToFind, List<Item> assort)
     {
         List<Item> list = [];
         foreach (var itemFromAssort in assort)
@@ -1263,7 +1263,7 @@ public class ItemHelper(
     /// <param name="itemId">The unique identifier of the item for which to find the main parent.</param>
     /// <param name="itemsMap">A Dictionary containing item IDs mapped to their corresponding Item objects for quick lookup.</param>
     /// <returns>The Item object representing the top-most parent of the given item, or null if no such parent exists.</returns>
-    public Item? GetAttachmentMainParent(string itemId, Dictionary<MongoId, Item> itemsMap)
+    public Item? GetAttachmentMainParent(MongoId itemId, Dictionary<MongoId, Item> itemsMap)
     {
         var currentItem = itemsMap.FirstOrDefault(x => x.Key == itemId).Value;
 
@@ -1309,7 +1309,7 @@ public class ItemHelper(
     /// <param name="itemId">The unique identifier of the item for which to find the equipment parent.</param>
     /// <param name="itemsMap">A Dictionary containing item IDs mapped to their corresponding Item objects for quick lookup.</param>
     /// <returns>The Item object representing the equipment parent of the given item, or `null` if no such parent exists</returns>
-    public Item? GetEquipmentParent(string itemId, Dictionary<string, Item> itemsMap)
+    public Item? GetEquipmentParent(MongoId itemId, Dictionary<MongoId, Item> itemsMap)
     {
         var currentItem = itemsMap.GetValueOrDefault(itemId);
 
@@ -1731,7 +1731,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Tpl of item to get name of</param>
     /// <returns>Full name, short name if not found</returns>
-    public string GetItemName(string itemTpl)
+    public string GetItemName(MongoId itemTpl)
     {
         var localeDb = _localeService.GetLocaleDb();
         var result = localeDb[$"{itemTpl} Name"];

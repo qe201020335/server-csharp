@@ -1,4 +1,5 @@
-﻿using SPTarkov.Server.Core.Models.Eft.Common;
+﻿using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 
@@ -125,7 +126,7 @@ namespace SPTarkov.Server.Core.Extensions
             return pmcData.IsParentInStash(itemToCheck.Id);
         }
 
-        public static bool IsParentInStash(this PmcData pmcData, string itemId)
+        public static bool IsParentInStash(this PmcData pmcData, MongoId itemId)
         {
             // Item not found / has no parent
             var item = pmcData.Inventory.Items.FirstOrDefault(item => item.Id == itemId);

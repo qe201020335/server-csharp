@@ -347,7 +347,7 @@ public class RagfairPriceService(
     /// <returns>Adjusted price of item</returns>
     protected double AdjustUnreasonablePrice(
         UnreasonableModPrices unreasonableItemChange,
-        string itemTpl,
+        MongoId itemTpl,
         double price
     )
     {
@@ -402,7 +402,7 @@ public class RagfairPriceService(
     /// <param name="itemPrice">price of item</param>
     /// <param name="itemTpl">item template Id being checked</param>
     /// <returns>adjusted price value in roubles</returns>
-    protected double AdjustPriceIfBelowHandbook(double itemPrice, string itemTpl)
+    protected double AdjustPriceIfBelowHandbook(double itemPrice, MongoId itemTpl)
     {
         var itemHandbookPrice = GetStaticPriceForItem(itemTpl);
         var priceDifferencePercent = GetPriceDifference(itemHandbookPrice.Value, itemPrice);
@@ -507,7 +507,7 @@ public class RagfairPriceService(
     /// </summary>
     /// <param name="itemTpl">Item to get highest price of</param>
     /// <returns>rouble cost</returns>
-    protected double? GetHighestHandbookOrTraderPriceAsRouble(string itemTpl)
+    protected double? GetHighestHandbookOrTraderPriceAsRouble(MongoId itemTpl)
     {
         var price = GetStaticPriceForItem(itemTpl);
         var traderPrice = _traderHelper.GetHighestSellToTraderPrice(itemTpl);

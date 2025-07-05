@@ -2,6 +2,7 @@ using System.Globalization;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
@@ -623,7 +624,7 @@ public class QuestHelper(
     /// <param name="output">ItemEvent router response</param>
     public void ChangeItemStack(
         PmcData pmcData,
-        string itemId,
+        MongoId itemId,
         int newStackSize,
         string sessionID,
         ItemEventRouterResponse output
@@ -1010,8 +1011,8 @@ public class QuestHelper(
     /// <param name="allQuests">All quests to check</param>
     /// <returns>quest id with 'FindItem' condition id</returns>
     public Dictionary<string, string> GetFindItemConditionByQuestItem(
-        string itemTpl,
-        string[] questIds,
+        MongoId itemTpl,
+        MongoId[] questIds,
         List<Quest> allQuests
     )
     {

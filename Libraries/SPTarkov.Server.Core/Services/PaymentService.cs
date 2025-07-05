@@ -590,7 +590,7 @@ public class PaymentService(
     /// <param name="playerStashId"> Players stash ID </param>
     /// <returns> True if it's in inventory </returns>
     protected InventoryLocation GetItemLocation(
-        string itemId,
+        MongoId itemId,
         List<Item> inventoryItems,
         string playerStashId
     )

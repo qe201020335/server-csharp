@@ -881,7 +881,7 @@ public class RagfairOfferHelper(
      * @param boughtAmount How many were purchased
      * @returns Localised message text
      */
-    protected string GetLocalisedOfferSoldMessage(string itemTpl, int boughtAmount)
+    protected string GetLocalisedOfferSoldMessage(MongoId itemTpl, int boughtAmount)
     {
         // Generate a message to inform that item was sold
         var globalLocales = _localeService.GetLocaleDb();
@@ -896,7 +896,7 @@ public class RagfairOfferHelper(
         }
 
         // Used to replace tokens in sold message sent to player
-        var messageKey = $"{itemTpl} Name";
+        var messageKey = $"{itemTpl.ToString()} Name";
         var hasKey = globalLocales.TryGetValue(messageKey, out var value);
 
         var tplVars = new SystemData

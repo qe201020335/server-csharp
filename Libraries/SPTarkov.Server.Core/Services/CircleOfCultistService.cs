@@ -651,7 +651,7 @@ public class CircleOfCultistService(
     /// <param name="itemTpl">Item chosen</param>
     /// <param name="rewardPoolRemaining">Rouble amount of pool remaining to fill</param>
     /// <returns>Size of stack</returns>
-    protected int GetRewardStackSize(string itemTpl, int rewardPoolRemaining)
+    protected int GetRewardStackSize(MongoId itemTpl, int rewardPoolRemaining)
     {
         if (_itemHelper.IsOfBaseclass(itemTpl, BaseClasses.AMMO))
         {

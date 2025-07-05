@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
 namespace SPTarkov.Server.Core.Models.Spt.Mod;
@@ -15,7 +16,7 @@ public record NewItemFromCloneDetails : NewItemDetailsBase
     ///     Id of the item to copy and use as a base
     /// </summary>
     [JsonPropertyName("itemTplToClone")]
-    public string? ItemTplToClone { get; set; }
+    public MongoId? ItemTplToClone { get; set; }
 
     /// <summary>
     ///     Item properties that should be applied over the top of the cloned base
@@ -85,7 +86,7 @@ public record CreateItemResult
     public bool? Success { get; set; }
 
     [JsonPropertyName("itemId")]
-    public string? ItemId { get; set; }
+    public MongoId? ItemId { get; set; }
 
     [JsonPropertyName("errors")]
     public List<string>? Errors { get; set; }

@@ -65,23 +65,27 @@ public class InRaidHelper(
         var insured = _cloner.Clone(serverProfile.InsuredItems);
 
         // Remove equipment and loot items stored on player from server profile in preparation for data from client being added
-        _inventoryHelper.RemoveItem(serverProfile, serverProfile.Inventory.Equipment, sessionID);
+        _inventoryHelper.RemoveItem(
+            serverProfile,
+            serverProfile.Inventory.Equipment.Value,
+            sessionID
+        );
 
         // Remove quest items stored on player from server profile in preparation for data from client being added
         _inventoryHelper.RemoveItem(
             serverProfile,
-            serverProfile.Inventory.QuestRaidItems,
+            serverProfile.Inventory.QuestRaidItems.Value,
             sessionID
         );
 
         // Get all items that have a parent of `serverProfile.Inventory.equipment` (All items player had on them at end of raid)
         var postRaidInventoryItems = postRaidProfile.Inventory.Items.FindAndReturnChildrenAsItems(
-            postRaidProfile.Inventory.Equipment
+            postRaidProfile.Inventory.Equipment.Value
         );
 
         // Get all items that have a parent of `serverProfile.Inventory.questRaidItems` (Quest items player had on them at end of raid)
         var postRaidQuestItems = postRaidProfile.Inventory.Items.FindAndReturnChildrenAsItems(
-            postRaidProfile.Inventory.QuestRaidItems
+            postRaidProfile.Inventory.QuestRaidItems.Value
         );
 
         // Handle Removing of FIR status if player did not survive + not transferring

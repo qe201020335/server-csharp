@@ -1,4 +1,5 @@
-﻿using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+﻿using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
 namespace SPTarkov.Server.Core.Extensions
 {
@@ -14,7 +15,7 @@ namespace SPTarkov.Server.Core.Extensions
         /// <returns>Modified assort</returns>
         public static TraderAssort RemoveItemFromAssort(
             this TraderAssort assort,
-            string itemId,
+            MongoId itemId,
             bool isFlea = false
         )
         {

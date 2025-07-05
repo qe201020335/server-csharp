@@ -480,12 +480,12 @@ public class InventoryHelper(
     /// <param name="output">OPTIONAL - ItemEventRouterResponse</param>
     public void RemoveItem(
         PmcData profile,
-        string? itemId,
+        MongoId itemId,
         string sessionId,
         ItemEventRouterResponse? output = null
     )
     {
-        if (itemId is null)
+        if (itemId.IsEmpty())
         {
             _logger.Warning(
                 _serverLocalisationService.GetText("inventory-unable_to_remove_item_no_id_given")
@@ -617,13 +617,13 @@ public class InventoryHelper(
     /// <returns>ItemEventRouterResponse</returns>
     public ItemEventRouterResponse RemoveItemByCount(
         PmcData pmcData,
-        string? itemId,
+        MongoId itemId,
         int countToRemove,
         string sessionId,
         ItemEventRouterResponse? output
     )
     {
-        if (itemId is null)
+        if (itemId.IsEmpty())
         {
             return output;
         }
@@ -992,12 +992,12 @@ public class InventoryHelper(
     ///     Based on the item action, determine whose inventories we should be looking at for from and to.
     /// </summary>
     /// <param name="request">Item interaction request</param>
-    /// <param name="item">Item being moved/split/etc to inventory</param>
+    /// <param name="itemId">Item being moved/split/etc to inventory</param>
     /// <param name="sessionId">Session id / players Id</param>
     /// <returns>OwnerInventoryItems with inventory of player/scav to adjust</returns>
     public OwnerInventoryItems GetOwnerInventoryItems(
         InventoryBaseActionRequestData request,
-        string? item,
+        MongoId itemId,
         string sessionId
     )
     {
@@ -1021,7 +1021,7 @@ public class InventoryHelper(
                 fromInventoryItems = _dialogueHelper.GetMessageItemContents(
                     request.FromOwner.Id,
                     sessionId,
-                    item
+                    itemId
                 );
                 fromType = "mail";
             }
@@ -1356,7 +1356,7 @@ public class InventoryHelper(
     /// </summary>
     /// <param name="itemTpl">Container being opened</param>
     /// <returns>Reward details</returns>
-    public RewardDetails? GetRandomLootContainerRewardDetails(string itemTpl)
+    public RewardDetails? GetRandomLootContainerRewardDetails(MongoId itemTpl)
     {
         _inventoryConfig.RandomLootContainers.TryGetValue(itemTpl, out var result);
 

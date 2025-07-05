@@ -167,8 +167,8 @@ public class FenceService(
         var createAssort = new CreateFenceAssortsResult
         {
             SptItems = [],
-            BarterScheme = new Dictionary<string, List<List<BarterScheme>>>(),
-            LoyalLevelItems = new Dictionary<string, int>(),
+            BarterScheme = new Dictionary<MongoId, List<List<BarterScheme>>>(),
+            LoyalLevelItems = new Dictionary<MongoId, int>(),
         };
         createAssort.BarterScheme[root.Id] =
         [
@@ -186,7 +186,7 @@ public class FenceService(
     /// <param name="itemTpl"> The item tpl to calculate the fence price for </param>
     /// <param name="items"> The items (with its children) to calculate fence price for </param>
     /// <returns> Price of the item for Fence </returns>
-    public double? GetItemPrice(string itemTpl, List<Item> items)
+    public double? GetItemPrice(MongoId itemTpl, List<Item> items)
     {
         return itemHelper.IsOfBaseclass(itemTpl, BaseClasses.AMMO_BOX)
             ? GetAmmoBoxPrice(items) * traderConfig.Fence.ItemPriceMult
@@ -718,8 +718,8 @@ public class FenceService(
         return new TraderAssort
         {
             Items = [],
-            BarterScheme = new Dictionary<string, List<List<BarterScheme>>>(),
-            LoyalLevelItems = new Dictionary<string, int>(),
+            BarterScheme = new Dictionary<MongoId, List<List<BarterScheme>>>(),
+            LoyalLevelItems = new Dictionary<MongoId, int>(),
             NextResupply = GetNextFenceUpdateTimestamp(),
         };
     }
@@ -738,8 +738,8 @@ public class FenceService(
         var result = new CreateFenceAssortsResult
         {
             SptItems = [],
-            BarterScheme = new Dictionary<string, List<List<BarterScheme>>>(),
-            LoyalLevelItems = new Dictionary<string, int>(),
+            BarterScheme = new Dictionary<MongoId, List<List<BarterScheme>>>(),
+            LoyalLevelItems = new Dictionary<MongoId, int>(),
         };
 
         var baseFenceAssortClone = _cloner.Clone(databaseService.GetTrader(Traders.FENCE).Assort);
@@ -1025,7 +1025,7 @@ public class FenceService(
     /// <param name="itemRoot"> Root item having price adjusted </param>
     /// <param name="itemTemplate"> DB template of item </param>
     protected void AdjustItemPriceByQuality(
-        Dictionary<string, List<List<BarterScheme>>> barterSchemes,
+        Dictionary<MongoId, List<List<BarterScheme>>> barterSchemes,
         Item itemRoot,
         TemplateItem itemTemplate
     )

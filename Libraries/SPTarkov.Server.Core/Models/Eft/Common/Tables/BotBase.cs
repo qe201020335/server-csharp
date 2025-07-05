@@ -571,7 +571,7 @@ public record DroppedItem
 
     public string? QuestId { get; set; }
 
-    public string? ItemId { get; set; }
+    public MongoId? ItemId { get; set; }
 
     public string? ZoneId { get; set; }
 }
@@ -583,7 +583,7 @@ public record FoundInRaidItem
 
     public string? QuestId { get; set; }
 
-    public string? ItemId { get; set; }
+    public MongoId? ItemId { get; set; }
 }
 
 public record Victim

@@ -286,16 +286,16 @@ namespace SPTarkov.Server.Core.Extensions
         /// <returns>list of Item objects</returns>
         public static List<Item> FindAndReturnChildrenAsItems(
             this IEnumerable<Item> items,
-            string baseItemId,
+            MongoId baseItemId,
             bool modsOnly = false
         )
         {
             // Use dictionary to make key lookup faster, convert to list before being returned
-            OrderedDictionary<string, Item> result = [];
+            OrderedDictionary<MongoId, Item> result = [];
             foreach (var childItem in items)
             {
                 // Include itself
-                if (string.Equals(childItem.Id, baseItemId, StringComparison.Ordinal))
+                if (childItem.Id == baseItemId)
                 {
                     // Root item MUST be at 0 index for things like flea market offers
                     result.Insert(0, childItem.Id, childItem);
@@ -311,7 +311,8 @@ namespace SPTarkov.Server.Core.Extensions
                 // Items parentId matches root item AND returned items doesn't contain current child
                 if (
                     !result.ContainsKey(childItem.Id)
-                    && string.Equals(childItem.ParentId, baseItemId, StringComparison.Ordinal)
+                    && childItem.ParentId != "hideout"
+                    && childItem.ParentId == baseItemId
                 )
                 {
                     foreach (var item in FindAndReturnChildrenAsItems(items, childItem.Id))

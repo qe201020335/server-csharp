@@ -19,11 +19,11 @@ public class BotEquipmentModPoolService(
     private readonly Lock _lockObject = new();
 
     private ConcurrentDictionary<
-        string,
+        MongoId,
         ConcurrentDictionary<string, HashSet<MongoId>>
     >? _gearModPool;
     protected ConcurrentDictionary<
-        string,
+        MongoId,
         ConcurrentDictionary<string, HashSet<MongoId>>
     > GearModPool
     {
@@ -37,11 +37,11 @@ public class BotEquipmentModPoolService(
     }
 
     private ConcurrentDictionary<
-        string,
+        MongoId,
         ConcurrentDictionary<string, HashSet<MongoId>>
     >? _weaponModPool;
     protected ConcurrentDictionary<
-        string,
+        MongoId,
         ConcurrentDictionary<string, HashSet<MongoId>>
     > WeaponModPool
     {
@@ -60,7 +60,7 @@ public class BotEquipmentModPoolService(
     /// <param name="inputItems"> Items to find related mods and store in modPool </param>
     /// <param name="poolType"> Mod pool to choose from e.g. "weapon" for weaponModPool </param>
     protected ConcurrentDictionary<
-        string,
+        MongoId,
         ConcurrentDictionary<string, HashSet<MongoId>>
     > GeneratePool(IEnumerable<TemplateItem>? inputItems, string poolType)
     {
@@ -74,7 +74,7 @@ public class BotEquipmentModPoolService(
         }
 
         var pool =
-            new ConcurrentDictionary<string, ConcurrentDictionary<string, HashSet<MongoId>>>();
+            new ConcurrentDictionary<MongoId, ConcurrentDictionary<string, HashSet<MongoId>>>();
         foreach (var item in inputItems)
         {
             if (item.Properties is null)
@@ -176,7 +176,7 @@ public class BotEquipmentModPoolService(
     /// <param name="itemTpl"> Item to look up </param>
     /// <param name="slotName"> Slot to get compatible mods for </param>
     /// <returns> Hashset of tpls that fit the slot </returns>
-    public HashSet<MongoId> GetCompatibleModsForWeaponSlot(string itemTpl, string slotName)
+    public HashSet<MongoId> GetCompatibleModsForWeaponSlot(MongoId itemTpl, string slotName)
     {
         if (WeaponModPool.TryGetValue(itemTpl, out var value))
         {
@@ -195,7 +195,7 @@ public class BotEquipmentModPoolService(
     /// </summary>
     /// <param name="itemTpl"> Items tpl to look up mods for </param>
     /// <returns> Dictionary of mods (keys are mod slot names) with array of compatible mod tpls as value </returns>
-    public ConcurrentDictionary<string, HashSet<MongoId>> GetModsForGearSlot(string itemTpl)
+    public ConcurrentDictionary<string, HashSet<MongoId>> GetModsForGearSlot(MongoId itemTpl)
     {
         return GearModPool.TryGetValue(itemTpl, out var value) ? value : [];
     }
@@ -205,7 +205,7 @@ public class BotEquipmentModPoolService(
     /// </summary>
     /// <param name="itemTpl"> Weapons tpl to look up mods for </param>
     /// <returns> Dictionary of mods (keys are mod slot names) with array of compatible mod tpls as value </returns>
-    public ConcurrentDictionary<string, HashSet<MongoId>> GetModsForWeaponSlot(string itemTpl)
+    public ConcurrentDictionary<string, HashSet<MongoId>> GetModsForWeaponSlot(MongoId itemTpl)
     {
         return WeaponModPool.TryGetValue(itemTpl, out var value) ? value : [];
     }
@@ -215,7 +215,7 @@ public class BotEquipmentModPoolService(
     /// </summary>
     /// <param name="itemTpl"> Weapons tpl to look up mods for </param>
     /// <returns> Dictionary of mods (keys are mod slot names) with array of compatible mod tpls as value </returns>
-    public Dictionary<string, HashSet<MongoId>>? GetRequiredModsForWeaponSlot(string itemTpl)
+    public Dictionary<string, HashSet<MongoId>>? GetRequiredModsForWeaponSlot(MongoId itemTpl)
     {
         var result = new Dictionary<string, HashSet<MongoId>>();
 
@@ -248,7 +248,7 @@ public class BotEquipmentModPoolService(
     ///     Create weapon mod pool and set generated flag to true
     /// </summary>
     protected ConcurrentDictionary<
-        string,
+        MongoId,
         ConcurrentDictionary<string, HashSet<MongoId>>
     > GenerateWeaponPool()
     {
@@ -266,7 +266,7 @@ public class BotEquipmentModPoolService(
     ///     Create gear mod pool and set generated flag to true
     /// </summary>
     protected ConcurrentDictionary<
-        string,
+        MongoId,
         ConcurrentDictionary<string, HashSet<MongoId>>
     > GenerateGearPool()
     {

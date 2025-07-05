@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
@@ -414,7 +415,7 @@ public record PurchaseDetails
 
 public record PurchaseItems
 {
-    public string ItemId { get; set; }
+    public MongoId ItemId { get; set; }
 
     public double Count { get; set; }
 }

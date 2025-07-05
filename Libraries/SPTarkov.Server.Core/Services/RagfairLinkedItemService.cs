@@ -15,9 +15,9 @@ public class RagfairLinkedItemService(
     ISptLogger<RagfairLinkedItemService> logger
 )
 {
-    protected readonly Dictionary<string, HashSet<MongoId>> linkedItemsCache = new();
+    protected readonly Dictionary<MongoId, HashSet<MongoId>> linkedItemsCache = new();
 
-    public HashSet<MongoId> GetLinkedItems(string linkedSearchId)
+    public HashSet<MongoId> GetLinkedItems(MongoId linkedSearchId)
     {
         if (!linkedItemsCache.TryGetValue(linkedSearchId, out var set))
         {
@@ -35,7 +35,7 @@ public class RagfairLinkedItemService(
     /// </summary>
     /// <param name="itemTpl"> Item to get sub-items for </param>
     /// <returns> TemplateItem list </returns>
-    public List<TemplateItem> GetLinkedDbItems(string itemTpl)
+    public List<TemplateItem> GetLinkedDbItems(MongoId itemTpl)
     {
         var linkedItemsToWeaponTpls = GetLinkedItems(itemTpl);
         return linkedItemsToWeaponTpls.Aggregate(

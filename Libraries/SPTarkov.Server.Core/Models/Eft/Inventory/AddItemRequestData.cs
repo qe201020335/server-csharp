@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 
 namespace SPTarkov.Server.Core.Models.Eft.Inventory;
 
@@ -29,5 +30,5 @@ public record ItemToAdd
     public bool? IsPreset { get; set; }
 
     [JsonPropertyName("item_id")]
-    public string? ItemId { get; set; }
+    public MongoId? ItemId { get; set; }
 }

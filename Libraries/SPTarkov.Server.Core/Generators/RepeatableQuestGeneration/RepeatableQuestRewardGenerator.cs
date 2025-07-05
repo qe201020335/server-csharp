@@ -818,7 +818,7 @@ public class RepeatableQuestRewardGenerator(
     /// <param name="itemBaseWhitelist"> Default null, specific trader item base classes</param>
     /// <returns> True if item is valid reward </returns>
     public bool IsValidRewardItem(
-        string tpl,
+        MongoId tpl,
         HashSet<MongoId> itemTplBlacklist,
         HashSet<MongoId> itemTypeBlacklist,
         List<MongoId>? itemBaseWhitelist = null

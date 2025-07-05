@@ -260,10 +260,10 @@ public record TraderAssort
     public List<Item>? Items { get; set; }
 
     [JsonPropertyName("barter_scheme")]
-    public Dictionary<string, List<List<BarterScheme>>>? BarterScheme { get; set; }
+    public Dictionary<MongoId, List<List<BarterScheme>>>? BarterScheme { get; set; }
 
     [JsonPropertyName("loyal_level_items")]
-    public Dictionary<string, int>? LoyalLevelItems { get; set; }
+    public Dictionary<MongoId, int>? LoyalLevelItems { get; set; }
 }
 
 public record BarterScheme

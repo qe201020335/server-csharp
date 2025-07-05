@@ -161,7 +161,7 @@ public class InventoryController(
         if (itemToAdjust is null)
         {
             _logger.Error(
-                $"Unable find item: {request.Item} to: {request.State} on player {sessionId}to: "
+                $"Unable find item: {request.Item.Value.ToString()} to: {request.State} on player: {sessionId} to: "
             );
 
             return;

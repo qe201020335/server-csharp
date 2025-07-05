@@ -48,7 +48,11 @@ public class CustomItemService(
         }
 
         // Clone existing item
-        var itemClone = cloner.Clone(tables.Templates.Items[newItemDetails.ItemTplToClone]);
+        tables.Templates.Items.TryGetValue(
+            newItemDetails.ItemTplToClone.Value,
+            out var itemToClone
+        );
+        var itemClone = cloner.Clone(itemToClone);
 
         // Update id and parentId of item
         itemClone.Id = newItemId;

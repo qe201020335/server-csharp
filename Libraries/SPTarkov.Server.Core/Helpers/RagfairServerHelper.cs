@@ -99,7 +99,7 @@ public class RagfairServerHelper(
      * @param itemTemplateId Item tpl to check is blacklisted
      * @returns True if its blacklisted
      */
-    protected bool IsItemOnCustomFleaBlacklist(string itemTemplateId)
+    protected bool IsItemOnCustomFleaBlacklist(MongoId itemTemplateId)
     {
         return ragfairConfig.Dynamic.Blacklist.Custom.Contains(itemTemplateId);
     }

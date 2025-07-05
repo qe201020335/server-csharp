@@ -84,6 +84,17 @@ public class BotEquipmentModGenerator(
         "cartridges",
     ];
 
+    const string modRecieverKey = "mod_reciever";
+    const string modMount001Key = "mod_mount_001";
+    const string modGasBlockKey = "mod_gas_block";
+    const string modPistolGrip = "mod_pistol_grip";
+    const string modStockKey = "mod_stock";
+    const string modBarrelKey = "mod_barrel";
+    const string modHandguardKey = "mod_handguard";
+    const string modMountKey = "mod_mount";
+    const string modScopeKey = "mod_scope";
+    const string modScope000Key = "mod_scope_000";
+
     protected readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
 
     /// <summary>
@@ -186,7 +197,8 @@ public class BotEquipmentModGenerator(
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE
+                    or Result.NO_DEFAULT_FILTER:
                         if (_logger.IsLogEnabled(LogLevel.Debug))
                         {
                             _logger.Debug(
@@ -929,7 +941,7 @@ public class BotEquipmentModGenerator(
     /// <returns>Sorted array</returns>
     public HashSet<string> SortModKeys(
         HashSet<string> unsortedSlotKeys,
-        string itemTplWithKeysToSort
+        MongoId itemTplWithKeysToSort
     )
     {
         // No need to sort with only 1 item in array
@@ -941,16 +953,6 @@ public class BotEquipmentModGenerator(
         var isMount = _itemHelper.IsOfBaseclass(itemTplWithKeysToSort, BaseClasses.MOUNT);
 
         HashSet<string> sortedKeys = [];
-        const string modRecieverKey = "mod_reciever";
-        const string modMount001Key = "mod_mount_001";
-        const string modGasBlockKey = "mod_gas_block";
-        const string modPistolGrip = "mod_pistol_grip";
-        const string modStockKey = "mod_stock";
-        const string modBarrelKey = "mod_barrel";
-        const string modHandguardKey = "mod_handguard";
-        const string modMountKey = "mod_mount";
-        const string modScopeKey = "mod_scope";
-        const string modScope000Key = "mod_scope_000";
 
         // Mounts are a special case, they need scopes first before more mounts
         if (isMount)

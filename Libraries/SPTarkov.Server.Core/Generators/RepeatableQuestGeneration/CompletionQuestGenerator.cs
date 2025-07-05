@@ -394,7 +394,7 @@ public class CompletionQuestGenerator(
     /// <param name="completionConfig">Completion config from quest.json</param>
     /// <returns>object of "Completion"-condition</returns>
     protected QuestCondition GenerateCondition(
-        string itemTpl,
+        MongoId itemTpl,
         double value,
         Completion completionConfig
     )
