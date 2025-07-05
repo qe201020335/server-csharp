@@ -21,10 +21,8 @@ namespace SPTarkov.Server.Core.Generators;
 public class LocationLootGenerator(
     ISptLogger<LocationLootGenerator> _logger,
     RandomUtil _randomUtil,
-    HashUtil _hashUtil,
     ItemHelper _itemHelper,
     DatabaseService _databaseService,
-    ContainerHelper _containerHelper,
     PresetHelper _presetHelper,
     ServerLocalisationService _serverLocalisationService,
     SeasonalEventService _seasonalEventService,
@@ -60,7 +58,7 @@ public class LocationLootGenerator(
 
         // Pull location-specific spawn limits from db
         var itemsWithSpawnCountLimitsClone = _cloner.Clone(
-            _locationConfig.LootMaxSpawnLimits.GetValueOrDefault(locationId.ToLower())
+            _locationConfig.LootMaxSpawnLimits.GetValueOrDefault(locationId.ToLowerInvariant())
         );
 
         // Store items with spawn count limits inside so they can be accessed later inside static/dynamic loot spawn methods
@@ -70,13 +68,13 @@ public class LocationLootGenerator(
         }
 
         // Create containers with loot
-        result.AddRange(GenerateStaticContainers(locationId.ToLower(), staticAmmoDist));
+        result.AddRange(GenerateStaticContainers(locationId.ToLowerInvariant(), staticAmmoDist));
 
         // Add dynamic loot to output loot
         var dynamicSpawnPoints = GenerateDynamicLoot(
             _cloner.Clone(locationDetails.LooseLoot.Value),
             staticAmmoDist,
-            locationId.ToLower()
+            locationId.ToLowerInvariant()
         );
 
         // Merge dynamic spawns into result
@@ -542,7 +540,7 @@ public class LocationLootGenerator(
         var containerTpl = containerClone.Template.Items.FirstOrDefault().Template;
 
         // Create new unique parent id to prevent any collisions
-        var parentId = _hashUtil.Generate();
+        var parentId = new MongoId();
         containerClone.Template.Root = parentId;
         containerClone.Template.Items.FirstOrDefault().Id = parentId;
 
@@ -600,8 +598,7 @@ public class LocationLootGenerator(
                 : chosenItemWithChildren.Items;
 
             // look for open slot to put chosen item into
-            var result = _containerHelper.FindSlotForItem(
-                containerMap,
+            var result = containerMap.FindSlotForItem(
                 chosenItemWithChildren.Width,
                 chosenItemWithChildren.Height
             );
@@ -620,8 +617,7 @@ public class LocationLootGenerator(
             }
 
             // Find somewhere for item inside container
-            _containerHelper.FillContainerMapWithItem(
-                containerMap,
+            containerMap.FillContainerMapWithItem(
                 result.X.Value,
                 result.Y.Value,
                 chosenItemWithChildren.Width,
@@ -700,7 +696,7 @@ public class LocationLootGenerator(
     /// <param name="containerTypeId">Container to get possible loot for</param>
     /// <param name="staticLootDist">staticLoot.json</param>
     /// <returns>ProbabilityObjectArray of item tpls + probability</returns>
-    protected ProbabilityObjectArray<string, float?> GetPossibleLootItemsForContainer(
+    protected ProbabilityObjectArray<MongoId, float?> GetPossibleLootItemsForContainer(
         string containerTypeId,
         Dictionary<string, StaticLootDetails> staticLootDist
     )
@@ -708,7 +704,7 @@ public class LocationLootGenerator(
         var seasonalEventActive = _seasonalEventService.SeasonalEventEnabled();
         var seasonalItemTplBlacklist = _seasonalEventService.GetInactiveSeasonalEventItems();
 
-        var itemDistribution = new ProbabilityObjectArray<string, float?>(_cloner);
+        var itemDistribution = new ProbabilityObjectArray<MongoId, float?>(_cloner);
 
         var itemContainerDistribution = staticLootDist[containerTypeId]?.ItemDistribution;
         if (itemContainerDistribution is null)
@@ -738,7 +734,7 @@ public class LocationLootGenerator(
             }
 
             itemDistribution.Add(
-                new ProbabilityObject<string, float?>(icd.Tpl, icd.RelativeProbability.Value, null)
+                new ProbabilityObject<MongoId, float?>(icd.Tpl, icd.RelativeProbability.Value, null)
             );
         }
 

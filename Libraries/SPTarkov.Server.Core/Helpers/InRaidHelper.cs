@@ -14,7 +14,6 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class InRaidHelper(
     InventoryHelper _inventoryHelper,
-    ItemHelper _itemHelper,
     ConfigServer _configServer,
     ICloner _cloner,
     DatabaseService _databaseService
@@ -66,23 +65,27 @@ public class InRaidHelper(
         var insured = _cloner.Clone(serverProfile.InsuredItems);
 
         // Remove equipment and loot items stored on player from server profile in preparation for data from client being added
-        _inventoryHelper.RemoveItem(serverProfile, serverProfile.Inventory.Equipment, sessionID);
+        _inventoryHelper.RemoveItem(
+            serverProfile,
+            serverProfile.Inventory.Equipment.Value,
+            sessionID
+        );
 
         // Remove quest items stored on player from server profile in preparation for data from client being added
         _inventoryHelper.RemoveItem(
             serverProfile,
-            serverProfile.Inventory.QuestRaidItems,
+            serverProfile.Inventory.QuestRaidItems.Value,
             sessionID
         );
 
         // Get all items that have a parent of `serverProfile.Inventory.equipment` (All items player had on them at end of raid)
         var postRaidInventoryItems = postRaidProfile.Inventory.Items.FindAndReturnChildrenAsItems(
-            postRaidProfile.Inventory.Equipment
+            postRaidProfile.Inventory.Equipment.Value
         );
 
         // Get all items that have a parent of `serverProfile.Inventory.questRaidItems` (Quest items player had on them at end of raid)
         var postRaidQuestItems = postRaidProfile.Inventory.Items.FindAndReturnChildrenAsItems(
-            postRaidProfile.Inventory.QuestRaidItems
+            postRaidProfile.Inventory.QuestRaidItems.Value
         );
 
         // Handle Removing of FIR status if player did not survive + not transferring
@@ -243,14 +246,10 @@ public class InRaidHelper(
                 }
 
                 // Pocket items are lost on death
-                // Ensure we dont pick up pocket items from manniquins
+                // Ensure we don't pick up pocket items from mannequins
                 if (
                     item.SlotId.StartsWith("pocket")
-                    && _inventoryHelper.DoesItemHaveRootId(
-                        pmcProfile,
-                        item,
-                        pmcProfile.Inventory.Equipment
-                    )
+                    && pmcProfile.DoesItemHaveRootId(item, pmcProfile.Inventory.Equipment)
                 )
                 {
                     return true;

@@ -48,5 +48,20 @@ namespace SPTarkov.Server.Core.Extensions
         {
             return weaponTemplate.Properties.DefMagType;
         }
+
+        /// <summary>
+        ///     Get the default plate an armor has in its db item
+        /// </summary>
+        /// <param name="armorItem">Item to look up default plate</param>
+        /// <param name="modSlot">front/back</param>
+        /// <returns>Tpl of plate</returns>
+        public static string? GetDefaultPlateTpl(this TemplateItem armorItem, string modSlot)
+        {
+            var relatedItemDbModSlot = armorItem.Properties.Slots?.FirstOrDefault(slot =>
+                string.Equals(slot.Name, modSlot, StringComparison.OrdinalIgnoreCase)
+            );
+
+            return relatedItemDbModSlot?.Props?.Filters?.FirstOrDefault()?.Plate;
+        }
     }
 }

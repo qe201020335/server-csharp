@@ -1,6 +1,5 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Generators;
-using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Eft.Weather;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -17,7 +16,6 @@ public class WeatherController(
     WeatherGenerator _weatherGenerator,
     SeasonalEventService _seasonalEventService,
     RaidWeatherService _raidWeatherService,
-    WeatherHelper _weatherHelper,
     ConfigServer _configServer
 )
 {

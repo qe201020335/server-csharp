@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -88,7 +89,7 @@ public class HandbookHelper(
     /// </summary>
     /// <param name="tpl">Item tpl to look up price for</param>
     /// <returns>price in roubles</returns>
-    public double GetTemplatePrice(string tpl)
+    public double GetTemplatePrice(MongoId tpl)
     {
         if (HandbookPriceCache.Items.ById.TryGetValue(tpl, out var itemPrice))
         {
@@ -211,11 +212,11 @@ public class HandbookHelper(
     {
         public LookupItem()
         {
-            ById = new Dictionary<string, T>();
+            ById = new Dictionary<MongoId, T>();
             ByParent = new Dictionary<string, List<I>>();
         }
 
-        public Dictionary<string, T> ById { get; set; }
+        public Dictionary<MongoId, T> ById { get; set; }
 
         public Dictionary<string, List<I>> ByParent { get; set; }
     }

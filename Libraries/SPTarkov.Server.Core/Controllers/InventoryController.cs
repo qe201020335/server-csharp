@@ -19,15 +19,11 @@ namespace SPTarkov.Server.Core.Controllers;
 [Injectable]
 public class InventoryController(
     ISptLogger<InventoryController> _logger,
-    HashUtil _hashUtil,
-    RandomUtil _randomUtil,
     HttpResponseUtil _httpResponseUtil,
     PresetHelper _presetHelper,
     InventoryHelper _inventoryHelper,
-    QuestHelper _questHelper,
     HideoutHelper _hideoutHelper,
     ProfileHelper _profileHelper,
-    PaymentHelper _paymentHelper,
     TraderHelper _traderHelper,
     ItemHelper _itemHelper,
     DatabaseService _databaseService,
@@ -165,7 +161,7 @@ public class InventoryController(
         if (itemToAdjust is null)
         {
             _logger.Error(
-                $"Unable find item: {request.Item} to: {request.State} on player {sessionId}to: "
+                $"Unable find item: {request.Item.Value.ToString()} to: {request.State} on player: {sessionId} to: "
             );
 
             return;
@@ -603,7 +599,7 @@ public class InventoryController(
     /// <param name="request"></param>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>Item tpl</returns>
-    protected string? GetExaminedItemTpl(InventoryExamineRequestData request, string? sessionId)
+    protected MongoId? GetExaminedItemTpl(InventoryExamineRequestData request, string? sessionId)
     {
         if (_presetHelper.IsPreset(request.Item))
         {
@@ -1074,7 +1070,9 @@ public class InventoryController(
         }
 
         destinationItem.Upd.StackObjectsCount += sourceItem.Upd.StackObjectsCount; // Add source stackcount to destination
-        output.ProfileChanges[sessionID].Items.DeletedItems.Add(new Item { Id = sourceItem.Id }); // Inform client source item being deleted
+        output
+            .ProfileChanges[sessionID]
+            .Items.DeletedItems.Add(new DeletedItem { Id = sourceItem.Id }); // Inform client source item being deleted
 
         var indexOfItemToRemove = inventoryItems.From.FindIndex(x => x.Id == sourceItem.Id);
         if (indexOfItemToRemove == -1)

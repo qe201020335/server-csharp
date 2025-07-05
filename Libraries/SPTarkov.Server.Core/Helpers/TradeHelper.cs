@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
@@ -19,7 +20,6 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class TradeHelper(
     ISptLogger<TradeHelper> _logger,
-    DatabaseService _databaseService,
     TraderHelper _traderHelper,
     ItemHelper _itemHelper,
     QuestHelper _questHelper,
@@ -415,7 +415,7 @@ public record PurchaseDetails
 
 public record PurchaseItems
 {
-    public string ItemId { get; set; }
+    public MongoId ItemId { get; set; }
 
     public double Count { get; set; }
 }

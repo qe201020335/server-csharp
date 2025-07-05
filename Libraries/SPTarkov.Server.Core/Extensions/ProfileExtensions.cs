@@ -1,4 +1,5 @@
-﻿using SPTarkov.Server.Core.Models.Eft.Common;
+﻿using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 
@@ -125,7 +126,7 @@ namespace SPTarkov.Server.Core.Extensions
             return pmcData.IsParentInStash(itemToCheck.Id);
         }
 
-        public static bool IsParentInStash(this PmcData pmcData, string itemId)
+        public static bool IsParentInStash(this PmcData pmcData, MongoId itemId)
         {
             // Item not found / has no parent
             var item = pmcData.Inventory.Items.FirstOrDefault(item => item.Id == itemId);
@@ -199,6 +200,46 @@ namespace SPTarkov.Server.Core.Extensions
             }
 
             return pmcData.Info.Level;
+        }
+
+        /// <summary>
+        ///     Does the provided item have a root item with the provided id
+        /// </summary>
+        /// <param name="pmcData">Profile with items</param>
+        /// <param name="item">Item to check</param>
+        /// <param name="rootId">Root item id to check for</param>
+        /// <returns>True when item has rootId, false when not</returns>
+        public static bool DoesItemHaveRootId(this PmcData pmcData, Item item, string rootId)
+        {
+            var currentItem = item;
+            while (currentItem is not null)
+            {
+                // If we've found the equipment root ID, return true
+                if (currentItem.Id == rootId)
+                {
+                    return true;
+                }
+
+                // Otherwise get the parent item
+                currentItem = pmcData.Inventory.Items.FirstOrDefault(item =>
+                    item.Id == currentItem.ParentId
+                );
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Get status of a quest in player profile by its id
+        /// </summary>
+        /// <param name="pmcData">Profile to search</param>
+        /// <param name="questId">Quest id to look up</param>
+        /// <returns>QuestStatus enum</returns>
+        public static QuestStatusEnum GetQuestStatus(this PmcData pmcData, string questId)
+        {
+            var quest = pmcData.Quests?.FirstOrDefault(q => q.QId == questId);
+
+            return quest?.Status ?? QuestStatusEnum.Locked;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -9,7 +10,6 @@ using SPTarkov.Server.Core.Models.Spt.Server;
 using SPTarkov.Server.Core.Models.Spt.Templates;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Utils;
 using Hideout = SPTarkov.Server.Core.Models.Spt.Hideout.Hideout;
 using Locations = SPTarkov.Server.Core.Models.Spt.Server.Locations;
 using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
@@ -23,8 +23,7 @@ namespace SPTarkov.Server.Core.Services;
 public class DatabaseService(
     ISptLogger<DatabaseService> _logger,
     DatabaseServer _databaseServer,
-    ServerLocalisationService _serverLocalisationService,
-    HashUtil _hashUtil
+    ServerLocalisationService _serverLocalisationService
 )
 {
     private bool _isDataValid = true;
@@ -122,7 +121,8 @@ public class DatabaseService(
     /// <returns> assets/database/locations/ </returns>
     public Location? GetLocation(string locationId)
     {
-        var desiredLocation = GetLocations()?.GetByJsonProp<Location>(locationId.ToLower());
+        var desiredLocation = GetLocations()
+            ?.GetByJsonProp<Location>(locationId.ToLowerInvariant());
         if (desiredLocation == null)
         {
             _logger.Error(
@@ -280,7 +280,7 @@ public class DatabaseService(
     }
 
     /// <returns> assets/database/templates/prices.json </returns>
-    public Dictionary<string, double> GetPrices()
+    public Dictionary<MongoId, double> GetPrices()
     {
         if (_databaseServer.GetTables().Templates?.Prices == null)
         {
@@ -328,7 +328,7 @@ public class DatabaseService(
     }
 
     /// <returns> assets/database/traders/ </returns>
-    public Dictionary<string, Trader> GetTraders()
+    public Dictionary<MongoId, Trader> GetTraders()
     {
         if (_databaseServer.GetTables().Traders == null)
         {
@@ -414,7 +414,7 @@ public class DatabaseService(
     {
         foreach (var keyValuePair in table)
         {
-            if (!_hashUtil.IsValidMongoId(keyValuePair.Key))
+            if (!keyValuePair.Key.IsValidMongoId())
             {
                 _logger.Error($"Invalid {tableType} ID: '{keyValuePair.Key}'");
                 return false;
@@ -428,7 +428,7 @@ public class DatabaseService(
     {
         foreach (var keyValuePair in table)
         {
-            if (!_hashUtil.IsValidMongoId(keyValuePair.Key))
+            if (!keyValuePair.Key.IsValidMongoId())
             {
                 _logger.Error($"Invalid {tableType} ID: '{keyValuePair.Key}'");
                 return false;

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 
@@ -10,7 +11,7 @@ public record HideoutArea
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("type")]
     public HideoutAreas? Type { get; set; }
@@ -37,7 +38,7 @@ public record HideoutArea
     public bool? EnableAreaRequirements { get; set; }
 
     [JsonPropertyName("parentArea")]
-    public string? ParentArea { get; set; }
+    public MongoId? ParentArea { get; set; }
 
     [JsonPropertyName("stages")]
     public Dictionary<string, Stage>? Stages { get; set; }
@@ -103,7 +104,7 @@ public record StageImprovement
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("bonuses")]
     public List<StageImprovementBonus>? Bonuses { get; set; }
@@ -121,7 +122,7 @@ public record StageImprovementBonus
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("passive")]
     public bool? IsPassive { get; set; }
@@ -157,7 +158,7 @@ public record StageImprovementRequirement
     public bool? IsFunctional { get; set; }
 
     [JsonPropertyName("templateId")]
-    public string? TemplateId { get; set; }
+    public MongoId TemplateId { get; set; }
 
     [JsonPropertyName("isSpawnedInSession")]
     public bool? IsSpawnedInSession { get; set; }
@@ -178,7 +179,7 @@ public record StageRequirement
     public int? RequiredLevel { get; set; }
 
     [JsonPropertyName("templateId")]
-    public string? TemplateId { get; set; }
+    public MongoId TemplateId { get; set; }
 
     [JsonPropertyName("count")]
     public int? Count { get; set; }
@@ -190,7 +191,7 @@ public record StageRequirement
     public bool? IsFunctional { get; set; }
 
     [JsonPropertyName("traderId")]
-    public string? TraderId { get; set; }
+    public MongoId TraderId { get; set; }
 
     [JsonPropertyName("isSpawnedInSession")]
     public bool? IsSpawnedInSession { get; set; }

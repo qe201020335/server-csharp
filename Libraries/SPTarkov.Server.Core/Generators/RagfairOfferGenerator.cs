@@ -2,6 +2,7 @@ using System.Diagnostics;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Enums;
@@ -148,7 +149,7 @@ public class RagfairOfferGenerator(
 
         var offer = new RagfairOffer
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             InternalId = offerCounter,
             User = CreateUserDataForFleaOffer(userId, ragfairServerHelper.IsTrader(userId)),
             Root = rootItem.Id,
@@ -467,7 +468,7 @@ public class RagfairOfferGenerator(
             clonedAssort[0].SlotId = null;
 
             CreateSingleOfferForItem(
-                hashUtil.Generate(),
+                new MongoId(),
                 clonedAssort,
                 isPreset,
                 itemToSellDetails.Value,
@@ -494,7 +495,9 @@ public class RagfairOfferGenerator(
         }
 
         var plateSlots = presetWithChildren
-            .Where(item => itemHelper.GetRemovablePlateSlotIds().Contains(item.SlotId?.ToLower()))
+            .Where(item =>
+                itemHelper.GetRemovablePlateSlotIds().Contains(item.SlotId?.ToLowerInvariant())
+            )
             .ToList();
         if (plateSlots.Count == 0)
         // Has no plate slots e.g. "front_plate", exit
@@ -506,7 +509,7 @@ public class RagfairOfferGenerator(
         foreach (var plateSlot in plateSlots)
         {
             var plateDetails = itemHelper.GetItem(plateSlot.Template).Value;
-            if (plateSettings.IgnoreSlots.Contains(plateSlot.SlotId.ToLower()))
+            if (plateSettings.IgnoreSlots.Contains(plateSlot.SlotId.ToLowerInvariant()))
             {
                 continue;
             }
@@ -630,7 +633,7 @@ public class RagfairOfferGenerator(
         }
 
         var offerItemPlatesToRemove = itemWithChildren.Where(item =>
-            armorConfig.PlateSlotIdToRemovePool.Contains(item.SlotId?.ToLower())
+            armorConfig.PlateSlotIdToRemovePool.Contains(item.SlotId?.ToLowerInvariant())
         );
 
         // Latest first, to ensure we don't move later items off by 1 each time we remove an item below it
@@ -783,7 +786,7 @@ public class RagfairOfferGenerator(
     /// </summary>
     /// <param name="tpl"> Item to look for matching condition object</param>
     /// <returns> Condition ID </returns>
-    protected string? GetDynamicConditionIdForTpl(string tpl)
+    protected string? GetDynamicConditionIdForTpl(MongoId tpl)
     {
         // Get keys from condition config dictionary
         var configConditions = ragfairConfig.Dynamic.Condition.Keys;

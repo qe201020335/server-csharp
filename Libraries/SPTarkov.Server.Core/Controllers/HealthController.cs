@@ -24,7 +24,6 @@ public class HealthController(
     InventoryHelper _inventoryHelper,
     ServerLocalisationService _serverLocalisationService,
     HttpResponseUtil _httpResponseUtil,
-    HealthHelper _healthHelper,
     ICloner _cloner
 )
 {

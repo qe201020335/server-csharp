@@ -226,13 +226,13 @@ public record TraderRepair
     public bool? Availability { get; set; }
 
     [JsonPropertyName("currency")]
-    public MongoId Currency { get; set; }
+    public string Currency { get; set; }
 
     [JsonPropertyName("currency_coefficient")]
     public double? CurrencyCoefficient { get; set; }
 
     [JsonPropertyName("excluded_category")]
-    public List<string>? ExcludedCategory { get; set; }
+    public List<MongoId>? ExcludedCategory { get; set; }
 
     /// <summary>
     ///     Doesn't exist in client object
@@ -260,10 +260,10 @@ public record TraderAssort
     public List<Item>? Items { get; set; }
 
     [JsonPropertyName("barter_scheme")]
-    public Dictionary<string, List<List<BarterScheme>>>? BarterScheme { get; set; }
+    public Dictionary<MongoId, List<List<BarterScheme>>>? BarterScheme { get; set; }
 
     [JsonPropertyName("loyal_level_items")]
-    public Dictionary<string, int>? LoyalLevelItems { get; set; }
+    public Dictionary<MongoId, int>? LoyalLevelItems { get; set; }
 }
 
 public record BarterScheme

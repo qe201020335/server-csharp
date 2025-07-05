@@ -53,7 +53,7 @@ public class BotNameService(
         var showTypeInNickname =
             !botGenerationDetails.IsPlayerScav.GetValueOrDefault(false)
             && _botConfig.ShowTypeInNickname;
-        var roleShouldBeUnique = uniqueRoles?.Contains(botRole.ToLower());
+        var roleShouldBeUnique = uniqueRoles?.Contains(botRole.ToLowerInvariant());
 
         var attempts = 0;
         while (attempts <= 5)

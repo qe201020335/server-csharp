@@ -5,7 +5,6 @@ using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils.Cloners;
 using static SPTarkov.Server.Core.Services.MatchLocationService;
 
 namespace SPTarkov.Server.Core.Controllers;
@@ -17,8 +16,7 @@ public class MatchController(
     ConfigServer _configServer,
     LocationLifecycleService _locationLifecycleService,
     ProfileActivityService _profileActivityService,
-    WeatherHelper _weatherHelper,
-    ICloner _cloner
+    WeatherHelper _weatherHelper
 )
 {
     protected readonly MatchConfig _matchConfig = _configServer.GetConfig<MatchConfig>();

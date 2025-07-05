@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Utils.Json;
 
 namespace SPTarkov.Server.Core.Models.Eft.Common;
@@ -147,7 +148,7 @@ public record StaticForced
     public string ContainerId { get; set; }
 
     [JsonPropertyName("itemTpl")]
-    public string ItemTpl { get; set; }
+    public MongoId ItemTpl { get; set; }
 }
 
 public record StaticContainerData

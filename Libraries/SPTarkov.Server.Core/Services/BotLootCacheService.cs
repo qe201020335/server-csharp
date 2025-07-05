@@ -48,7 +48,7 @@ public class BotLootCacheService(
     /// <param name="itemPriceMinMax">OPTIONAL - item price min and max value filter</param>
     /// <remarks>THIS IS NOT A THREAD SAFE METHOD</remarks>
     /// <returns>dictionary</returns>
-    public Dictionary<string, double> GetLootFromCache(
+    public Dictionary<MongoId, double> GetLootFromCache(
         string botRole,
         bool isPmc,
         string lootType,
@@ -68,7 +68,7 @@ public class BotLootCacheService(
             return [];
         }
 
-        Dictionary<string, double> result;
+        Dictionary<MongoId, double> result;
         switch (lootType)
         {
             case LootCacheType.Special:
@@ -175,12 +175,12 @@ public class BotLootCacheService(
         var lootPool = botJsonTemplate.BotInventory.Items;
 
         // Flatten all individual slot loot pools into one big pool, while filtering out potentially missing templates
-        Dictionary<string, double> specialLootPool = new();
-        Dictionary<string, double> backpackLootPool = new();
-        Dictionary<string, double> pocketLootPool = new();
-        Dictionary<string, double> vestLootPool = new();
-        Dictionary<string, double> secureLootPool = new();
-        Dictionary<string, double> combinedLootPool = new();
+        Dictionary<MongoId, double> specialLootPool = new();
+        Dictionary<MongoId, double> backpackLootPool = new();
+        Dictionary<MongoId, double> pocketLootPool = new();
+        Dictionary<MongoId, double> vestLootPool = new();
+        Dictionary<MongoId, double> secureLootPool = new();
+        Dictionary<MongoId, double> combinedLootPool = new();
 
         if (isPmc)
         {
@@ -195,7 +195,7 @@ public class BotLootCacheService(
         }
 
         // Backpack/Pockets etc
-        var poolsToProcess = new Dictionary<string, Dictionary<string, double>>
+        var poolsToProcess = new Dictionary<string, Dictionary<MongoId, double>>
         {
             { "Backpack", lootPool.Backpack },
             { "Pockets", lootPool.Pockets },
@@ -420,7 +420,7 @@ public class BotLootCacheService(
         ); // lacks width
 
         // Get vest loot (excluding magazines, bullets, grenades, medical and healing/stim items)
-        var filteredVestItems = new Dictionary<string, double>();
+        var filteredVestItems = new Dictionary<MongoId, double>();
         foreach (var itemKvP in vestLootPool)
         {
             var itemResult = _itemHelper.GetItem(itemKvP.Key);
@@ -480,12 +480,12 @@ public class BotLootCacheService(
     /// <param name="lootPool">Pool to filter</param>
     /// <param name="shouldBeSkipped">Delegate to filter pool by</param>
     /// <returns></returns>
-    protected Dictionary<string, double> FilterItemPool(
-        Dictionary<string, double> lootPool,
+    protected Dictionary<MongoId, double> FilterItemPool(
+        Dictionary<MongoId, double> lootPool,
         Func<TemplateItem, bool> shouldBeSkipped
     )
     {
-        var filteredItems = new Dictionary<string, double>();
+        var filteredItems = new Dictionary<MongoId, double>();
         foreach (var (itemTpl, itemWeight) in lootPool)
         {
             var (isValidItem, itemTemplate) = _itemHelper.GetItem(itemTpl);
@@ -511,9 +511,9 @@ public class BotLootCacheService(
     /// <param name="weights">Weights to return</param>
     /// <returns>Dictionary and should pool be hydrated by items in combined loot pool</returns>
     protected static (
-        Dictionary<string, double>,
+        Dictionary<MongoId, double>,
         bool populateFromCombinedPool
-    ) GetGenerationWeights(Dictionary<string, double>? weights)
+    ) GetGenerationWeights(Dictionary<MongoId, double>? weights)
     {
         var result = weights ?? [];
         return (result, !result.Any()); // empty dict = should be populated from combined pool
@@ -526,8 +526,8 @@ public class BotLootCacheService(
     /// <param name="poolToAddTo">Dictionary to add item to</param>
     /// <param name="poolOfItemsToAdd">Dictionary of items to add</param>
     protected void AddItemsToPool(
-        Dictionary<string, double> poolToAddTo,
-        Dictionary<string, double> poolOfItemsToAdd
+        Dictionary<MongoId, double> poolToAddTo,
+        Dictionary<MongoId, double> poolOfItemsToAdd
     )
     {
         foreach (var (tpl, weight) in poolOfItemsToAdd)
@@ -577,17 +577,17 @@ public class BotLootCacheService(
         return props.ThrowType is not null;
     }
 
-    protected bool IsFood(string tpl)
+    protected bool IsFood(MongoId tpl)
     {
         return _itemHelper.IsOfBaseclass(tpl, BaseClasses.FOOD);
     }
 
-    protected bool IsDrink(string tpl)
+    protected bool IsDrink(MongoId tpl)
     {
         return _itemHelper.IsOfBaseclass(tpl, BaseClasses.DRINK);
     }
 
-    protected bool IsCurrency(string tpl)
+    protected bool IsCurrency(MongoId tpl)
     {
         return _itemHelper.IsOfBaseclass(tpl, BaseClasses.MONEY);
     }

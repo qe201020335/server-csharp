@@ -6,7 +6,6 @@ using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Spt.Repeatable;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Json;
@@ -21,16 +20,12 @@ public class CompletionQuestGenerator(
     DatabaseService databaseService,
     SeasonalEventService seasonalEventService,
     ServerLocalisationService localisationService,
-    ConfigServer configServer,
     RandomUtil randomUtil,
     MathUtil mathUtil,
-    HashUtil hashUtil,
     ItemHelper itemHelper
 ) : IRepeatableQuestGenerator
 {
     protected const int MaxRandomNumberAttempts = 6;
-
-    protected QuestConfig QuestConfig = configServer.GetConfig<QuestConfig>();
 
     /// <summary>
     ///     Generates a valid Completion quest
@@ -38,6 +33,7 @@ public class CompletionQuestGenerator(
     /// <param name="sessionId">session Id to generate the quest for</param>
     /// <param name="pmcLevel">player's level for requested items and reward generation</param>
     /// <param name="traderId">trader from which the quest will be provided</param>
+    /// <param name="questTypePool"></param>
     /// <param name="repeatableConfig">
     ///     The configuration for the repeatably kind (daily, weekly) as configured in QuestConfig
     ///     for the requested quest
@@ -398,7 +394,7 @@ public class CompletionQuestGenerator(
     /// <param name="completionConfig">Completion config from quest.json</param>
     /// <returns>object of "Completion"-condition</returns>
     protected QuestCondition GenerateCondition(
-        string itemTpl,
+        MongoId itemTpl,
         double value,
         Completion completionConfig
     )
@@ -424,7 +420,7 @@ public class CompletionQuestGenerator(
 
         return new QuestCondition
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             Index = 0,
             ParentId = "",
             DynamicLocale = true,

@@ -16,7 +16,6 @@ public class GiftService(
     ISptLogger<GiftService> _logger,
     MailSendService _mailSendService,
     ServerLocalisationService _serverLocalisationService,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     ProfileHelper _profileHelper,
     ConfigServer _configServer

@@ -1,6 +1,7 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
@@ -20,7 +21,6 @@ namespace SPTarkov.Server.Core.Helpers;
 public class RagfairOfferHelper(
     ISptLogger<RagfairOfferHelper> _logger,
     TimeUtil _timeUtil,
-    HashUtil _hashUtil,
     BotHelper _botHelper,
     RagfairSortHelper _ragfairSortHelper,
     PresetHelper _presetHelper,
@@ -112,7 +112,7 @@ public class RagfairOfferHelper(
     protected void CheckAndLockOfferFromPlayerTieredFlea(
         TieredFlea tieredFlea,
         RagfairOffer offer,
-        List<string> tieredFleaLimitTypes,
+        List<MongoId> tieredFleaLimitTypes,
         int playerLevel
     )
     {
@@ -819,7 +819,7 @@ public class RagfairOfferHelper(
             // Create an item template item
             var requestedItem = new Item
             {
-                Id = _hashUtil.Generate(),
+                Id = new MongoId(),
                 Template = requirement.Template,
                 Upd = new Upd { StackObjectsCount = requirement.Count * boughtAmount },
             };
@@ -881,7 +881,7 @@ public class RagfairOfferHelper(
      * @param boughtAmount How many were purchased
      * @returns Localised message text
      */
-    protected string GetLocalisedOfferSoldMessage(string itemTpl, int boughtAmount)
+    protected string GetLocalisedOfferSoldMessage(MongoId itemTpl, int boughtAmount)
     {
         // Generate a message to inform that item was sold
         var globalLocales = _localeService.GetLocaleDb();
@@ -896,7 +896,7 @@ public class RagfairOfferHelper(
         }
 
         // Used to replace tokens in sold message sent to player
-        var messageKey = $"{itemTpl} Name";
+        var messageKey = $"{itemTpl.ToString()} Name";
         var hasKey = globalLocales.TryGetValue(messageKey, out var value);
 
         var tplVars = new SystemData

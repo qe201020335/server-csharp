@@ -28,7 +28,7 @@ public class SeasonalEventService(
 {
     private bool _christmasEventActive;
 
-    protected readonly HashSet<string> _christmasEventItems =
+    protected readonly HashSet<MongoId> _christmasEventItems =
     [
         ItemTpl.ARMOR_6B13_M_ASSAULT_ARMOR_CHRISTMAS_EDITION,
         ItemTpl.BACKPACK_SANTAS_BAG,
@@ -71,7 +71,7 @@ public class SeasonalEventService(
 
     private bool _halloweenEventActive;
 
-    protected readonly HashSet<string> _halloweenEventItems =
+    protected readonly HashSet<MongoId> _halloweenEventItems =
     [
         ItemTpl.HEADWEAR_JACKOLANTERN_TACTICAL_PUMPKIN_HELMET,
         ItemTpl.FACECOVER_FACELESS_MASK,
@@ -103,7 +103,7 @@ public class SeasonalEventService(
     ///     Get an array of christmas items found in bots inventories as loot
     /// </summary>
     /// <returns>array</returns>
-    public HashSet<string> GetChristmasEventItems()
+    public HashSet<MongoId> GetChristmasEventItems()
     {
         return _christmasEventItems;
     }
@@ -112,17 +112,17 @@ public class SeasonalEventService(
     ///     Get an array of halloween items found in bots inventories as loot
     /// </summary>
     /// <returns>array</returns>
-    public HashSet<string> GetHalloweenEventItems()
+    public HashSet<MongoId> GetHalloweenEventItems()
     {
         return _halloweenEventItems;
     }
 
-    public bool ItemIsChristmasRelated(string itemTpl)
+    public bool ItemIsChristmasRelated(MongoId itemTpl)
     {
         return _christmasEventItems.Contains(itemTpl);
     }
 
-    public bool ItemIsHalloweenRelated(string itemTpl)
+    public bool ItemIsHalloweenRelated(MongoId itemTpl)
     {
         return _halloweenEventItems.Contains(itemTpl);
     }
@@ -132,7 +132,7 @@ public class SeasonalEventService(
     /// </summary>
     /// <param name="itemTpl">item tpl to check for</param>
     /// <returns></returns>
-    public bool ItemIsSeasonalRelated(string itemTpl)
+    public bool ItemIsSeasonalRelated(MongoId itemTpl)
     {
         return _christmasEventItems.Contains(itemTpl) || _halloweenEventItems.Contains(itemTpl);
     }
@@ -157,12 +157,12 @@ public class SeasonalEventService(
         var items = new HashSet<MongoId>();
         if (!ChristmasEventEnabled())
         {
-            items.UnionWith(_christmasEventItems.ToMongoIds());
+            items.UnionWith(_christmasEventItems);
         }
 
         if (!HalloweenEventEnabled())
         {
-            items.UnionWith(_halloweenEventItems.ToMongoIds());
+            items.UnionWith(_halloweenEventItems);
         }
 
         return items;
@@ -209,7 +209,7 @@ public class SeasonalEventService(
     /// </summary>
     /// <param name="eventName">Name of event to get gear changes for</param>
     /// <returns>bots with equipment changes</returns>
-    protected Dictionary<string, Dictionary<string, Dictionary<string, int>>>? GetEventBotGear(
+    protected Dictionary<string, Dictionary<string, Dictionary<MongoId, int>>>? GetEventBotGear(
         SeasonalEventType eventType
     )
     {
@@ -221,7 +221,7 @@ public class SeasonalEventService(
     /// </summary>
     /// <param name="eventName">Name of event to get gear changes for</param>
     /// <returns>bots with loot changes</returns>
-    protected Dictionary<string, Dictionary<string, Dictionary<string, int>>> GetEventBotLoot(
+    protected Dictionary<string, Dictionary<string, Dictionary<MongoId, int>>> GetEventBotLoot(
         SeasonalEventType eventType
     )
     {
@@ -387,12 +387,12 @@ public class SeasonalEventService(
         {
             var propInfo = props.FirstOrDefault(p =>
                 string.Equals(
-                    p.Name.ToLower(),
-                    lootContainerKey.ToLower(),
+                    p.Name.ToLowerInvariant(),
+                    lootContainerKey.ToLowerInvariant(),
                     StringComparison.OrdinalIgnoreCase
                 )
             );
-            var prop = (Dictionary<string, double>?)propInfo.GetValue(botInventory.Items);
+            var prop = (Dictionary<MongoId, double>?)propInfo.GetValue(botInventory.Items);
 
             if (prop is null)
             {
@@ -871,7 +871,7 @@ public class SeasonalEventService(
 
     protected void AddEventWavesToMaps(string eventType)
     {
-        var wavesToAddByMap = _seasonalEventConfig.EventWaves[eventType.ToLower()];
+        var wavesToAddByMap = _seasonalEventConfig.EventWaves[eventType.ToLowerInvariant()];
 
         if (wavesToAddByMap is null)
         {
@@ -903,7 +903,7 @@ public class SeasonalEventService(
     {
         if (
             !_seasonalEventConfig.EventBossSpawns.TryGetValue(
-                eventType.ToLower(),
+                eventType.ToLowerInvariant(),
                 out var botsToAddPerMap
             )
         )
@@ -1018,7 +1018,7 @@ public class SeasonalEventService(
         // Iterate over bots with changes to apply
         foreach (var botKvP in botGearChanges)
         {
-            var botToUpdate = _databaseService.GetBots().Types[botKvP.Key.ToLower()];
+            var botToUpdate = _databaseService.GetBots().Types[botKvP.Key.ToLowerInvariant()];
             if (botToUpdate is null)
             {
                 _logger.Warning(
@@ -1068,7 +1068,7 @@ public class SeasonalEventService(
         // Iterate over bots with changes to apply
         foreach (var botKvpP in botLootChanges)
         {
-            var botToUpdate = _databaseService.GetBots().Types[botKvpP.Key.ToLower()];
+            var botToUpdate = _databaseService.GetBots().Types[botKvpP.Key.ToLowerInvariant()];
             if (botToUpdate is null)
             {
                 _logger.Warning(

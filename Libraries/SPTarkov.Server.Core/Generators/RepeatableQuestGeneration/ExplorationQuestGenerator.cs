@@ -7,7 +7,6 @@ using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Spt.Repeatable;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Json;
@@ -21,10 +20,8 @@ public class ExplorationQuestGenerator(
     RepeatableQuestRewardGenerator repeatableQuestRewardGenerator,
     DatabaseService databaseService,
     ServerLocalisationService localisationService,
-    ConfigServer configServer,
     RandomUtil randomUtil,
-    MathUtil mathUtil,
-    HashUtil hashUtil
+    MathUtil mathUtil
 ) : IRepeatableQuestGenerator
 {
     protected record LocationInfo(
@@ -33,8 +30,6 @@ public class ExplorationQuestGenerator(
         bool RequiresSpecificExtract,
         int NumOfExtractsRequired
     );
-
-    protected QuestConfig QuestConfig = configServer.GetConfig<QuestConfig>();
 
     /// <summary>
     ///     Generates a valid Exploration quest
@@ -216,7 +211,7 @@ public class ExplorationQuestGenerator(
     /// <returns>List of Exit objects</returns>
     protected List<Exit>? GetLocationExitsForSide(string locationKey, PlayerGroup playerGroup)
     {
-        var mapExtracts = databaseService.GetLocation(locationKey.ToLower())?.AllExtracts;
+        var mapExtracts = databaseService.GetLocation(locationKey.ToLowerInvariant())?.AllExtracts;
 
         return mapExtracts?.Where(exit => exit.Side == Enum.GetName(playerGroup)).ToList();
     }
@@ -254,7 +249,7 @@ public class ExplorationQuestGenerator(
 
         var exitStatusCondition = new QuestConditionCounterCondition
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             DynamicLocale = true,
             Status = ["Survived"],
             ConditionType = "ExitStatus",
@@ -262,20 +257,20 @@ public class ExplorationQuestGenerator(
 
         var locationCondition = new QuestConditionCounterCondition
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             DynamicLocale = true,
             Target = new ListOrT<string>(locationInfo.LocationTarget, null),
             ConditionType = "Location",
         };
 
-        quest.Conditions.AvailableForFinish![0].Counter!.Id = hashUtil.Generate();
+        quest.Conditions.AvailableForFinish![0].Counter!.Id = new MongoId();
         quest.Conditions.AvailableForFinish![0].Counter!.Conditions =
         [
             exitStatusCondition,
             locationCondition,
         ];
         quest.Conditions.AvailableForFinish[0].Value = locationInfo.NumOfExtractsRequired;
-        quest.Conditions.AvailableForFinish[0].Id = hashUtil.Generate();
+        quest.Conditions.AvailableForFinish[0].Id = new MongoId();
 
         quest.Location = location;
 
@@ -357,7 +352,7 @@ public class ExplorationQuestGenerator(
     {
         return new QuestConditionCounterCondition
         {
-            Id = hashUtil.Generate(),
+            Id = new MongoId(),
             DynamicLocale = true,
             ExitName = exit.Name,
             ConditionType = "ExitName",

@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -14,9 +15,9 @@ public class RagfairLinkedItemService(
     ISptLogger<RagfairLinkedItemService> logger
 )
 {
-    protected readonly Dictionary<string, HashSet<MongoId>> linkedItemsCache = new();
+    protected readonly Dictionary<MongoId, HashSet<MongoId>> linkedItemsCache = new();
 
-    public HashSet<MongoId> GetLinkedItems(string linkedSearchId)
+    public HashSet<MongoId> GetLinkedItems(MongoId linkedSearchId)
     {
         if (!linkedItemsCache.TryGetValue(linkedSearchId, out var set))
         {
@@ -34,7 +35,7 @@ public class RagfairLinkedItemService(
     /// </summary>
     /// <param name="itemTpl"> Item to get sub-items for </param>
     /// <returns> TemplateItem list </returns>
-    public List<TemplateItem> GetLinkedDbItems(string itemTpl)
+    public List<TemplateItem> GetLinkedDbItems(MongoId itemTpl)
     {
         var linkedItemsToWeaponTpls = GetLinkedItems(itemTpl);
         return linkedItemsToWeaponTpls.Aggregate(
@@ -128,8 +129,10 @@ public class RagfairLinkedItemService(
         }
 
         // Get the first cylinder filter tpl
-        var cylinderTpl = cylinderMod.Props?.Filters?[0].Filter?.FirstOrDefault();
-        if (string.IsNullOrEmpty(cylinderTpl))
+        var cylinderTpl =
+            cylinderMod.Props?.Filters?[0].Filter?.FirstOrDefault() ?? new MongoId(null);
+
+        if (!cylinderTpl.IsValidMongoId())
         {
             // No cylinder, nothing to do
             return;

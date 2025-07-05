@@ -1,6 +1,7 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
@@ -18,7 +19,6 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class PaymentService(
     ISptLogger<PaymentService> _logger,
-    HashUtil _hashUtil,
     HttpResponseUtil _httpResponseUtil,
     HandbookHelper _handbookHelper,
     TraderHelper _traderHelper,
@@ -272,7 +272,7 @@ public class PaymentService(
         // Create single currency item with all currency on it
         var rootCurrencyReward = new Item
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             Template = currencyTpl,
             Upd = new Upd { StackObjectsCount = Math.Round(calcAmount) },
         };
@@ -590,7 +590,7 @@ public class PaymentService(
     /// <param name="playerStashId"> Players stash ID </param>
     /// <returns> True if it's in inventory </returns>
     protected InventoryLocation GetItemLocation(
-        string itemId,
+        MongoId itemId,
         List<Item> inventoryItems,
         string playerStashId
     )

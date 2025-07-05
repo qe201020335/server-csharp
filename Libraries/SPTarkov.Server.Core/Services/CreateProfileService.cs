@@ -3,6 +3,7 @@ using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
@@ -20,7 +21,6 @@ namespace SPTarkov.Server.Core.Services;
 public class CreateProfileService(
     ISptLogger<CreateProfileService> _logger,
     TimeUtil _timeUtil,
-    HashUtil _hashUtil,
     DatabaseService _databaseService,
     ServerLocalisationService _serverLocalisationService,
     ProfileHelper _profileHelper,
@@ -55,7 +55,7 @@ public class CreateProfileService(
         pmcData.Savage = account.ProfileInfo.ScavengerId;
         pmcData.SessionId = sessionId;
         pmcData.Info.Nickname = request.Nickname;
-        pmcData.Info.LowerNickname = request.Nickname.ToLower();
+        pmcData.Info.LowerNickname = request.Nickname.ToLowerInvariant();
         pmcData.Info.RegistrationDate = (int)_timeUtil.GetTimeStamp();
         pmcData.Info.Voice = _databaseService.GetCustomization()[request.VoiceId].Name;
         pmcData.Stats = _profileHelper.GetDefaultCounters();
@@ -67,7 +67,7 @@ public class CreateProfileService(
         pmcData.RepeatableQuests = [];
         pmcData.CarExtractCounts = new Dictionary<string, int>();
         pmcData.CoopExtractCounts = new Dictionary<string, int>();
-        pmcData.Achievements = new Dictionary<string, long>();
+        pmcData.Achievements = new Dictionary<MongoId, long>();
 
         // Process handling if the account has been forced to wipe
         // BSG keeps both the achievements, prestige level and the total in-game time in a wipe
@@ -253,7 +253,7 @@ public class CreateProfileService(
     protected void UpdateInventoryEquipmentId(PmcData pmcData)
     {
         var oldEquipmentId = pmcData.Inventory.Equipment;
-        pmcData.Inventory.Equipment = _hashUtil.Generate();
+        pmcData.Inventory.Equipment = new MongoId();
 
         foreach (var item in pmcData.Inventory.Items)
         {

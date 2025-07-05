@@ -17,9 +17,9 @@ public class PresetHelper(DatabaseService _databaseService, ItemHelper _itemHelp
     /// <summary>
     ///     Preset cache - key = item tpl, value = preset ids
     /// </summary>
-    protected Dictionary<string, PresetCacheDetails> _lookup = new();
+    protected Dictionary<MongoId, PresetCacheDetails> _lookup = new();
 
-    public void HydratePresetStore(Dictionary<string, PresetCacheDetails> input)
+    public void HydratePresetStore(Dictionary<MongoId, PresetCacheDetails> input)
     {
         _lookup = input;
     }
@@ -113,7 +113,7 @@ public class PresetHelper(DatabaseService _databaseService, ItemHelper _itemHelp
      * @param baseClass The BaseClasses enum to check against
      * @returns True if the preset is of the given base class, false otherwise
      */
-    public bool IsPresetBaseClass(string id, string baseClass)
+    public bool IsPresetBaseClass(string id, MongoId baseClass)
     {
         return IsPreset(id) && _itemHelper.IsOfBaseclass(GetPreset(id).Encyclopedia, baseClass);
     }
@@ -123,7 +123,7 @@ public class PresetHelper(DatabaseService _databaseService, ItemHelper _itemHelp
     /// </summary>
     /// <param name="templateId">Tpl id to check</param>
     /// <returns>True if preset exists for tpl</returns>
-    public bool HasPreset(string templateId)
+    public bool HasPreset(MongoId templateId)
     {
         return _lookup.ContainsKey(templateId);
     }
@@ -169,7 +169,7 @@ public class PresetHelper(DatabaseService _databaseService, ItemHelper _itemHelp
     /// </summary>
     /// <param name="templateId">Items tpl to get preset for</param>
     /// <returns>null if no default preset, otherwise Preset</returns>
-    public Preset? GetDefaultPreset(string templateId)
+    public Preset? GetDefaultPreset(MongoId templateId)
     {
         // look in main cache for presets for this tpl
         if (!_lookup.TryGetValue(templateId, out var presetDetails))
@@ -202,7 +202,7 @@ public class PresetHelper(DatabaseService _databaseService, ItemHelper _itemHelp
     /// </summary>
     /// <param name="presetId">Preset id to look up</param>
     /// <returns>tpl mongoid</returns>
-    public string GetBaseItemTpl(string presetId)
+    public MongoId GetBaseItemTpl(MongoId presetId)
     {
         if (!_databaseService.GetGlobals().ItemPresets.TryGetValue(presetId, out var preset))
         {
@@ -225,7 +225,7 @@ public class PresetHelper(DatabaseService _databaseService, ItemHelper _itemHelp
     /// </summary>
     /// <param name="tpl">The item template to get the price of</param>
     /// <returns>The price of the given item preset, or base item if no preset exists</returns>
-    public double GetDefaultPresetOrItemPrice(string tpl)
+    public double GetDefaultPresetOrItemPrice(MongoId tpl)
     {
         // Get default preset if it exists
         var defaultPreset = GetDefaultPreset(tpl);

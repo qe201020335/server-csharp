@@ -1,4 +1,5 @@
 ﻿using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Match;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -16,7 +17,6 @@ public class BtrDeliveryService(
     ISptLogger<BtrDeliveryService> _logger,
     DatabaseService _databaseService,
     RandomUtil _randomUtil,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     SaveServer _saveServer,
     MailSendService _mailSendService,
@@ -82,7 +82,7 @@ public class BtrDeliveryService(
             .BtrDeliveryList.Add(
                 new BtrDelivery
                 {
-                    Id = _hashUtil.Generate(),
+                    Id = new MongoId(),
                     ScheduledTime = (int)GetBTRDeliveryReturnTimestamp(),
                     Items = items,
                 }

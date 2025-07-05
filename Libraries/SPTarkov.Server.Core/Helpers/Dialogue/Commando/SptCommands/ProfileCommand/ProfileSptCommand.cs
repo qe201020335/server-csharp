@@ -9,14 +9,12 @@ using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Dialog;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.ProfileCommand;
 
 [Injectable]
 public class ProfileSptCommand(
     ISptLogger<ProfileSptCommand> _logger,
-    HashUtil _hashUtil,
     MailSendService _mailSendService,
     ProfileHelper _profileHelper
 ) : ISptCommand
@@ -44,7 +42,7 @@ public class ProfileSptCommand(
             + "spt profile skill metabolism 51";
     }
 
-    public string PerformAction(
+    public ValueTask<string> PerformAction(
         UserDialogInfo commandHandler,
         string sessionId,
         SendMessageRequest request
@@ -60,7 +58,7 @@ public class ProfileSptCommand(
                 commandHandler,
                 "Invalid use of trader command. Use 'help' for more information."
             );
-            return request.DialogId;
+            return new ValueTask<string>(request.DialogId);
         }
 
         var result = _commandRegex.Match(request.Text);
@@ -84,7 +82,7 @@ public class ProfileSptCommand(
                         commandHandler,
                         "Invalid use of profile command, the level was outside bounds: 1 to 70. Use 'help' for more information."
                     );
-                    return request.DialogId;
+                    return new ValueTask<string>(request.DialogId);
                 }
 
                 profileChangeEvent = HandleLevelCommand(quantity);
@@ -104,7 +102,7 @@ public class ProfileSptCommand(
                         commandHandler,
                         "Invalid use of profile command, the skill was not found. Use 'help' for more information."
                     );
-                    return request.DialogId;
+                    return new ValueTask<string>(request.DialogId);
                 }
 
                 if (quantity is < 0 or > 51)
@@ -114,7 +112,7 @@ public class ProfileSptCommand(
                         commandHandler,
                         "Invalid use of profile command, the skill level was outside bounds: 1 to 51. Use 'help' for more information."
                     );
-                    return request.DialogId;
+                    return new ValueTask<string>(request.DialogId);
                 }
 
                 profileChangeEvent = HandleSkillCommand(enumSkill, quantity);
@@ -131,7 +129,7 @@ public class ProfileSptCommand(
                     commandHandler,
                     $"If you are reading this, this is bad. Please report this to SPT staff with a screenshot. Command: {command}."
                 );
-                return request.DialogId;
+                return new ValueTask<string>(request.DialogId);
         }
 
         _mailSendService.SendSystemMessageToPlayer(
@@ -143,7 +141,7 @@ public class ProfileSptCommand(
                     Id = new MongoId(),
                     Template = Money.ROUBLES,
                     Upd = new Upd { StackObjectsCount = 1 },
-                    ParentId = _hashUtil.Generate(),
+                    ParentId = new MongoId(),
                     SlotId = "main",
                 },
             ],
@@ -151,7 +149,7 @@ public class ProfileSptCommand(
             [profileChangeEvent]
         );
 
-        return request.DialogId;
+        return new ValueTask<string>(request.DialogId);
     }
 
     protected ProfileChangeEvent HandleSkillCommand(SkillTypes? skill, int level)

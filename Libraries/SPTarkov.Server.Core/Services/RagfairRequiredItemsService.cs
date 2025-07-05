@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 
 namespace SPTarkov.Server.Core.Services;
 
@@ -13,14 +14,14 @@ public class RagfairRequiredItemsService(
     /// <summary>
     /// Key = tpl
     /// </summary>
-    protected readonly ConcurrentDictionary<string, HashSet<string>> _requiredItemsCache = new();
+    protected readonly ConcurrentDictionary<MongoId, HashSet<MongoId>> _requiredItemsCache = new();
 
     /// <summary>
     /// Get the offerId of offers that require the supplied tpl
     /// </summary>
     /// <param name="tpl">Tpl to find offers ids for</param>
     /// <returns></returns>
-    public HashSet<string> GetRequiredOffersById(string tpl)
+    public HashSet<MongoId> GetRequiredOffersById(MongoId tpl)
     {
         if (_requiredItemsCache.TryGetValue(tpl, out var offerIds))
         {

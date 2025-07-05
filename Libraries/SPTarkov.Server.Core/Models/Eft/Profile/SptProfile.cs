@@ -87,7 +87,7 @@ public record Info
     ///     main profile id
     /// </summary>
     [JsonPropertyName("id")]
-    public string? ProfileId { get; set; }
+    public MongoId? ProfileId { get; set; }
 
     [JsonPropertyName("scavId")]
     public string? ScavengerId { get; set; }
@@ -458,10 +458,10 @@ public record AcceptedCultistReward
     public long? Timestamp { get; set; }
 
     [JsonPropertyName("sacrificeItems")]
-    public List<string>? SacrificeItems { get; set; }
+    public List<MongoId>? SacrificeItems { get; set; }
 
     [JsonPropertyName("rewardItems")]
-    public List<string>? RewardItems { get; set; }
+    public List<MongoId>? RewardItems { get; set; }
 }
 
 public record PendingPrestige

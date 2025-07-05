@@ -28,7 +28,6 @@ public class LocationLifecycleService
     protected ICloner _cloner;
     protected ConfigServer _configServer;
     protected DatabaseService _databaseService;
-    protected HashUtil _hashUtil;
     protected HealthHelper _healthHelper;
     protected HideoutConfig _hideoutConfig;
     protected InRaidConfig _inRaidConfig;
@@ -97,7 +96,6 @@ public class LocationLifecycleService
         _timeUtil = timeUtil;
         _databaseService = databaseService;
         _profileHelper = profileHelper;
-        _hashUtil = hashUtil;
         _profileActivityService = profileActivityService;
         _botGenerationCacheService = botGenerationCacheService;
         _botNameService = botNameService;
@@ -171,7 +169,7 @@ public class LocationLifecycleService
             Transition = new Transition
             {
                 TransitionType = TransitionType.NONE,
-                TransitionRaidId = _hashUtil.Generate(),
+                TransitionRaidId = new MongoId(),
                 TransitionCount = 0,
                 VisitedLocations = [],
             },
@@ -446,8 +444,8 @@ public class LocationLifecycleService
         // ServerId has various info stored in it, delimited by a period
         var serverDetails = request.ServerId.Split(".");
 
-        var locationName = serverDetails[0].ToLower();
-        var isPmc = serverDetails[1].ToLower().Contains("pmc");
+        var locationName = serverDetails[0].ToLowerInvariant();
+        var isPmc = serverDetails[1].ToLowerInvariant().Contains("pmc");
         var isDead = IsPlayerDead(request.Results);
         var isTransfer = IsMapToMapTransfer(request.Results);
         var isSurvived = IsPlayerSurvived(request.Results);
@@ -520,7 +518,7 @@ public class LocationLifecycleService
         // Generate randomised reward for taking coop extract
         var loot = _lootGenerator.CreateRandomLoot(_traderConfig.Fence.CoopExtractGift);
 
-        var parentId = _hashUtil.Generate();
+        var parentId = new MongoId();
         foreach (var itemAndChildren in loot)
         {
             // Set all root items parent to new id
@@ -554,7 +552,7 @@ public class LocationLifecycleService
             return false;
         }
 
-        if (extractName.ToLower().Contains("v-ex"))
+        if (extractName.ToLowerInvariant().Contains("v-ex"))
         {
             return true;
         }
@@ -1018,7 +1016,7 @@ public class LocationLifecycleService
         var roles = new List<string> { "pmcbear", "pmcusec" };
 
         var victims = postRaidProfile
-            .Stats.Eft.Victims.Where(victim => roles.Contains(victim.Role.ToLower()))
+            .Stats.Eft.Victims.Where(victim => roles.Contains(victim.Role.ToLowerInvariant()))
             .ToList();
         if (victims?.Count > 0)
         // Player killed PMCs, send some mail responses to them
@@ -1320,7 +1318,7 @@ public class LocationLifecycleService
     /// <param name="postRaidAchievements"> All profile achievements at the end of a raid </param>
     protected void ProcessAchievementRewards(
         SptProfile fullProfile,
-        Dictionary<string, long>? postRaidAchievements
+        Dictionary<MongoId, long>? postRaidAchievements
     )
     {
         var sessionId = fullProfile.ProfileInfo.ProfileId;

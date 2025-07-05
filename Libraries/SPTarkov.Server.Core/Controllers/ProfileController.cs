@@ -9,33 +9,17 @@ using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Launcher;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Routers;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
-using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class ProfileController(
     ISptLogger<ProfileController> _logger,
-    HashUtil _hashUtil,
-    ICloner _cloner,
-    TimeUtil _timeUtil,
     SaveServer _saveServer,
-    DatabaseService _databaseService,
-    ItemHelper _itemHelper,
-    ProfileFixerService _profileFixerService,
-    ServerLocalisationService _serverLocalisationService,
     CreateProfileService _createProfileService,
-    SeasonalEventService _seasonalEventService,
     PlayerScavGenerator _playerScavGenerator,
-    EventOutputHolder _eventOutputHolder,
-    TraderHelper _traderHelper,
-    DialogueHelper _dialogueHelper,
-    QuestHelper _questHelper,
-    QuestRewardHelper _questRewardHelper,
     ProfileHelper _profileHelper
 )
 {
@@ -187,7 +171,7 @@ public class ProfileController(
             var pmcData = _profileHelper.GetPmcProfile(sessionId);
 
             pmcData.Info.Nickname = request.Nickname;
-            pmcData.Info.LowerNickname = request.Nickname.ToLower();
+            pmcData.Info.LowerNickname = request.Nickname.ToLowerInvariant();
         }
 
         return output;
@@ -223,7 +207,10 @@ public class ProfileController(
         foreach (var profile in allProfiles)
         {
             var pmcProfile = profile?.CharacterData?.PmcData;
-            if (!pmcProfile?.Info?.LowerNickname?.Contains(request.Nickname.ToLower()) ?? false)
+            if (
+                !pmcProfile?.Info?.LowerNickname?.Contains(request.Nickname.ToLowerInvariant())
+                ?? false
+            )
             {
                 continue;
             }

@@ -25,8 +25,6 @@ namespace SPTarkov.Server.Core.Controllers;
 public class InsuranceController(
     ISptLogger<InsuranceController> _logger,
     RandomUtil _randomUtil,
-    MathUtil _mathUtil,
-    HashUtil _hashUtil,
     TimeUtil _timeUtil,
     EventOutputHolder _eventOutputHolder,
     ItemHelper _itemHelper,
@@ -122,7 +120,7 @@ public class InsuranceController(
         foreach (var insured in insuranceDetails)
         {
             // Create a new root parent ID for the message we'll be sending the player
-            var rootItemParentId = _hashUtil.Generate();
+            var rootItemParentId = new MongoId();
 
             // Update the insured items to have the new root parent ID for root/orphaned items
             insured.Items = insured.Items.AdoptOrphanedItems(rootItemParentId);
@@ -494,11 +492,11 @@ public class InsuranceController(
         );
 
         // Create prob array and add all attachments with rouble price as the weight
-        var attachmentsProbabilityArray = new ProbabilityObjectArray<string, double?>(_cloner);
+        var attachmentsProbabilityArray = new ProbabilityObjectArray<MongoId, double?>(_cloner);
         foreach (var (itemTpl, price) in weightedAttachmentByPrice)
         {
             attachmentsProbabilityArray.Add(
-                new ProbabilityObject<string, double?>(itemTpl, price, null)
+                new ProbabilityObject<MongoId, double?>(itemTpl, price, null)
             );
         }
 
@@ -527,9 +525,9 @@ public class InsuranceController(
     /// <param name="attachments"></param>
     /// <param name="attachmentPrices"></param>
     protected void LogAttachmentsBeingRemoved(
-        List<string> attachmentIdsToRemove,
+        List<MongoId> attachmentIdsToRemove,
         List<Item> attachments,
-        Dictionary<string, double> attachmentPrices
+        Dictionary<MongoId, double> attachmentPrices
     )
     {
         var index = 1;
@@ -552,9 +550,9 @@ public class InsuranceController(
     /// </summary>
     /// <param name="attachments">Item attachments</param>
     /// <returns></returns>
-    protected Dictionary<string, double> WeightAttachmentsByPrice(List<Item> attachments)
+    protected Dictionary<MongoId, double> WeightAttachmentsByPrice(List<Item> attachments)
     {
-        var result = new Dictionary<string, double>();
+        var result = new Dictionary<MongoId, double>();
 
         // Get a dictionary of item tpls + their rouble price
         foreach (var attachment in attachments)
@@ -581,7 +579,7 @@ public class InsuranceController(
     /// <param name="traderId">Trader the attachment is insured against</param>
     /// <returns>Attachment count to remove</returns>
     protected double GetAttachmentCountToRemove(
-        Dictionary<string, double> weightedAttachmentByPrice,
+        Dictionary<MongoId, double> weightedAttachmentByPrice,
         string? traderId
     )
     {
@@ -872,7 +870,7 @@ public class InsuranceController(
     {
         var softInsertSlots = pmcData.Inventory.Items.Where(item =>
             item.ParentId == itemWithSoftInserts.Id
-            && _itemHelper.IsSoftInsertId(item.SlotId.ToLower())
+            && _itemHelper.IsSoftInsertId(item.SlotId.ToLowerInvariant())
         );
 
         foreach (var softInsertSlot in softInsertSlots)

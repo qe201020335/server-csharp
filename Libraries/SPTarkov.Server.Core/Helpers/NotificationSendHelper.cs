@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Eft.Ws;
 using SPTarkov.Server.Core.Models.Enums;
@@ -15,7 +16,6 @@ namespace SPTarkov.Server.Core.Helpers;
 public class NotificationSendHelper(
     ISptLogger<NotificationSendHelper> _logger,
     SptWebSocketConnectionHandler _sptWebSocketConnectionHandler,
-    HashUtil _hashUtil,
     SaveServer _saveServer,
     NotificationService _notificationService,
     TimeUtil _timeUtil,
@@ -76,7 +76,7 @@ public class NotificationSendHelper(
         dialog.New += 1;
         var message = new Message
         {
-            Id = _hashUtil.Generate(),
+            Id = new MongoId(),
             UserId = dialog.Id,
             MessageType = messageType,
             DateTime = _timeUtil.GetTimeStamp(),

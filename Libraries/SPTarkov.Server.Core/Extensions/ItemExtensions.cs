@@ -1,4 +1,6 @@
-﻿using SPTarkov.Server.Core.Models.Common;
+﻿using System.Text.Json;
+using SPTarkov.Common.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
@@ -284,16 +286,16 @@ namespace SPTarkov.Server.Core.Extensions
         /// <returns>list of Item objects</returns>
         public static List<Item> FindAndReturnChildrenAsItems(
             this IEnumerable<Item> items,
-            string baseItemId,
+            MongoId baseItemId,
             bool modsOnly = false
         )
         {
             // Use dictionary to make key lookup faster, convert to list before being returned
-            OrderedDictionary<string, Item> result = [];
+            OrderedDictionary<MongoId, Item> result = [];
             foreach (var childItem in items)
             {
                 // Include itself
-                if (string.Equals(childItem.Id, baseItemId, StringComparison.Ordinal))
+                if (childItem.Id == baseItemId)
                 {
                     // Root item MUST be at 0 index for things like flea market offers
                     result.Insert(0, childItem.Id, childItem);
@@ -309,7 +311,8 @@ namespace SPTarkov.Server.Core.Extensions
                 // Items parentId matches root item AND returned items doesn't contain current child
                 if (
                     !result.ContainsKey(childItem.Id)
-                    && string.Equals(childItem.ParentId, baseItemId, StringComparison.Ordinal)
+                    && childItem.ParentId != "hideout"
+                    && childItem.ParentId == baseItemId
                 )
                 {
                     foreach (var item in FindAndReturnChildrenAsItems(items, childItem.Id))
@@ -341,6 +344,43 @@ namespace SPTarkov.Server.Core.Extensions
                 Desc = item.Desc,
                 ExtensionData = item.ExtensionData,
             };
+        }
+
+        public static ItemLocation? GetParsedLocation(this Item item)
+        {
+            if (item.Location is null)
+            {
+                return null;
+            }
+
+            if (item.Location is JsonElement element)
+            {
+                // TODO: when is this true
+                return element.ToObject<ItemLocation>();
+            }
+
+            return (ItemLocation)item.Location;
+        }
+
+        /// <summary>
+        ///     Get a list of the item IDs (NOT tpls) inside a secure container
+        /// </summary>
+        /// <param name="items">Inventory items to look for secure container in</param>
+        /// <returns>List of ids</returns>
+        public static List<string> GetSecureContainerItems(this List<Item> items)
+        {
+            var secureContainer = items.First(x => x.SlotId == "SecuredContainer");
+
+            // No container found, drop out
+            if (secureContainer is null)
+            {
+                return [];
+            }
+
+            var itemsInSecureContainer = items.FindAndReturnChildrenByItems(secureContainer.Id);
+
+            // Return all items returned and exclude the secure container item itself
+            return itemsInSecureContainer.Where(x => x != secureContainer.Id).ToList();
         }
     }
 }

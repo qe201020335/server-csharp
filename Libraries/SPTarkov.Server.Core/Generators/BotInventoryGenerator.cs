@@ -645,7 +645,7 @@ public class BotInventoryGenerator(
     /// <param name="equipmentBlacklist">Blacklist to filter mod pool with</param>
     /// <returns>Filtered pool of mods</returns>
     public Dictionary<string, HashSet<MongoId>> GetFilteredDynamicModsForItem(
-        string itemTpl,
+        MongoId itemTpl,
         Dictionary<string, HashSet<MongoId>> equipmentBlacklist
     )
     {

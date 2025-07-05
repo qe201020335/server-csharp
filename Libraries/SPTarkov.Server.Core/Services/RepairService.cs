@@ -333,7 +333,7 @@ public class RepairService(
         string sessionId,
         PmcData pmcData,
         List<RepairKitsInfo> repairKits,
-        string itemToRepairId,
+        MongoId itemToRepairId,
         ItemEventRouterResponse output
     )
     {

@@ -123,8 +123,8 @@ public class ProfileHelper(
             && !StringsMatch(p.ProfileInfo.ProfileId, sessionID)
             && // SessionIds dont match
             StringsMatch(
-                p.CharacterData.PmcData.Info.LowerNickname.ToLower(),
-                nicknameRequest.Nickname.ToLower()
+                p.CharacterData.PmcData.Info.LowerNickname.ToLowerInvariant(),
+                nicknameRequest.Nickname.ToLowerInvariant()
             )
         ); // Nicknames do
     }
@@ -564,7 +564,7 @@ public class ProfileHelper(
     public bool IsDeveloperAccount(string sessionID)
     {
         return GetFullProfile(sessionID)
-                ?.ProfileInfo?.Edition?.ToLower()
+                ?.ProfileInfo?.Edition?.ToLowerInvariant()
                 .StartsWith("spt developer") ?? false;
     }
 
@@ -600,24 +600,6 @@ public class ProfileHelper(
         {
             existingBonus.Value += rowsToAdd;
         }
-    }
-
-    /// <summary>
-    ///     Iterate over all bonuses and sum up all bonuses of desired type in provided profile
-    /// </summary>
-    /// <param name="pmcProfile">Player profile</param>
-    /// <param name="desiredBonus">Bonus to sum up</param>
-    /// <returns>Summed bonus value or 0 if no bonus found</returns>
-    public double GetBonusValueFromProfile(PmcData pmcProfile, BonusType desiredBonus)
-    {
-        var bonuses = pmcProfile?.Bonuses?.Where(b => b.Type == desiredBonus);
-        if (bonuses is null || !bonuses.Any())
-        {
-            return 0;
-        }
-
-        // Sum all bonuses found above
-        return bonuses?.Sum(bonus => bonus?.Value ?? 0) ?? 0;
     }
 
     public bool HasAccessToRepeatableFreeRefreshSystem(PmcData pmcProfile)

@@ -20,7 +20,6 @@ public class QuestController(
     TimeUtil _timeUtil,
     HttpResponseUtil _httpResponseUtil,
     EventOutputHolder _eventOutputHolder,
-    ItemHelper _itemHelper,
     MailSendService _mailSendService,
     QuestHelper _questHelper,
     QuestRewardHelper _questRewardHelper,
@@ -151,7 +150,7 @@ public class QuestController(
         {
             if (pmcData.TaskConditionCounters.TryGetValue(condition.Id, out _))
             {
-                _logger.Error(
+                _logger.Warning(
                     $"Unable to add new task condition counter: {condition.ConditionType} for quest: {questId} to profile: {pmcData.SessionId} as it already exists"
                 );
             }
@@ -320,7 +319,7 @@ public class QuestController(
                 // Important: don't tell the client to remove the attachments, it will handle it
                 output
                     .ProfileChanges[sessionID]
-                    .Items.DeletedItems.Add(new Item { Id = itemHandover.Id });
+                    .Items.DeletedItems.Add(new DeletedItem { Id = itemHandover.Id });
 
                 // Important: loop backward when removing items from the array we're looping on
                 while (index-- > 0)

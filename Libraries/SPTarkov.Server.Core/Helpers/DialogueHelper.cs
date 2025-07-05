@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Utils;
@@ -46,7 +47,7 @@ public class DialogueHelper(ISptLogger<DialogueHelper> logger, ProfileHelper pro
     /// <param name="sessionID">Session/player id</param>
     /// <param name="itemId">Item being moved to inventory</param>
     /// <returns>Collection of items from message</returns>
-    public List<Item> GetMessageItemContents(string messageID, string sessionID, string itemId)
+    public List<Item> GetMessageItemContents(string messageID, string sessionID, MongoId itemId)
     {
         var fullProfile = profileHelper.GetFullProfile(sessionID);
         var dialogueData = fullProfile.DialogueRecords;

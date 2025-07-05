@@ -88,7 +88,7 @@ public class BotController(
         bool ignoreRaidSettings = false
     )
     {
-        var difficulty = diffLevel.ToLower();
+        var difficulty = diffLevel.ToLowerInvariant();
 
         var raidConfig = _profileActivityService
             .GetProfileActivityRaidData(sessionId)
@@ -107,7 +107,7 @@ public class BotController(
         // Check value chosen in pre-raid difficulty dropdown
         // If value is not 'asonline', change requested difficulty to be what was chosen in dropdown
         var botDifficultyDropDownValue =
-            raidConfig?.WavesSettings?.BotDifficulty?.ToString().ToLower() ?? "asonline";
+            raidConfig?.WavesSettings?.BotDifficulty?.ToString().ToLowerInvariant() ?? "asonline";
         if (botDifficultyDropDownValue != "asonline")
         {
             difficulty = _botDifficultyHelper.ConvertBotDifficultyDropdownToBotDifficulty(
@@ -138,8 +138,8 @@ public class BotController(
         {
             // If bot is usec/bear, swap to different name
             var botTypeLower = botType.IsPmc()
-                ? (botType.GetPmcSideByRole() ?? "usec").ToLower()
-                : botType.ToString().ToLower();
+                ? (botType.GetPmcSideByRole() ?? "usec").ToLowerInvariant()
+                : botType.ToString().ToLowerInvariant();
 
             // Get details from db
             if (!botTypesDb.TryGetValue(botTypeLower, out var botDetails))
@@ -165,7 +165,7 @@ public class BotController(
                 continue;
             }
 
-            var botNameKey = botType.ToString().ToLower();
+            var botNameKey = botType.ToString().ToLowerInvariant();
             foreach (var (difficultyName, _) in botDetails.BotDifficulty)
             {
                 // Bot doesn't exist in result, add
@@ -378,7 +378,7 @@ public class BotController(
     protected MinMax<int> GetPmcLevelRangeForMap(string? location)
     {
         return _pmcConfig.LocationSpecificPmcLevelOverride!.GetValueOrDefault(
-            location?.ToLower() ?? "",
+            location?.ToLowerInvariant() ?? "",
             null
         );
     }
@@ -430,7 +430,7 @@ public class BotController(
     /// <returns>bot cap for map</returns>
     public int GetBotCap(string location)
     {
-        if (!_botConfig.MaxBotCap.TryGetValue(location.ToLower(), out var maxCap))
+        if (!_botConfig.MaxBotCap.TryGetValue(location.ToLowerInvariant(), out var maxCap))
         {
             return _botConfig.MaxBotCap["default"];
         }
@@ -440,7 +440,7 @@ public class BotController(
             _logger.Warning(
                 _serverLocalisationService.GetText(
                     "bot-no_bot_cap_found_for_location",
-                    location.ToLower()
+                    location.ToLowerInvariant()
                 )
             );
         }

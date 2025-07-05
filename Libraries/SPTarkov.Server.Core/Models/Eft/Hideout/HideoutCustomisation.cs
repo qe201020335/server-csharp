@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
 namespace SPTarkov.Server.Core.Models.Eft.Hideout;
@@ -39,7 +40,7 @@ public record HideoutCustomisationGlobal
     public bool? IsEnabled { get; set; }
 
     [JsonPropertyName("itemId")]
-    public string? ItemId { get; set; }
+    public MongoId? ItemId { get; set; }
 }
 
 public record HideoutCustomisationSlot

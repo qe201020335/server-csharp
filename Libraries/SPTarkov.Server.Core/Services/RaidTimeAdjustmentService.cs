@@ -148,7 +148,7 @@ public class RaidTimeAdjustmentService(
     public RaidChanges GetRaidAdjustments(string sessionId, GetRaidTimeRequest request)
     {
         var globals = _databaseService.GetGlobals();
-        var mapBase = _databaseService.GetLocation(request.Location.ToLower()).Base;
+        var mapBase = _databaseService.GetLocation(request.Location.ToLowerInvariant()).Base;
         var baseEscapeTimeMinutes = mapBase.EscapeTimeLimit;
 
         // Prep result object to return
@@ -248,7 +248,7 @@ public class RaidTimeAdjustmentService(
     /// <returns>ScavRaidTimeLocationSettings</returns>
     protected ScavRaidTimeLocationSettings GetMapSettings(string location)
     {
-        var mapSettings = _locationConfig.ScavRaidTimeSettings.Maps?[location.ToLower()];
+        var mapSettings = _locationConfig.ScavRaidTimeSettings.Maps?[location.ToLowerInvariant()];
         if (mapSettings is null)
         {
             _logger.Warning(

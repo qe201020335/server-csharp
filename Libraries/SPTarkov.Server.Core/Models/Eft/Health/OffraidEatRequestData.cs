@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
 
 namespace SPTarkov.Server.Core.Models.Eft.Health;
@@ -9,7 +10,7 @@ public record OffraidEatRequestData : InventoryBaseActionRequestData
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("item")]
-    public string? Item { get; set; }
+    public MongoId Item { get; set; }
 
     [JsonPropertyName("count")]
     public int? Count { get; set; }

@@ -58,19 +58,11 @@ public record HideoutItem
     public MongoId _Id
     {
         get { return Id; }
-        set
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            Id = value;
-        }
+        set { Id = value; }
     }
 
     [JsonPropertyName("id")]
-    public required MongoId Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("_tpl")]
     public required MongoId Template { get; set; }

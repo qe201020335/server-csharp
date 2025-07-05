@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Bots;
@@ -21,7 +22,6 @@ public class BotGeneratorHelper(
     DurabilityLimitsHelper _durabilityLimitsHelper,
     ItemHelper _itemHelper,
     InventoryHelper _inventoryHelper,
-    ContainerHelper _containerHelper,
     ProfileActivityService _profileActivityService,
     ServerLocalisationService _serverLocalisationService,
     ConfigServer _configServer
@@ -37,7 +37,11 @@ public class BotGeneratorHelper(
         EquipmentSlots.ArmBand.ToString(),
     ];
 
-    private static readonly string[] _pmcTypes = [Sides.PmcBear.ToLower(), Sides.PmcUsec.ToLower()];
+    private static readonly string[] _pmcTypes =
+    [
+        Sides.PmcBear.ToLowerInvariant(),
+        Sides.PmcUsec.ToLowerInvariant(),
+    ];
 
     private readonly BotConfig _botConfig = _configServer.GetConfig<BotConfig>();
 
@@ -382,7 +386,7 @@ public class BotGeneratorHelper(
     /// <returns>false if no incompatibilities, also has incompatibility reason</returns>
     public ChooseRandomCompatibleModResult IsItemIncompatibleWithCurrentItems(
         List<Item> itemsEquipped,
-        string tplToCheck,
+        MongoId tplToCheck,
         string equipmentSlot
     )
     {
@@ -596,15 +600,15 @@ public class BotGeneratorHelper(
     /// </summary>
     /// <param name="equipmentSlots">Slot to add item+children into</param>
     /// <param name="rootItemId">Root item id to use as mod items parentId</param>
-    /// <param name="rootItemTplId">Root itms tpl id</param>
+    /// <param name="rootItemTplId">Root items tpl id</param>
     /// <param name="itemWithChildren">Item to add</param>
     /// <param name="inventory">Inventory to add item+children into</param>
     /// <param name="containersIdFull"></param>
     /// <returns>ItemAddedResult result object</returns>
     public ItemAddedResult AddItemWithChildrenToEquipmentSlot(
         HashSet<EquipmentSlots> equipmentSlots,
-        string rootItemId,
-        string? rootItemTplId,
+        MongoId rootItemId,
+        MongoId rootItemTplId,
         List<Item> itemWithChildren,
         BotBaseInventory inventory,
         HashSet<string>? containersIdFull = null
@@ -665,7 +669,7 @@ public class BotGeneratorHelper(
             }
 
             // Get x/y grid size of item
-            var itemSize = _inventoryHelper.GetItemSize(
+            var (itemWidth, itemHeight) = _inventoryHelper.GetItemSize(
                 rootItemTplId,
                 rootItemId,
                 itemWithChildren
@@ -680,7 +684,7 @@ public class BotGeneratorHelper(
                 if (
                     slotGrid.Props?.CellsH == 0
                     || slotGrid.Props?.CellsV == 0
-                    || itemSize[0] * itemSize[1] > slotGrid.Props?.CellsV * slotGrid.Props?.CellsH
+                    || itemWidth * itemHeight > slotGrid.Props?.CellsV * slotGrid.Props?.CellsH
                 )
                 {
                     continue;
@@ -718,11 +722,7 @@ public class BotGeneratorHelper(
                     );
 
                     // Try to fit item into grid
-                    var findSlotResult = _containerHelper.FindSlotForItem(
-                        slotGridMap,
-                        itemSize[0],
-                        itemSize[1]
-                    );
+                    var findSlotResult = slotGridMap.FindSlotForItem(itemWidth, itemHeight);
 
                     // Free slot found, add item
                     if (findSlotResult.Success ?? false)
@@ -768,7 +768,7 @@ public class BotGeneratorHelper(
             }
 
             // if the item was a one by one, we know it must be full. Or if the maps cant find a slot for a one by one
-            if (itemSize[0] == 1 && itemSize[1] == 1)
+            if (itemWidth == 1 && itemHeight == 1)
             {
                 containersIdFull.Add(equipmentSlotId.ToString());
             }
@@ -796,7 +796,7 @@ public class BotGeneratorHelper(
         }
 
         // Filter out all items without location prop, (child items)
-        var itemsWithoutLocation = inventoryItems.Where(item => item.Location is null).ToList();
+        var itemsWithoutLocation = inventoryItems.Where(item => item.Location is null);
         foreach (var rootItem in containerRootItems)
         {
             // Check item in container for children, store for later insertion into `containerItemsToCheck`
@@ -817,7 +817,7 @@ public class BotGeneratorHelper(
     /// <param name="slotGrid">Items sub-grid we want to place item inside</param>
     /// <param name="itemTpl">Item tpl being placed</param>
     /// <returns>True if allowed</returns>
-    protected bool ItemAllowedInContainer(Grid? slotGrid, string? itemTpl)
+    protected bool ItemAllowedInContainer(Grid? slotGrid, MongoId itemTpl)
     {
         var propFilters = slotGrid?.Props?.Filters;
         var excludedFilter = propFilters?.FirstOrDefault()?.ExcludedFilter ?? [];

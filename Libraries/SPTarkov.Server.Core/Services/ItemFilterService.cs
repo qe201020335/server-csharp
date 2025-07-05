@@ -27,7 +27,7 @@ public class ItemFilterService(
     /// </summary>
     /// <param name="tpl"> Template id</param>
     /// <returns> True if blacklisted </returns>
-    public bool ItemBlacklisted(string tpl)
+    public bool ItemBlacklisted(MongoId tpl)
     {
         if (_itemBlacklistCache.Count == 0)
         {
@@ -42,7 +42,7 @@ public class ItemFilterService(
     /// </summary>
     /// <param name="tpl"> Item tpl to check is on blacklist </param>
     /// <returns> True when blacklisted </returns>
-    public bool ItemRewardBlacklisted(string tpl)
+    public bool ItemRewardBlacklisted(MongoId tpl)
     {
         return _itemConfig.RewardItemBlacklist.Contains(tpl);
     }
@@ -88,7 +88,7 @@ public class ItemFilterService(
     /// </summary>
     /// <param name="tpl"> template id </param>
     /// <returns> True if boss item </returns>
-    public bool BossItem(string tpl)
+    public bool BossItem(MongoId tpl)
     {
         return _itemConfig.BossItems.Contains(tpl);
     }
@@ -107,7 +107,7 @@ public class ItemFilterService(
     /// </summary>
     /// <param name="itemKey"> Template id</param>
     /// <returns> True if blacklisted </returns>
-    public bool IsLootableItemBlacklisted(string itemKey)
+    public bool IsLootableItemBlacklisted(MongoId itemKey)
     {
         if (!_lootableItemBlacklistCache.Any())
         {
@@ -117,7 +117,7 @@ public class ItemFilterService(
         return _lootableItemBlacklistCache.Contains(itemKey);
     }
 
-    public bool IsItemBlacklisted(string tpl)
+    public bool IsItemBlacklisted(MongoId tpl)
     {
         if (!_itemBlacklistCache.Any())
         {
@@ -148,7 +148,7 @@ public class ItemFilterService(
     /// </summary>
     /// <param name="tpl"> Template id</param>
     /// <returns> True if boss item </returns>
-    public bool IsBossItem(string tpl)
+    public bool IsBossItem(MongoId tpl)
     {
         return _itemConfig.BossItems.Contains(tpl);
     }
@@ -158,7 +158,7 @@ public class ItemFilterService(
     /// </summary>
     /// <param name="tpl"> Item tpl to check is on blacklist </param>
     /// <returns> true when blacklisted </returns>
-    public bool IsItemRewardBlacklisted(string tpl)
+    public bool IsItemRewardBlacklisted(MongoId tpl)
     {
         return _itemConfig.RewardItemBlacklist.Contains(tpl);
     }

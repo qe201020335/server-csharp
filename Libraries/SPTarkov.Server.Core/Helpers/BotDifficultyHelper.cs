@@ -37,8 +37,8 @@ public class BotDifficultyHelper(
     )
     {
         var desiredType = _botHelper.IsBotPmc(type)
-            ? _botHelper.GetPmcSideByRole(type).ToLower()
-            : type.ToLower();
+            ? _botHelper.GetPmcSideByRole(type).ToLowerInvariant()
+            : type.ToLowerInvariant();
         if (!botDb.Types.ContainsKey(desiredType))
         {
             // No bot found, get fallback difficulty values
@@ -85,7 +85,7 @@ public class BotDifficultyHelper(
             StringComparison.OrdinalIgnoreCase
         )
             ? difficulty
-            : _pmcConfig.Difficulty.ToLower();
+            : _pmcConfig.Difficulty.ToLowerInvariant();
 
         difficultySetting = ConvertBotDifficultyDropdownToBotDifficulty(difficultySetting);
 
@@ -101,14 +101,14 @@ public class BotDifficultyHelper(
     /// <returns>bot difficulty</returns>
     public string ConvertBotDifficultyDropdownToBotDifficulty(string dropDownDifficulty)
     {
-        switch (dropDownDifficulty.ToLower())
+        switch (dropDownDifficulty.ToLowerInvariant())
         {
             case "medium":
                 return "normal";
             case "random":
                 return ChooseRandomDifficulty();
             default:
-                return dropDownDifficulty.ToLower();
+                return dropDownDifficulty.ToLowerInvariant();
         }
     }
 

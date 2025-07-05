@@ -908,7 +908,7 @@ public class HideoutController(
         var output = _eventOutputHolder.GetOutput(sessionID);
         var hideoutDb = _databaseService.GetHideout();
 
-        if (request.RecipeId == HideoutHelper.BitcoinFarm)
+        if (request.RecipeId == HideoutHelper.BitcoinProductionId)
         {
             // Ensure server and client are in-sync when player presses 'get items' on farm
             _hideoutHelper.UpdatePlayerHideout(sessionID);
@@ -1771,7 +1771,7 @@ public class HideoutController(
         foreach (var poseKvP in request.Poses)
         {
             // Nullguard
-            pmcData.Hideout.MannequinPoses ??= new Dictionary<string, string>();
+            pmcData.Hideout.MannequinPoses ??= new Dictionary<string, MongoId>();
             pmcData.Hideout.MannequinPoses[poseKvP.Key] = poseKvP.Value;
         }
 

@@ -2,6 +2,7 @@ using System.Globalization;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
@@ -55,19 +56,6 @@ public class QuestHelper(
         {
             return _sellToTraderQuestConditionCache ??= GetSellToTraderQuests(GetQuestsFromDb());
         }
-    }
-
-    /// <summary>
-    ///     Get status of a quest in player profile by its id
-    /// </summary>
-    /// <param name="pmcData">Profile to search</param>
-    /// <param name="questId">Quest id to look up</param>
-    /// <returns>QuestStatus enum</returns>
-    public QuestStatusEnum GetQuestStatus(PmcData pmcData, string questId)
-    {
-        var quest = pmcData.Quests?.FirstOrDefault(q => q.QId == questId);
-
-        return quest?.Status ?? QuestStatusEnum.Locked;
     }
 
     /// <summary>
@@ -636,7 +624,7 @@ public class QuestHelper(
     /// <param name="output">ItemEvent router response</param>
     public void ChangeItemStack(
         PmcData pmcData,
-        string itemId,
+        MongoId itemId,
         int newStackSize,
         string sessionID,
         ItemEventRouterResponse output
@@ -666,7 +654,9 @@ public class QuestHelper(
         {
             // this case is probably dead Code right now, since the only calling function
             // checks explicitly for Value > 0.
-            output.ProfileChanges[sessionID].Items.DeletedItems.Add(new Item { Id = itemId });
+            output
+                .ProfileChanges[sessionID]
+                .Items.DeletedItems.Add(new DeletedItem { Id = itemId });
             pmcData.Inventory.Items.RemoveAt(inventoryItemIndex);
         }
     }
@@ -965,7 +955,7 @@ public class QuestHelper(
     /// <param name="pmcData">Profile to update</param>
     /// <param name="newQuestState">New state the quest should be in</param>
     /// <param name="questId">Id of the quest to alter the status of</param>
-    public void UpdateQuestState(PmcData pmcData, QuestStatusEnum newQuestState, string questId)
+    protected void UpdateQuestState(PmcData pmcData, QuestStatusEnum newQuestState, string questId)
     {
         // Find quest in profile, update status to desired status
         var questToUpdate = pmcData.Quests.FirstOrDefault(quest => quest.QId == questId);
@@ -1021,8 +1011,8 @@ public class QuestHelper(
     /// <param name="allQuests">All quests to check</param>
     /// <returns>quest id with 'FindItem' condition id</returns>
     public Dictionary<string, string> GetFindItemConditionByQuestItem(
-        string itemTpl,
-        string[] questIds,
+        MongoId itemTpl,
+        MongoId[] questIds,
         List<Quest> allQuests
     )
     {
@@ -1604,12 +1594,12 @@ public class QuestHelper(
         );
     }
 
-    /**
-     * Look for newly available quests after completing a quest with a requirement to wait x minutes (time-locked) before being available and add data to profile
-     * @param pmcData Player profile to update
-     * @param quests Quests to look for wait conditions in
-     * @param completedQuestId Quest just completed
-     */
+    /// <summary>
+    /// Look for newly available quests after completing a quest with a requirement to wait x minutes (time-locked) before being available and add data to profile
+    /// </summary>
+    /// <param name="pmcData">Player profile to update</param>
+    /// <param name="quests">Quests to look for wait conditions in</param>
+    /// <param name="completedQuestId">Quest just completed</param>
     protected void AddTimeLockedQuestsToProfile(
         PmcData pmcData,
         List<Quest> quests,

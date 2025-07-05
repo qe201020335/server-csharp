@@ -21,7 +21,6 @@ public class HideoutHelper(
     ISptLogger<HideoutHelper> _logger,
     TimeUtil _timeUtil,
     ServerLocalisationService _serverLocalisationService,
-    HashUtil _hashUtil,
     DatabaseService _databaseService,
     EventOutputHolder _eventOutputHolder,
     HttpResponseUtil _httpResponseUtil,
@@ -31,10 +30,8 @@ public class HideoutHelper(
     ICloner _cloner
 )
 {
-    public const string BitcoinFarm = "5d5c205bd582a50d042a3c0e";
-    public const string CultistCircleCraftId = "66827062405f392b203a44cf";
-    public const string BitcoinProductionId = "5d5c205bd582a50d042a3c0e";
-    public const string WaterCollector = "5d5589c1f934db045e6c5492";
+    public static readonly MongoId BitcoinProductionId = new("5d5c205bd582a50d042a3c0e");
+    public static readonly MongoId WaterCollectorId = new("5d5589c1f934db045e6c5492");
     public const int MaxSkillPoint = 5000;
 
     /// <summary>
@@ -599,8 +596,7 @@ public class HideoutHelper(
             * GetTimeElapsedSinceLastServerTick(pmcData, isGeneratorOn);
 
         // Get all fuel consumption bonuses, returns an empty array if none found
-        var profileFuelConsomptionBonusSum = _profileHelper.GetBonusValueFromProfile(
-            pmcData,
+        var profileFuelConsomptionBonusSum = pmcData.GetBonusValueFromProfile(
             BonusType.FuelConsumption
         );
 
@@ -733,7 +729,7 @@ public class HideoutHelper(
 
         // Canister with purified water craft exists
         if (
-            pmcData.Hideout.Production.TryGetValue(WaterCollector, out var purifiedWaterCraft)
+            pmcData.Hideout.Production.TryGetValue(WaterCollectorId, out var purifiedWaterCraft)
             && purifiedWaterCraft.GetType() == typeof(Production)
         )
         {
@@ -752,7 +748,7 @@ public class HideoutHelper(
             // seem to not trigger consistently
             var recipe = new HideoutSingleProductionStartRequestData
             {
-                RecipeId = WaterCollector,
+                RecipeId = WaterCollectorId,
                 Action = "HideoutSingleProductionStart",
                 Items = [],
                 Tools = [],
@@ -793,7 +789,7 @@ public class HideoutHelper(
         var timeReductionSeconds = 0D;
 
         // Bitcoin farm is excluded from crafting skill cooldown reduction
-        if (recipeId != BitcoinFarm)
+        if (recipeId != BitcoinProductionId)
         // Seconds to deduct from crafts total time
         {
             timeReductionSeconds += GetSkillProductionTimeReduction(
@@ -845,7 +841,7 @@ public class HideoutHelper(
     )
     {
         var filterDrainRate = GetWaterFilterDrainRate(pmcData);
-        var craftProductionTime = GetTotalProductionTimeSeconds(WaterCollector);
+        var craftProductionTime = GetTotalProductionTimeSeconds(WaterCollectorId);
         var secondsSinceServerTick = GetTimeElapsedSinceLastServerTick(pmcData, isGeneratorOn);
 
         filterDrainRate = GetTimeAdjustedWaterFilterDrainRate(
@@ -1286,7 +1282,7 @@ public class HideoutHelper(
     {
         var bitcoinProductions = _databaseService
             .GetHideout()
-            .Production.Recipes.FirstOrDefault(production => production.Id == BitcoinFarm);
+            .Production.Recipes.FirstOrDefault(production => production.Id == BitcoinProductionId);
         var productionSlots = bitcoinProductions?.ProductionLimitCount ?? 3; // Default to 3 if none found
         var hasManagementSkillSlots = _profileHelper.HasEliteSkillLevel(
             SkillTypes.HideoutManagement,
@@ -1401,7 +1397,7 @@ public class HideoutHelper(
     )
     {
         // Get how many coins were crafted and ready to pick up
-        pmcData.Hideout.Production.TryGetValue(BitcoinFarm, out var bitcoinCraft);
+        pmcData.Hideout.Production.TryGetValue(BitcoinProductionId, out var bitcoinCraft);
         var craftedCoinCount = bitcoinCraft?.Products?.Count;
         if (bitcoinCraft is null || craftedCoinCount is null)
         {
@@ -1446,15 +1442,16 @@ public class HideoutHelper(
 
         // Is at max capacity + we collected all coins - reset production start time
         var coinSlotCount = GetBTCSlots(pmcData);
-        if (pmcData.Hideout.Production[BitcoinFarm].Products.Count >= coinSlotCount)
+        if (pmcData.Hideout.Production[BitcoinProductionId].Products.Count >= coinSlotCount)
         // Set start to now
         {
-            pmcData.Hideout.Production[BitcoinFarm].StartTimestamp = _timeUtil.GetTimeStamp();
+            pmcData.Hideout.Production[BitcoinProductionId].StartTimestamp =
+                _timeUtil.GetTimeStamp();
         }
 
         // Remove crafted coins from production in profile now they've been collected
         // Can only collect all coins, not individually
-        pmcData.Hideout.Production[BitcoinFarm].Products = [];
+        pmcData.Hideout.Production[BitcoinProductionId].Products = [];
     }
 
     /// <summary>

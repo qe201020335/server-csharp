@@ -15,7 +15,6 @@ public class RagfairHelper(
     TraderAssortHelper traderAssortHelper,
     DatabaseService databaseService,
     HandbookHelper handbookHelper,
-    ItemHelper itemHelper,
     RagfairLinkedItemService ragfairLinkedItemService,
     ConfigServer configServer,
     ICloner cloner

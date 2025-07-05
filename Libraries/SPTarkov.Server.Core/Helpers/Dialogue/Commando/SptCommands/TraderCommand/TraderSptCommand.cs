@@ -10,14 +10,12 @@ using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Dialog;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Helpers.Dialogue.Commando.SptCommands.TraderCommand;
 
 [Injectable]
 public class TraderSptCommand(
     ISptLogger<TraderSptCommand> _logger,
-    HashUtil _hashUtil,
     TraderHelper _traderHelper,
     MailSendService _mailSendService
 ) : ISptCommand
@@ -36,7 +34,7 @@ public class TraderSptCommand(
         return "spt trader \n ======== \n Sets the reputation or money spent to the input quantity through the message system.\n\n\tspt trader [trader] rep [quantity]\n\t\tEx: spt trader prapor rep 2\n\n\tspt trader [trader] spend [quantity]\n\t\tEx: spt trader therapist spend 1000000";
     }
 
-    public string PerformAction(
+    public ValueTask<string> PerformAction(
         UserDialogInfo commandHandler,
         string sessionId,
         SendMessageRequest request
@@ -49,7 +47,7 @@ public class TraderSptCommand(
                 commandHandler,
                 "Invalid use of trader command. Use 'help' for more information."
             );
-            return request.DialogId;
+            return new ValueTask<string>(request.DialogId);
         }
 
         var result = _commandRegex.Match(request.Text);
@@ -77,7 +75,7 @@ public class TraderSptCommand(
                 "Invalid use of trader command, the trader was not found. Use 'help' for more information."
             );
 
-            return request.DialogId;
+            return new ValueTask<string>(request.DialogId);
         }
 
         NotificationEventType profileChangeEventType;
@@ -98,7 +96,7 @@ public class TraderSptCommand(
                     "Invalid use of trader command, ProfileChangeEventType was not found. Use 'help' for more information."
                 );
 
-                return request.DialogId;
+                return new ValueTask<string>(request.DialogId);
             }
         }
 
@@ -111,7 +109,7 @@ public class TraderSptCommand(
                     Id = new MongoId(),
                     Template = Money.ROUBLES,
                     Upd = new Upd { StackObjectsCount = 1 },
-                    ParentId = _hashUtil.Generate(),
+                    ParentId = new MongoId(),
                     SlotId = "main",
                 },
             ],
@@ -119,7 +117,7 @@ public class TraderSptCommand(
             [CreateProfileChangeEvent(profileChangeEventType, quantity, dbTrader.Id)]
         );
 
-        return request.DialogId;
+        return new ValueTask<string>(request.DialogId);
     }
 
     protected ProfileChangeEvent CreateProfileChangeEvent(

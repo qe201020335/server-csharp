@@ -28,7 +28,7 @@ public class ImageRouter
 
     public void AddRoute(string key, string valueToAdd)
     {
-        _imageRouterService.AddRoute(key.ToLower(), valueToAdd);
+        _imageRouterService.AddRoute(key.ToLowerInvariant(), valueToAdd);
     }
 
     public async Task SendImage(string sessionId, HttpRequest req, HttpResponse resp, object body)
@@ -37,7 +37,7 @@ public class ImageRouter
         var url = _fileUtil.StripExtension(req.Path, true);
 
         // Send image
-        var urlKeyLower = url.ToLower();
+        var urlKeyLower = url.ToLowerInvariant();
         if (_imageRouterService.ExistsByKey(urlKeyLower))
         {
             await _httpFileUtil.SendFile(resp, _imageRouterService.GetByKey(urlKeyLower));

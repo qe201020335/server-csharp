@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Utils.Json;
 using SPTarkov.Server.Core.Utils.Json.Converters;
@@ -20,7 +21,7 @@ public record Quest
     ///     _id
     /// </summary>
     [JsonPropertyName("_id")]
-    public required string Id { get; set; }
+    public required MongoId Id { get; set; }
 
     [JsonPropertyName("canShowNotificationsInGame")]
     public required bool CanShowNotificationsInGame { get; set; }
@@ -144,7 +145,7 @@ public record QuestStatus
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("qid")]
-    public required string QId { get; set; }
+    public required MongoId QId { get; set; }
 
     [JsonPropertyName("startTime")]
     public required double StartTime { get; set; }
@@ -189,7 +190,7 @@ public record QuestCondition
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public required string Id { get; set; }
+    public required MongoId Id { get; set; }
 
     [JsonPropertyName("index")]
     public int? Index { get; set; }

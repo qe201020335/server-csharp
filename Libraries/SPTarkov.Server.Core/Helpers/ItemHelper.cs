@@ -28,7 +28,7 @@ public class ItemHelper(
     ICloner _cloner
 )
 {
-    protected static readonly FrozenSet<string> _defaultInvalidBaseTypes =
+    protected static readonly FrozenSet<MongoId> _defaultInvalidBaseTypes =
     [
         BaseClasses.LOOT_CONTAINER,
         BaseClasses.MOB_CONTAINER,
@@ -57,7 +57,7 @@ public class ItemHelper(
         nameof(EquipmentSlots.Scabbard),
     ];
 
-    protected static readonly FrozenSet<string> _dogTagTpls =
+    protected static readonly FrozenSet<MongoId> _dogTagTpls =
     [
         ItemTpl.BARTER_DOGTAG_BEAR,
         ItemTpl.BARTER_DOGTAG_BEAR_EOD,
@@ -97,7 +97,7 @@ public class ItemHelper(
         "right_side_plate",
     ];
 
-    protected static readonly FrozenSet<string> _armorSlotsThatCanHoldMods =
+    protected static readonly FrozenSet<MongoId> _armorSlotsThatCanHoldMods =
     [
         BaseClasses.HEADWEAR,
         BaseClasses.VEST,
@@ -108,21 +108,21 @@ public class ItemHelper(
     /// Does the provided pool of items contain the desired item
     /// </summary>
     /// <param name="itemPool">Item collection to check</param>
-    /// <param name="item">Item to look for</param>
+    /// <param name="itemTpl">Item to look for</param>
     /// <param name="slotId">OPTIONAL - slotId of desired item</param>
     /// <returns>True if pool contains item</returns>
-    public bool HasItemWithTpl(IEnumerable<Item> itemPool, string item, string slotId = "")
+    public bool HasItemWithTpl(IEnumerable<Item> itemPool, MongoId itemTpl, string slotId = "")
     {
         // Filter the pool by slotId if provided
         var filteredPool = string.IsNullOrEmpty(slotId)
             ? itemPool
-            : itemPool.Where(item =>
-                item.SlotId?.StartsWith(slotId, StringComparison.OrdinalIgnoreCase) ?? false
+            : itemPool.Where(itemInPool =>
+                itemInPool.SlotId?.StartsWith(slotId, StringComparison.OrdinalIgnoreCase) ?? false
             );
 
         // Check if any item in the filtered pool matches the provided item
         return filteredPool.Any(poolItem =>
-            string.Equals(poolItem.Template, item, StringComparison.OrdinalIgnoreCase)
+            string.Equals(poolItem.Template, itemTpl, StringComparison.OrdinalIgnoreCase)
         );
     }
 
@@ -133,7 +133,7 @@ public class ItemHelper(
     /// <param name="tpl">Item tpl to find</param>
     /// <param name="slotId">OPTIONAL - slotId of desired item</param>
     /// <returns>Item or null if no item found</returns>
-    public Item GetItemFromPoolByTpl(IEnumerable<Item> itemPool, string tpl, string slotId = "")
+    public Item GetItemFromPoolByTpl(IEnumerable<Item> itemPool, MongoId tpl, string slotId = "")
     {
         // Filter the pool by slotId if provided
         var filteredPool = string.IsNullOrEmpty(slotId)
@@ -143,7 +143,7 @@ public class ItemHelper(
             );
 
         // Check if any item in the filtered pool matches the provided item
-        return filteredPool.FirstOrDefault(poolItem => poolItem.Template.Equals(tpl));
+        return filteredPool.FirstOrDefault(poolItem => poolItem.Template == tpl);
     }
 
     /// <summary>
@@ -283,7 +283,7 @@ public class ItemHelper(
     /// <param name="tpl">Template id to check</param>
     /// <param name="invalidBaseTypes">OPTIONAL - Base types deemed invalid</param>
     /// <returns>true for items that may be in player possession and not quest items</returns>
-    public bool IsValidItem(string tpl, ICollection<string>? invalidBaseTypes = null)
+    public bool IsValidItem(MongoId tpl, ICollection<MongoId>? invalidBaseTypes = null)
     {
         var baseTypes = invalidBaseTypes ?? _defaultInvalidBaseTypes;
         var itemDetails = GetItem(tpl);
@@ -306,7 +306,7 @@ public class ItemHelper(
     /// <param name="tpl">Item template id to check</param>
     /// <param name="baseClassTpl">Baseclass to check for</param>
     /// <returns>is the tpl a descendant</returns>
-    public bool IsOfBaseclass(MongoId tpl, string baseClassTpl)
+    public bool IsOfBaseclass(MongoId tpl, MongoId baseClassTpl)
     {
         return _itemBaseClassService.ItemHasBaseClass(tpl, [baseClassTpl]);
     }
@@ -317,27 +317,9 @@ public class ItemHelper(
     /// <param name="tpl">Item to check base classes of</param>
     /// <param name="baseClassTpls">Base classes to check for</param>
     /// <returns>True if any supplied base classes match</returns>
-    public bool IsOfBaseclasses(string tpl, ICollection<string> baseClassTpls)
+    public bool IsOfBaseclasses(MongoId tpl, ICollection<MongoId> baseClassTpls)
     {
         return _itemBaseClassService.ItemHasBaseClass(tpl, baseClassTpls);
-    }
-
-    /// <summary>
-    /// Temporary until we have better MongoId handling
-    /// </summary>
-    /// <param name="tpl"></param>
-    /// <param name="baseClassTpls"></param>
-    /// <returns></returns>
-    public bool IsOfBaseclasses(string tpl, ICollection<MongoId> baseClassTpls)
-    {
-        List<string> MongoList = [];
-
-        foreach (var baseTpl in baseClassTpls)
-        {
-            MongoList.Add(baseTpl);
-        }
-
-        return _itemBaseClassService.ItemHasBaseClass(tpl, MongoList);
     }
 
     /// <summary>
@@ -347,7 +329,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Tpl to check</param>
     /// <returns>Does item have the possibility ot need soft inserts</returns>
-    public bool ArmorItemCanHoldMods(string itemTpl)
+    public bool ArmorItemCanHoldMods(MongoId itemTpl)
     {
         return IsOfBaseclasses(itemTpl, _armorSlotsThatCanHoldMods);
     }
@@ -357,7 +339,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Armor item</param>
     /// <returns>True if item needs some kind of insert</returns>
-    public bool ArmorItemHasRemovableOrSoftInsertSlots(string itemTpl)
+    public bool ArmorItemHasRemovableOrSoftInsertSlots(MongoId itemTpl)
     {
         if (!ArmorItemCanHoldMods(itemTpl))
         {
@@ -372,12 +354,12 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Item tpl to check for plate support</param>
     /// <returns>True when armor can hold plates</returns>
-    public bool ArmorItemHasRemovablePlateSlots(string itemTpl)
+    public bool ArmorItemHasRemovablePlateSlots(MongoId itemTpl)
     {
         var itemTemplate = GetItem(itemTpl);
 
         return itemTemplate.Value.Properties.Slots.Any(slot =>
-            _removablePlateSlotIds.Contains(slot.Name.ToLower())
+            _removablePlateSlotIds.Contains(slot.Name.ToLowerInvariant())
         );
     }
 
@@ -386,7 +368,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Item tpl to check</param>
     /// <returns>True if it needs armor inserts</returns>
-    public bool ItemRequiresSoftInserts(string itemTpl)
+    public bool ItemRequiresSoftInserts(MongoId itemTpl)
     {
         // Not a slot that takes soft-inserts
         if (!ArmorItemCanHoldMods(itemTpl))
@@ -408,7 +390,11 @@ public class ItemHelper(
         }
 
         // Check if item has slots that match soft insert name ids
-        if (itemDbDetails.Value.Properties.Slots.Any(slot => IsSoftInsertId(slot.Name.ToLower())))
+        if (
+            itemDbDetails.Value.Properties.Slots.Any(slot =>
+                IsSoftInsertId(slot.Name.ToLowerInvariant())
+            )
+        )
         {
             return true;
         }
@@ -456,7 +442,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Item to look price up of</param>
     /// <returns>Price in roubles</returns>
-    public double? GetItemPrice(string tpl)
+    public double? GetItemPrice(MongoId tpl)
     {
         var handbookPrice = GetStaticItemPrice(tpl);
         if (handbookPrice >= 1)
@@ -473,7 +459,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Item to look price up of</param>
     /// <returns>Price in roubles</returns>
-    public double GetItemMaxPrice(string tpl)
+    public double GetItemMaxPrice(MongoId tpl)
     {
         var staticPrice = GetStaticItemPrice(tpl);
         var dynamicPrice = GetDynamicItemPrice(tpl);
@@ -486,7 +472,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Items tpl id to look up price</param>
     /// <returns>Price in roubles (0 if not found)</returns>
-    public double GetStaticItemPrice(string tpl)
+    public double GetStaticItemPrice(MongoId tpl)
     {
         var handbookPrice = _handbookHelper.GetTemplatePrice(tpl);
         if (handbookPrice >= 1)
@@ -502,7 +488,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Items tpl id to look up price</param>
     /// <returns>Price in roubles (undefined if not found)</returns>
-    public double? GetDynamicItemPrice(string tpl)
+    public double? GetDynamicItemPrice(MongoId tpl)
     {
         if (_databaseService.GetPrices().TryGetValue(tpl, out var price))
         {
@@ -526,7 +512,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">template id to look up</param>
     /// <returns>KvP, key = bool, value = template item object</returns>
-    public KeyValuePair<bool, TemplateItem?> GetItem(string itemTpl)
+    public KeyValuePair<bool, TemplateItem?> GetItem(MongoId itemTpl)
     {
         // -> Gets item from <input: _tpl>
         if (_databaseService.GetItems().TryGetValue(itemTpl, out var item))
@@ -542,7 +528,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Template id of the item to check</param>
     /// <returns>True if the item has slots</returns>
-    public bool ItemHasSlots(string itemTpl)
+    public bool ItemHasSlots(MongoId itemTpl)
     {
         if (_databaseService.GetItems().TryGetValue(itemTpl, out var item))
         {
@@ -557,7 +543,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Id of the item to check</param>
     /// <returns>true if the item is in the database</returns>
-    public bool IsItemInDb(string itemTpl)
+    public bool IsItemInDb(MongoId itemTpl)
     {
         return _databaseService.GetItems().ContainsKey(itemTpl);
     }
@@ -731,7 +717,7 @@ public class ItemHelper(
     /// <param name="itemIdToFind">Template id of item to check for</param>
     /// <param name="assort">List of items to check in</param>
     /// <returns>List of children of requested item</returns>
-    public List<Item> FindAndReturnChildrenByAssort(string itemIdToFind, List<Item> assort)
+    public List<Item> FindAndReturnChildrenByAssort(MongoId itemIdToFind, List<Item> assort)
     {
         List<Item> list = [];
         foreach (var itemFromAssort in assort)
@@ -762,7 +748,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Template id to check.</param>
     /// <returns>True if it is a dogtag.</returns>
-    public bool IsDogtag(string tpl)
+    public bool IsDogtag(MongoId tpl)
     {
         return _dogTagTpls.Contains(tpl);
     }
@@ -772,7 +758,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="tpl">Item to check.</param>
     /// <returns>True if it can be stacked.</returns>
-    public bool? IsItemTplStackable(string tpl)
+    public bool? IsItemTplStackable(MongoId tpl)
     {
         if (!_databaseService.GetItems().TryGetValue(tpl, out var item))
         {
@@ -1192,7 +1178,7 @@ public class ItemHelper(
     /// <param name="tpl">Items tpl to check parents of</param>
     /// <param name="tplsToCheck">Tpl values to check if parents of item match</param>
     /// <returns>bool Match found</returns>
-    public bool DoesItemOrParentsIdMatch(string tpl, List<string> tplsToCheck)
+    public bool DoesItemOrParentsIdMatch(MongoId tpl, List<MongoId> tplsToCheck)
     {
         var itemDetails = GetItem(tpl);
         var itemExists = itemDetails.Key;
@@ -1277,7 +1263,7 @@ public class ItemHelper(
     /// <param name="itemId">The unique identifier of the item for which to find the main parent.</param>
     /// <param name="itemsMap">A Dictionary containing item IDs mapped to their corresponding Item objects for quick lookup.</param>
     /// <returns>The Item object representing the top-most parent of the given item, or null if no such parent exists.</returns>
-    public Item? GetAttachmentMainParent(string itemId, Dictionary<MongoId, Item> itemsMap)
+    public Item? GetAttachmentMainParent(MongoId itemId, Dictionary<MongoId, Item> itemsMap)
     {
         var currentItem = itemsMap.FirstOrDefault(x => x.Key == itemId).Value;
 
@@ -1323,7 +1309,7 @@ public class ItemHelper(
     /// <param name="itemId">The unique identifier of the item for which to find the equipment parent.</param>
     /// <param name="itemsMap">A Dictionary containing item IDs mapped to their corresponding Item objects for quick lookup.</param>
     /// <returns>The Item object representing the equipment parent of the given item, or `null` if no such parent exists</returns>
-    public Item? GetEquipmentParent(string itemId, Dictionary<string, Item> itemsMap)
+    public Item? GetEquipmentParent(MongoId itemId, Dictionary<MongoId, Item> itemsMap)
     {
         var currentItem = itemsMap.GetValueOrDefault(itemId);
 
@@ -1345,11 +1331,9 @@ public class ItemHelper(
     /// <param name="items">Item with children</param>
     /// <param name="rootItemId">The base items root id</param>
     /// <returns>ItemSize object (width and height)</returns>
-    public ItemSize GetItemSize(ICollection<Item> items, string rootItemId)
+    public ItemSize GetItemSize(ICollection<Item> items, MongoId rootItemId)
     {
-        var rootTemplate = GetItem(
-            items.Where(x => x.Id.Equals(rootItemId)).ToList()[0].Template
-        ).Value;
+        var rootTemplate = GetItem(items.FirstOrDefault(x => x.Id == rootItemId).Template).Value;
         var width = rootTemplate.Properties.Width;
         var height = rootTemplate.Properties.Height;
 
@@ -1364,9 +1348,9 @@ public class ItemHelper(
         var forcedRight = 0;
 
         var children = items.FindAndReturnChildrenAsItems(rootItemId);
-        foreach (var ci in children)
+        foreach (var child in children)
         {
-            var itemTemplate = GetItem(ci.Template).Value;
+            var itemTemplate = GetItem(child.Template).Value;
 
             // Calculating child ExtraSize
             if (itemTemplate.Properties.ExtraSizeForceAdd ?? false)
@@ -1747,7 +1731,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="itemTpl">Tpl of item to get name of</param>
     /// <returns>Full name, short name if not found</returns>
-    public string GetItemName(string itemTpl)
+    public string GetItemName(MongoId itemTpl)
     {
         var localeDb = _localeService.GetLocaleDb();
         var result = localeDb[$"{itemTpl} Name"];
@@ -1802,9 +1786,9 @@ public class ItemHelper(
             if (modSpawnChanceDict is not null && !(slot.Required ?? false))
             {
                 // only roll chance to not include mod if dict exists and has value for this mod type (e.g. front_plate)
-                if (modSpawnChanceDict.ContainsKey(slot.Name.ToLower()))
+                if (modSpawnChanceDict.ContainsKey(slot.Name.ToLowerInvariant()))
                 {
-                    if (!_randomUtil.GetChance100(modSpawnChanceDict[slot.Name.ToLower()]))
+                    if (!_randomUtil.GetChance100(modSpawnChanceDict[slot.Name.ToLowerInvariant()]))
                     {
                         continue;
                     }
@@ -1905,7 +1889,7 @@ public class ItemHelper(
     /// <returns>True if it is a slot that holds a removable plate</returns>
     public bool IsRemovablePlateSlot(string slotName)
     {
-        return GetRemovablePlateSlotIds().Contains(slotName.ToLower());
+        return GetRemovablePlateSlotIds().Contains(slotName.ToLowerInvariant());
     }
 
     // Get a list of slot names that hold removable plates
@@ -2023,7 +2007,7 @@ public class ItemHelper(
 
     // Return all tpls from Money enum
     // Returns string tpls
-    public List<string> GetMoneyTpls()
+    public List<MongoId> GetMoneyTpls()
     {
         return [Money.ROUBLES, Money.DOLLARS, Money.EUROS, Money.GP];
     }
@@ -2042,7 +2026,7 @@ public class ItemHelper(
             );
     }
 
-    public string? GetItemBaseType(string tpl, bool rootOnly = true)
+    public string? GetItemBaseType(MongoId tpl, bool rootOnly = true)
     {
         var result = GetItem(tpl);
         if (!result.Key)
@@ -2077,7 +2061,7 @@ public class ItemHelper(
     ///     Get a 2D grid of a container's item slots
     /// </summary>
     /// <param name="containerTpl">Tpl id of the container</param>
-    public int[][] GetContainerMapping(string containerTpl)
+    public int[,] GetContainerMapping(string containerTpl)
     {
         // Get template from db
         var containerTemplate = GetItem(containerTpl).Value;
@@ -2086,25 +2070,18 @@ public class ItemHelper(
         var height = containerTemplate.Properties.Grids[0].Props.CellsV;
         var width = containerTemplate.Properties.Grids[0].Props.CellsH;
 
-        return GetBlankContainerMap(height.Value, width.Value);
+        return GetBlankContainerMap(width.Value, height.Value);
     }
 
     /// <summary>
     ///     Get a blank two-dimensional representation of a container
     /// </summary>
-    /// <param name="containerY">Horizontal size of container</param>
-    /// <param name="containerX">Vertical size of container</param>
+    /// <param name="horizontalSizeX">Width of container (columns)</param>
+    /// <param name="verticalSizeY">Height of container (rows)</param>
     /// <returns>Two-dimensional representation of container</returns>
-    public int[][] GetBlankContainerMap(int containerY, int containerX)
+    public int[,] GetBlankContainerMap(int horizontalSizeX, int verticalSizeY)
     {
-        //var x = new int[containerY][];
-        //for (int i = 0; i < containerY; i++)
-        //{
-        //    x[i] = new int[containerH];
-        //}
-
-        //return x;
-
-        return Enumerable.Range(0, containerY).Select(_ => new int[containerX]).ToArray();
+        // Rows / Columns
+        return new int[verticalSizeY, horizontalSizeX];
     }
 }

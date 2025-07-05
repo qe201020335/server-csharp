@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Utils;
@@ -14,7 +15,6 @@ public class RagfairOfferHolder(
     ISptLogger<RagfairOfferHolder> _logger,
     RagfairServerHelper _ragfairServerHelper,
     ProfileHelper _profileHelper,
-    HashUtil _hashUtil,
     ServerLocalisationService _serverLocalisationService,
     ItemHelper _itemHelper
 )
@@ -27,17 +27,17 @@ public class RagfairOfferHolder(
     /// <summary>
     /// Ragfair offer cache, keyed by offer Id
     /// </summary>
-    private readonly ConcurrentDictionary<string, RagfairOffer> _offersById = new();
+    private readonly ConcurrentDictionary<MongoId, RagfairOffer> _offersById = new();
 
     /// <summary>
     /// Offer Ids keyed by tpl
     /// </summary>
-    private readonly ConcurrentDictionary<string, HashSet<string>> _offersByTemplate = new();
+    private readonly ConcurrentDictionary<MongoId, HashSet<string>> _offersByTemplate = new();
 
     /// <summary>
     /// Offer ids keyed by trader Id
     /// </summary>
-    private readonly ConcurrentDictionary<string, HashSet<string>> _offersByTrader = new();
+    private readonly ConcurrentDictionary<MongoId, HashSet<string>> _offersByTrader = new();
 
     private readonly Lock _expiredOfferIdsLock = new();
     private readonly Lock _ragfairOperationLock = new();
@@ -47,7 +47,7 @@ public class RagfairOfferHolder(
     /// </summary>
     /// <param name="id">Ragfair offer id</param>
     /// <returns>RagfairOffer</returns>
-    public RagfairOffer? GetOfferById(string id)
+    public RagfairOffer? GetOfferById(MongoId id)
     {
         return _offersById.GetValueOrDefault(id);
     }
@@ -137,10 +137,10 @@ public class RagfairOfferHolder(
             // Keep generating IDs until we get a unique one
             while (_offersById.ContainsKey(offer.Id))
             {
-                offer.Id = _hashUtil.Generate();
+                offer.Id = new MongoId();
             }
 
-            var itemTpl = offer.Items?.FirstOrDefault()?.Template;
+            var itemTpl = offer.Items?.FirstOrDefault()?.Template ?? new MongoId(null);
 
             var sellerId = offer.User.Id;
             var sellerIsTrader = _ragfairServerHelper.IsTrader(sellerId);

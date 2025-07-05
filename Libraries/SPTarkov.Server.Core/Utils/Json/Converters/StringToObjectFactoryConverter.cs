@@ -39,7 +39,7 @@ public class StringToObjectFactoryConverter : JsonConverterFactory
                     using (var jsonDocument = JsonDocument.ParseValue(ref reader))
                     {
                         var jsonText = jsonDocument.RootElement.GetRawText();
-                        return JsonSerializer.Deserialize<T>(jsonText);
+                        return JsonSerializer.Deserialize<T>(jsonText, options);
                     }
             }
 

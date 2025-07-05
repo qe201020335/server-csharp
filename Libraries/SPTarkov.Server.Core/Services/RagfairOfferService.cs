@@ -1,6 +1,7 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -16,7 +17,6 @@ namespace SPTarkov.Server.Core.Services;
 public class RagfairOfferService(
     ISptLogger<RagfairOfferService> logger,
     TimeUtil timeUtil,
-    HashUtil hashUtil,
     DatabaseService databaseService,
     SaveServer saveServer,
     RagfairServerHelper ragfairServerHelper,
@@ -42,12 +42,12 @@ public class RagfairOfferService(
         return ragfairOfferHolder.GetOffers();
     }
 
-    public RagfairOffer? GetOfferByOfferId(string offerId)
+    public RagfairOffer? GetOfferByOfferId(MongoId offerId)
     {
         return ragfairOfferHolder.GetOfferById(offerId);
     }
 
-    public List<RagfairOffer>? GetOffersOfType(string templateId)
+    public List<RagfairOffer>? GetOffersOfType(MongoId templateId)
     {
         return ragfairOfferHolder.GetOffersByTemplate(templateId);
     }
@@ -268,7 +268,7 @@ public class RagfairOfferService(
         var unstackedItems = UnstackOfferItems(playerOffer.Items);
 
         // Need to regenerate Ids to ensure returned item(s) have correct parent values
-        var newParentId = hashUtil.Generate();
+        var newParentId = new MongoId();
         foreach (var item in unstackedItems)
         {
             // Refresh root items' parentIds

@@ -1,5 +1,6 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -18,7 +19,6 @@ public class RagfairServerHelper(
     TimeUtil timeUtil,
     DatabaseService databaseService,
     ItemHelper itemHelper,
-    TraderHelper traderHelper,
     WeightedRandomHelper weightedRandomHelper,
     MailSendService mailSendService,
     ServerLocalisationService localisationService,
@@ -99,7 +99,7 @@ public class RagfairServerHelper(
      * @param itemTemplateId Item tpl to check is blacklisted
      * @returns True if its blacklisted
      */
-    protected bool IsItemOnCustomFleaBlacklist(string itemTemplateId)
+    protected bool IsItemOnCustomFleaBlacklist(MongoId itemTemplateId)
     {
         return ragfairConfig.Dynamic.Blacklist.Custom.Contains(itemTemplateId);
     }
@@ -146,7 +146,7 @@ public class RagfairServerHelper(
         );
     }
 
-    public int CalculateDynamicStackCount(string tplId, bool isPreset)
+    public int CalculateDynamicStackCount(MongoId tplId, bool isPreset)
     {
         var config = ragfairConfig.Dynamic;
 

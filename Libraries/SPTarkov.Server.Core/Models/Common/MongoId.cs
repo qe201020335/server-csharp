@@ -1,39 +1,32 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using SPTarkov.Server.Core.Extensions;
 
 namespace SPTarkov.Server.Core.Models.Common;
 
-public readonly partial struct MongoId : IEquatable<MongoId>
+public readonly struct MongoId : IEquatable<MongoId>
 {
-    private readonly string _stringId;
+    private readonly string? _stringId;
 
-    public MongoId(
-        string id,
-        // TODO: TEMPORARY REMOVE ME WHEN DONE!!!!
-        [CallerFilePath] string callerFilePath = "",
-        [CallerMemberName] string methodName = "",
-        [CallerLineNumber] int callerLineNumber = 0
-    )
+    public MongoId(string? id)
     {
-        // This is temporary, otherwise item buying is broken as when LINQ searches for string id's it's possible null is passed
-        if (id == null)
+        // Handle null strings, various id's are null either by BSG or by our own doing with LINQ
+        if (string.IsNullOrEmpty(id))
         {
-            id = string.Empty;
+            _stringId = null;
+
+            return;
         }
 
         if (id.Length != 24)
         {
             // TODO: Items.json root item has an empty parentId property
-            Console.WriteLine(
-                $"Critical MongoId error [{callerFilePath}::{methodName} L{callerLineNumber}]: Incorrect length. id: {id}"
-            );
+            Console.WriteLine($"Critical MongoId error: Incorrect length. id: {id}");
         }
 
         if (!IsValidMongoId(id))
         {
             Console.WriteLine(
-                $"Critical MongoId error [{callerFilePath}::{methodName} L{callerLineNumber}]: Incorrect format. Must be a hexadecimal [a-f0-9] of 24 characters. id: {id}"
+                $"Critical MongoId error: Incorrect format. Must be a hexadecimal [a-f0-9] of 24 characters. id: {id}"
             );
         }
 
@@ -92,7 +85,7 @@ public readonly partial struct MongoId : IEquatable<MongoId>
     {
         if (other is null)
         {
-            return other == this;
+            return this == null;
         }
 
         return other.Equals(ToString(), StringComparison.InvariantCultureIgnoreCase);
@@ -135,7 +128,7 @@ public readonly partial struct MongoId : IEquatable<MongoId>
 
     public override int GetHashCode()
     {
-        return _stringId.GetHashCode();
+        return (_stringId ?? string.Empty).GetHashCode();
     }
 
     public bool IsEmpty()

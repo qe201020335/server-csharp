@@ -6,7 +6,6 @@ using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace SPTarkov.Server.Core.Services.Mod;
@@ -14,12 +13,10 @@ namespace SPTarkov.Server.Core.Services.Mod;
 [Injectable]
 public class CustomItemService(
     ISptLogger<CustomItemService> logger,
-    HashUtil hashUtil,
     DatabaseService databaseService,
     ItemHelper itemHelper,
     ItemBaseClassService itemBaseClassService,
-    ICloner cloner,
-    LocaleService localeService
+    ICloner cloner
 )
 {
     /// <summary>
@@ -51,7 +48,11 @@ public class CustomItemService(
         }
 
         // Clone existing item
-        var itemClone = cloner.Clone(tables.Templates.Items[newItemDetails.ItemTplToClone]);
+        tables.Templates.Items.TryGetValue(
+            newItemDetails.ItemTplToClone.Value,
+            out var itemToClone
+        );
+        var itemClone = cloner.Clone(itemToClone);
 
         // Update id and parentId of item
         itemClone.Id = newItemId;
@@ -137,9 +138,9 @@ public class CustomItemService(
     /// </summary>
     /// <param name="newId"> ID supplied to code </param>
     /// <returns> ItemID </returns>
-    protected string GetOrGenerateIdForItem(string newId)
+    protected MongoId GetOrGenerateIdForItem(string newId)
     {
-        return newId == "" ? hashUtil.Generate() : newId;
+        return string.IsNullOrEmpty(newId) ? new MongoId() : new MongoId(newId);
     }
 
     /// <summary>

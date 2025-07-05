@@ -1,10 +1,10 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Location;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils.Cloners;
 using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
 namespace SPTarkov.Server.Core.Controllers;
@@ -13,8 +13,7 @@ namespace SPTarkov.Server.Core.Controllers;
 public class LocationController(
     ISptLogger<LocationController> _logger,
     DatabaseService _databaseService,
-    AirdropService _airdropService,
-    ICloner _cloner
+    AirdropService _airdropService
 )
 {
     /// <summary>
@@ -29,7 +28,7 @@ public class LocationController(
         var maps = locationsFromDb.GetDictionary();
 
         // keyed by _id location property
-        var locationResult = new Dictionary<string, LocationBase>();
+        var locationResult = new Dictionary<MongoId, LocationBase>();
 
         foreach (var (locationId, location) in maps)
         {
@@ -47,7 +46,7 @@ public class LocationController(
             // Clear out loot array
             mapBase.Loot = [];
             // Add map base data to dictionary
-            locationResult.Add(mapBase.IdField!, mapBase);
+            locationResult.Add(mapBase.IdField, mapBase);
         }
 
         return new LocationsGenerateAllResponse

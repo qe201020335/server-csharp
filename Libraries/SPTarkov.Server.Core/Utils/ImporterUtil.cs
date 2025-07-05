@@ -1,7 +1,9 @@
+using System.Collections;
 using System.Collections.Frozen;
 using System.Linq.Expressions;
 using System.Reflection;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Utils.Json;
 
@@ -65,7 +67,9 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
         {
             if (
                 _fileUtil.GetFileExtension(file) != "json"
-                || _filesToIgnore.Contains(_fileUtil.GetFileNameAndExtension(file).ToLower())
+                || _filesToIgnore.Contains(
+                    _fileUtil.GetFileNameAndExtension(file).ToLowerInvariant()
+                )
             )
             {
                 continue;
@@ -127,7 +131,7 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
 
             // Get the set method to update the object
             var setMethod = GetSetMethod(
-                _fileUtil.StripExtension(file).ToLower(),
+                _fileUtil.StripExtension(file).ToLowerInvariant(),
                 loadedType,
                 out var propertyType,
                 out var isDictionary
@@ -167,26 +171,55 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
     {
         try
         {
-            var setMethod = GetSetMethod(
-                directory.Split("/").Last().Replace("_", ""),
-                loadedType,
-                out var matchedProperty,
-                out var isDictionary
-            );
+            var directoryName = directory.Split("/").Last().Replace("_", "");
 
-            var loadedData = await LoadRecursiveAsync(
-                $"{directory}/",
-                matchedProperty,
-                onReadCallback,
-                onObjectDeserialized
-            );
-
-            lock (dictionaryLock)
+            if (MongoId.IsValidMongoId(directoryName))
             {
-                setMethod.Invoke(
-                    result,
-                    isDictionary ? [directory, loadedData] : new[] { loadedData }
+                // For trader MongoId directories, we need to get the parent property. Get parent directory name to find the property
+                var parentDirectory = directory.Substring(0, directory.LastIndexOf('/'));
+                var parentName = parentDirectory.Split("/").Last().Replace("_", "");
+
+                GetSetMethod(parentName, loadedType, out var matchedProperty, out _);
+
+                var loadedData = await LoadRecursiveAsync(
+                    $"{directory}/",
+                    matchedProperty,
+                    onReadCallback,
+                    onObjectDeserialized
                 );
+
+                lock (dictionaryLock)
+                {
+                    // Traders already have a dictionary, so we only need to handle this here
+                    if (result is IDictionary dictionary)
+                    {
+                        dictionary[new MongoId(directoryName)] = loadedData;
+                    }
+                }
+            }
+            else
+            {
+                var setMethod = GetSetMethod(
+                    directoryName,
+                    loadedType,
+                    out var matchedProperty,
+                    out var isDictionary
+                );
+
+                var loadedData = await LoadRecursiveAsync(
+                    $"{directory}/",
+                    matchedProperty,
+                    onReadCallback,
+                    onObjectDeserialized
+                );
+
+                lock (dictionaryLock)
+                {
+                    setMethod.Invoke(
+                        result,
+                        isDictionary ? [directory, loadedData] : new[] { loadedData }
+                    );
+                }
             }
         }
         catch (Exception ex)
@@ -253,8 +286,8 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
             var matchedProperty = type.GetProperties()
                 .FirstOrDefault(prop =>
                     string.Equals(
-                        prop.Name.ToLower(),
-                        _fileUtil.StripExtension(propertyName).ToLower(),
+                        prop.Name.ToLowerInvariant(),
+                        _fileUtil.StripExtension(propertyName).ToLowerInvariant(),
                         StringComparison.Ordinal
                     )
                 );

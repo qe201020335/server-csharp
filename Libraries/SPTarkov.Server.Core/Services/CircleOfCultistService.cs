@@ -137,7 +137,7 @@ public class CircleOfCultistService(
                     _hideoutConfig.CultistCircle
                 ),
                 rewardAmountRoubles,
-                cultistCircleStashId,
+                cultistCircleStashId.Value,
                 _hideoutConfig.CultistCircle
             );
 
@@ -153,7 +153,7 @@ public class CircleOfCultistService(
             pmcData,
             rewards,
             containerGrid,
-            cultistCircleStashId,
+            cultistCircleStashId.Value,
             output
         );
 
@@ -352,7 +352,7 @@ public class CircleOfCultistService(
     protected List<List<Item>> GetRewardsWithinBudget(
         List<string> rewardItemTplPool,
         double rewardBudget,
-        string cultistCircleStashId,
+        MongoId cultistCircleStashId,
         CultistCircleSettings circleConfig
     )
     {
@@ -651,7 +651,7 @@ public class CircleOfCultistService(
     /// <param name="itemTpl">Item chosen</param>
     /// <param name="rewardPoolRemaining">Rouble amount of pool remaining to fill</param>
     /// <returns>Size of stack</returns>
-    protected int GetRewardStackSize(string itemTpl, int rewardPoolRemaining)
+    protected int GetRewardStackSize(MongoId itemTpl, int rewardPoolRemaining)
     {
         if (_itemHelper.IsOfBaseclass(itemTpl, BaseClasses.AMMO))
         {
@@ -1014,8 +1014,8 @@ public class CircleOfCultistService(
         string sessionId,
         PmcData pmcData,
         List<List<Item>> rewards,
-        int[][] containerGrid,
-        string cultistCircleStashId,
+        int[,] containerGrid,
+        MongoId cultistCircleStashId,
         ItemEventRouterResponse output
     )
     {

@@ -291,7 +291,7 @@ public record LocationBase
     public long? UnixDateTime { get; set; }
 
     [JsonPropertyName("_Id")]
-    public string? IdField { get; set; }
+    public MongoId IdField { get; set; }
 
     [JsonPropertyName("doors")]
     public List<object>? Doors { get; set; }
