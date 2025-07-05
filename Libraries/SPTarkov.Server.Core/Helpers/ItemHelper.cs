@@ -1916,39 +1916,6 @@ public class ItemHelper(
         return itemWithChildren;
     }
 
-    // Update a root items _id property value to be unique
-    // Item to update root items _id property
-    // Optional: new id to use
-    // Returns New root id
-
-    public string RemapRootItemId(List<Item> itemWithChildren, MongoId? newId = null)
-    {
-        newId ??= new MongoId();
-
-        var rootItemExistingId = itemWithChildren[0].Id;
-
-        foreach (var item in itemWithChildren)
-        {
-            // Root, update id
-            if (item.Id.Equals(rootItemExistingId))
-            {
-                item.Id = newId.Value;
-
-                continue;
-            }
-
-            // Child with parent of root, update
-            if (
-                string.Equals(item.ParentId, rootItemExistingId, StringComparison.OrdinalIgnoreCase)
-            )
-            {
-                item.ParentId = newId;
-            }
-        }
-
-        return newId;
-    }
-
     // Add a blank upd object to passed in item if it does not exist already
     // item to add upd to
     // text to write to log when upd object was not found

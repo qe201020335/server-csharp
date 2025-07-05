@@ -405,7 +405,7 @@ public class ScavCaseRewardGenerator(
 
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
                 var presetAndMods = _cloner.Clone(preset.Items).ReplaceIDs().ToList();
-                _itemHelper.RemapRootItemId(presetAndMods);
+                presetAndMods.RemapRootItemId();
 
                 resultItem = presetAndMods;
             }

@@ -1236,7 +1236,7 @@ public class HideoutController(
         // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
         var presetAndModsClone = _cloner.Clone(defaultPreset.Items).ReplaceIDs().ToList();
 
-        _itemHelper.RemapRootItemId(presetAndModsClone);
+        presetAndModsClone.RemapRootItemId();
 
         // Store preset items in array
         return [presetAndModsClone];

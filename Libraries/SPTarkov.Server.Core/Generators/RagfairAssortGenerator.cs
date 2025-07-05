@@ -67,7 +67,7 @@ public class RagfairAssortGenerator(
         {
             // Update Ids and clone
             var presetAndModsClone = cloner.Clone(preset.Items).ReplaceIDs().ToList();
-            itemHelper.RemapRootItemId(presetAndModsClone);
+            presetAndModsClone.RemapRootItemId();
 
             // Add presets base item tpl to the processed list so its skipped later on when processing items
             processedArmorItems.Add(preset.Items[0].Template);

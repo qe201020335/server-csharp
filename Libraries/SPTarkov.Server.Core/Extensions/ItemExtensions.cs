@@ -413,5 +413,40 @@ namespace SPTarkov.Server.Core.Extensions
 
             return items;
         }
+
+        /// <summary>
+        /// Update a root items _id property value to be unique
+        /// </summary>
+        /// <param name="itemWithChildren">Item to update root items _id property</param>
+        /// <param name="newId">Optional: new id to use</param>
+        /// <returns>New root id</returns>
+        public static string RemapRootItemId(
+            this List<Item> itemWithChildren,
+            MongoId? newId = null
+        )
+        {
+            newId ??= new MongoId();
+
+            var rootItemExistingId = itemWithChildren.FirstOrDefault().Id;
+
+            foreach (var item in itemWithChildren)
+            {
+                // Root, update id
+                if (item.Id.Equals(rootItemExistingId))
+                {
+                    item.Id = newId.Value;
+
+                    continue;
+                }
+
+                // Child with parent of root, update
+                if (item.ParentId == rootItemExistingId)
+                {
+                    item.ParentId = newId.Value;
+                }
+            }
+
+            return newId;
+        }
     }
 }

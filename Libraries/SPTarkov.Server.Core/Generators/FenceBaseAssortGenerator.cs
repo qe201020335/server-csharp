@@ -119,7 +119,7 @@ public class FenceBaseAssortGenerator(
             }
 
             // Ensure IDs are unique
-            itemHelper.RemapRootItemId(itemWithChildrenToAdd);
+            itemWithChildrenToAdd.RemapRootItemId();
             if (itemWithChildrenToAdd.Count > 1)
             {
                 itemHelper.ReparentItemAndChildren(itemWithChildrenToAdd[0], itemWithChildrenToAdd);

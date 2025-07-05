@@ -1281,7 +1281,7 @@ public class LocationLootGenerator(
         if (defaultPreset is not null)
         {
             var presetAndModsClone = _cloner.Clone(defaultPreset.Items).ReplaceIDs().ToList();
-            _itemHelper.RemapRootItemId(presetAndModsClone);
+            presetAndModsClone.RemapRootItemId();
 
             // Use original items parentId otherwise item doesn't get added to container correctly
             presetAndModsClone.FirstOrDefault().ParentId = rootItem.ParentId;

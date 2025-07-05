@@ -17,7 +17,6 @@ public class RagfairTaxService(
     DatabaseService _databaseService,
     RagfairPriceService _ragfairPriceService,
     ItemHelper _itemHelper,
-    ProfileHelper _profileHelper,
     ICloner _cloner
 )
 {

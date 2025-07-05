@@ -400,7 +400,7 @@ public class CircleOfCultistService(
 
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
                 var presetAndMods = defaultPreset.Items.ReplaceIDs().ToList();
-                _itemHelper.RemapRootItemId(presetAndMods);
+                presetAndMods.RemapRootItemId();
 
                 // Set item as FiR
                 _itemHelper.SetFoundInRaid(presetAndMods);
@@ -495,7 +495,7 @@ public class CircleOfCultistService(
 
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
                 var presetAndMods = defaultPreset.Items.ReplaceIDs().ToList();
-                _itemHelper.RemapRootItemId(presetAndMods);
+                presetAndMods.RemapRootItemId();
 
                 // Set item as FiR
                 _itemHelper.SetFoundInRaid(presetAndMods);
@@ -546,18 +546,18 @@ public class CircleOfCultistService(
     /// <param name="sessionId">sessionId</param>
     /// <param name="sacrificedItems">Items sacrificed</param>
     /// <returns>Direct reward items to send to player</returns>
-    protected DirectRewardSettings CheckForDirectReward(
+    protected DirectRewardSettings? CheckForDirectReward(
         string sessionId,
         List<Item> sacrificedItems,
         Dictionary<string, DirectRewardSettings> directRewardsCache
     )
     {
         // Get sacrificed tpls
-        IEnumerable<MongoId> sacrificedItemTpls = sacrificedItems
+        var sacrificedItemTpls = sacrificedItems
             .Select(item => item.Template)
             .Where(item => item != null);
         // Create md5 key of the items player sacrificed so we can compare against the direct reward cache
-        string sacrificedItemsKey = CreateSacrificeCacheKey(sacrificedItemTpls);
+        var sacrificedItemsKey = CreateSacrificeCacheKey(sacrificedItemTpls);
 
         var matchingDirectReward = directRewardsCache.GetValueOrDefault(sacrificedItemsKey);
         if (matchingDirectReward is null)

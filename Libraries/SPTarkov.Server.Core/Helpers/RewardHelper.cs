@@ -384,7 +384,7 @@ public class RewardHelper(
         {
             // Found preset, use mods to hydrate reward item
             var presetAndMods = _cloner.Clone(defaultPreset.Items).ReplaceIDs().ToList();
-            var newRootId = _itemHelper.RemapRootItemId(presetAndMods);
+            var newRootId = presetAndMods.RemapRootItemId();
 
             reward.Items = presetAndMods;
 

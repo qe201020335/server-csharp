@@ -249,7 +249,7 @@ public class TradeHelper(
                 offerClone.FirstOrDefault().Upd.StackObjectsCount = itemCountToSend;
 
                 // Prevent any collisions
-                _itemHelper.RemapRootItemId(offerClone);
+                offerClone.RemapRootItemId();
                 if (offerClone.Count > 1)
                 {
                     _itemHelper.ReparentItemAndChildren(offerClone.FirstOrDefault(), offerClone);

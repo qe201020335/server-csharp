@@ -500,7 +500,7 @@ public class LootGenerator(
         }
 
         var presetAndModsClone = _cloner.Clone(chosenPreset.Items).ReplaceIDs().ToList();
-        _itemHelper.RemapRootItemId(presetAndModsClone);
+        presetAndModsClone.RemapRootItemId();
 
         _itemHelper.SetFoundInRaid(presetAndModsClone);
 
@@ -568,7 +568,7 @@ public class LootGenerator(
 
         // Clean up Ids to ensure they're all unique and prevent collisions
         var presetAndModsClone = _cloner.Clone(chosenWeaponPreset.Items).ReplaceIDs().ToList();
-        _itemHelper.RemapRootItemId(presetAndModsClone);
+        presetAndModsClone.RemapRootItemId();
 
         // Add preset to return object
         itemsToReturn.Add(presetAndModsClone);
@@ -767,7 +767,7 @@ public class LootGenerator(
                 // Ensure preset has unique ids and is cloned so we don't alter the preset data stored in memory
                 var presetAndMods = preset.Items.ReplaceIDs().ToList();
 
-                _itemHelper.RemapRootItemId(presetAndMods);
+                presetAndMods.RemapRootItemId();
                 itemsToReturn.Add(presetAndMods);
 
                 continue;
