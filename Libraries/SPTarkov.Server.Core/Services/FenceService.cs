@@ -858,10 +858,11 @@ public class FenceService(
             }
 
             // MUST randomise Ids as its possible to add the same base fence assort twice = duplicate IDs = dead client
-            desiredAssortItemAndChildrenClone = itemHelper.ReplaceIDs(
-                _cloner.Clone(desiredAssortItemAndChildrenClone)
-            );
-            itemHelper.RemapRootItemId(desiredAssortItemAndChildrenClone);
+            desiredAssortItemAndChildrenClone = _cloner
+                .Clone(desiredAssortItemAndChildrenClone)
+                .ReplaceIDs()
+                .ToList();
+            desiredAssortItemAndChildrenClone.RemapRootItemId();
 
             var rootItemBeingAdded = desiredAssortItemAndChildrenClone[0];
 
@@ -1152,7 +1153,7 @@ public class FenceService(
                     presetWithChildrenClone[0],
                     presetWithChildrenClone
                 );
-                itemHelper.RemapRootItemId(presetWithChildrenClone);
+                presetWithChildrenClone.RemapRootItemId();
 
                 // Remapping IDs causes parentId to be altered, fix
                 presetWithChildrenClone[0].ParentId = "hideout";
@@ -1221,7 +1222,7 @@ public class FenceService(
 
             // MUST randomise Ids as its possible to add the same base fence assort twice = duplicate IDs = dead client
             itemHelper.ReparentItemAndChildren(presetWithChildrenClone[0], presetWithChildrenClone);
-            itemHelper.RemapRootItemId(presetWithChildrenClone);
+            presetWithChildrenClone.RemapRootItemId();
 
             // Remapping IDs causes parentId to be altered
             presetWithChildrenClone[0].ParentId = "hideout";

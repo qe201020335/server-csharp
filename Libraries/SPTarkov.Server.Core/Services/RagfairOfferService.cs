@@ -1,5 +1,6 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -345,7 +346,7 @@ public class RagfairOfferService(
                 itemAndChildrenClone.FirstOrDefault(),
                 itemAndChildrenClone
             );
-            itemHelper.RemapRootItemId(reparentedItemAndChildren);
+            reparentedItemAndChildren.RemapRootItemId();
 
             result.AddRange(reparentedItemAndChildren);
         }

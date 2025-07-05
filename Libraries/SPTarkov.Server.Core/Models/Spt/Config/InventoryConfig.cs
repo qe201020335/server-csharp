@@ -66,7 +66,7 @@ public record SealedAirdropContainerSettings
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("weaponRewardWeight")]
-    public required Dictionary<string, double> WeaponRewardWeight { get; set; }
+    public required Dictionary<MongoId, double> WeaponRewardWeight { get; set; }
 
     [JsonPropertyName("defaultPresetsOnly")]
     public bool DefaultPresetsOnly { get; set; }

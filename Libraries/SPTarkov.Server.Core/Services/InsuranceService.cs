@@ -24,7 +24,6 @@ public class InsuranceService(
     TimeUtil _timeUtil,
     SaveServer _saveServer,
     TraderHelper _traderHelper,
-    ProfileHelper _profileHelper,
     ServerLocalisationService _serverLocalisationService,
     MailSendService _mailSendService,
     ConfigServer _configServer

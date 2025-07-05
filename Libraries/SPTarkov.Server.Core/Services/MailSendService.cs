@@ -516,7 +516,7 @@ public class MailSendService(
             };
 
             // Ensure Ids are unique and cont collide with items in player inventory later
-            messageDetails.Items = _itemHelper.ReplaceIDs(_cloner.Clone(messageDetails.Items));
+            messageDetails.Items = _cloner.Clone(messageDetails.Items).ReplaceIDs().ToList();
 
             // Ensure item exits in items db
             foreach (var reward in messageDetails.Items)

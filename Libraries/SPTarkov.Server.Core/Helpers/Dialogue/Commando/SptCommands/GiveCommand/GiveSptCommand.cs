@@ -234,7 +234,7 @@ public class GiveSptCommand(
             for (var i = 0; i < quantity; i++)
             {
                 var items = _cloner.Clone(preset.Items);
-                items = _itemHelper.ReplaceIDs(items);
+                items = items.ReplaceIDs().ToList();
                 itemsToSend.AddRange(items);
             }
         }

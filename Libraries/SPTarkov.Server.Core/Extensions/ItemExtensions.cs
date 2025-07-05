@@ -382,5 +382,71 @@ namespace SPTarkov.Server.Core.Extensions
             // Return all items returned and exclude the secure container item itself
             return itemsInSecureContainer.Where(x => x != secureContainer.Id).ToList();
         }
+
+        /// <summary>
+        ///     Regenerate all GUIDs with new IDs, except special item types (e.g. quest, sorting table, etc.)
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static IEnumerable<Item> ReplaceIDs(this IEnumerable<Item> items)
+        {
+            foreach (var item in items)
+            {
+                // Generate new id
+                var newId = new MongoId();
+
+                // Keep copy of original id
+                var originalId = item.Id;
+
+                // Update items id to new one we generated
+                item.Id = newId;
+
+                // Find all children of item and update their parent ids to match
+                var childItems = items.Where(x =>
+                    string.Equals(x.ParentId, originalId, StringComparison.OrdinalIgnoreCase)
+                );
+                foreach (var childItem in childItems)
+                {
+                    childItem.ParentId = newId;
+                }
+            }
+
+            return items;
+        }
+
+        /// <summary>
+        /// Update a root items _id property value to be unique
+        /// </summary>
+        /// <param name="itemWithChildren">Item to update root items _id property</param>
+        /// <param name="newId">Optional: new id to use</param>
+        /// <returns>New root id</returns>
+        public static string RemapRootItemId(
+            this List<Item> itemWithChildren,
+            MongoId? newId = null
+        )
+        {
+            newId ??= new MongoId();
+
+            var rootItemExistingId = itemWithChildren.FirstOrDefault().Id;
+
+            foreach (var item in itemWithChildren)
+            {
+                // Root, update id
+                if (item.Id.Equals(rootItemExistingId))
+                {
+                    item.Id = newId.Value;
+
+                    continue;
+                }
+
+                // Child with parent of root, update
+                if (item.ParentId == rootItemExistingId)
+                {
+                    item.ParentId = newId.Value;
+                }
+            }
+
+            return newId;
+        }
     }
 }

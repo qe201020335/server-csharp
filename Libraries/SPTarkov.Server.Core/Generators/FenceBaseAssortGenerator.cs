@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -118,7 +119,7 @@ public class FenceBaseAssortGenerator(
             }
 
             // Ensure IDs are unique
-            itemHelper.RemapRootItemId(itemWithChildrenToAdd);
+            itemWithChildrenToAdd.RemapRootItemId();
             if (itemWithChildrenToAdd.Count > 1)
             {
                 itemHelper.ReparentItemAndChildren(itemWithChildrenToAdd[0], itemWithChildrenToAdd);
@@ -162,7 +163,7 @@ public class FenceBaseAssortGenerator(
             }
 
             // Construct preset + mods
-            var itemAndChildren = itemHelper.ReplaceIDs(_cloner.Clone(defaultPreset.Items));
+            var itemAndChildren = _cloner.Clone(defaultPreset.Items).ReplaceIDs().ToList();
 
             // Find root item and add some properties to it
             for (var i = 0; i < itemAndChildren.Count; i++)

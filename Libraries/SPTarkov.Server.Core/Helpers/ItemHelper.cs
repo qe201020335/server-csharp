@@ -837,7 +837,7 @@ public class ItemHelper(
         while (remainingCount.Value != 0)
         {
             // Clone item and make IDs unique
-            var itemWithChildrenClone = ReplaceIDs(_cloner.Clone(itemWithChildren));
+            var itemWithChildrenClone = _cloner.Clone(itemWithChildren).ReplaceIDs().ToList();
 
             // Set stack count to new value
             var amount = Math.Min(remainingCount ?? 0, maxStackSize ?? 0);
@@ -1015,37 +1015,6 @@ public class ItemHelper(
                 inventory.FastPanel[originalId] = newId;
             }
         }
-    }
-
-    /// <summary>
-    ///     Regenerate all GUIDs with new IDs, except special item types (e.g. quest, sorting table, etc.)
-    /// </summary>
-    /// <param name="items"></param>
-    /// <returns></returns>
-    public List<Item> ReplaceIDs(List<Item> items)
-    {
-        foreach (var item in items)
-        {
-            // Generate new id
-            var newId = new MongoId();
-
-            // Keep copy of original id
-            var originalId = item.Id;
-
-            // Update items id to new one we generated
-            item.Id = newId;
-
-            // Find all children of item and update their parent ids to match
-            var childItems = items.Where(x =>
-                string.Equals(x.ParentId, originalId, StringComparison.OrdinalIgnoreCase)
-            );
-            foreach (var childItem in childItems)
-            {
-                childItem.ParentId = newId;
-            }
-        }
-
-        return items;
     }
 
     /// <summary>
@@ -1945,39 +1914,6 @@ public class ItemHelper(
         itemWithChildren[0] = rootItem;
 
         return itemWithChildren;
-    }
-
-    // Update a root items _id property value to be unique
-    // Item to update root items _id property
-    // Optional: new id to use
-    // Returns New root id
-
-    public string RemapRootItemId(List<Item> itemWithChildren, MongoId? newId = null)
-    {
-        newId ??= new MongoId();
-
-        var rootItemExistingId = itemWithChildren[0].Id;
-
-        foreach (var item in itemWithChildren)
-        {
-            // Root, update id
-            if (item.Id.Equals(rootItemExistingId))
-            {
-                item.Id = newId.Value;
-
-                continue;
-            }
-
-            // Child with parent of root, update
-            if (
-                string.Equals(item.ParentId, rootItemExistingId, StringComparison.OrdinalIgnoreCase)
-            )
-            {
-                item.ParentId = newId;
-            }
-        }
-
-        return newId;
     }
 
     // Add a blank upd object to passed in item if it does not exist already
