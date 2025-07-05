@@ -420,7 +420,7 @@ namespace SPTarkov.Server.Core.Extensions
         /// <param name="itemWithChildren">Item to update root items _id property</param>
         /// <param name="newId">Optional: new id to use</param>
         /// <returns>New root id</returns>
-        public static string RemapRootItemId(
+        public static MongoId RemapRootItemId(
             this List<Item> itemWithChildren,
             MongoId? newId = null
         )
@@ -446,7 +446,7 @@ namespace SPTarkov.Server.Core.Extensions
                 }
             }
 
-            return newId;
+            return newId.Value;
         }
     }
 }
