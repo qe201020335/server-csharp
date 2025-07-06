@@ -395,7 +395,7 @@ public class PaymentService(
         var moneyItemsInInventory = itemHelper.FindBarterItems(
             "tpl",
             pmcData.Inventory.Items,
-            currencyTpl
+            [currencyTpl]
         );
         if (moneyItemsInInventory.Count == 0)
         {
