@@ -962,19 +962,13 @@ public class CircleOfCultistService(
     }
 
     /// <summary>
-    /// Temporary until MongoId conversion is done, should be removed and the mongoid one kept in place
+    /// Create an MD5 hash of the passed in items
     /// </summary>
-    /// <param name="requiredItems"></param>
-    /// <returns></returns>
-    protected string CreateSacrificeCacheKey(IEnumerable<string> requiredItems)
-    {
-        var concat = string.Join(",", requiredItems.OrderBy(item => item));
-        return hashUtil.GenerateHashForData(HashingAlgorithm.MD5, concat);
-    }
-
+    /// <param name="requiredItems">Items to create key for</param>
+    /// <returns>Key</returns>
     protected string CreateSacrificeCacheKey(IEnumerable<MongoId> requiredItems)
     {
-        var concat = string.Join(",", requiredItems.OrderBy(item => item));
+        var concat = string.Join(",", requiredItems.OrderBy(item => item.ToString()));
         return hashUtil.GenerateHashForData(HashingAlgorithm.MD5, concat);
     }
 
