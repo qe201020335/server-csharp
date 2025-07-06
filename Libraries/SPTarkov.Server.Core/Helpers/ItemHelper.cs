@@ -17,15 +17,15 @@ namespace SPTarkov.Server.Core.Helpers;
 
 [Injectable]
 public class ItemHelper(
-    ISptLogger<ItemHelper> _logger,
-    RandomUtil _randomUtil,
-    DatabaseService _databaseService,
-    HandbookHelper _handbookHelper,
-    ItemBaseClassService _itemBaseClassService,
-    ItemFilterService _itemFilterService,
-    ServerLocalisationService _serverLocalisationService,
-    LocaleService _localeService,
-    ICloner _cloner
+    ISptLogger<ItemHelper> logger,
+    RandomUtil randomUtil,
+    DatabaseService databaseService,
+    HandbookHelper handbookHelper,
+    ItemBaseClassService itemBaseClassService,
+    ItemFilterService itemFilterService,
+    ServerLocalisationService serverLocalisationService,
+    LocaleService localeService,
+    ICloner cloner
 )
 {
     protected static readonly FrozenSet<MongoId> _defaultInvalidBaseTypes =
@@ -222,7 +222,7 @@ public class ItemHelper(
             {
                 itemProperties.FireMode = new UpdFireMode
                 {
-                    FireMode = _randomUtil.GetArrayValue(itemTemplate.Properties.WeapFireType),
+                    FireMode = randomUtil.GetArrayValue(itemTemplate.Properties.WeapFireType),
                 };
             }
         }
@@ -297,7 +297,7 @@ public class ItemHelper(
             && string.Equals(itemDetails.Value.Type, "Item", StringComparison.OrdinalIgnoreCase)
             && baseTypes.All(x => !IsOfBaseclass(tpl, x))
             && GetItemPrice(tpl) > 0
-            && !_itemFilterService.IsItemBlacklisted(tpl);
+            && !itemFilterService.IsItemBlacklisted(tpl);
     }
 
     /// <summary>
@@ -308,7 +308,7 @@ public class ItemHelper(
     /// <returns>is the tpl a descendant</returns>
     public bool IsOfBaseclass(MongoId tpl, MongoId baseClassTpl)
     {
-        return _itemBaseClassService.ItemHasBaseClass(tpl, [baseClassTpl]);
+        return itemBaseClassService.ItemHasBaseClass(tpl, [baseClassTpl]);
     }
 
     /// <summary>
@@ -319,7 +319,7 @@ public class ItemHelper(
     /// <returns>True if any supplied base classes match</returns>
     public bool IsOfBaseclasses(MongoId tpl, ICollection<MongoId> baseClassTpls)
     {
-        return _itemBaseClassService.ItemHasBaseClass(tpl, baseClassTpls);
+        return itemBaseClassService.ItemHasBaseClass(tpl, baseClassTpls);
     }
 
     /// <summary>
@@ -474,7 +474,7 @@ public class ItemHelper(
     /// <returns>Price in roubles (0 if not found)</returns>
     public double GetStaticItemPrice(MongoId tpl)
     {
-        var handbookPrice = _handbookHelper.GetTemplatePrice(tpl);
+        var handbookPrice = handbookHelper.GetTemplatePrice(tpl);
         if (handbookPrice >= 1)
         {
             return handbookPrice;
@@ -490,7 +490,7 @@ public class ItemHelper(
     /// <returns>Price in roubles (undefined if not found)</returns>
     public double? GetDynamicItemPrice(MongoId tpl)
     {
-        if (_databaseService.GetPrices().TryGetValue(tpl, out var price))
+        if (databaseService.GetPrices().TryGetValue(tpl, out var price))
         {
             return price;
         }
@@ -504,7 +504,7 @@ public class ItemHelper(
     /// <returns>List of TemplateItem objects</returns>
     public List<TemplateItem> GetItems()
     {
-        return _cloner.Clone(_databaseService.GetItems().Values.ToList());
+        return cloner.Clone(databaseService.GetItems().Values.ToList());
     }
 
     /// <summary>
@@ -515,7 +515,7 @@ public class ItemHelper(
     public KeyValuePair<bool, TemplateItem?> GetItem(MongoId itemTpl)
     {
         // -> Gets item from <input: _tpl>
-        if (_databaseService.GetItems().TryGetValue(itemTpl, out var item))
+        if (databaseService.GetItems().TryGetValue(itemTpl, out var item))
         {
             return new KeyValuePair<bool, TemplateItem?>(true, item);
         }
@@ -530,7 +530,7 @@ public class ItemHelper(
     /// <returns>True if the item has slots</returns>
     public bool ItemHasSlots(MongoId itemTpl)
     {
-        if (_databaseService.GetItems().TryGetValue(itemTpl, out var item))
+        if (databaseService.GetItems().TryGetValue(itemTpl, out var item))
         {
             return item?.Properties?.Slots?.Count > 0;
         }
@@ -545,7 +545,7 @@ public class ItemHelper(
     /// <returns>true if the item is in the database</returns>
     public bool IsItemInDb(MongoId itemTpl)
     {
-        return _databaseService.GetItems().ContainsKey(itemTpl);
+        return databaseService.GetItems().ContainsKey(itemTpl);
     }
 
     /// <summary>
@@ -604,7 +604,7 @@ public class ItemHelper(
         var itemDetails = GetItem(item.Template).Value;
         if (itemDetails?.Properties is null)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Item: {item.Template} lacks properties, cannot ascertain quality level, assuming 100%"
             );
 
@@ -685,7 +685,7 @@ public class ItemHelper(
         // Edge case, durability above max
         if (repairable.Durability > repairable.MaxDurability)
         {
-            _logger.Debug(
+            logger.Debug(
                 $"Max durability: {repairable.MaxDurability} for item id: {item.Id} was below durability: {repairable.Durability}, adjusting values to match"
             );
             repairable.MaxDurability = repairable.Durability;
@@ -698,8 +698,8 @@ public class ItemHelper(
 
         if (durability == 0)
         {
-            _logger.Error(
-                _serverLocalisationService.GetText(
+            logger.Error(
+                serverLocalisationService.GetText(
                     "item-durability_value_invalid_use_default",
                     item.Template
                 )
@@ -760,7 +760,7 @@ public class ItemHelper(
     /// <returns>True if it can be stacked.</returns>
     public bool? IsItemTplStackable(MongoId tpl)
     {
-        if (!_databaseService.GetItems().TryGetValue(tpl, out var item))
+        if (!databaseService.GetItems().TryGetValue(tpl, out var item))
         {
             return null;
         }
@@ -788,7 +788,7 @@ public class ItemHelper(
         // return the item as is.
         if (remainingCount <= maxStackSize)
         {
-            rootAndChildren.Add(_cloner.Clone(itemToSplit));
+            rootAndChildren.Add(cloner.Clone(itemToSplit));
 
             return rootAndChildren;
         }
@@ -796,7 +796,7 @@ public class ItemHelper(
         while (remainingCount.Value != 0)
         {
             var amount = Math.Min(remainingCount ?? 0, maxStackSize ?? 0);
-            var newStackClone = _cloner.Clone(itemToSplit);
+            var newStackClone = cloner.Clone(itemToSplit);
 
             newStackClone.Id = new MongoId();
             newStackClone.Upd.StackObjectsCount = amount;
@@ -837,7 +837,7 @@ public class ItemHelper(
         while (remainingCount.Value != 0)
         {
             // Clone item and make IDs unique
-            var itemWithChildrenClone = _cloner.Clone(itemWithChildren).ReplaceIDs().ToList();
+            var itemWithChildrenClone = cloner.Clone(itemWithChildren).ReplaceIDs().ToList();
 
             // Set stack count to new value
             var amount = Math.Min(remainingCount ?? 0, maxStackSize ?? 0);
@@ -874,7 +874,7 @@ public class ItemHelper(
         while (remainingCount != 0)
         {
             var amount = Math.Min(remainingCount ?? 0, itemMaxStackSize);
-            var newItemClone = _cloner.Clone(itemToSplit);
+            var newItemClone = cloner.Clone(itemToSplit);
 
             newItemClone.Id = new MongoId();
             newItemClone.Upd.StackObjectsCount = amount;
@@ -890,33 +890,31 @@ public class ItemHelper(
     /// </summary>
     /// <param name="by">Tpl or id.</param>
     /// <param name="itemsToSearch">Array of items to iterate over.</param>
-    /// <param name="desiredBarterItemIds">Desired barter item ids.</param>
+    /// <param name="desiredBarterItemIds">List of desired barter item ids.</param>
     /// <returns>List of Item objects.</returns>
     public List<Item> FindBarterItems(
         string by,
         List<Item> itemsToSearch,
-        object desiredBarterItemIds
+        List<MongoId> desiredBarterItemIds
     )
     {
         // Find required items to take after buying (handles multiple items)
-        var desiredBarterIds = desiredBarterItemIds is MongoId id
-            ? [id]
-            : (List<MongoId>)desiredBarterItemIds;
-
         List<Item> matchingItems = [];
-        foreach (var barterId in desiredBarterIds)
+        foreach (var barterId in desiredBarterItemIds)
         {
             var filterResult = itemsToSearch.Where(item =>
+                by == "tpl" ? item.Template.Equals(barterId) : item.Id.Equals(barterId)
+            );
+
+            if (!filterResult.Any())
             {
-                return by == "tpl" ? item.Template.Equals(barterId) : item.Id.Equals(barterId);
-            });
+                logger.Warning(
+                    serverLocalisationService.GetText("item-helper_no_items_for_barter", barterId)
+                );
+                continue;
+            }
 
             matchingItems.AddRange(filterResult);
-        }
-
-        if (matchingItems.Count == 0)
-        {
-            _logger.Warning($"No items found for barter Id: {desiredBarterIds}");
         }
 
         return matchingItems;
@@ -1369,11 +1367,11 @@ public class ItemHelper(
             ?.Filter;
         if (cartridges is null)
         {
-            _logger.Warning($"Failed to find cartridge for item: {item?.Id} {item?.Name}");
+            logger.Warning($"Failed to find cartridge for item: {item?.Id} {item?.Name}");
             return null;
         }
 
-        return _randomUtil.GetArrayValue(cartridges);
+        return randomUtil.GetArrayValue(cartridges);
     }
 
     /// <summary>
@@ -1483,9 +1481,9 @@ public class ItemHelper(
         );
         if (cartridgeTpl is null)
         {
-            if (_logger.IsLogEnabled(LogLevel.Debug))
+            if (logger.IsLogEnabled(LogLevel.Debug))
             {
-                _logger.Debug(
+                logger.Debug(
                     $"Unable to fill item: {magazine.FirstOrDefault().Id} {magTemplate.Name} with cartridges, none found."
                 );
             }
@@ -1521,15 +1519,13 @@ public class ItemHelper(
         var cartridgeDetails = GetItem(cartridgeTpl);
         if (!cartridgeDetails.Key)
         {
-            _logger.Error(
-                _serverLocalisationService.GetText("item-invalid_tpl_item", cartridgeTpl)
-            );
+            logger.Error(serverLocalisationService.GetText("item-invalid_tpl_item", cartridgeTpl));
         }
 
         var cartridgeMaxStackSize = cartridgeDetails.Value?.Properties?.StackMaxSize;
         if (cartridgeMaxStackSize is null)
         {
-            _logger.Error($"Item with tpl: {cartridgeTpl} lacks a _props or StackMaxSize property");
+            logger.Error($"Item with tpl: {cartridgeTpl} lacks a _props or StackMaxSize property");
         }
 
         // Get max number of cartridges in magazine, choose random value between min/max
@@ -1543,21 +1539,21 @@ public class ItemHelper(
 
         if (magazineCartridgeMaxCount is null)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Magazine: {magTemplate.Id} {magTemplate.Name} lacks a Cartridges array, unable to fill magazine with ammo"
             );
 
             return;
         }
 
-        var desiredStackCount = _randomUtil.GetInt(
+        var desiredStackCount = randomUtil.GetInt(
             (int)Math.Round(minSizeMultiplier * magazineCartridgeMaxCount ?? 0),
             (int)magazineCartridgeMaxCount
         );
 
         if (magazineWithChildCartridges.Count > 1)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Magazine {magTemplate.Name} already has cartridges defined,  this may cause issues"
             );
         }
@@ -1614,7 +1610,7 @@ public class ItemHelper(
             .Select(x => GetItem(x).Value.Properties.Caliber)
             .ToList();
 
-        return _randomUtil.DrawRandomFromList(calibers).FirstOrDefault();
+        return randomUtil.DrawRandomFromList(calibers).FirstOrDefault();
     }
 
     /// <summary>
@@ -1635,7 +1631,7 @@ public class ItemHelper(
         var ammos = staticAmmoDist.GetValueOrDefault(caliber, []);
         if (ammos.Count == 0 && fallbackCartridgeTpl is not null)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Unable to pick a cartridge for caliber: {caliber}, staticAmmoDist has no data. using fallback value of {fallbackCartridgeTpl}"
             );
 
@@ -1644,14 +1640,14 @@ public class ItemHelper(
 
         if (ammos.Count == 0 && fallbackCartridgeTpl is null)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Unable to pick a cartridge for caliber: {caliber}, staticAmmoDist has no data. No fallback value provided"
             );
 
             return null;
         }
 
-        var ammoArray = new ProbabilityObjectArray<string, float?>(_cloner);
+        var ammoArray = new ProbabilityObjectArray<string, float?>(cloner);
         foreach (var icd in ammos)
         {
             // Whitelist exists and tpl not inside it, skip
@@ -1701,7 +1697,7 @@ public class ItemHelper(
     /// <returns>Full name, short name if not found</returns>
     public string GetItemName(MongoId itemTpl)
     {
-        var localeDb = _localeService.GetLocaleDb();
+        var localeDb = localeService.GetLocaleDb();
         var result = localeDb[$"{itemTpl} Name"];
         if (result?.Length > 0)
         {
@@ -1718,7 +1714,7 @@ public class ItemHelper(
     /// <returns>Array of tpls</returns>
     public List<MongoId> GetItemTplsOfBaseType(string desiredBaseType)
     {
-        return _databaseService
+        return databaseService
             .GetItems()
             .Values.Where(item => item.Parent == desiredBaseType)
             .Select(item => item.Id)
@@ -1756,7 +1752,7 @@ public class ItemHelper(
                 // only roll chance to not include mod if dict exists and has value for this mod type (e.g. front_plate)
                 if (modSpawnChanceDict.ContainsKey(slot.Name.ToLowerInvariant()))
                 {
-                    if (!_randomUtil.GetChance100(modSpawnChanceDict[slot.Name.ToLowerInvariant()]))
+                    if (!randomUtil.GetChance100(modSpawnChanceDict[slot.Name.ToLowerInvariant()]))
                     {
                         continue;
                     }
@@ -1766,9 +1762,9 @@ public class ItemHelper(
             var itemPool = slot.Props.Filters[0].Filter ?? [];
             if (itemPool.Count == 0)
             {
-                if (_logger.IsLogEnabled(LogLevel.Debug))
+                if (logger.IsLogEnabled(LogLevel.Debug))
                 {
-                    _logger.Debug(
+                    logger.Debug(
                         $"Unable to choose a mod for slot: {slot.Name} on item: {itemToAddTemplate.Id} {itemToAddTemplate.Name}, parents' 'Filter' array is empty, skipping"
                     );
                 }
@@ -1779,9 +1775,9 @@ public class ItemHelper(
             var chosenTpl = GetCompatibleTplFromArray(itemPool, incompatibleModTpls);
             if (chosenTpl is null)
             {
-                if (_logger.IsLogEnabled(LogLevel.Debug))
+                if (logger.IsLogEnabled(LogLevel.Debug))
                 {
-                    _logger.Debug(
+                    logger.Debug(
                         $"Unable to choose a mod for slot: {slot.Name} on item: {itemToAddTemplate.Id} {itemToAddTemplate.Name}, no compatible tpl found in pool of {itemPool.Count}, skipping"
                     );
                 }
@@ -1831,7 +1827,7 @@ public class ItemHelper(
         while (chosenTpl is null)
         {
             // Loop over choosing a random tpl until one is found or count variable reaches the same size as the possible tpls array
-            var tpl = _randomUtil.GetArrayValue(possibleTpls);
+            var tpl = randomUtil.GetArrayValue(possibleTpls);
             if (incompatibleModTpls.Contains(tpl))
             {
                 // Incompatible tpl was chosen, try again
@@ -1905,7 +1901,7 @@ public class ItemHelper(
         // Force item's details into first location of presetItems
         if (itemWithChildren[0].Template != rootItem.Template)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Reassigning root item from {itemWithChildren[0].Template} to {rootItem.Template}"
             );
         }
@@ -1931,9 +1927,9 @@ public class ItemHelper(
 
         if (warningMessageWhenMissing is not null)
         {
-            if (_logger.IsLogEnabled(LogLevel.Debug))
+            if (logger.IsLogEnabled(LogLevel.Debug))
             {
-                _logger.Debug(warningMessageWhenMissing);
+                logger.Debug(warningMessageWhenMissing);
             }
         }
 
@@ -1955,7 +1951,7 @@ public class ItemHelper(
     {
         return ammoItemTemplate.Properties?.StackMaxSize == 1
             ? 1
-            : _randomUtil.GetInt(
+            : randomUtil.GetInt(
                 ammoItemTemplate.Properties?.StackMinRandom ?? 1,
                 Math.Min(ammoItemTemplate.Properties?.StackMaxRandom ?? 1, maxLimit)
             );

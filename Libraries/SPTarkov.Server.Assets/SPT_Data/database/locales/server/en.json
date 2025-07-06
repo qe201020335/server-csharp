@@ -110,6 +110,7 @@
   "importing_database": "Importing database...",
   "importing_database_finish": "Database import finished",
   "importing_spt_configs": "Importing configs...",
+  "item-helper_no_items_for_barter": "No items found for barter Id: %s",
   "inraid-missing_standing_for_kill": "Standing for kill not found for {{victimSide}}:{{victimRole}}",
   "inraid-no_profile_found": "Unable to add player. No profile found with an Id of: %s",
   "inraid-taskconditioncounter_keys_differ": "TaskConditionCounters: {{key}} value is different post raid, original: ${oldValue} new: ${newValue}",
