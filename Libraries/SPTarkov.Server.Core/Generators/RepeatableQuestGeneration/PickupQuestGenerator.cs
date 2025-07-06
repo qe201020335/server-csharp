@@ -24,9 +24,9 @@ public class PickupQuestGenerator(
     HashUtil hashUtil
 ) : IRepeatableQuestGenerator
 {
-    // TODO: This isn't really implemented well at all, what even is this.
+    // TODO: This isn't really implemented, not in the current pool.
     public RepeatableQuest? Generate(
-        string sessionId,
+        MongoId sessionId,
         int pmcLevel,
         MongoId traderId,
         QuestTypePool questTypePool,

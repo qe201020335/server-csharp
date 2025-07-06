@@ -71,7 +71,7 @@ public class EliminationQuestGenerator(
     /// </param>
     /// <returns>Object of quest type format for "Elimination" (see assets/database/templates/repeatableQuests.json)</returns>
     public RepeatableQuest? Generate(
-        string sessionId,
+        MongoId sessionId,
         int pmcLevel,
         MongoId traderId,
         QuestTypePool questTypePool,

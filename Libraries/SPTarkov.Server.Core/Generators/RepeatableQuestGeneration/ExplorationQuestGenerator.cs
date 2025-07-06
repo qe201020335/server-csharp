@@ -44,7 +44,7 @@ public class ExplorationQuestGenerator(
     /// </param>
     /// <returns>object of quest type format for "Exploration" (see assets/database/templates/repeatableQuests.json)</returns>
     public RepeatableQuest? Generate(
-        string sessionId,
+        MongoId sessionId,
         int pmcLevel,
         MongoId traderId,
         QuestTypePool questTypePool,

@@ -44,7 +44,7 @@ namespace SPTarkov.Server.Core.Extensions
         /// </summary>
         /// <param name="weaponTemplate">Weapon to get default magazine for</param>
         /// <returns>Tpl of magazine</returns>
-        public static string? GetWeaponsDefaultMagazineTpl(this TemplateItem weaponTemplate)
+        public static MongoId? GetWeaponsDefaultMagazineTpl(this TemplateItem weaponTemplate)
         {
             return weaponTemplate.Properties.DefMagType;
         }

@@ -786,7 +786,7 @@ public record Props
     public bool? IsBoltCatch { get; set; }
 
     [JsonPropertyName("defMagType")]
-    public string? DefMagType { get; set; }
+    public MongoId? DefMagType { get; set; }
 
     [JsonPropertyName("defAmmo")]
     public string? DefAmmo { get; set; }

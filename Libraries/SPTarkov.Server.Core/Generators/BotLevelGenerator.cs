@@ -11,9 +11,9 @@ namespace SPTarkov.Server.Core.Generators;
 
 [Injectable]
 public class BotLevelGenerator(
-    ISptLogger<BotLevelGenerator> _logger,
-    RandomUtil _randomUtil,
-    DatabaseService _databaseService
+    ISptLogger<BotLevelGenerator> logger,
+    RandomUtil randomUtil,
+    DatabaseService databaseService
 )
 {
     /// <summary>
@@ -34,7 +34,7 @@ public class BotLevelGenerator(
             return new RandomisedBotLevelResult { Exp = 0, Level = 1 };
         }
 
-        var expTable = _databaseService.GetGlobals().Configuration.Exp.Level.ExperienceTable;
+        var expTable = databaseService.GetGlobals().Configuration.Exp.Level.ExperienceTable;
         var botLevelRange = GetRelativePmcBotLevelRange(
             botGenerationDetails,
             levelDetails,
@@ -54,7 +54,7 @@ public class BotLevelGenerator(
         // Sprinkle in some random exp within the level, unless we are at max level.
         if (level < expTable.Length - 1)
         {
-            exp += _randomUtil.GetInt(0, expTable[level].Experience.Value - 1);
+            exp += randomUtil.GetInt(0, expTable[level].Experience.Value - 1);
         }
 
         return new RandomisedBotLevelResult { Level = level, Exp = exp };
@@ -62,7 +62,7 @@ public class BotLevelGenerator(
 
     public double ChooseBotLevel(double min, double max, int shift, double number)
     {
-        return _randomUtil.GetBiasedRandomNumber(min, max, shift, number);
+        return randomUtil.GetBiasedRandomNumber(min, max, shift, number);
     }
 
     /// <summary>

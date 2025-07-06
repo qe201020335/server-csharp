@@ -51,7 +51,7 @@ public record BotConfig : BaseConfig
     ///     key: itemTpl: value: max item count>
     /// </summary>
     [JsonPropertyName("itemSpawnLimits")]
-    public required Dictionary<string, Dictionary<string, double>> ItemSpawnLimits { get; set; }
+    public required Dictionary<string, Dictionary<MongoId, double>> ItemSpawnLimits { get; set; }
 
     /// <summary>
     ///     Blacklist/whitelist items on a bot

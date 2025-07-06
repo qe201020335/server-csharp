@@ -237,7 +237,7 @@
         },
         "Pickup": {
             "_id": "67d03016c971a7faef94af07",
-            "traderId": "{traderId}",
+            "traderId": "54cb57776803fa99248b456e",
             "location": "any",
             "image": "/files/quest/icon/62bd61b1b818ff064405b827.jpg",
             "type": "PickUp",
