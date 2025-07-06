@@ -11,9 +11,9 @@ namespace SPTarkov.Server.Core.Helpers;
 
 [Injectable(InjectionType.Singleton)]
 public class HandbookHelper(
-    DatabaseService _databaseService,
-    ConfigServer _configServer,
-    ICloner _cloner
+    DatabaseService databaseService,
+    ConfigServer configServer,
+    ICloner cloner
 )
 {
     private LookupCollection? _handbookPriceCache;
@@ -22,7 +22,7 @@ public class HandbookHelper(
         get { return _handbookPriceCache ??= HydrateHandbookCache(); }
     }
 
-    protected readonly ItemConfig _itemConfig = _configServer.GetConfig<ItemConfig>();
+    protected readonly ItemConfig _itemConfig = configServer.GetConfig<ItemConfig>();
 
     /// <summary>
     ///     Create an in-memory cache of all items with associated handbook price in handbookPriceCache class
@@ -30,7 +30,7 @@ public class HandbookHelper(
     protected LookupCollection HydrateHandbookCache()
     {
         var result = new LookupCollection();
-        var handbook = _databaseService.GetHandbook();
+        var handbook = databaseService.GetHandbook();
         // Add handbook overrides found in items.json config into db
         foreach (var (key, priceOverride) in _itemConfig.HandbookPriceOverride)
         {
@@ -52,7 +52,7 @@ public class HandbookHelper(
             itemToUpdate.ParentId = priceOverride.ParentId;
         }
 
-        var handbookDbClone = _cloner.Clone(handbook);
+        var handbookDbClone = cloner.Clone(handbook);
         foreach (var handbookItem in handbookDbClone.Items)
         {
             result.Items.ById.TryAdd(handbookItem.Id, handbookItem.Price ?? 0);
@@ -70,12 +70,16 @@ public class HandbookHelper(
             result.Categories.ById.TryAdd(handbookCategory.Id, handbookCategory.ParentId);
             if (handbookCategory.ParentId is not null)
             {
-                if (!result.Categories.ByParent.TryGetValue(handbookCategory.ParentId, out _))
+                if (!result.Categories.ByParent.TryGetValue(handbookCategory.ParentId.Value, out _))
                 {
-                    result.Categories.ByParent.TryAdd(handbookCategory.ParentId, []);
+                    result.Categories.ByParent.TryAdd(handbookCategory.ParentId.Value, []);
                 }
 
-                result.Categories.ByParent.TryGetValue(handbookCategory.ParentId, out var itemIds);
+                result.Categories.ByParent.TryGetValue(
+                    handbookCategory.ParentId.Value,
+                    out var itemIds
+                );
+
                 itemIds.Add(handbookCategory.Id);
             }
         }
@@ -96,7 +100,7 @@ public class HandbookHelper(
             return itemPrice;
         }
 
-        var handbookItem = _databaseService
+        var handbookItem = databaseService
             .GetHandbook()
             .Items?.FirstOrDefault(item => item.Id == tpl);
         if (handbookItem is null)
@@ -142,7 +146,7 @@ public class HandbookHelper(
     /// </summary>
     /// <param name="parentId"></param>
     /// <returns>string array</returns>
-    public List<string> TemplatesWithParent(string parentId)
+    public List<MongoId> TemplatesWithParent(MongoId parentId)
     {
         HandbookPriceCache.Items.ByParent.TryGetValue(parentId, out var template);
 
@@ -154,7 +158,7 @@ public class HandbookHelper(
     /// </summary>
     /// <param name="category"></param>
     /// <returns>true if exists in cache</returns>
-    public bool IsCategory(string category)
+    public bool IsCategory(MongoId category)
     {
         return HandbookPriceCache.Categories.ById.TryGetValue(category, out _);
     }
@@ -176,7 +180,7 @@ public class HandbookHelper(
     /// <param name="nonRoubleCurrencyCount">Currency count to convert</param>
     /// <param name="currencyTypeFrom">What current currency is</param>
     /// <returns>Count in roubles</returns>
-    public double InRUB(double nonRoubleCurrencyCount, string currencyTypeFrom)
+    public double InRUB(double nonRoubleCurrencyCount, MongoId currencyTypeFrom)
     {
         return currencyTypeFrom == Money.ROUBLES
             ? nonRoubleCurrencyCount
@@ -189,7 +193,7 @@ public class HandbookHelper(
     /// <param name="roubleCurrencyCount">roubles to convert</param>
     /// <param name="currencyTypeTo">Currency to convert roubles into</param>
     /// <returns>currency count in desired type</returns>
-    public double FromRUB(double roubleCurrencyCount, string currencyTypeTo)
+    public double FromRUB(double roubleCurrencyCount, MongoId currencyTypeTo)
     {
         if (currencyTypeTo == Money.ROUBLES)
         {
@@ -201,9 +205,9 @@ public class HandbookHelper(
         return price > 0 ? Math.Max(1, Math.Round(roubleCurrencyCount / price)) : 0;
     }
 
-    public HandbookCategory GetCategoryById(string handbookId)
+    public HandbookCategory GetCategoryById(MongoId handbookId)
     {
-        return _databaseService
+        return databaseService
             .GetHandbook()
             .Categories.FirstOrDefault(category => category.Id == handbookId);
     }
@@ -213,23 +217,23 @@ public class HandbookHelper(
         public LookupItem()
         {
             ById = new Dictionary<MongoId, T>();
-            ByParent = new Dictionary<string, List<I>>();
+            ByParent = new Dictionary<MongoId, List<I>>();
         }
 
         public Dictionary<MongoId, T> ById { get; set; }
 
-        public Dictionary<string, List<I>> ByParent { get; set; }
+        public Dictionary<MongoId, List<I>> ByParent { get; set; }
     }
 
     protected record LookupCollection
     {
         public LookupCollection()
         {
-            Items = new LookupItem<double, string>();
+            Items = new LookupItem<double, MongoId>();
             Categories = new LookupItem<string, string>();
         }
 
-        public LookupItem<double, string> Items { get; set; }
+        public LookupItem<double, MongoId> Items { get; set; }
 
         public LookupItem<string, string> Categories { get; set; }
     }
