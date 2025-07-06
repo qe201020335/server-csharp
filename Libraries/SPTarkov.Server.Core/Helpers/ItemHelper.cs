@@ -902,11 +902,11 @@ public class ItemHelper(
         List<Item> matchingItems = [];
         foreach (var barterId in desiredBarterItemIds)
         {
-            var filterResult = itemsToSearch.Where(item =>
+            var filteredResult = itemsToSearch.Where(item =>
                 by == "tpl" ? item.Template.Equals(barterId) : item.Id.Equals(barterId)
             );
 
-            if (!filterResult.Any())
+            if (!filteredResult.Any())
             {
                 logger.Warning(
                     serverLocalisationService.GetText("item-helper_no_items_for_barter", barterId)
@@ -914,7 +914,7 @@ public class ItemHelper(
                 continue;
             }
 
-            matchingItems.AddRange(filterResult);
+            matchingItems.AddRange(filteredResult);
         }
 
         return matchingItems;
