@@ -40,7 +40,7 @@ public class CompletionQuestGenerator(
     /// </param>
     /// <returns>quest type format for "Completion" (see assets/database/templates/repeatableQuests.json)</returns>
     public RepeatableQuest? Generate(
-        string sessionId,
+        MongoId sessionId,
         int pmcLevel,
         MongoId traderId,
         QuestTypePool questTypePool,
@@ -289,7 +289,7 @@ public class CompletionQuestGenerator(
     /// <param name="itemSelection">Filtered item selection</param>
     /// <param name="roublesBudget">Budget in roubles</param>
     /// <returns>Chosen item template Ids</returns>
-    protected List<string> GenerateAvailableForFinish(
+    protected List<MongoId> GenerateAvailableForFinish(
         RepeatableQuest quest,
         Completion completionConfig,
         RepeatableQuestConfig repeatableConfig,
@@ -299,7 +299,7 @@ public class CompletionQuestGenerator(
     {
         // Store the indexes of items we are asking player to supply
         var distinctItemsToRetrieveCount = randomUtil.GetInt(1, completionConfig.UniqueItemCount);
-        var chosenRequirementItemsTpls = new List<string>();
+        var chosenRequirementItemsTpls = new List<MongoId>();
         var usedItemIndexes = new HashSet<int>();
 
         for (var i = 0; i < distinctItemsToRetrieveCount; i++)

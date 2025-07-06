@@ -6,9 +6,9 @@ using SPTarkov.Server.Core.Utils;
 namespace SPTarkov.Server.Core.Generators.WeaponGen.Implementations;
 
 [Injectable]
-public class BarrelInvetoryMagGen(
-    RandomUtil _randomUtil,
-    BotWeaponGeneratorHelper _botWeaponGeneratorHelper
+public class BarrelInventoryMagGen(
+    RandomUtil randomUtil,
+    BotWeaponGeneratorHelper botWeaponGeneratorHelper
 ) : InventoryMagGen, IInventoryMagGen
 {
     public int GetPriority()
@@ -28,17 +28,17 @@ public class BarrelInvetoryMagGen(
         if (inventoryMagGen.GetAmmoTemplate().Properties.StackMaxRandom == 1)
         // Doesn't stack
         {
-            randomisedAmmoStackSize = _randomUtil.GetInt(3, 6);
+            randomisedAmmoStackSize = randomUtil.GetInt(3, 6);
         }
         else
         {
-            randomisedAmmoStackSize = _randomUtil.GetInt(
+            randomisedAmmoStackSize = randomUtil.GetInt(
                 inventoryMagGen.GetAmmoTemplate().Properties.StackMinRandom.Value,
                 inventoryMagGen.GetAmmoTemplate().Properties.StackMaxRandom.Value
             );
         }
 
-        _botWeaponGeneratorHelper.AddAmmoIntoEquipmentSlots(
+        botWeaponGeneratorHelper.AddAmmoIntoEquipmentSlots(
             inventoryMagGen.GetAmmoTemplate().Id,
             (int)randomisedAmmoStackSize,
             inventoryMagGen.GetPmcInventory(),
