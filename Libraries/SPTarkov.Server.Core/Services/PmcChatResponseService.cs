@@ -312,10 +312,18 @@ public class PmcChatResponseService(
             MemberCategory.Default,
             MemberCategory.Default,
             MemberCategory.Default,
+            MemberCategory.Default,
+            MemberCategory.Default,
+            MemberCategory.Default,
+            MemberCategory.Default,
+            MemberCategory.Default,
             MemberCategory.Sherpa,
             MemberCategory.Developer,
+            MemberCategory.Unheard,
+            MemberCategory.Emissary,
         };
 
+        // Randomly choose a category for the victim
         var chosenCategory = randomUtil.GetArrayValue(categories);
 
         return new UserDialogInfo
@@ -327,7 +335,7 @@ public class PmcChatResponseService(
                 Nickname = pmcVictim.Name,
                 Level = pmcVictim.Level,
                 Side = pmcVictim.Side,
-                MemberCategory = chosenCategory,
+                MemberCategory = chosenCategory, // TODO: get this data from a stored PMC profile when generated pre-raid instead of randomly generating it
                 SelectedMemberCategory = chosenCategory,
             },
         };
