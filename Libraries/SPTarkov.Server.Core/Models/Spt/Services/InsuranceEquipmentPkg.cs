@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
@@ -10,7 +11,7 @@ public record InsuranceEquipmentPkg
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("sessionID")]
-    public string? SessionId { get; set; }
+    public MongoId SessionId { get; set; }
 
     [JsonPropertyName("pmcData")]
     public PmcData? PmcData { get; set; }

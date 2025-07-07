@@ -447,7 +447,7 @@ public class InventoryController(
     public void DeleteMapMarker(
         PmcData pmcData,
         InventoryDeleteMarkerRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -460,7 +460,7 @@ public class InventoryController(
     public void CreateMapMarker(
         PmcData pmcData,
         InventoryCreateMarkerRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -561,7 +561,7 @@ public class InventoryController(
                 logger.Error(
                     serverLocalisationService.GetText(
                         "inventory-examine_item_does_not_exist",
-                        request.Item
+                        request.ItemId
                     )
                 );
             }
@@ -570,16 +570,16 @@ public class InventoryController(
         if (itemId is null)
         // item template
         {
-            if (databaseService.GetItems().ContainsKey(request.Item))
+            if (databaseService.GetItems().ContainsKey(request.ItemId))
             {
-                itemId = request.Item;
+                itemId = request.ItemId;
             }
         }
 
         if (itemId is null)
         {
             // Player inventory
-            var target = pmcData.Inventory.Items.FirstOrDefault(item => item.Id == request.Item);
+            var target = pmcData.Inventory.Items.FirstOrDefault(item => item.Id == request.ItemId);
             if (target is not null)
             {
                 itemId = target.Template;
@@ -594,16 +594,16 @@ public class InventoryController(
     }
 
     /// <summary>
-    ///     Get the tplid of an item from the examine request object
+    ///     Get the tpl of an item from the examine request object
     /// </summary>
     /// <param name="request"></param>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>Item tpl</returns>
     protected MongoId? GetExaminedItemTpl(InventoryExamineRequestData request, MongoId sessionId)
     {
-        if (presetHelper.IsPreset(request.Item))
+        if (presetHelper.IsPreset(request.ItemId))
         {
-            return presetHelper.GetBaseItemTpl(request.Item);
+            return presetHelper.GetBaseItemTpl(request.ItemId);
         }
 
         if (request.FromOwner.Id == Traders.FENCE)
@@ -611,7 +611,7 @@ public class InventoryController(
         {
             return fenceService
                 .GetRawFenceAssorts()
-                .Items.FirstOrDefault(x => x.Id == request.Item)
+                .Items.FirstOrDefault(x => x.Id == request.ItemId)
                 ?.Template;
         }
 
@@ -621,14 +621,14 @@ public class InventoryController(
         {
             return databaseService
                 .GetTrader(request.FromOwner.Id)
-                .Assort.Items.FirstOrDefault(item => item.Id == request.Item)
+                .Assort.Items.FirstOrDefault(item => item.Id == request.ItemId)
                 ?.Template;
         }
 
         if (request.FromOwner.Type == "RagFair")
         {
             // Try to get tplId from items.json first
-            var item = itemHelper.GetItem(request.Item);
+            var item = itemHelper.GetItem(request.ItemId);
             if (item.Key)
             {
                 return item.Value.Id;
@@ -636,12 +636,12 @@ public class InventoryController(
 
             // Try alternate way of getting offer if first approach fails
             var offer =
-                ragfairOfferService.GetOfferByOfferId(request.Item)
+                ragfairOfferService.GetOfferByOfferId(request.ItemId)
                 ?? ragfairOfferService.GetOfferByOfferId(request.FromOwner.Id);
 
             // Try find examine item inside offer items array
             var matchingItem = offer.Items.FirstOrDefault(offerItem =>
-                offerItem.Id == request.Item
+                offerItem.Id == request.ItemId
             );
             if (matchingItem is not null)
             {
@@ -650,14 +650,14 @@ public class InventoryController(
 
             // Unable to find item in database or ragfair
             logger.Warning(
-                serverLocalisationService.GetText("inventory-unable_to_find_item", request.Item)
+                serverLocalisationService.GetText("inventory-unable_to_find_item", request.ItemId)
             );
         }
 
         // get hideout item
         if (request.FromOwner.Type == "HideoutProduction")
         {
-            return request.Item;
+            return request.ItemId;
         }
 
         if (request.FromOwner.Type == "Mail")
@@ -672,7 +672,7 @@ public class InventoryController(
             // check each message from that trader/person for messages that match the ID we got
             var message = dialogue.Value.Messages.FirstOrDefault(m => m.Id == request.FromOwner.Id);
             // get the Id given and get the Template ID from that
-            var item = message.Items.Data.FirstOrDefault(item => item.Id == request.Item);
+            var item = message.Items.Data.FirstOrDefault(item => item.Id == request.ItemId);
 
             if (item is not null)
             {
@@ -680,7 +680,7 @@ public class InventoryController(
             }
         }
 
-        logger.Error($"Unable to get item with id: {request.Item}");
+        logger.Error($"Unable to get item with id: {request.ItemId}");
 
         return null;
     }

@@ -1606,7 +1606,7 @@ public class HideoutController(
     }
 
     public ItemEventRouterResponse CircleOfCultistProductionStart(
-        string sessionId,
+        MongoId sessionId,
         PmcData pmcData,
         HideoutCircleOfCultistProductionStartRequestData request
     )

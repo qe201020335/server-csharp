@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Enums;
@@ -15,7 +16,7 @@ public record ItemEventRouterBase
     public List<Warning>? Warnings { get; set; }
 
     [JsonPropertyName("profileChanges")]
-    public Dictionary<string, ProfileChange> ProfileChanges { get; set; }
+    public Dictionary<MongoId, ProfileChange> ProfileChanges { get; set; }
 }
 
 public record Warning
