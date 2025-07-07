@@ -90,7 +90,7 @@ public record Info
     public MongoId? ProfileId { get; set; }
 
     [JsonPropertyName("scavId")]
-    public string? ScavengerId { get; set; }
+    public MongoId? ScavengerId { get; set; }
 
     [JsonPropertyName("aid")]
     public int? Aid { get; set; }

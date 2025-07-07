@@ -24,7 +24,7 @@ public class LauncherCallbacks(
     public ValueTask<string> Login(string url, LoginRequestData info, MongoId sessionID)
     {
         var output = launcherController.Login(info);
-        return new ValueTask<string>(output ?? "FAILED");
+        return new ValueTask<string>(output.IsEmpty() ? "FAILED" : output);
     }
 
     public async ValueTask<string> Register(string url, RegisterData info, MongoId sessionID)
@@ -54,7 +54,7 @@ public class LauncherCallbacks(
     public ValueTask<string> Wipe(string url, RegisterData info, MongoId sessionID)
     {
         var output = launcherController.Wipe(info);
-        return new ValueTask<string>(string.IsNullOrEmpty(output) ? "FAILED" : "OK");
+        return new ValueTask<string>(output.IsEmpty() ? "FAILED" : "OK");
     }
 
     public ValueTask<string> GetServerVersion()

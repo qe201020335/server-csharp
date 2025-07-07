@@ -1,5 +1,6 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Notifier;
 using SPTarkov.Server.Core.Models.Eft.Ws;
 using SPTarkov.Server.Core.Services;
@@ -8,8 +9,8 @@ namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class NotifierController(
-    HttpServerHelper _httpServerHelper,
-    NotifierHelper _notifierHelper,
+    HttpServerHelper httpServerHelper,
+    NotifierHelper notifierHelper,
     NotificationService notificationService
 )
 {
@@ -23,7 +24,7 @@ public class NotifierController(
     ///     If no notifications are available after the timeout, use a default message.
     /// </summary>
     /// <param name="sessionId">Session/Player id</param>
-    public Task<List<WsNotificationEvent>> NotifyAsync(string sessionId)
+    public Task<List<WsNotificationEvent>> NotifyAsync(MongoId sessionId)
     {
         return Task.Factory.StartNew(() =>
         {
@@ -46,7 +47,7 @@ public class NotifierController(
                 }
             }
 
-            return [_notifierHelper.GetDefaultNotification()];
+            return [notifierHelper.GetDefaultNotification()];
         });
     }
 
@@ -55,15 +56,15 @@ public class NotifierController(
     /// </summary>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>NotifierChannel</returns>
-    public NotifierChannel GetChannel(string sessionId)
+    public NotifierChannel GetChannel(MongoId sessionId)
     {
         return new NotifierChannel
         {
-            Server = _httpServerHelper.BuildUrl(),
+            Server = httpServerHelper.BuildUrl(),
             ChannelId = sessionId,
             Url = "",
             NotifierServer = GetServer(sessionId),
-            WebSocket = _notifierHelper.GetWebSocketServer(sessionId),
+            WebSocket = notifierHelper.GetWebSocketServer(sessionId),
         };
     }
 
@@ -72,8 +73,8 @@ public class NotifierController(
     /// </summary>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>Notification server url</returns>
-    public string GetServer(string sessionId)
+    public string GetServer(MongoId sessionId)
     {
-        return $"{_httpServerHelper.GetBackendUrl()}/notifierServer/get/{sessionId}";
+        return $"{httpServerHelper.GetBackendUrl()}/notifierServer/get/{sessionId.ToString()}";
     }
 }

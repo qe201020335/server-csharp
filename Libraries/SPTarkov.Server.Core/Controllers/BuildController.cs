@@ -14,13 +14,13 @@ namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class BuildController(
-    ISptLogger<BuildController> _logger,
-    DatabaseService _databaseService,
-    ProfileHelper _profileHelper,
-    ServerLocalisationService _serverLocalisationService,
-    ItemHelper _itemHelper,
-    SaveServer _saveServer,
-    ICloner _cloner
+    ISptLogger<BuildController> logger,
+    DatabaseService databaseService,
+    ProfileHelper profileHelper,
+    ServerLocalisationService serverLocalisationService,
+    ItemHelper itemHelper,
+    SaveServer saveServer,
+    ICloner cloner
 )
 {
     /// <summary>
@@ -32,7 +32,7 @@ public class BuildController(
     {
         const string secureContainerSlotId = "SecuredContainer";
 
-        var profile = _profileHelper.GetFullProfile(sessionID);
+        var profile = profileHelper.GetFullProfile(sessionID);
         if (profile?.UserBuildData is null)
         {
             profile.UserBuildData = new UserBuilds
@@ -44,8 +44,8 @@ public class BuildController(
         }
 
         // Ensure the secure container in the default presets match what the player has equipped
-        var defaultEquipmentPresetsClone = _cloner
-            .Clone(_databaseService.GetTemplates().DefaultEquipmentPresets)
+        var defaultEquipmentPresetsClone = cloner
+            .Clone(databaseService.GetTemplates().DefaultEquipmentPresets)
             .ToList();
 
         // Get players secure container
@@ -78,7 +78,7 @@ public class BuildController(
         }
 
         // Clone player build data from profile and append the above defaults onto end
-        var userBuildsClone = _cloner.Clone(profile?.UserBuildData);
+        var userBuildsClone = cloner.Clone(profile?.UserBuildData);
 
         userBuildsClone.EquipmentBuilds ??= [];
         userBuildsClone?.EquipmentBuilds?.AddRange(defaultEquipmentPresetsClone);
@@ -93,11 +93,11 @@ public class BuildController(
     /// <param name="body"></param>
     public void SaveWeaponBuild(MongoId sessionId, PresetBuildActionRequestData body)
     {
-        var pmcData = _profileHelper.GetPmcProfile(sessionId);
+        var pmcData = profileHelper.GetPmcProfile(sessionId);
 
         // Replace duplicate Id's. The first item is the base item.
         // The root ID and the base item ID need to match.
-        body.Items = _itemHelper.ReplaceIDs(body.Items, pmcData);
+        body.Items = itemHelper.ReplaceIDs(body.Items, pmcData);
         body.Root = body.Items.FirstOrDefault().Id;
 
         // Create new object ready to save into profile userbuilds.weaponBuilds
@@ -109,7 +109,7 @@ public class BuildController(
             Items = body.Items,
         };
 
-        var profile = _profileHelper.GetFullProfile(sessionId);
+        var profile = profileHelper.GetFullProfile(sessionId);
 
         var savedWeaponBuilds = profile.UserBuildData.WeaponBuilds;
         var existingBuild = savedWeaponBuilds.FirstOrDefault(x => x.Id == body.Id);
@@ -133,16 +133,16 @@ public class BuildController(
     /// <param name="request"></param>
     public void SaveEquipmentBuild(MongoId sessionID, PresetBuildActionRequestData request)
     {
-        var profile = _profileHelper.GetFullProfile(sessionID);
+        var profile = profileHelper.GetFullProfile(sessionID);
         var pmcData = profile.CharacterData.PmcData;
 
-        var existingSavedEquipmentBuilds = _saveServer
+        var existingSavedEquipmentBuilds = saveServer
             .GetProfile(sessionID)
             .UserBuildData.EquipmentBuilds;
 
         // Replace duplicate ID's. The first item is the base item.
         // Root ID and the base item ID need to match.
-        request.Items = _itemHelper.ReplaceIDs(request.Items, pmcData);
+        request.Items = itemHelper.ReplaceIDs(request.Items, pmcData);
 
         var newBuild = new EquipmentBuild
         {
@@ -199,7 +199,7 @@ public class BuildController(
             Items = request.Items,
         };
 
-        var profile = _profileHelper.GetFullProfile(sessionId);
+        var profile = profileHelper.GetFullProfile(sessionId);
 
         profile.UserBuildData.MagazineBuilds ??= [];
 
@@ -224,7 +224,7 @@ public class BuildController(
     /// <param name="sessionID">Session/Player id</param>
     protected void RemovePlayerBuild(string idToRemove, MongoId sessionID)
     {
-        var profile = _saveServer.GetProfile(sessionID);
+        var profile = saveServer.GetProfile(sessionID);
         var weaponBuilds = profile.UserBuildData.WeaponBuilds;
         var equipmentBuilds = profile.UserBuildData.EquipmentBuilds;
         var magazineBuilds = profile.UserBuildData.MagazineBuilds;
@@ -263,8 +263,8 @@ public class BuildController(
         }
 
         // Not found in weapons,equipment or magazines, not good
-        _logger.Error(
-            _serverLocalisationService.GetText("build-unable_to_delete_preset", idToRemove)
+        logger.Error(
+            serverLocalisationService.GetText("build-unable_to_delete_preset", idToRemove)
         );
     }
 }

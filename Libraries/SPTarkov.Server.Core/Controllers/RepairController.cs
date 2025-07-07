@@ -9,7 +9,7 @@ using SPTarkov.Server.Core.Services;
 namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
-public class RepairController(EventOutputHolder _eventOutputHolder, RepairService _repairService)
+public class RepairController(EventOutputHolder eventOutputHolder, RepairService repairService)
 {
     /// <summary>
     ///     Handle TraderRepair event
@@ -25,19 +25,19 @@ public class RepairController(EventOutputHolder _eventOutputHolder, RepairServic
         PmcData pmcData
     )
     {
-        var output = _eventOutputHolder.GetOutput(sessionID);
+        var output = eventOutputHolder.GetOutput(sessionID);
 
         // find the item to repair
         foreach (var repairItem in request.RepairItems)
         {
-            var repairDetails = _repairService.RepairItemByTrader(
+            var repairDetails = repairService.RepairItemByTrader(
                 sessionID,
                 pmcData,
                 repairItem,
                 request.TId
             );
 
-            _repairService.PayForRepair(
+            repairService.PayForRepair(
                 sessionID,
                 pmcData,
                 repairItem.Id,
@@ -55,7 +55,7 @@ public class RepairController(EventOutputHolder _eventOutputHolder, RepairServic
             output.ProfileChanges[sessionID].Items.ChangedItems.Add(repairDetails.RepairedItem);
 
             // Add skill points for repairing weapons
-            _repairService.AddRepairSkillPoints(sessionID, repairDetails, pmcData);
+            repairService.AddRepairSkillPoints(sessionID, repairDetails, pmcData);
         }
 
         return output;
@@ -75,10 +75,10 @@ public class RepairController(EventOutputHolder _eventOutputHolder, RepairServic
         PmcData pmcData
     )
     {
-        var output = _eventOutputHolder.GetOutput(sessionId);
+        var output = eventOutputHolder.GetOutput(sessionId);
 
         // repair item
-        var repairDetails = _repairService.RepairItemByKit(
+        var repairDetails = repairService.RepairItemByKit(
             sessionId,
             pmcData,
             body.RepairKitsInfo,
@@ -86,13 +86,13 @@ public class RepairController(EventOutputHolder _eventOutputHolder, RepairServic
             output
         );
 
-        _repairService.AddBuffToItem(repairDetails, pmcData);
+        repairService.AddBuffToItem(repairDetails, pmcData);
 
         // add repaired item to send to client
         output.ProfileChanges[sessionId].Items.ChangedItems.Add(repairDetails.RepairedItem);
 
         // Add skill points for repairing items
-        _repairService.AddRepairSkillPoints(sessionId, repairDetails, pmcData);
+        repairService.AddRepairSkillPoints(sessionId, repairDetails, pmcData);
 
         return output;
     }

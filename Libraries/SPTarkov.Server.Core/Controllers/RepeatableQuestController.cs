@@ -60,7 +60,7 @@ public class RepeatableQuestController(
     public ItemEventRouterResponse AcceptRepeatableQuest(
         PmcData pmcData,
         AcceptQuestRequestData acceptedQuest,
-        string sessionID
+        MongoId sessionID
     )
     {
         // Create and store quest status object inside player profile
@@ -114,7 +114,7 @@ public class RepeatableQuestController(
     public ItemEventRouterResponse ChangeRepeatableQuest(
         PmcData pmcData,
         RepeatableQuestChangeRequest changeRequest,
-        string sessionID
+        MongoId sessionID
     )
     {
         var output = eventOutputHolder.GetOutput(sessionID);
@@ -264,7 +264,7 @@ public class RepeatableQuestController(
     /// <param name="pmcData">Players PMC profile</param>
     /// <param name="questId">Quest id to return</param>
     /// <returns>RepeatableQuest</returns>
-    protected RepeatableQuest? GetRepeatableQuestFromProfile(PmcData pmcData, string questId)
+    protected RepeatableQuest? GetRepeatableQuestFromProfile(PmcData pmcData, MongoId questId)
     {
         foreach (var repeatableQuest in pmcData.RepeatableQuests)
         {
@@ -366,7 +366,7 @@ public class RepeatableQuestController(
     /// <param name="repeatableConfig">Config for the quest type to generate</param>
     /// <returns></returns>
     protected RepeatableQuest? AttemptToGenerateRepeatableQuest(
-        string sessionId,
+        MongoId sessionId,
         PmcData pmcData,
         QuestTypePool questTypePool,
         RepeatableQuestConfig repeatableConfig
@@ -420,7 +420,7 @@ public class RepeatableQuestController(
     /// <param name="repeatableConfig">Repeatable quest config</param>
     /// <returns>RepeatableQuest</returns>
     public RepeatableQuest? PickAndGenerateRandomRepeatableQuest(
-        string sessionId,
+        MongoId sessionId,
         int pmcLevel,
         Dictionary<string, TraderInfo> pmcTraderInfo,
         QuestTypePool questTypePool,
@@ -491,7 +491,7 @@ public class RepeatableQuestController(
     /// </summary>
     /// <param name="fullProfile">Profile to remove quest from</param>
     /// <param name="questToReplaceId">Quest id to remove from profile</param>
-    protected void RemoveQuestFromProfile(SptProfile fullProfile, string questToReplaceId)
+    protected void RemoveQuestFromProfile(SptProfile fullProfile, MongoId questToReplaceId)
     {
         // Find quest we're replacing in pmc profile quests array and remove it
         questHelper.FindAndRemoveQuestFromArrayIfExists(
@@ -515,7 +515,7 @@ public class RepeatableQuestController(
     /// <param name="questId">Id of quest to find</param>
     /// <param name="pmcData">Profile that contains quests to look through</param>
     /// <returns></returns>
-    protected GetRepeatableByIdResult? GetRepeatableById(string questId, PmcData pmcData)
+    protected GetRepeatableByIdResult? GetRepeatableById(MongoId questId, PmcData pmcData)
     {
         foreach (var repeatablesInProfile in pmcData.RepeatableQuests)
         {
@@ -560,7 +560,7 @@ public class RepeatableQuestController(
     /// </summary>
     /// <param name="sessionID">Session/Player id</param>
     /// <returns>Array of repeatable quests</returns>
-    public List<PmcDataRepeatableQuest> GetClientRepeatableQuests(string sessionID)
+    public List<PmcDataRepeatableQuest> GetClientRepeatableQuests(MongoId sessionID)
     {
         var returnData = new List<PmcDataRepeatableQuest>();
         var fullProfile = profileHelper.GetFullProfile(sessionID);

@@ -11,9 +11,9 @@ namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class LocationController(
-    ISptLogger<LocationController> _logger,
-    DatabaseService _databaseService,
-    AirdropService _airdropService
+    ISptLogger<LocationController> logger,
+    DatabaseService databaseService,
+    AirdropService airdropService
 )
 {
     /// <summary>
@@ -22,9 +22,9 @@ public class LocationController(
     /// </summary>
     /// <param name="sessionId">Players Id</param>
     /// <returns>LocationsGenerateAllResponse</returns>
-    public LocationsGenerateAllResponse GenerateAll(string sessionId)
+    public LocationsGenerateAllResponse GenerateAll(MongoId sessionId)
     {
-        var locationsFromDb = _databaseService.GetLocations();
+        var locationsFromDb = databaseService.GetLocations();
         var maps = locationsFromDb.GetDictionary();
 
         // keyed by _id location property
@@ -35,9 +35,9 @@ public class LocationController(
             var mapBase = location.Base;
             if (mapBase == null)
             {
-                if (_logger.IsLogEnabled(LogLevel.Debug))
+                if (logger.IsLogEnabled(LogLevel.Debug))
                 {
-                    _logger.Debug($"Map: {locationId} has no base json file, skipping generation");
+                    logger.Debug($"Map: {locationId} has no base json file, skipping generation");
                 }
 
                 continue;
@@ -65,9 +65,9 @@ public class LocationController(
     {
         if (request?.ContainerId is not null)
         {
-            return _airdropService.GenerateCustomAirdropLoot(request);
+            return airdropService.GenerateCustomAirdropLoot(request);
         }
 
-        return _airdropService.GenerateAirdropLoot();
+        return airdropService.GenerateAirdropLoot();
     }
 }

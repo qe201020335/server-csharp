@@ -110,7 +110,7 @@ public class LauncherV2Callbacks(
         );
     }
 
-    public ValueTask<string> Profile(MongoId? sessionId)
+    public ValueTask<string> Profile(MongoId sessionId)
     {
         return new ValueTask<string>(
             httpResponseUtil.NoBody(

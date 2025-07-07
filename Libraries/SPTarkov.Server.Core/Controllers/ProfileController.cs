@@ -2,6 +2,7 @@ using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Launcher;
@@ -16,11 +17,11 @@ namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class ProfileController(
-    ISptLogger<ProfileController> _logger,
-    SaveServer _saveServer,
-    CreateProfileService _createProfileService,
-    PlayerScavGenerator _playerScavGenerator,
-    ProfileHelper _profileHelper
+    ISptLogger<ProfileController> logger,
+    SaveServer saveServer,
+    CreateProfileService createProfileService,
+    PlayerScavGenerator playerScavGenerator,
+    ProfileHelper profileHelper
 )
 {
     /// <summary>
@@ -29,7 +30,7 @@ public class ProfileController(
     /// <returns></returns>
     public virtual List<MiniProfile> GetMiniProfiles()
     {
-        return _saveServer.GetProfiles().Select(kvp => GetMiniProfile(kvp.Key)).ToList();
+        return saveServer.GetProfiles().Select(kvp => GetMiniProfile(kvp.Key)).ToList();
     }
 
     /// <summary>
@@ -37,9 +38,9 @@ public class ProfileController(
     /// </summary>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns></returns>
-    public virtual MiniProfile GetMiniProfile(string sessionId)
+    public virtual MiniProfile GetMiniProfile(MongoId sessionId)
     {
-        var profile = _saveServer.GetProfile(sessionId);
+        var profile = saveServer.GetProfile(sessionId);
         if (profile?.CharacterData == null)
         {
             throw new Exception(
@@ -48,11 +49,11 @@ public class ProfileController(
         }
 
         var pmc = profile.CharacterData.PmcData;
-        var maxLvl = _profileHelper.GetMaxLevel();
+        var maxLvl = profileHelper.GetMaxLevel();
 
         // Player hasn't completed profile creation process, send defaults
         var currentLevel = pmc?.Info?.Level.GetValueOrDefault(1);
-        var xpToNextLevel = _profileHelper.GetExperience((currentLevel ?? 1) + 1);
+        var xpToNextLevel = profileHelper.GetExperience((currentLevel ?? 1) + 1);
         if (pmc?.Info?.Level == null)
         {
             return new MiniProfile
@@ -68,7 +69,7 @@ public class ProfileController(
                 MaxLevel = maxLvl,
                 Edition = profile.ProfileInfo?.Edition ?? "",
                 ProfileId = profile.ProfileInfo?.ProfileId ?? "",
-                SptData = _profileHelper.GetDefaultSptDataObject(),
+                SptData = profileHelper.GetDefaultSptDataObject(),
             };
         }
 
@@ -81,7 +82,7 @@ public class ProfileController(
             CurrentLevel = pmc.Info.Level,
             CurrentExperience = pmc.Info.Experience ?? 0,
             PreviousExperience =
-                currentLevel == 0 ? 0 : _profileHelper.GetExperience(currentLevel.Value),
+                currentLevel == 0 ? 0 : profileHelper.GetExperience(currentLevel.Value),
             NextLevel = xpToNextLevel,
             MaxLevel = maxLvl,
             Edition = profile.ProfileInfo?.Edition ?? "",
@@ -95,9 +96,9 @@ public class ProfileController(
     /// </summary>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>Return a full profile, scav and pmc profiles + meta data</returns>
-    public virtual List<PmcData> GetCompleteProfile(string sessionId)
+    public virtual List<PmcData> GetCompleteProfile(MongoId sessionId)
     {
-        return _profileHelper.GetCompleteProfile(sessionId);
+        return profileHelper.GetCompleteProfile(sessionId);
     }
 
     /// <summary>
@@ -108,10 +109,10 @@ public class ProfileController(
     /// <returns>Player id</returns>
     public virtual async ValueTask<string> CreateProfile(
         ProfileCreateRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
-        return await _createProfileService.CreateProfile(sessionId, request);
+        return await createProfileService.CreateProfile(sessionId, request);
     }
 
     /// <summary>
@@ -120,9 +121,9 @@ public class ProfileController(
     /// </summary>
     /// <param name="sessionId">Player id</param>
     /// <returns>PmcData</returns>
-    public virtual PmcData GeneratePlayerScav(string sessionId)
+    public virtual PmcData GeneratePlayerScav(MongoId sessionId)
     {
-        return _playerScavGenerator.Generate(sessionId);
+        return playerScavGenerator.Generate(sessionId);
     }
 
     /// <summary>
@@ -133,7 +134,7 @@ public class ProfileController(
     /// <returns></returns>
     public virtual NicknameValidationResult ValidateNickname(
         ValidateNicknameRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
         if (request.Nickname?.Length < 3)
@@ -141,7 +142,7 @@ public class ProfileController(
             return NicknameValidationResult.Short;
         }
 
-        if (_profileHelper.IsNicknameTaken(request, sessionId))
+        if (profileHelper.IsNicknameTaken(request, sessionId))
         {
             return NicknameValidationResult.Taken;
         }
@@ -158,7 +159,7 @@ public class ProfileController(
     /// <returns></returns>
     public virtual NicknameValidationResult ChangeNickname(
         ProfileChangeNicknameRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
         var output = ValidateNickname(
@@ -168,7 +169,7 @@ public class ProfileController(
 
         if (output == NicknameValidationResult.Valid)
         {
-            var pmcData = _profileHelper.GetPmcProfile(sessionId);
+            var pmcData = profileHelper.GetPmcProfile(sessionId);
 
             pmcData.Info.Nickname = request.Nickname;
             pmcData.Info.LowerNickname = request.Nickname.ToLowerInvariant();
@@ -182,9 +183,9 @@ public class ProfileController(
     /// </summary>
     /// <param name="request">Change voice request</param>
     /// <param name="sessionID">Player id</param>
-    public virtual void ChangeVoice(ProfileChangeVoiceRequestData request, string sessionID)
+    public virtual void ChangeVoice(ProfileChangeVoiceRequestData request, MongoId sessionID)
     {
-        var pmcData = _profileHelper.GetPmcProfile(sessionID);
+        var pmcData = profileHelper.GetPmcProfile(sessionID);
         pmcData.Info.Voice = request.Voice;
     }
 
@@ -196,13 +197,13 @@ public class ProfileController(
     /// <returns>Found profiles</returns>
     public virtual List<SearchFriendResponse> SearchProfiles(
         SearchProfilesRequestData request,
-        string sessionID
+        MongoId sessionID
     )
     {
         var result = new List<SearchFriendResponse>();
 
         // Find any profiles with a nickname containing the entered name
-        var allProfiles = _saveServer.GetProfiles().Values;
+        var allProfiles = saveServer.GetProfiles().Values;
 
         foreach (var profile in allProfiles)
         {
@@ -215,7 +216,7 @@ public class ProfileController(
                 continue;
             }
 
-            result.Add(_profileHelper.GetChatRoomMemberFromPmcProfile(pmcProfile));
+            result.Add(profileHelper.GetChatRoomMemberFromPmcProfile(pmcProfile));
         }
 
         return result;
@@ -226,9 +227,9 @@ public class ProfileController(
     /// </summary>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns></returns>
-    public virtual GetProfileStatusResponseData GetProfileStatus(string sessionId)
+    public virtual GetProfileStatusResponseData GetProfileStatus(MongoId sessionId)
     {
-        var account = _saveServer.GetProfile(sessionId).ProfileInfo;
+        var account = saveServer.GetProfile(sessionId).ProfileInfo;
         var response = new GetProfileStatusResponseData
         {
             MaxPveCountExceeded = false,
@@ -265,21 +266,21 @@ public class ProfileController(
     /// <param name="request">Get other profile request</param>
     /// <returns>GetOtherProfileResponse</returns>
     public virtual GetOtherProfileResponse GetOtherProfile(
-        string sessionId,
+        MongoId sessionId,
         GetOtherProfileRequest request
     )
     {
         // Find the profile by the account ID, fall back to the current player if we can't find the account
-        var profileToView = _profileHelper.GetFullProfileByAccountId(request.AccountId);
+        var profileToView = profileHelper.GetFullProfileByAccountId(request.AccountId);
         if (
             profileToView?.CharacterData?.PmcData is null
             || profileToView.CharacterData.ScavData is null
         )
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Unable to get profile: {request.AccountId} to show, falling back to own profile"
             );
-            profileToView = _profileHelper.GetFullProfile(sessionId);
+            profileToView = profileHelper.GetFullProfile(sessionId);
         }
 
         var profileToViewPmc = profileToView.CharacterData.PmcData;
@@ -335,7 +336,7 @@ public class ProfileController(
                 Items = profileToViewPmc.Inventory.Items,
             },
             Achievements = profileToViewPmc.Achievements,
-            FavoriteItems = _profileHelper.GetOtherProfileFavorites(profileToViewPmc),
+            FavoriteItems = profileHelper.GetOtherProfileFavorites(profileToViewPmc),
             PmcStats = new OtherProfileStats
             {
                 Eft = new OtherProfileSubStats
@@ -367,9 +368,9 @@ public class ProfileController(
     /// <param name="sessionId">Session/Player id</param>
     /// <param name="request">Get profile settings request</param>
     /// <returns></returns>
-    public virtual bool SetChosenProfileIcon(string sessionId, GetProfileSettingsRequest request)
+    public virtual bool SetChosenProfileIcon(MongoId sessionId, GetProfileSettingsRequest request)
     {
-        var profileToUpdate = _profileHelper.GetPmcProfile(sessionId);
+        var profileToUpdate = profileHelper.GetPmcProfile(sessionId);
         if (profileToUpdate == null)
         {
             return false;
