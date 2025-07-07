@@ -18,11 +18,7 @@ public record RagfairOffer
     public List<SellResult>? SellResults { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id
-    {
-        get { return _id; }
-        set { _id = string.Intern(value); }
-    }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("items")]
     public List<Item>? Items { get; set; }
@@ -31,11 +27,7 @@ public record RagfairOffer
     public List<OfferRequirement>? Requirements { get; set; }
 
     [JsonPropertyName("root")]
-    public string? Root
-    {
-        get { return _root; }
-        set { _root = string.Intern(value); }
-    }
+    public MongoId Root { get; set; }
 
     [JsonPropertyName("intId")]
     public int? InternalId { get; set; }
@@ -128,11 +120,7 @@ public record RagfairOfferUser
     private string? _id;
 
     [JsonPropertyName("id")]
-    public string? Id
-    {
-        get { return _id; }
-        set { _id = string.Intern(value); }
-    }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("nickname")]
     public string? Nickname { get; set; }

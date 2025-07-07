@@ -60,7 +60,7 @@ public class RagfairOfferGenerator(
     /// <param name="sellInOnePiece">Flags sellInOnePiece to be true</param>
     /// <returns>RagfairOffer</returns>
     public RagfairOffer CreateAndAddFleaOffer(
-        string userId,
+        MongoId userId,
         long time,
         List<Item> items,
         List<BarterScheme> barterScheme,
@@ -95,7 +95,7 @@ public class RagfairOfferGenerator(
     /// <param name="isPackOffer">Is offer being created flagged as a pack</param>
     /// <returns>RagfairOffer</returns>
     protected RagfairOffer CreateOffer(
-        string userId,
+        MongoId userId,
         long time,
         List<Item> items,
         List<BarterScheme> barterScheme,
@@ -177,7 +177,7 @@ public class RagfairOfferGenerator(
     /// <param name="userId">User creating the offer</param>
     /// <param name="isTrader">Is the user creating the offer a trader</param>
     /// <returns>RagfairOfferUser</returns>
-    protected RagfairOfferUser CreateUserDataForFleaOffer(string userId, bool isTrader)
+    protected RagfairOfferUser CreateUserDataForFleaOffer(MongoId userId, bool isTrader)
     {
         // Trader offer
         if (isTrader)
@@ -191,7 +191,7 @@ public class RagfairOfferGenerator(
             var playerProfile = profileHelper.GetPmcProfile(userId);
             return new RagfairOfferUser
             {
-                Id = playerProfile.Id,
+                Id = playerProfile.Id.Value,
                 MemberType = playerProfile.Info.MemberCategory,
                 SelectedMemberCategory = playerProfile.Info.SelectedMemberCategory,
                 Nickname = playerProfile.Info.Nickname,

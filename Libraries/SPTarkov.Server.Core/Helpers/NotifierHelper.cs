@@ -63,8 +63,8 @@ public class NotifierHelper(HttpServerHelper httpServerHelper)
         };
     }
 
-    public string GetWebSocketServer(string sessionId)
+    public string GetWebSocketServer(MongoId sessionId)
     {
-        return $"{httpServerHelper.GetWebsocketUrl()}/notifierServer/getwebsocket/{sessionId}";
+        return $"{httpServerHelper.GetWebsocketUrl()}/notifierServer/getwebsocket/{sessionId.ToString()}";
     }
 }

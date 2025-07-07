@@ -179,7 +179,7 @@ public class InventoryController(
     /// <param name="pmcData">Players PMC profile</param>
     /// <param name="request"></param>
     /// <param name="sessionId">Session/Player id</param>
-    public void SetFavoriteItem(PmcData pmcData, SetFavoriteItems request, string sessionId)
+    public void SetFavoriteItem(PmcData pmcData, SetFavoriteItems request, MongoId sessionId)
     {
         // The client sends the full list of favorite items, so clear the current favorites
         pmcData.Inventory.FavoriteItems = [];

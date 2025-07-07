@@ -47,7 +47,8 @@ public class PaymentService(
     {
         // May need to convert to trader currency
         var trader = traderHelper.GetTrader(request.TransactionId, sessionID);
-        var payToTrader = traderHelper.TraderExists(request.TransactionId);
+        var payToTrader =
+            request.TransactionId != "ragfair" && traderHelper.TraderExists(request.TransactionId);
 
         // Track the amounts of each type of currency involved in the trade.
         var currencyAmounts = new Dictionary<string, double?>();

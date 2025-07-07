@@ -1117,8 +1117,8 @@ public class LocationLifecycleService(
     /// <param name="tradersServerProfile"> Server </param>
     /// <param name="tradersClientProfile"> Client </param>
     protected void ApplyTraderStandingAdjustments(
-        Dictionary<string, TraderInfo>? tradersServerProfile,
-        Dictionary<string, TraderInfo>? tradersClientProfile
+        Dictionary<MongoId, TraderInfo>? tradersServerProfile,
+        Dictionary<MongoId, TraderInfo>? tradersClientProfile
     )
     {
         foreach (var traderId in tradersClientProfile)

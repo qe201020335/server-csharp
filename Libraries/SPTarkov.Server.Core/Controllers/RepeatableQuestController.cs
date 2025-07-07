@@ -422,7 +422,7 @@ public class RepeatableQuestController(
     public RepeatableQuest? PickAndGenerateRandomRepeatableQuest(
         MongoId sessionId,
         int pmcLevel,
-        Dictionary<string, TraderInfo> pmcTraderInfo,
+        Dictionary<MongoId, TraderInfo> pmcTraderInfo,
         QuestTypePool questTypePool,
         RepeatableQuestConfig repeatableConfig
     )

@@ -69,7 +69,7 @@ public record BotBase
     public List<QuestStatus>? Quests { get; set; }
 
     [JsonPropertyName("TradersInfo")]
-    public Dictionary<string, TraderInfo>? TradersInfo { get; set; }
+    public Dictionary<MongoId, TraderInfo> TradersInfo { get; set; }
 
     [JsonPropertyName("UnlockedInfo")]
     public UnlockedInfo? UnlockedInfo { get; set; }

@@ -80,7 +80,7 @@ public record ProfileChange
     public BotBaseHealth Health { get; set; }
 
     [JsonPropertyName("traderRelations")]
-    public Dictionary<string, TraderData>? TraderRelations { get; set; }
+    public Dictionary<MongoId, TraderData>? TraderRelations { get; set; }
 
     [JsonPropertyName("moneyTransferLimitData")]
     public MoneyTransferLimits? MoneyTransferLimitData { get; set; }

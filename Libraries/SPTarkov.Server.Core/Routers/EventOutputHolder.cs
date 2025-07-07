@@ -52,7 +52,7 @@ public class EventOutputHolder(
             sessionId,
             new ItemEventRouterResponse
             {
-                ProfileChanges = new Dictionary<string, ProfileChange>
+                ProfileChanges = new Dictionary<MongoId, ProfileChange>
                 {
                     {
                         sessionId,
@@ -79,7 +79,7 @@ public class EventOutputHolder(
                                 Points = 0,
                             },
                             Health = cloner.Clone(pmcProfile.Health),
-                            TraderRelations = new Dictionary<string, TraderData>(),
+                            TraderRelations = new Dictionary<MongoId, TraderData>(),
                             QuestsStatus = [],
                         }
                     },
@@ -255,8 +255,8 @@ public class EventOutputHolder(
     /// </summary>
     /// <param name="traderData"> Server data for traders </param>
     /// <returns> Dict of trader id + TraderData </returns>
-    protected Dictionary<string, TraderData> ConstructTraderRelations(
-        Dictionary<string, TraderInfo> traderData
+    protected Dictionary<MongoId, TraderData> ConstructTraderRelations(
+        Dictionary<MongoId, TraderInfo> traderData
     )
     {
         return traderData.ToDictionary(

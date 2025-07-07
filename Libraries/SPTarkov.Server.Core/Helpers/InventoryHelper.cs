@@ -39,6 +39,7 @@ public class InventoryHelper(
         BaseClasses.FUNCTIONAL_MOD,
         BaseClasses.MOD,
     ];
+
     protected readonly InventoryConfig _inventoryConfig = configServer.GetConfig<InventoryConfig>();
 
     /// <summary>
@@ -213,7 +214,7 @@ public class InventoryHelper(
     /// <param name="sessionId">Player id</param>
     /// <param name="itemsWithChildren">Array of items with children to try and fit</param>
     /// <returns>True all items fit</returns>
-    public bool CanPlaceItemsInInventory(string sessionId, List<List<Item>> itemsWithChildren)
+    public bool CanPlaceItemsInInventory(MongoId sessionId, List<List<Item>> itemsWithChildren)
     {
         var pmcData = profileHelper.GetPmcProfile(sessionId);
 

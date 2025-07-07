@@ -989,7 +989,7 @@ public class RagfairController(
     /// <param name="sellInOnePiece">Is this a pack offer</param>
     /// <returns>RagfairOffer</returns>
     protected RagfairOffer CreatePlayerOffer(
-        string sessionId,
+        MongoId sessionId,
         List<Requirement> requirements,
         List<Item> items,
         bool sellInOnePiece
@@ -1272,7 +1272,7 @@ public class RagfairController(
         return ragfairPriceService.GetAllStaticPrices();
     }
 
-    public RagfairOffer? GetOfferByInternalId(string sessionId, GetRagfairOfferByIdRequest request)
+    public RagfairOffer? GetOfferByInternalId(MongoId sessionId, GetRagfairOfferByIdRequest request)
     {
         var offers = ragfairOfferService.GetOffers();
         var offerToReturn = offers.FirstOrDefault(offer => offer.InternalId == request.Id);

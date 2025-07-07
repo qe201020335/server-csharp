@@ -25,7 +25,7 @@ public class MatchBotDetailsCacheService(ISptLogger<MatchBotDetailsCacheService>
     /// <param name="botToCache"> Bot details to cache </param>
     public void CacheBot(BotBase botToCache)
     {
-        if (botToCache is null || botToCache.Id is null)
+        if (botToCache?.Id is null)
         {
             return;
         }

@@ -1,4 +1,5 @@
-﻿using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+﻿using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
 
 namespace SPTarkov.Server.Core.Extensions
@@ -13,10 +14,11 @@ namespace SPTarkov.Server.Core.Extensions
         /// <param name="item">Item that was adjusted</param>
         public static void AddItemStackSizeChangeIntoEventResponse(
             this ItemEventRouterResponse output,
-            string sessionId,
+            MongoId sessionId,
             Item item
         )
         {
+            // TODO: replace with something safer like TryGet
             output
                 .ProfileChanges[sessionId]
                 .Items.ChangedItems.Add(

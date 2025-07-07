@@ -1755,7 +1755,7 @@ public class FenceService(
     /// </summary>
     /// <param name="assortId"> Assort ID to adjust </param>
     /// <param name="buyCount">`Count of items bought </param>
-    public void AmendOrRemoveFenceOffer(string assortId, int buyCount)
+    public void AmendOrRemoveFenceOffer(MongoId assortId, int buyCount)
     {
         var isNormalAssort = true;
         var fenceAssortItem = fenceAssort.Items.FirstOrDefault(item => item.Id == assortId);
@@ -1786,7 +1786,7 @@ public class FenceService(
         fenceAssortItem.Upd.StackObjectsCount -= buyCount;
     }
 
-    protected void DeleteOffer(string assortId, List<Item> assorts)
+    protected void DeleteOffer(MongoId assortId, List<Item> assorts)
     {
         // Assort could have child items, remove those too
         var itemWithChildrenToRemove = assorts.FindAndReturnChildrenAsItems(assortId);

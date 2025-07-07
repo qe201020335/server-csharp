@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Common;
@@ -29,7 +30,7 @@ public class TraderHelper(
     ConfigServer configServer
 )
 {
-    protected readonly List<string> _gameVersions =
+    protected readonly FrozenSet<string> _gameVersionsWithHigherBuyRestrictions =
     [
         GameEditions.EDGE_OF_DARKNESS,
         GameEditions.UNHEARD,
@@ -37,6 +38,11 @@ public class TraderHelper(
     protected readonly Dictionary<string, double> _highestTraderPriceItems = new();
     protected readonly TraderConfig _traderConfig = configServer.GetConfig<TraderConfig>();
 
+    /// <summary>
+    /// Get a traders base data from its nickname, case insensitive
+    /// </summary>
+    /// <param name="traderName">Nickname of trader, e.g. prapor</param>
+    /// <returns>TraderBase</returns>
     public TraderBase? GetTraderByNickName(string traderName)
     {
         return databaseService
@@ -244,7 +250,7 @@ public class TraderHelper(
     {
         if (rawProfileTemplate.InitialStanding.TryGetValue(traderId, out var standing))
         {
-            // Edge case for Lightkeeper, 0 standing means seeing `Make Amends - Buyout` quest
+            // Edge case for Lightkeeper trader, 0 standing means seeing `Make Amends - Buyout` quest
             if (traderId == Traders.LIGHTHOUSEKEEPER && standing == 0)
             {
                 return 0.01;
@@ -515,7 +521,7 @@ public class TraderHelper(
         string gameVersion
     )
     {
-        if (_gameVersions.Contains(gameVersion))
+        if (_gameVersionsWithHigherBuyRestrictions.Contains(gameVersion))
         {
             return Math.Floor(buyRestrictionMax * 1.2);
         }
