@@ -14,6 +14,7 @@ using SPTarkov.Server.Core.Routers;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
+using SPTarkov.Server.Core.Utils.Json;
 
 namespace SPTarkov.Server.Core.Services;
 
@@ -71,6 +72,8 @@ public class CreateProfileService(
         pmcData.CarExtractCounts = new Dictionary<string, int>();
         pmcData.CoopExtractCounts = new Dictionary<string, int>();
         pmcData.Achievements = new Dictionary<MongoId, long>();
+
+        pmcData.WishList = new DictionaryOrList<MongoId, int>(new Dictionary<MongoId, int>(), []);
 
         // Process handling if the account has been forced to wipe
         // BSG keeps both the achievements, prestige level and the total in-game time in a wipe

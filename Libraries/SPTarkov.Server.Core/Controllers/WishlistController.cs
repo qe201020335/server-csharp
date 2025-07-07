@@ -1,8 +1,10 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
 using SPTarkov.Server.Core.Models.Eft.Wishlist;
 using SPTarkov.Server.Core.Routers;
+using SPTarkov.Server.Core.Utils.Json;
 
 namespace SPTarkov.Server.Core.Controllers;
 
@@ -19,9 +21,10 @@ public class WishlistController(EventOutputHolder _eventOutputHolder)
     public ItemEventRouterResponse AddToWishList(
         PmcData pmcData,
         AddToWishlistRequest request,
-        string sessionId
+        MongoId sessionId
     )
     {
+        pmcData.WishList ??= new DictionaryOrList<MongoId, int>(new Dictionary<MongoId, int>(), []);
         foreach (var item in request.Items)
         {
             pmcData.WishList.Dictionary.Add(item.Key, item.Value);
