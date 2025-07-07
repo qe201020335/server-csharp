@@ -123,7 +123,7 @@ public class RepeatableQuestRewardGenerator(
 
         if (traderWhitelistDetails is null)
         {
-            logger.Error($"Cound not find trader id: {traderId} in whitelist");
+            logger.Error($"Unable to find trader id: {traderId.ToString()} in whitelist");
             return null;
         }
 
@@ -164,7 +164,7 @@ public class RepeatableQuestRewardGenerator(
         if (logger.IsLogEnabled(LogLevel.Debug))
         {
             logger.Debug(
-                $"Generating: {repeatableConfig.Name} quest for: {traderId} with budget: {itemRewardBudget} totalling: {rewardParams.RewardNumItems} items"
+                $"Generating: {repeatableConfig.Name} quest for: {traderId.ToString()} with budget: {itemRewardBudget} totalling: {rewardParams.RewardNumItems} items"
             );
         }
 
@@ -207,7 +207,7 @@ public class RepeatableQuestRewardGenerator(
             if (logger.IsLogEnabled(LogLevel.Debug))
             {
                 logger.Debug(
-                    $"Adding: {rewardParams.RewardReputation} {traderId} trader reputation reward"
+                    $"Adding: {rewardParams.RewardReputation} {traderId.ToString()} trader reputation reward"
                 );
             }
         }
@@ -542,7 +542,7 @@ public class RepeatableQuestRewardGenerator(
     protected List<TemplateItem> ChooseRewardItemsWithinBudget(
         RepeatableQuestConfig repeatableConfig,
         double? roublesBudget,
-        string traderId
+        MongoId traderId
     )
     {
         // First filter for type and baseclass to avoid lookup in handbook for non-available items
@@ -770,7 +770,7 @@ public class RepeatableQuestRewardGenerator(
     /// <returns> List of rewardable items [[_tpl, itemTemplate],...] </returns>
     public List<TemplateItem> GetRewardableItems(
         RepeatableQuestConfig repeatableQuestConfig,
-        string traderId
+        MongoId traderId
     )
     {
         // Get an array of seasonal items that should not be shown right now as seasonal event is not active

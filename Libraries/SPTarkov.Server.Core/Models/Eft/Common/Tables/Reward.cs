@@ -25,7 +25,7 @@ public record Reward
     public int? Index { get; set; }
 
     [JsonPropertyName("target")]
-    public string? Target { get; set; }
+    public string? Target { get; set; } // Can be more than just mongoId
 
     [JsonPropertyName("items")]
     public List<Item>? Items { get; set; }

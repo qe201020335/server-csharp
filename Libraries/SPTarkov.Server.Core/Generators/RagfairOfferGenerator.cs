@@ -647,14 +647,14 @@ public class RagfairOfferGenerator(
     /// <summary>
     ///     Generate trader offers on flea using the traders assort data
     /// </summary>
-    /// <param name="traderID"> Trader to generate offers for </param>
-    public void GenerateFleaOffersForTrader(string traderID)
+    /// <param name="traderId"> Trader to generate offers for </param>
+    public void GenerateFleaOffersForTrader(MongoId traderId)
     {
         // Purge
-        ragfairOfferService.RemoveAllOffersByTrader(traderID);
+        ragfairOfferService.RemoveAllOffersByTrader(traderId);
 
         var time = timeUtil.GetTimeStamp();
-        var trader = databaseService.GetTrader(traderID);
+        var trader = databaseService.GetTrader(traderId);
         var assortsClone = cloner.Clone(trader.Assort);
 
         // Trader assorts / assort items are missing
@@ -729,7 +729,7 @@ public class RagfairOfferGenerator(
             var loyalLevel = assortsClone.LoyalLevelItems[item.Id];
 
             CreateAndAddFleaOffer(
-                traderID,
+                traderId,
                 time,
                 items,
                 barterSchemeItems,

@@ -410,7 +410,7 @@ public record PurchaseDetails
 {
     public List<PurchaseItems> Items { get; set; }
 
-    public string TraderId { get; set; }
+    public MongoId TraderId { get; set; }
 }
 
 public record PurchaseItems
