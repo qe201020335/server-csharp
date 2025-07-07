@@ -149,10 +149,10 @@ public record BotConfig : BaseConfig
 
 public record WeeklyBossSettings
 {
-     [JsonExtensionData]
+    [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-   /// <summary>
+    /// <summary>
     /// Should a weekly boss be picked to 100% spawn
     /// </summary>
     [JsonPropertyName("enabled")]

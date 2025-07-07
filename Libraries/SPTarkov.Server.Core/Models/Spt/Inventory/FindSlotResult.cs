@@ -4,10 +4,10 @@ namespace SPTarkov.Server.Core.Models.Spt.Inventory;
 
 public class FindSlotResult
 {
-     [JsonExtensionData]
+    [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-   public FindSlotResult(bool success)
+    public FindSlotResult(bool success)
     {
         Success = success;
     }

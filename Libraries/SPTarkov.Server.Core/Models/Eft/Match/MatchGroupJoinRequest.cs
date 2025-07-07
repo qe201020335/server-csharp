@@ -26,10 +26,10 @@ public record MatchGroupJoinRequest : IRequestData
 
 public record JoinServer
 {
-     [JsonExtensionData]
+    [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-   [JsonPropertyName("ping")]
+    [JsonPropertyName("ping")]
     public int? Ping { get; set; }
 
     [JsonPropertyName("ip")]
