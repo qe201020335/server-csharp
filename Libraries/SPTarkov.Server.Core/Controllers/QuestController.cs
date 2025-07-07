@@ -1,6 +1,7 @@
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
@@ -16,15 +17,15 @@ namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class QuestController(
-    ISptLogger<QuestController> _logger,
-    TimeUtil _timeUtil,
-    HttpResponseUtil _httpResponseUtil,
-    EventOutputHolder _eventOutputHolder,
-    MailSendService _mailSendService,
-    QuestHelper _questHelper,
-    QuestRewardHelper _questRewardHelper,
-    ServerLocalisationService _serverLocalisationService,
-    ICloner _cloner
+    ISptLogger<QuestController> logger,
+    TimeUtil timeUtil,
+    HttpResponseUtil httpResponseUtil,
+    EventOutputHolder eventOutputHolder,
+    MailSendService mailSendService,
+    QuestHelper questHelper,
+    QuestRewardHelper questRewardHelper,
+    ServerLocalisationService serverLocalisationService,
+    ICloner cloner
 )
 {
     /// <summary>
@@ -34,9 +35,9 @@ public class QuestController(
     /// </summary>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>Collection of Quest</returns>
-    public List<Quest> GetClientQuests(string sessionId)
+    public List<Quest> GetClientQuests(MongoId sessionId)
     {
-        return _questHelper.GetClientQuests(sessionId);
+        return questHelper.GetClientQuests(sessionId);
     }
 
     /// <summary>
@@ -52,10 +53,10 @@ public class QuestController(
     public ItemEventRouterResponse AcceptQuest(
         PmcData pmcData,
         AcceptQuestRequestData acceptedQuest,
-        string sessionID
+        MongoId sessionID
     )
     {
-        var acceptQuestResponse = _eventOutputHolder.GetOutput(sessionID);
+        var acceptQuestResponse = eventOutputHolder.GetOutput(sessionID);
 
         // Does quest exist in profile
         // Restarting a failed quest can mean quest exists in profile
@@ -65,7 +66,7 @@ public class QuestController(
         if (existingQuestStatus is not null)
         {
             // Update existing
-            _questHelper.ResetQuestState(pmcData, QuestStatusEnum.Started, acceptedQuest.QuestId);
+            questHelper.ResetQuestState(pmcData, QuestStatusEnum.Started, acceptedQuest.QuestId);
 
             // Need to send client an empty list of completedConditions (Unsure if this does anything)
             acceptQuestResponse.ProfileChanges[sessionID].QuestsStatus.Add(existingQuestStatus);
@@ -73,7 +74,7 @@ public class QuestController(
         else
         {
             // Add new quest to server profile
-            var newQuest = _questHelper.GetQuestReadyForProfile(
+            var newQuest = questHelper.GetQuestReadyForProfile(
                 pmcData,
                 QuestStatusEnum.Started,
                 acceptedQuest
@@ -83,7 +84,7 @@ public class QuestController(
 
         // Create a dialog message for starting the quest.
         // Note that for starting quests, the correct locale field is "description", not "startedMessageText".
-        var questFromDb = _questHelper.GetQuestFromDb(acceptedQuest.QuestId, pmcData);
+        var questFromDb = questHelper.GetQuestFromDb(acceptedQuest.QuestId, pmcData);
 
         if (questFromDb.Conditions?.AvailableForFinish is not null)
         {
@@ -95,13 +96,13 @@ public class QuestController(
         }
 
         // Get messageId of text to send to player as text message in game
-        var messageId = _questHelper.GetMessageIdForQuestStart(
+        var messageId = questHelper.GetMessageIdForQuestStart(
             questFromDb.StartedMessageText,
             questFromDb.Description
         );
 
         // Apply non-item rewards to profile + return item rewards
-        var startedQuestRewardItems = _questRewardHelper.ApplyQuestReward(
+        var startedQuestRewardItems = questRewardHelper.ApplyQuestReward(
             pmcData,
             acceptedQuest.QuestId,
             QuestStatusEnum.Started,
@@ -110,19 +111,19 @@ public class QuestController(
         );
 
         // Send started text + any starting reward items found above to player
-        _mailSendService.SendLocalisedNpcMessageToPlayer(
+        mailSendService.SendLocalisedNpcMessageToPlayer(
             sessionID,
             questFromDb.TraderId,
             MessageType.QuestStart,
             messageId,
             startedQuestRewardItems.ToList(),
-            _timeUtil.GetHoursAsSeconds(
-                (int)_questHelper.GetMailItemRedeemTimeHoursForProfile(pmcData)
+            timeUtil.GetHoursAsSeconds(
+                (int)questHelper.GetMailItemRedeemTimeHoursForProfile(pmcData)
             )
         );
 
         // Having accepted new quest, look for newly unlocked quests and inform client of them
-        var newlyAccessibleQuests = _questHelper.GetNewlyAccessibleQuestsWhenStartingQuest(
+        var newlyAccessibleQuests = questHelper.GetNewlyAccessibleQuestsWhenStartingQuest(
             acceptedQuest.QuestId,
             sessionID
         );
@@ -143,14 +144,14 @@ public class QuestController(
     protected void AddTaskConditionCountersToProfile(
         List<QuestCondition> questConditions,
         PmcData pmcData,
-        string questId
+        MongoId questId
     )
     {
         foreach (var condition in questConditions)
         {
             if (pmcData.TaskConditionCounters.TryGetValue(condition.Id, out _))
             {
-                _logger.Warning(
+                logger.Warning(
                     $"Unable to add new task condition counter: {condition.ConditionType} for quest: {questId} to profile: {pmcData.SessionId} as it already exists"
                 );
             }
@@ -183,10 +184,10 @@ public class QuestController(
     public ItemEventRouterResponse CompleteQuest(
         PmcData pmcData,
         CompleteQuestRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
-        return _questHelper.CompleteQuest(pmcData, request, sessionId);
+        return questHelper.CompleteQuest(pmcData, request, sessionId);
     }
 
     /// <summary>
@@ -200,12 +201,12 @@ public class QuestController(
     public ItemEventRouterResponse HandoverQuest(
         PmcData pmcData,
         HandoverQuestRequestData request,
-        string sessionID
+        MongoId sessionID
     )
     {
-        var quest = _questHelper.GetQuestFromDb(request.QuestId, pmcData);
+        var quest = questHelper.GetQuestFromDb(request.QuestId, pmcData);
         List<string> handoverQuestTypes = ["HandoverItem", "WeaponAssembly"];
-        var output = _eventOutputHolder.GetOutput(sessionID);
+        var output = eventOutputHolder.GetOutput(sessionID);
 
         var isItemHandoverQuest = true;
         var handedInCount = 0;
@@ -234,8 +235,8 @@ public class QuestController(
 
                 if (handedInCount <= 0)
                 {
-                    _logger.Error(
-                        _serverLocalisationService.GetText(
+                    logger.Error(
+                        serverLocalisationService.GetText(
                             "repeatable-quest_handover_failed_condition_already_satisfied",
                             new
                             {
@@ -294,7 +295,7 @@ public class QuestController(
             if (itemHandover.Count - itemCountToRemove > 0)
             {
                 // Remove single item with no children
-                _questHelper.ChangeItemStack(
+                questHelper.ChangeItemStack(
                     pmcData,
                     itemHandover.Id,
                     (int)(itemHandover.Count - itemCountToRemove),
@@ -326,7 +327,7 @@ public class QuestController(
                 {
                     if (toRemove.Contains(pmcData.Inventory.Items[index].Id))
                     {
-                        var removedItem = _cloner.Clone(pmcData.Inventory.Items[index]);
+                        var removedItem = cloner.Clone(pmcData.Inventory.Items[index]);
                         pmcData.Inventory.Items.RemoveAt(index);
 
                         // Remove the item
@@ -370,18 +371,18 @@ public class QuestController(
     /// <param name="output">Client response</param>
     /// <returns>ItemEventRouterResponse</returns>
     protected ItemEventRouterResponse ShowRepeatableQuestInvalidConditionError(
-        string questId,
-        string conditionId,
+        MongoId questId,
+        MongoId conditionId,
         ItemEventRouterResponse output
     )
     {
-        var errorMessage = _serverLocalisationService.GetText(
+        var errorMessage = serverLocalisationService.GetText(
             "repeatable-quest_handover_failed_condition_invalid",
             new { questId, conditionId }
         );
-        _logger.Error(errorMessage);
+        logger.Error(errorMessage);
 
-        return _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+        return httpResponseUtil.AppendErrorToOutput(output, errorMessage);
     }
 
     /// <summary>
@@ -399,7 +400,7 @@ public class QuestController(
         ItemEventRouterResponse output
     )
     {
-        var errorMessage = _serverLocalisationService.GetText(
+        var errorMessage = serverLocalisationService.GetText(
             "quest-handover_wrong_item",
             new
             {
@@ -408,9 +409,9 @@ public class QuestController(
                 requiredTpl = handoverRequirements.Target.List.FirstOrDefault(),
             }
         );
-        _logger.Error(errorMessage);
+        logger.Error(errorMessage);
 
-        return _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+        return httpResponseUtil.AppendErrorToOutput(output, errorMessage);
     }
 
     /// <summary>
@@ -423,8 +424,8 @@ public class QuestController(
     /// <param name="counterValue">Value to increment the backend counter with</param>
     protected void UpdateProfileTaskConditionCounterValue(
         PmcData pmcData,
-        string conditionId,
-        string questId,
+        MongoId conditionId,
+        MongoId questId,
         double counterValue
     )
     {
@@ -458,11 +459,11 @@ public class QuestController(
     public ItemEventRouterResponse FailQuest(
         PmcData pmcData,
         FailQuestRequestData request,
-        string sessionID,
+        MongoId sessionID,
         ItemEventRouterResponse output
     )
     {
-        _questHelper.FailQuest(pmcData, request, sessionID, output);
+        questHelper.FailQuest(pmcData, request, sessionID, output);
 
         return output;
     }

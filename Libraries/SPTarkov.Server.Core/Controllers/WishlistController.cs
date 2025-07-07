@@ -9,7 +9,7 @@ using SPTarkov.Server.Core.Utils.Json;
 namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
-public class WishlistController(EventOutputHolder _eventOutputHolder)
+public class WishlistController(EventOutputHolder eventOutputHolder)
 {
     /// <summary>
     ///     Handle AddToWishList
@@ -30,7 +30,7 @@ public class WishlistController(EventOutputHolder _eventOutputHolder)
             pmcData.WishList.Dictionary.Add(item.Key, item.Value);
         }
 
-        return _eventOutputHolder.GetOutput(sessionId);
+        return eventOutputHolder.GetOutput(sessionId);
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public class WishlistController(EventOutputHolder _eventOutputHolder)
     public ItemEventRouterResponse RemoveFromWishList(
         PmcData pmcData,
         RemoveFromWishlistRequest request,
-        string sessionId
+        MongoId sessionId
     )
     {
         foreach (var itemId in request.Items)
@@ -51,7 +51,7 @@ public class WishlistController(EventOutputHolder _eventOutputHolder)
             pmcData.WishList.Dictionary.Remove(itemId);
         }
 
-        return _eventOutputHolder.GetOutput(sessionId);
+        return eventOutputHolder.GetOutput(sessionId);
     }
 
     /// <summary>
@@ -64,11 +64,11 @@ public class WishlistController(EventOutputHolder _eventOutputHolder)
     public ItemEventRouterResponse ChangeWishListItemCategory(
         PmcData pmcData,
         ChangeWishlistItemCategoryRequest request,
-        string sessionId
+        MongoId sessionId
     )
     {
         pmcData.WishList.Dictionary[request.Item] = request.Category.Value;
 
-        return _eventOutputHolder.GetOutput(sessionId);
+        return eventOutputHolder.GetOutput(sessionId);
     }
 }

@@ -145,7 +145,7 @@ public record TaskConditionCounter
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId? Id { get; set; }
 
     [JsonPropertyName("type")]
     public string? Type { get; set; }
@@ -157,7 +157,7 @@ public record TaskConditionCounter
     ///     Quest id
     /// </summary>
     [JsonPropertyName("sourceId")]
-    public string? SourceId { get; set; }
+    public MongoId? SourceId { get; set; }
 }
 
 public record UnlockedInfo

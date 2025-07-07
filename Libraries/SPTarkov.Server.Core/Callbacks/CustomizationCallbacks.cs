@@ -11,9 +11,9 @@ namespace SPTarkov.Server.Core.Callbacks;
 
 [Injectable]
 public class CustomizationCallbacks(
-    CustomizationController _customizationController,
-    SaveServer _saveServer,
-    HttpResponseUtil _httpResponseUtil
+    CustomizationController customizationController,
+    SaveServer saveServer,
+    HttpResponseUtil httpResponseUtil
 )
 {
     /// <summary>
@@ -27,7 +27,7 @@ public class CustomizationCallbacks(
     )
     {
         return new ValueTask<string>(
-            _httpResponseUtil.GetBody(_saveServer.GetProfile(sessionID).CustomisationUnlocks)
+            httpResponseUtil.GetBody(saveServer.GetProfile(sessionID).CustomisationUnlocks)
         );
     }
 
@@ -41,7 +41,7 @@ public class CustomizationCallbacks(
         var traderId = splitUrl[^3];
 
         return new ValueTask<string>(
-            _httpResponseUtil.GetBody(_customizationController.GetTraderSuits(traderId, sessionID))
+            httpResponseUtil.GetBody(customizationController.GetTraderSuits(traderId, sessionID))
         );
     }
 
@@ -55,7 +55,7 @@ public class CustomizationCallbacks(
         MongoId sessionID
     )
     {
-        return _customizationController.BuyCustomisation(pmcData, request, sessionID);
+        return customizationController.BuyCustomisation(pmcData, request, sessionID);
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public class CustomizationCallbacks(
     )
     {
         return new ValueTask<string>(
-            _httpResponseUtil.GetBody(_customizationController.GetHideoutCustomisation(sessionID))
+            httpResponseUtil.GetBody(customizationController.GetHideoutCustomisation(sessionID))
         );
     }
 
@@ -80,7 +80,7 @@ public class CustomizationCallbacks(
     public ValueTask<string> GetStorage(string url, EmptyRequestData _, MongoId sessionID)
     {
         return new ValueTask<string>(
-            _httpResponseUtil.GetBody(_customizationController.GetCustomisationStorage(sessionID))
+            httpResponseUtil.GetBody(customizationController.GetCustomisationStorage(sessionID))
         );
     }
 
@@ -94,6 +94,6 @@ public class CustomizationCallbacks(
         MongoId sessionID
     )
     {
-        return _customizationController.SetCustomisation(sessionID, request, pmcData);
+        return customizationController.SetCustomisation(sessionID, request, pmcData);
     }
 }

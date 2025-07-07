@@ -746,7 +746,7 @@ public class LocationLifecycleService(
             // insert scav quest counters into pmc profile
             foreach (var counter in matchingCounters)
             {
-                pmcProfile.TaskConditionCounters[counter.Value.Id] = counter.Value;
+                pmcProfile.TaskConditionCounters[counter.Value.Id.Value] = counter.Value;
             }
 
             // Find Matching PMC Quest

@@ -1,6 +1,7 @@
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Health;
@@ -17,14 +18,14 @@ namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class HealthController(
-    ISptLogger<HealthController> _logger,
-    EventOutputHolder _eventOutputHolder,
-    ItemHelper _itemHelper,
-    PaymentService _paymentService,
-    InventoryHelper _inventoryHelper,
-    ServerLocalisationService _serverLocalisationService,
-    HttpResponseUtil _httpResponseUtil,
-    ICloner _cloner
+    ISptLogger<HealthController> logger,
+    EventOutputHolder eventOutputHolder,
+    ItemHelper itemHelper,
+    PaymentService paymentService,
+    InventoryHelper inventoryHelper,
+    ServerLocalisationService serverLocalisationService,
+    HttpResponseUtil httpResponseUtil,
+    ICloner cloner
 )
 {
     /// <summary>
@@ -37,10 +38,10 @@ public class HealthController(
     public ItemEventRouterResponse OffRaidHeal(
         PmcData pmcData,
         OffraidHealRequestData request,
-        string sessionID
+        MongoId sessionID
     )
     {
-        var output = _eventOutputHolder.GetOutput(sessionID);
+        var output = eventOutputHolder.GetOutput(sessionID);
 
         // Update medkit used (hpresource)
         var healingItemToUse = pmcData.Inventory.Items.FirstOrDefault(item =>
@@ -48,17 +49,17 @@ public class HealthController(
         );
         if (healingItemToUse is null)
         {
-            var errorMessage = _serverLocalisationService.GetText(
+            var errorMessage = serverLocalisationService.GetText(
                 "health-healing_item_not_found",
                 request.Item
             );
-            _logger.Error(errorMessage);
+            logger.Error(errorMessage);
 
-            return _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+            return httpResponseUtil.AppendErrorToOutput(output, errorMessage);
         }
 
         // Ensure item has a upd object
-        _itemHelper.AddUpdObjectToItem(healingItemToUse);
+        itemHelper.AddUpdObjectToItem(healingItemToUse);
 
         if (healingItemToUse.Upd.MedKit is not null)
         {
@@ -67,7 +68,7 @@ public class HealthController(
         else
         {
             // Get max healing from db
-            var maxHp = _itemHelper
+            var maxHp = itemHelper
                 .GetItem(healingItemToUse.Template)
                 .Value.Properties.MaxHpResource;
             healingItemToUse.Upd.MedKit = new UpdMedKit { HpResource = maxHp - request.Count }; // Subtract amout used from max
@@ -78,16 +79,16 @@ public class HealthController(
         // Resource in medkit is spent, delete it
         if (healingItemToUse.Upd.MedKit.HpResource <= 0)
         {
-            _inventoryHelper.RemoveItem(pmcData, request.Item, sessionID, output);
+            inventoryHelper.RemoveItem(pmcData, request.Item, sessionID, output);
         }
 
-        var healingItemDbDetails = _itemHelper.GetItem(healingItemToUse.Template);
+        var healingItemDbDetails = itemHelper.GetItem(healingItemToUse.Template);
 
         var healItemEffectDetails = healingItemDbDetails.Value.Properties.EffectsDamage;
         var bodyPartToHeal = pmcData.Health.BodyParts.GetValueOrDefault(request.Part);
         if (bodyPartToHeal is null)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Player: {sessionID} Tried to heal a non-existent body part: {request.Part}"
             );
 
@@ -152,32 +153,32 @@ public class HealthController(
     public ItemEventRouterResponse OffRaidEat(
         PmcData pmcData,
         OffraidEatRequestData request,
-        string sessionID
+        MongoId sessionID
     )
     {
-        var output = _eventOutputHolder.GetOutput(sessionID);
+        var output = eventOutputHolder.GetOutput(sessionID);
         var resourceLeft = 0d;
 
         var itemToConsume = pmcData.Inventory.Items.FirstOrDefault(item => item.Id == request.Item);
         if (itemToConsume is null)
         // Item not found, very bad
         {
-            return _httpResponseUtil.AppendErrorToOutput(
+            return httpResponseUtil.AppendErrorToOutput(
                 output,
-                _serverLocalisationService.GetText(
+                serverLocalisationService.GetText(
                     "health-unable_to_find_item_to_consume",
                     request.Item
                 )
             );
         }
 
-        var consumedItemMaxResource = _itemHelper
+        var consumedItemMaxResource = itemHelper
             .GetItem(itemToConsume.Template)
             .Value.Properties.MaxResource;
         if (consumedItemMaxResource > 1)
         {
             // Ensure item has a upd object
-            _itemHelper.AddUpdObjectToItem(itemToConsume);
+            itemHelper.AddUpdObjectToItem(itemToConsume);
 
             if (itemToConsume.Upd.FoodDrink is null)
             {
@@ -197,11 +198,11 @@ public class HealthController(
         // Remove item from inventory if resource has dropped below threshold
         if (consumedItemMaxResource == 1 || resourceLeft < 1)
         {
-            _inventoryHelper.RemoveItem(pmcData, request.Item, sessionID, output);
+            inventoryHelper.RemoveItem(pmcData, request.Item, sessionID, output);
         }
 
         // Check what effect eating item has and handle
-        var foodItemDbDetails = _itemHelper.GetItem(itemToConsume.Template).Value;
+        var foodItemDbDetails = itemHelper.GetItem(itemToConsume.Template).Value;
         var foodItemEffectDetails = foodItemDbDetails.Properties.EffectsHealth;
         var foodIsSingleUse = foodItemDbDetails.Properties.MaxResource == 1;
 
@@ -222,7 +223,7 @@ public class HealthController(
                     break;
 
                 default:
-                    _logger.Warning(
+                    logger.Warning(
                         $"Unhandled effect after consuming: {itemToConsume.Template}, {key}"
                     );
                     break;
@@ -282,10 +283,10 @@ public class HealthController(
     public ItemEventRouterResponse HealthTreatment(
         PmcData pmcData,
         HealthTreatmentRequestData healthTreatmentRequest,
-        string sessionID
+        MongoId sessionID
     )
     {
-        var output = _eventOutputHolder.GetOutput(sessionID);
+        var output = eventOutputHolder.GetOutput(sessionID);
         var payMoneyRequest = new ProcessBuyTradeRequestData
         {
             Action = healthTreatmentRequest.Action,
@@ -297,7 +298,7 @@ public class HealthController(
             SchemeId = 0,
         };
 
-        _paymentService.PayMoney(pmcData, payMoneyRequest, sessionID, output);
+        paymentService.PayMoney(pmcData, payMoneyRequest, sessionID, output);
         if (output.Warnings.Count > 0)
         {
             return output;
@@ -334,7 +335,7 @@ public class HealthController(
         }
 
         // Inform client of new post-raid, post-therapist heal values
-        output.ProfileChanges[sessionID].Health = _cloner.Clone(pmcData.Health);
+        output.ProfileChanges[sessionID].Health = cloner.Clone(pmcData.Health);
 
         return output;
     }
@@ -345,7 +346,7 @@ public class HealthController(
     /// <param name="pmcData">Player profile</param>
     /// <param name="request">Request data</param>
     /// <param name="sessionId">session id</param>
-    public void ApplyWorkoutChanges(PmcData? pmcData, WorkoutData request, string sessionId)
+    public void ApplyWorkoutChanges(PmcData? pmcData, WorkoutData request, MongoId sessionId)
     {
         pmcData.Skills.Common = request.Skills.Common;
     }

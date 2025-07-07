@@ -18,22 +18,22 @@ namespace SPTarkov.Server.Core.Controllers;
 
 [Injectable]
 public class InventoryController(
-    ISptLogger<InventoryController> _logger,
-    HttpResponseUtil _httpResponseUtil,
-    PresetHelper _presetHelper,
-    InventoryHelper _inventoryHelper,
-    HideoutHelper _hideoutHelper,
-    ProfileHelper _profileHelper,
-    TraderHelper _traderHelper,
-    ItemHelper _itemHelper,
-    DatabaseService _databaseService,
-    FenceService _fenceService,
-    RagfairOfferService _ragfairOfferService,
-    MapMarkerService _mapMarkerService,
-    ServerLocalisationService _serverLocalisationService,
-    LootGenerator _lootGenerator,
-    EventOutputHolder _eventOutputHolder,
-    ICloner _cloner
+    ISptLogger<InventoryController> logger,
+    HttpResponseUtil httpResponseUtil,
+    PresetHelper presetHelper,
+    InventoryHelper inventoryHelper,
+    HideoutHelper hideoutHelper,
+    ProfileHelper profileHelper,
+    TraderHelper traderHelper,
+    ItemHelper itemHelper,
+    DatabaseService databaseService,
+    FenceService fenceService,
+    RagfairOfferService ragfairOfferService,
+    MapMarkerService mapMarkerService,
+    ServerLocalisationService serverLocalisationService,
+    LootGenerator lootGenerator,
+    EventOutputHolder eventOutputHolder,
+    ICloner cloner
 )
 {
     /// <summary>
@@ -47,7 +47,7 @@ public class InventoryController(
     public void MoveItem(
         PmcData pmcData,
         InventoryMoveRequestData moveRequest,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -57,7 +57,7 @@ public class InventoryController(
         }
 
         // Changes made to result apply to character inventory
-        var ownerInventoryItems = _inventoryHelper.GetOwnerInventoryItems(
+        var ownerInventoryItems = inventoryHelper.GetOwnerInventoryItems(
             moveRequest,
             moveRequest.Item,
             sessionId
@@ -87,7 +87,7 @@ public class InventoryController(
 
             var originalLocationSlotId = originalItemLocation.SlotId;
 
-            var moveResult = _inventoryHelper.MoveItemInternal(
+            var moveResult = inventoryHelper.MoveItemInternal(
                 pmcData,
                 ownerInventoryItems.From ?? [],
                 moveRequest,
@@ -95,7 +95,7 @@ public class InventoryController(
             );
             if (!moveResult)
             {
-                _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+                httpResponseUtil.AppendErrorToOutput(output, errorMessage);
                 return;
             }
 
@@ -114,12 +114,12 @@ public class InventoryController(
                 )
             )
             {
-                _hideoutHelper.ApplyPlaceOfFameDogtagBonus(pmcData);
+                hideoutHelper.ApplyPlaceOfFameDogtagBonus(pmcData);
             }
         }
         else
         {
-            _inventoryHelper.MoveItemToProfile(
+            inventoryHelper.MoveItemToProfile(
                 ownerInventoryItems.From ?? [],
                 ownerInventoryItems.To ?? [],
                 moveRequest
@@ -133,9 +133,9 @@ public class InventoryController(
     /// <param name="output">Item event router response</param>
     protected void AppendTraderExploitErrorResponse(ItemEventRouterResponse output)
     {
-        _httpResponseUtil.AppendErrorToOutput(
+        httpResponseUtil.AppendErrorToOutput(
             output,
-            _serverLocalisationService.GetText("inventory-edit_trader_item"),
+            serverLocalisationService.GetText("inventory-edit_trader_item"),
             (BackendErrorCodes)228
         );
     }
@@ -151,7 +151,7 @@ public class InventoryController(
     public void PinOrLock(
         PmcData pmcData,
         PinOrLockItemRequest request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -160,7 +160,7 @@ public class InventoryController(
         );
         if (itemToAdjust is null)
         {
-            _logger.Error(
+            logger.Error(
                 $"Unable find item: {request.Item.Value.ToString()} to: {request.State} on player: {sessionId} to: "
             );
 
@@ -195,10 +195,10 @@ public class InventoryController(
     public void RedeemProfileReward(
         PmcData pmcData,
         RedeemProfileRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
-        var fullProfile = _profileHelper.GetFullProfile(sessionId);
+        var fullProfile = profileHelper.GetFullProfile(sessionId);
         foreach (var rewardEvent in request.Events)
         {
             // Hard coded to `SYSTEM` for now
@@ -215,23 +215,23 @@ public class InventoryController(
             {
                 case "TraderSalesSum":
                     pmcData.TradersInfo[mailEvent.Entity].SalesSum = mailEvent.Value;
-                    _traderHelper.LevelUp(mailEvent.Entity, pmcData);
-                    _logger.Success(
+                    traderHelper.LevelUp(mailEvent.Entity, pmcData);
+                    logger.Success(
                         $"Set trader {mailEvent.Entity}: Sales Sum to: {mailEvent.Value}"
                     );
                     break;
                 case "TraderStanding":
                     pmcData.TradersInfo[mailEvent.Entity].Standing = mailEvent.Value;
-                    _traderHelper.LevelUp(mailEvent.Entity, pmcData);
-                    _logger.Success(
+                    traderHelper.LevelUp(mailEvent.Entity, pmcData);
+                    logger.Success(
                         $"Set trader {mailEvent.Entity}: Standing to: {mailEvent.Value}"
                     );
                     break;
                 case "ProfileLevel":
                     pmcData.Info.Experience = (int)mailEvent.Value.Value;
                     // Will calculate level below
-                    _traderHelper.ValidateTraderStandingsAndPlayerLevelForProfile(sessionId);
-                    _logger.Success($"Set profile xp to: {mailEvent.Value}");
+                    traderHelper.ValidateTraderStandingsAndPlayerLevelForProfile(sessionId);
+                    logger.Success($"Set profile xp to: {mailEvent.Value}");
                     break;
                 case "SkillPoints":
                 {
@@ -240,31 +240,31 @@ public class InventoryController(
                     );
                     if (profileSkill is null)
                     {
-                        _logger.Warning($"Unable to find skill with name: {mailEvent.Entity}");
+                        logger.Warning($"Unable to find skill with name: {mailEvent.Entity}");
                         continue;
                     }
 
                     profileSkill.Progress = mailEvent.Value;
-                    _logger.Success($"Set profile skill: {mailEvent.Entity} to: {mailEvent.Value}");
+                    logger.Success($"Set profile skill: {mailEvent.Entity} to: {mailEvent.Value}");
                     break;
                 }
                 case "ExamineAllItems":
                 {
-                    var itemsToInspect = _itemHelper.GetItems().Where(x => x.Type != "Node");
+                    var itemsToInspect = itemHelper.GetItems().Where(x => x.Type != "Node");
                     FlagItemsAsInspectedAndRewardXp(itemsToInspect.Select(x => x.Id), fullProfile);
-                    _logger.Success($"Flagged {itemsToInspect.Count()} items as examined");
+                    logger.Success($"Flagged {itemsToInspect.Count()} items as examined");
 
                     break;
                 }
                 case "UnlockTrader":
                     pmcData.TradersInfo[mailEvent.Entity].Unlocked = true;
-                    _logger.Success($"Trader {mailEvent.Entity} Unlocked");
+                    logger.Success($"Trader {mailEvent.Entity} Unlocked");
 
                     break;
                 case "AssortmentUnlockRule":
                     fullProfile.SptData.BlacklistedItemTemplates ??= [];
                     fullProfile.SptData.BlacklistedItemTemplates.Add(mailEvent.Entity);
-                    _logger.Success($"Item {mailEvent.Entity} is now blacklisted");
+                    logger.Success($"Item {mailEvent.Entity} is now blacklisted");
 
                     break;
                 case "HideoutAreaLevel":
@@ -284,7 +284,7 @@ public class InventoryController(
                     break;
                 }
                 default:
-                    _logger.Warning($"Unhandled profile reward event: {mailEvent.Type}");
+                    logger.Warning($"Unhandled profile reward event: {mailEvent.Type}");
 
                     break;
             }
@@ -303,11 +303,11 @@ public class InventoryController(
     {
         foreach (var itemTpl in itemTpls)
         {
-            var item = _itemHelper.GetItem(itemTpl);
+            var item = itemHelper.GetItem(itemTpl);
             if (!item.Key)
             {
-                _logger.Warning(
-                    _serverLocalisationService.GetText(
+                logger.Warning(
+                    serverLocalisationService.GetText(
                         "inventory-unable_to_inspect_item_not_in_db",
                         itemTpl
                     )
@@ -328,7 +328,7 @@ public class InventoryController(
         }
 
         // TODO: update this with correct calculation using values from globals json
-        _profileHelper.AddSkillPointsToPlayer(
+        profileHelper.AddSkillPointsToPlayer(
             fullProfile.CharacterData.PmcData,
             SkillTypes.Intellect,
             0.05 * itemTpls.Count()
@@ -346,13 +346,13 @@ public class InventoryController(
     public void OpenRandomLootContainer(
         PmcData pmcData,
         OpenRandomLootContainerRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
         // Container player opened in their inventory
         var openedItem = pmcData.Inventory.Items.FirstOrDefault(item => item.Id == request.Item);
-        var containerDetailsDb = _itemHelper.GetItem(openedItem.Template);
+        var containerDetailsDb = itemHelper.GetItem(openedItem.Template);
         var isSealedWeaponBox = containerDetailsDb.Value.Name.Contains("event_container_airdrop");
 
         var foundInRaid = openedItem.Upd?.SpawnedInSession;
@@ -366,8 +366,8 @@ public class InventoryController(
         // Temp fix for unlocked weapon crate hideout craft
         if (isSealedWeaponBox || unlockedWeaponCrates.Contains(containerDetailsDb.Value.Id))
         {
-            var containerSettings = _inventoryHelper.GetInventoryConfig().SealedAirdropContainer;
-            rewards.AddRange(_lootGenerator.GetSealedWeaponCaseLoot(containerSettings));
+            var containerSettings = inventoryHelper.GetInventoryConfig().SealedAirdropContainer;
+            rewards.AddRange(lootGenerator.GetSealedWeaponCaseLoot(containerSettings));
 
             if (containerSettings.FoundInRaid)
             {
@@ -376,18 +376,18 @@ public class InventoryController(
         }
         else
         {
-            var rewardContainerDetails = _inventoryHelper.GetRandomLootContainerRewardDetails(
+            var rewardContainerDetails = inventoryHelper.GetRandomLootContainerRewardDetails(
                 openedItem.Template
             );
             if (rewardContainerDetails?.RewardCount == null)
             {
-                _logger.Error(
+                logger.Error(
                     $"Unable to add loot to container: {openedItem.Template}, no rewards found"
                 );
             }
             else
             {
-                rewards.AddRange(_lootGenerator.GetRandomLootContainerLoot(rewardContainerDetails));
+                rewards.AddRange(lootGenerator.GetRandomLootContainerLoot(rewardContainerDetails));
 
                 if (rewardContainerDetails.FoundInRaid)
                 {
@@ -406,7 +406,7 @@ public class InventoryController(
                 Callback = null,
                 UseSortingTable = true,
             };
-            _inventoryHelper.AddItemsToStash(sessionId, addItemsRequest, pmcData, output);
+            inventoryHelper.AddItemsToStash(sessionId, addItemsRequest, pmcData, output);
             if (output.Warnings?.Count > 0)
             {
                 return;
@@ -414,7 +414,7 @@ public class InventoryController(
         }
 
         // Find and delete opened container item from player inventory
-        _inventoryHelper.RemoveItem(pmcData, request.Item, sessionId, output);
+        inventoryHelper.RemoveItem(pmcData, request.Item, sessionId, output);
     }
 
     /// <summary>
@@ -427,11 +427,11 @@ public class InventoryController(
     public void EditMapMarker(
         PmcData pmcData,
         InventoryEditMarkerRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
-        var mapItem = _mapMarkerService.EditMarkerOnMap(pmcData, request);
+        var mapItem = mapMarkerService.EditMarkerOnMap(pmcData, request);
 
         // sync with client
         output.ProfileChanges[sessionId].Items.ChangedItems.Add(mapItem);
@@ -451,7 +451,7 @@ public class InventoryController(
         ItemEventRouterResponse output
     )
     {
-        var mapItem = _mapMarkerService.DeleteMarkerFromMap(pmcData, request);
+        var mapItem = mapMarkerService.DeleteMarkerFromMap(pmcData, request);
 
         // sync with client
         output.ProfileChanges[sessionId].Items.ChangedItems.Add(mapItem);
@@ -464,7 +464,7 @@ public class InventoryController(
         ItemEventRouterResponse output
     )
     {
-        var adjustedMapItem = _mapMarkerService.CreateMarkerOnMap(pmcData, request);
+        var adjustedMapItem = mapMarkerService.CreateMarkerOnMap(pmcData, request);
 
         // Sync with client
         output.ProfileChanges[sessionId].Items.ChangedItems.Add(adjustedMapItem);
@@ -480,7 +480,7 @@ public class InventoryController(
     public void SortInventory(
         PmcData pmcData,
         InventorySortRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -491,8 +491,8 @@ public class InventoryController(
             );
             if (inventoryItem is null)
             {
-                _logger.Error(
-                    _serverLocalisationService.GetText(
+                logger.Error(
+                    serverLocalisationService.GetText(
                         "inventory-unable_to_sort_inventory_restart_game",
                         change.Id
                     )
@@ -524,7 +524,7 @@ public class InventoryController(
     public ItemEventRouterResponse ReadEncyclopedia(
         PmcData pmcData,
         InventoryReadEncyclopediaRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
         foreach (var id in request.Ids)
@@ -532,7 +532,7 @@ public class InventoryController(
             pmcData.Encyclopedia[id] = true;
         }
 
-        return _eventOutputHolder.GetOutput(sessionId);
+        return eventOutputHolder.GetOutput(sessionId);
     }
 
     /// <summary>
@@ -545,7 +545,7 @@ public class InventoryController(
     public void ExamineItem(
         PmcData pmcData,
         InventoryExamineRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -558,8 +558,8 @@ public class InventoryController(
             }
             catch
             {
-                _logger.Error(
-                    _serverLocalisationService.GetText(
+                logger.Error(
+                    serverLocalisationService.GetText(
                         "inventory-examine_item_does_not_exist",
                         request.Item
                     )
@@ -570,7 +570,7 @@ public class InventoryController(
         if (itemId is null)
         // item template
         {
-            if (_databaseService.GetItems().ContainsKey(request.Item))
+            if (databaseService.GetItems().ContainsKey(request.Item))
             {
                 itemId = request.Item;
             }
@@ -588,7 +588,7 @@ public class InventoryController(
 
         if (itemId is not null)
         {
-            var fullProfile = _profileHelper.GetFullProfile(sessionId);
+            var fullProfile = profileHelper.GetFullProfile(sessionId);
             FlagItemsAsInspectedAndRewardXp([itemId], fullProfile);
         }
     }
@@ -599,17 +599,17 @@ public class InventoryController(
     /// <param name="request"></param>
     /// <param name="sessionId">Session/Player id</param>
     /// <returns>Item tpl</returns>
-    protected MongoId? GetExaminedItemTpl(InventoryExamineRequestData request, string? sessionId)
+    protected MongoId? GetExaminedItemTpl(InventoryExamineRequestData request, MongoId sessionId)
     {
-        if (_presetHelper.IsPreset(request.Item))
+        if (presetHelper.IsPreset(request.Item))
         {
-            return _presetHelper.GetBaseItemTpl(request.Item);
+            return presetHelper.GetBaseItemTpl(request.Item);
         }
 
         if (request.FromOwner.Id == Traders.FENCE)
         // Get tpl from fence assorts
         {
-            return _fenceService
+            return fenceService
                 .GetRawFenceAssorts()
                 .Items.FirstOrDefault(x => x.Id == request.Item)
                 ?.Template;
@@ -619,7 +619,7 @@ public class InventoryController(
         // Not fence
         // get tpl from trader assort
         {
-            return _databaseService
+            return databaseService
                 .GetTrader(request.FromOwner.Id)
                 .Assort.Items.FirstOrDefault(item => item.Id == request.Item)
                 ?.Template;
@@ -628,7 +628,7 @@ public class InventoryController(
         if (request.FromOwner.Type == "RagFair")
         {
             // Try to get tplId from items.json first
-            var item = _itemHelper.GetItem(request.Item);
+            var item = itemHelper.GetItem(request.Item);
             if (item.Key)
             {
                 return item.Value.Id;
@@ -636,8 +636,8 @@ public class InventoryController(
 
             // Try alternate way of getting offer if first approach fails
             var offer =
-                _ragfairOfferService.GetOfferByOfferId(request.Item)
-                ?? _ragfairOfferService.GetOfferByOfferId(request.FromOwner.Id);
+                ragfairOfferService.GetOfferByOfferId(request.Item)
+                ?? ragfairOfferService.GetOfferByOfferId(request.FromOwner.Id);
 
             // Try find examine item inside offer items array
             var matchingItem = offer.Items.FirstOrDefault(offerItem =>
@@ -649,8 +649,8 @@ public class InventoryController(
             }
 
             // Unable to find item in database or ragfair
-            _logger.Warning(
-                _serverLocalisationService.GetText("inventory-unable_to_find_item", request.Item)
+            logger.Warning(
+                serverLocalisationService.GetText("inventory-unable_to_find_item", request.Item)
             );
         }
 
@@ -664,7 +664,7 @@ public class InventoryController(
         {
             // when inspecting an item in mail rewards, we are given on the message its in and its mongoId, not the Template, so we have to go find it ourselves
             // all mail the player has
-            var mail = _profileHelper.GetFullProfile(sessionId).DialogueRecords;
+            var mail = profileHelper.GetFullProfile(sessionId).DialogueRecords;
             // per trader/person mail
             var dialogue = mail.FirstOrDefault(x =>
                 x.Value.Messages.Any(m => m.Id == request.FromOwner.Id)
@@ -680,7 +680,7 @@ public class InventoryController(
             }
         }
 
-        _logger.Error($"Unable to get item with id: {request.Item}");
+        logger.Error($"Unable to get item with id: {request.Item}");
 
         return null;
     }
@@ -696,7 +696,7 @@ public class InventoryController(
     public void UnBindItem(
         PmcData pmcData,
         InventoryBindRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -717,7 +717,7 @@ public class InventoryController(
     public void BindItem(
         PmcData pmcData,
         InventoryBindRequestData bindRequest,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
@@ -741,13 +741,13 @@ public class InventoryController(
     public ItemEventRouterResponse TagItem(
         PmcData pmcData,
         InventoryTagRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
         var itemToTag = pmcData.Inventory.Items.FirstOrDefault(item => item.Id == request.Item);
         if (itemToTag is null)
         {
-            _logger.Warning(
+            logger.Warning(
                 $"Unable to tag item: {request.Item} as it cannot be found in player {sessionId} inventory"
             );
 
@@ -759,7 +759,7 @@ public class InventoryController(
 
         itemToTag.Upd.Tag = new UpdTag { Color = request.TagColor, Name = request.TagName };
 
-        return _eventOutputHolder.GetOutput(sessionId);
+        return eventOutputHolder.GetOutput(sessionId);
     }
 
     /// <summary>
@@ -772,7 +772,7 @@ public class InventoryController(
     public ItemEventRouterResponse ToggleItem(
         PmcData pmcData,
         InventoryToggleRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
         // May need to reassign to scav profile
@@ -781,15 +781,15 @@ public class InventoryController(
         // Fix for toggling items while on they're in the Scav inventory
         if (request.FromOwner?.Type == "Profile" && request.FromOwner.Id != playerData.Id)
         {
-            playerData = _profileHelper.GetScavProfile(sessionId);
+            playerData = profileHelper.GetScavProfile(sessionId);
         }
 
         var itemToToggle = playerData.Inventory.Items.FirstOrDefault(x => x.Id == request.Item);
         if (itemToToggle is not null)
         {
-            _itemHelper.AddUpdObjectToItem(
+            itemHelper.AddUpdObjectToItem(
                 itemToToggle,
-                _serverLocalisationService.GetText(
+                serverLocalisationService.GetText(
                     "inventory-item_to_toggle_missing_upd",
                     itemToToggle.Id
                 )
@@ -797,11 +797,11 @@ public class InventoryController(
 
             itemToToggle.Upd.Togglable = new UpdTogglable { On = request.Value };
 
-            return _eventOutputHolder.GetOutput(sessionId);
+            return eventOutputHolder.GetOutput(sessionId);
         }
 
-        _logger.Warning(
-            _serverLocalisationService.GetText(
+        logger.Warning(
+            serverLocalisationService.GetText(
                 "inventory-unable_to_toggle_item_not_found",
                 request.Item
             )
@@ -820,7 +820,7 @@ public class InventoryController(
     public ItemEventRouterResponse FoldItem(
         PmcData pmcData,
         InventoryFoldRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
         // May need to reassign to scav profile
@@ -829,7 +829,7 @@ public class InventoryController(
         // We may be folding data on scav profile, get that profile instead
         if (request.FromOwner?.Type == "Profile" && request.FromOwner.Id != playerData.Id)
         {
-            playerData = _profileHelper.GetScavProfile(sessionId);
+            playerData = profileHelper.GetScavProfile(sessionId);
         }
 
         var itemToFold = playerData.Inventory.Items.FirstOrDefault(item =>
@@ -838,8 +838,8 @@ public class InventoryController(
         if (itemToFold is null)
         {
             // Item not found
-            _logger.Warning(
-                _serverLocalisationService.GetText(
+            logger.Warning(
+                serverLocalisationService.GetText(
                     "inventory-unable_to_fold_item_not_found_in_inventory",
                     request.Item
                 )
@@ -849,11 +849,11 @@ public class InventoryController(
         }
 
         // Item may not have upd object
-        _itemHelper.AddUpdObjectToItem(itemToFold);
+        itemHelper.AddUpdObjectToItem(itemToFold);
 
         itemToFold.Upd.Foldable = new UpdFoldable { Folded = request.Value };
 
-        return _eventOutputHolder.GetOutput(sessionId);
+        return eventOutputHolder.GetOutput(sessionId);
     }
 
     /// <summary>
@@ -868,21 +868,21 @@ public class InventoryController(
     public ItemEventRouterResponse SwapItem(
         PmcData pmcData,
         InventorySwapRequestData request,
-        string sessionId
+        MongoId sessionId
     )
     {
         // During post-raid scav transfer, the swap may be in the scav inventory
         var playerData = pmcData;
         if (request.FromOwner?.Type == "Profile" && request.FromOwner.Id != playerData.Id)
         {
-            playerData = _profileHelper.GetScavProfile(sessionId);
+            playerData = profileHelper.GetScavProfile(sessionId);
         }
 
         var itemOne = playerData.Inventory.Items.FirstOrDefault(x => x.Id == request.Item);
         if (itemOne is null)
         {
-            _logger.Error(
-                _serverLocalisationService.GetText(
+            logger.Error(
+                serverLocalisationService.GetText(
                     "inventory-unable_to_find_item_to_swap",
                     new { item1Id = request.Item, item2Id = request.Item2 }
                 )
@@ -892,8 +892,8 @@ public class InventoryController(
         var itemTwo = playerData.Inventory.Items.FirstOrDefault(x => x.Id == request.Item2);
         if (itemTwo is null)
         {
-            _logger.Error(
-                _serverLocalisationService.GetText(
+            logger.Error(
+                serverLocalisationService.GetText(
                     "inventory-unable_to_find_item_to_swap",
                     new { item1Id = request.Item2, item2Id = request.Item }
                 )
@@ -928,7 +928,7 @@ public class InventoryController(
         }
 
         // Client already informed of inventory locations, nothing for us to do
-        return _eventOutputHolder.GetOutput(sessionId);
+        return eventOutputHolder.GetOutput(sessionId);
     }
 
     /// <summary>
@@ -943,12 +943,12 @@ public class InventoryController(
     public void TransferItem(
         PmcData pmcData,
         InventoryTransferRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
         // TODO - check GetOwnerInventoryItems() call still works
-        var inventoryItems = _inventoryHelper.GetOwnerInventoryItems(
+        var inventoryItems = inventoryHelper.GetOwnerInventoryItems(
             request,
             request.Item,
             sessionId
@@ -959,9 +959,9 @@ public class InventoryController(
         if (sourceItem is null)
         {
             var errorMessage = $"Unable to transfer stack, cannot find source: {request.Item}";
-            _logger.Error(errorMessage);
+            logger.Error(errorMessage);
 
-            _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+            httpResponseUtil.AppendErrorToOutput(output, errorMessage);
 
             return;
         }
@@ -969,9 +969,9 @@ public class InventoryController(
         if (destinationItem is null)
         {
             var errorMessage = $"Unable to transfer stack, cannot find destination: {request.With}";
-            _logger.Error(errorMessage);
+            logger.Error(errorMessage);
 
-            _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+            httpResponseUtil.AppendErrorToOutput(output, errorMessage);
 
             return;
         }
@@ -1007,12 +1007,12 @@ public class InventoryController(
     public void MergeItem(
         PmcData pmcData,
         InventoryMergeRequestData request,
-        string sessionID,
+        MongoId sessionID,
         ItemEventRouterResponse output
     )
     {
         // Changes made to result apply to character inventory
-        var inventoryItems = _inventoryHelper.GetOwnerInventoryItems(
+        var inventoryItems = inventoryHelper.GetOwnerInventoryItems(
             request,
             request.Item,
             sessionID
@@ -1024,9 +1024,9 @@ public class InventoryController(
         {
             var errorMessage =
                 $"Unable to merge stacks as source item: {request.With} cannot be found";
-            _logger.Error(errorMessage);
+            logger.Error(errorMessage);
 
-            _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+            httpResponseUtil.AppendErrorToOutput(output, errorMessage);
 
             return;
         }
@@ -1037,9 +1037,9 @@ public class InventoryController(
         {
             var errorMessage =
                 $"Unable to merge stacks as destination item: {request.With} cannot be found";
-            _logger.Error(errorMessage);
+            logger.Error(errorMessage);
 
-            _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+            httpResponseUtil.AppendErrorToOutput(output, errorMessage);
 
             return;
         }
@@ -1079,9 +1079,9 @@ public class InventoryController(
         {
             var errorMessage =
                 $"Unable to find item: {sourceItem.Id} to remove from sender inventory";
-            _logger.Error(errorMessage);
+            logger.Error(errorMessage);
 
-            _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+            httpResponseUtil.AppendErrorToOutput(output, errorMessage);
 
             return;
         }
@@ -1099,12 +1099,12 @@ public class InventoryController(
     public void SplitItem(
         PmcData pmcData,
         InventorySplitRequestData request,
-        string sessionID,
+        MongoId sessionID,
         ItemEventRouterResponse output
     )
     {
         // Changes made to result apply to character inventory
-        var inventoryItems = _inventoryHelper.GetOwnerInventoryItems(
+        var inventoryItems = inventoryHelper.GetOwnerInventoryItems(
             request,
             request.NewItem,
             sessionID
@@ -1123,15 +1123,15 @@ public class InventoryController(
         {
             var errorMessage =
                 $"Unable to split stack as source item: {request.SplitItem} cannot be found";
-            _logger.Error(errorMessage);
+            logger.Error(errorMessage);
 
-            _httpResponseUtil.AppendErrorToOutput(output, errorMessage);
+            httpResponseUtil.AppendErrorToOutput(output, errorMessage);
 
             return;
         }
 
         // Create new upd object that retains properties of original upd + new stack count size
-        var updatedUpd = _cloner.Clone(itemToSplit.Upd);
+        var updatedUpd = cloner.Clone(itemToSplit.Upd);
         updatedUpd.StackObjectsCount = request.Count;
 
         // Remove split item count from source stack
@@ -1174,13 +1174,13 @@ public class InventoryController(
     public void DiscardItem(
         PmcData pmcData,
         InventoryRemoveRequestData request,
-        string sessionId,
+        MongoId sessionId,
         ItemEventRouterResponse output
     )
     {
         if (request.FromOwner?.Type == "Mail")
         {
-            _inventoryHelper.RemoveItemAndChildrenFromMailRewards(sessionId, request, output);
+            inventoryHelper.RemoveItemAndChildrenFromMailRewards(sessionId, request, output);
 
             return;
         }
@@ -1188,8 +1188,8 @@ public class InventoryController(
         var profileToRemoveItemFrom =
             request.FromOwner is null || request.FromOwner?.Id == pmcData.Id
                 ? pmcData
-                : _profileHelper.GetFullProfile(sessionId).CharacterData.ScavData;
+                : profileHelper.GetFullProfile(sessionId).CharacterData.ScavData;
 
-        _inventoryHelper.RemoveItem(profileToRemoveItemFrom, request.Item, sessionId, output);
+        inventoryHelper.RemoveItem(profileToRemoveItemFrom, request.Item, sessionId, output);
     }
 }
