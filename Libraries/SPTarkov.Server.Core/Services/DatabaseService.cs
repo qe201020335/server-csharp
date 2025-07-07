@@ -350,8 +350,7 @@ public class DatabaseService(
     /// <returns> assets/database/traders/ </returns>
     public Trader? GetTrader(MongoId traderId)
     {
-        var traders = GetTraders();
-        if (!traders.TryGetValue(traderId, out var desiredTrader))
+        if (!databaseServer.GetTables().Traders.TryGetValue(traderId, out var desiredTrader))
         {
             logger.Error(
                 serverLocalisationService.GetText("database-no_trader_found_with_id", traderId)

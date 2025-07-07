@@ -168,7 +168,7 @@ public record Dynamic
     ///     Settings to control the durability range of item items listed on flea
     /// </summary>
     [JsonPropertyName("condition")]
-    public Dictionary<string, Condition> Condition { get; set; }
+    public Dictionary<MongoId, Condition> Condition { get; set; }
 
     /// <summary>
     ///     Size stackable items should be listed for in percent of max stack size

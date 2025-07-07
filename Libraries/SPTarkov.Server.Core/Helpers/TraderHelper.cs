@@ -591,18 +591,14 @@ public class TraderHelper(
     /// <returns>Rouble price</returns>
     public double GetHighestSellToTraderPrice(MongoId tpl)
     {
-        // Find largest trader price for item
         var highestPrice = 1d; // Default price
+        var itemHandbookPrice = handbookHelper.GetTemplatePrice(tpl);
         foreach (var trader in traderStore.GetAllTraders())
         {
             // Get trader and check buy category allows tpl
             var traderBase = databaseService.GetTrader(trader.Id).Base;
 
-            // Skip traders that don't sell this category of item
-            if (
-                traderBase is null
-                || !itemHelper.IsOfBaseclasses(tpl, traderBase.ItemsBuy.Category)
-            )
+            if (traderBase is null)
             {
                 continue;
             }
@@ -613,7 +609,6 @@ public class TraderHelper(
             var traderBuyBackPricePercent =
                 100 - traderBase.LoyaltyLevels.FirstOrDefault().BuyPriceCoefficient;
 
-            var itemHandbookPrice = handbookHelper.GetTemplatePrice(tpl);
             var priceTraderBuysItemAt = randomUtil.GetPercentOfValue(
                 traderBuyBackPricePercent ?? 0,
                 itemHandbookPrice,
