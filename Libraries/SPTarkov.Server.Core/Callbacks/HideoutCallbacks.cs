@@ -206,7 +206,7 @@ public class HideoutCallbacks(HideoutController hideoutController, ConfigServer 
         MongoId sessionID
     )
     {
-        return hideoutController.CicleOfCultistProductionStart(sessionID, pmcData, request);
+        return hideoutController.CircleOfCultistProductionStart(sessionID, pmcData, request);
     }
 
     /// <summary>
