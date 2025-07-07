@@ -45,7 +45,7 @@ public class PlayerScavGenerator(
     /// </summary>
     /// <param name="sessionID">session id to specify what profile is updated</param>
     /// <returns>profile object</returns>
-    public PmcData Generate(string sessionID)
+    public PmcData Generate(MongoId sessionID)
     {
         // get karma level from profile
         var profile = _saveServer.GetProfile(sessionID);
@@ -70,7 +70,7 @@ public class PlayerScavGenerator(
 
         if (_logger.IsLogEnabled(LogLevel.Debug))
         {
-            _logger.Debug($"Generated player scav loadout with karma level {scavKarmaLevel}");
+            _logger.Debug($"Generated player scav load out with karma level: {scavKarmaLevel}");
         }
 
         // Edit baseBotNode values
