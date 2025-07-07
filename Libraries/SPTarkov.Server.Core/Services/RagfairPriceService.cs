@@ -312,7 +312,7 @@ public class RagfairPriceService(
         // Make adjustments for unreasonably priced items.
         foreach (var (key, value) in _ragfairConfig.Dynamic.UnreasonableModPrices)
         {
-            if (!itemHelper.IsOfBaseclass(itemTemplateId, key) || !value.Enabled)
+            if (!value.Enabled || !itemHelper.IsOfBaseclass(itemTemplateId, key))
             {
                 continue;
             }

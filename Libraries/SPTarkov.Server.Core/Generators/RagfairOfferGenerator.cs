@@ -761,7 +761,7 @@ public class RagfairOfferGenerator(
         if (!(profileHelper.IsPlayer(userID) || ragfairServerHelper.IsTrader(userID)))
         {
             var parentId = GetDynamicConditionIdForTpl(itemDetails.Id);
-            if (string.IsNullOrEmpty(parentId))
+            if (parentId == null)
             // No condition details found, don't proceed with modifying item conditions
             {
                 return;
@@ -770,11 +770,11 @@ public class RagfairOfferGenerator(
             // Roll random chance to randomise item condition
             if (
                 randomUtil.GetChance100(
-                    ragfairConfig.Dynamic.Condition[parentId].ConditionChance * 100
+                    ragfairConfig.Dynamic.Condition[parentId.Value].ConditionChance * 100
                 )
             )
             {
-                RandomiseItemCondition(parentId, itemWithMods, itemDetails);
+                RandomiseItemCondition(parentId.Value, itemWithMods, itemDetails);
             }
         }
     }
@@ -784,7 +784,7 @@ public class RagfairOfferGenerator(
     /// </summary>
     /// <param name="tpl"> Item to look for matching condition object</param>
     /// <returns> Condition ID </returns>
-    protected string? GetDynamicConditionIdForTpl(MongoId tpl)
+    protected MongoId? GetDynamicConditionIdForTpl(MongoId tpl)
     {
         // Get keys from condition config dictionary
         var configConditions = ragfairConfig.Dynamic.Condition.Keys;
@@ -806,7 +806,7 @@ public class RagfairOfferGenerator(
     /// <param name="itemWithMods"> Item to adjust condition details of </param>
     /// <param name="itemDetails"> DB Item details of first item in list </param>
     protected void RandomiseItemCondition(
-        string conditionSettingsId,
+        MongoId conditionSettingsId,
         List<Item> itemWithMods,
         TemplateItem itemDetails
     )

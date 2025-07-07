@@ -1472,7 +1472,7 @@ public class FenceService(
     protected void RemoveRandomModsOfItem(List<Item> itemAndMods)
     {
         // Items to be removed from inventory
-        var toDelete = new HashSet<string>();
+        var toDelete = new HashSet<MongoId>();
 
         // Find mods to remove from item that could've been scavenged by other players in-raid
         foreach (var itemMod in itemAndMods)
@@ -1507,7 +1507,7 @@ public class FenceService(
     /// <param name="weaponMod"> Weapon mod being checked </param>
     /// <param name="itemsBeingDeleted"> Current list of items on weapon being deleted </param>
     /// <returns> True if item will be removed </returns>
-    protected bool PresetModItemWillBeRemoved(Item weaponMod, HashSet<string> itemsBeingDeleted)
+    protected bool PresetModItemWillBeRemoved(Item weaponMod, HashSet<MongoId> itemsBeingDeleted)
     {
         var slotIdsThatCanFail = traderConfig.Fence.PresetSlotsToRemoveChancePercent;
         if (

@@ -198,12 +198,12 @@ namespace SPTarkov.Server.Core.Extensions
         /// <param name="items">List of items (item + possible children)</param>
         /// <param name="baseItemId">Parent item's id</param>
         /// <returns>list of child item ids</returns>
-        public static List<string> FindAndReturnChildrenByItems(
+        public static List<MongoId> FindAndReturnChildrenByItems(
             this IEnumerable<Item> items,
-            string baseItemId
+            MongoId baseItemId
         )
         {
-            List<string> list = [];
+            List<MongoId> list = [];
 
             foreach (var childItem in items)
             {
@@ -312,7 +312,7 @@ namespace SPTarkov.Server.Core.Extensions
                 if (
                     !result.ContainsKey(childItem.Id)
                     && childItem.ParentId != "hideout"
-                    && childItem.ParentId == baseItemId
+                    && childItem.ParentId == baseItemId.ToString()
                 )
                 {
                     foreach (var item in FindAndReturnChildrenAsItems(items, childItem.Id))
@@ -367,7 +367,7 @@ namespace SPTarkov.Server.Core.Extensions
         /// </summary>
         /// <param name="items">Inventory items to look for secure container in</param>
         /// <returns>List of ids</returns>
-        public static List<string> GetSecureContainerItems(this List<Item> items)
+        public static List<MongoId> GetSecureContainerItems(this List<Item> items)
         {
             var secureContainer = items.First(x => x.SlotId == "SecuredContainer");
 

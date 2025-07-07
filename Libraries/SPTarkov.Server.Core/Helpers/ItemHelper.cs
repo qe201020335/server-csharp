@@ -1856,29 +1856,33 @@ public class ItemHelper(
         return GetRemovablePlateSlotIds().Contains(slotName.ToLowerInvariant());
     }
 
-    // Get a list of slot names that hold removable plates
-    // Returns Array of slot ids (e.g. front_plate)
+    /// <summary>
+    /// Get a list of slot names that hold removable plates
+    /// </summary>
+    /// <returns>Array of slot ids (e.g. front_plate)</returns>
     public FrozenSet<string> GetRemovablePlateSlotIds()
     {
         return _removablePlateSlotIds;
     }
 
-    // Generate new unique ids for child items while preserving hierarchy
-    // Base/primary item
-    // Primary item + children of primary item
-    // Returns Item array with updated IDs
+    /// <summary>
+    /// Generate new unique ids for child items while preserving hierarchy
+    /// </summary>
+    /// <param name="rootItem">Base/primary item</param>
+    /// <param name="itemWithChildren">Primary item + children of primary item</param>
+    /// <returns>Item array with updated IDs</returns>
     public List<Item> ReparentItemAndChildren(Item rootItem, List<Item> itemWithChildren)
     {
         var oldRootId = itemWithChildren[0].Id;
-        Dictionary<string, MongoId> idMappings = new();
+        Dictionary<string, MongoId> idMappings = [];
 
-        idMappings[oldRootId] = rootItem.Id;
+        idMappings[oldRootId.ToString()] = rootItem.Id;
 
         foreach (var mod in itemWithChildren)
         {
             if (!idMappings.ContainsKey(mod.Id))
             {
-                idMappings[mod.Id] = new MongoId();
+                idMappings[mod.Id.ToString()] = new MongoId();
             }
 
             // Has parentId + no remapping exists for its parent
@@ -1891,7 +1895,7 @@ public class ItemHelper(
                 idMappings[mod.ParentId] = new MongoId();
             }
 
-            mod.Id = idMappings[mod.Id];
+            mod.Id = idMappings[mod.Id.ToString()];
             if (mod.ParentId != null)
             {
                 mod.ParentId = idMappings[mod.ParentId];

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -10,7 +11,7 @@ namespace SPTarkov.Server.Core.Servers;
 [Injectable(InjectionType.Singleton)]
 public class ConfigServer
 {
-    protected readonly string[] acceptableFileExtensions = ["json", "jsonc"];
+    protected readonly FrozenSet<string> acceptableFileExtensions = ["json", "jsonc"];
     protected readonly FileUtil _fileUtil;
     protected readonly JsonUtil _jsonUtil;
     protected readonly ISptLogger<ConfigServer> _logger;
