@@ -174,7 +174,10 @@ public record ItemChanges
 
 public record DeletedItem
 {
-    [JsonPropertyName("_id")]
+     [JsonExtensionData]
+    public Dictionary<string, object>? ExtensionData { get; set; }
+
+   [JsonPropertyName("_id")]
     public string Id { get; set; }
 }
 

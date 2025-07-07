@@ -145,8 +145,8 @@ public class JsonExtensionDataGeneratorLauncher
 
     private static int FindEndClassIndex(string content, int currentIndex)
     {
-        // we do +3 cause thats the length of what we are searching for
-        return _endRecordClassRegex.Match(content, currentIndex).Index + 3;
+        // we do +3 cause that's the length of what we are searching for
+        return _endRecordClassRegex.Match(content, currentIndex).Index;
     }
 
     private static int FindNextClassStartIndex(string content, int currentIndex)
