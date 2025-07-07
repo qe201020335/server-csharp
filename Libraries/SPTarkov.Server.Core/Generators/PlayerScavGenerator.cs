@@ -70,7 +70,7 @@ public class PlayerScavGenerator(
 
         if (logger.IsLogEnabled(LogLevel.Debug))
         {
-            _logger.Debug($"Generated player scav load out with karma level: {scavKarmaLevel}");
+            logger.Debug($"Generated player scav load out with karma level: {scavKarmaLevel}");
         }
 
         // Edit baseBotNode values
