@@ -1547,27 +1547,24 @@ public class HideoutController(
             return httpResponseUtil.AppendErrorToOutput(output);
         }
 
-        // Add all improvemets to output object
+        // Add all improvements to output object
         var improvements = hideoutDbData.Stages[profileHideoutArea.Level.ToString()].Improvements;
         var timestamp = timeUtil.GetTimeStamp();
 
-        if (output.ProfileChanges[sessionId].Improvements is null)
-        {
-            output.ProfileChanges[sessionId].Improvements =
-                new Dictionary<string, HideoutImprovement>();
-        }
+        // nullguard
+        output.ProfileChanges[sessionId].Improvements ??= [];
 
-        foreach (var improvement in improvements)
+        foreach (var stageImprovement in improvements)
         {
             var improvementDetails = new HideoutImprovement
             {
                 Completed = false,
-                ImproveCompleteTimestamp = (long)(timestamp + improvement.ImprovementTime),
+                ImproveCompleteTimestamp = (long)(timestamp + stageImprovement.ImprovementTime),
             };
-            output.ProfileChanges[sessionId].Improvements[improvement.Id] = improvementDetails;
+            output.ProfileChanges[sessionId].Improvements[stageImprovement.Id] = improvementDetails;
 
-            pmcData.Hideout.Improvements ??= new Dictionary<string, HideoutImprovement>();
-            pmcData.Hideout.Improvements[improvement.Id] = improvementDetails;
+            pmcData.Hideout.Improvements ??= [];
+            pmcData.Hideout.Improvements[stageImprovement.Id] = improvementDetails;
         }
 
         return output;
@@ -1662,8 +1659,9 @@ public class HideoutController(
             return output;
         }
 
-        pmcData.Hideout.Customization[GetHideoutCustomisationType(itemDetails.Type)] =
-            itemDetails.ItemId;
+        pmcData.Hideout.Customization[GetHideoutCustomisationType(itemDetails.Type)] = itemDetails
+            .ItemId
+            .Value;
 
         return output;
     }
@@ -1774,7 +1772,7 @@ public class HideoutController(
         foreach (var poseKvP in request.Poses)
         {
             // Nullguard
-            pmcData.Hideout.MannequinPoses ??= new Dictionary<string, MongoId>();
+            pmcData.Hideout.MannequinPoses ??= [];
             pmcData.Hideout.MannequinPoses[poseKvP.Key] = poseKvP.Value;
         }
 

@@ -70,8 +70,8 @@ public class EventOutputHolder(
                                 ChangedItems = [],
                                 DeletedItems = [],
                             },
-                            Production = new Dictionary<string, Production>(),
-                            Improvements = new Dictionary<string, HideoutImprovement>(),
+                            Production = [],
+                            Improvements = [],
                             Skills = new Skills
                             {
                                 Common = [],
@@ -79,7 +79,7 @@ public class EventOutputHolder(
                                 Points = 0,
                             },
                             Health = cloner.Clone(pmcProfile.Health),
-                            TraderRelations = new Dictionary<MongoId, TraderData>(),
+                            TraderRelations = [],
                             QuestsStatus = [],
                         }
                     },
@@ -104,27 +104,39 @@ public class EventOutputHolder(
         profileChanges.Skills.Mastering = cloner.Clone(pmcData.Skills.Mastering);
 
         // Clone productions to ensure we preserve the profile jsons data
-        profileChanges.Production = GetProductionsFromProfileAndFlagComplete(
-            cloner.Clone(pmcData.Hideout.Production),
-            sessionId
-        );
-        profileChanges.Improvements = cloner.Clone(
-            GetImprovementsFromProfileAndFlagComplete(pmcData)
-        );
+        var hideoutProductionNull = pmcData.Hideout.Production == null;
+        if (!hideoutProductionNull)
+        {
+            profileChanges.Production = GetProductionsFromProfileAndFlagComplete(
+                cloner.Clone(pmcData.Hideout.Production),
+                sessionId
+            );
+        }
+
+        if (pmcData.Hideout.Improvements != null)
+        {
+            profileChanges.Improvements = cloner.Clone(
+                GetImprovementsFromProfileAndFlagComplete(pmcData)
+            );
+        }
+
         profileChanges.TraderRelations = ConstructTraderRelations(pmcData.TradersInfo);
 
         ResetMoneyTransferLimit(pmcData.MoneyTransferLimitData);
         profileChanges.MoneyTransferLimitData = pmcData.MoneyTransferLimitData;
 
         // Fixes container craft from water collector not resetting after collection + removed completed normal crafts
-        CleanUpCompleteCraftsInProfile(pmcData.Hideout.Production);
+        if (!hideoutProductionNull && pmcData.Hideout.Production.Any())
+        {
+            CleanUpCompleteCraftsInProfile(pmcData.Hideout.Production);
+        }
     }
 
     /// <summary>
     ///     Required as continuous productions don't reset and stay at 100% completion but client thinks it hasn't started
     /// </summary>
     /// <param name="productions"> Productions in a profile </param>
-    protected void CleanUpCompleteCraftsInProfile(Dictionary<string, Production>? productions)
+    protected void CleanUpCompleteCraftsInProfile(Dictionary<MongoId, Production>? productions)
     {
         foreach (var production in productions)
         {
@@ -157,14 +169,12 @@ public class EventOutputHolder(
     /// </summary>
     /// <param name="pmcData"> Player profile </param>
     /// <returns> Dictionary of hideout improvements </returns>
-    protected Dictionary<string, HideoutImprovement>? GetImprovementsFromProfileAndFlagComplete(
+    protected Dictionary<MongoId, HideoutImprovement> GetImprovementsFromProfileAndFlagComplete(
         PmcData pmcData
     )
     {
-        foreach (var improvementKey in pmcData.Hideout.Improvements)
+        foreach (var (key, improvement) in pmcData.Hideout.Improvements)
         {
-            var improvement = pmcData.Hideout.Improvements[improvementKey.Key];
-
             // Skip completed
             if (improvement.Completed ?? false)
             {
@@ -186,8 +196,8 @@ public class EventOutputHolder(
     /// <param name="productions"> Productions from player profile </param>
     /// <param name="sessionId"> Player session ID</param>
     /// <returns> Dictionary of hideout productions </returns>
-    protected Dictionary<string, Production>? GetProductionsFromProfileAndFlagComplete(
-        Dictionary<string, Production>? productions,
+    protected Dictionary<MongoId, Production> GetProductionsFromProfileAndFlagComplete(
+        Dictionary<MongoId, Production>? productions,
         MongoId sessionId
     )
     {
@@ -215,10 +225,9 @@ public class EventOutputHolder(
             }
 
             // Client informed of craft, remove from data returned
-            Dictionary<string, bool>? storageForSessionId = null;
-            if (!_clientActiveSessionStorage.TryGetValue(sessionId, out storageForSessionId))
+            if (!_clientActiveSessionStorage.TryGetValue(sessionId, out var storageForSessionId))
             {
-                _clientActiveSessionStorage.Add(sessionId, new Dictionary<string, bool>());
+                _clientActiveSessionStorage.Add(sessionId, []);
                 storageForSessionId = _clientActiveSessionStorage[sessionId];
             }
 

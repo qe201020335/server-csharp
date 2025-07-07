@@ -65,13 +65,13 @@ public record ProfileChange
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("production")]
-    public Dictionary<string, Production>? Production { get; set; }
+    public Dictionary<MongoId, Production>? Production { get; set; }
 
     /// <summary>
     ///     Hideout area improvement id
     /// </summary>
     [JsonPropertyName("improvements")]
-    public Dictionary<string, HideoutImprovement>? Improvements { get; set; }
+    public Dictionary<MongoId, HideoutImprovement>? Improvements { get; set; }
 
     [JsonPropertyName("skills")]
     public Skills? Skills { get; set; }

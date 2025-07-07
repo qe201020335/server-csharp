@@ -108,7 +108,7 @@ public record BotBase
     public DictionaryOrList<MongoId, int>? WishList { get; set; }
 
     [JsonPropertyName("moneyTransferLimitData")]
-    public MoneyTransferLimits? MoneyTransferLimitData { get; set; }
+    public MoneyTransferLimits MoneyTransferLimitData { get; set; }
 
     /// <summary>
     ///     SPT specific property used during bot generation in raid
@@ -166,7 +166,7 @@ public record UnlockedInfo
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("unlockedProductionRecipe")]
-    public HashSet<string>? UnlockedProductionRecipe { get; set; }
+    public HashSet<MongoId>? UnlockedProductionRecipe { get; set; }
 }
 
 public record Info
@@ -458,7 +458,7 @@ public record BotBaseInventory
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("hideoutAreaStashes")]
     // TODO: key should be EAreaType enum
-    public Dictionary<string, MongoId>? HideoutAreaStashes { get; set; }
+    public Dictionary<string, MongoId>? HideoutAreaStashes { get; set; } // Key = hideout area key as string
 
     [JsonPropertyName("fastPanel")]
     public Dictionary<string, MongoId>? FastPanel { get; set; }
@@ -569,7 +569,7 @@ public record DroppedItem
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    public string? QuestId { get; set; }
+    public MongoId QuestId { get; set; }
 
     public MongoId? ItemId { get; set; }
 
@@ -581,7 +581,7 @@ public record FoundInRaidItem
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    public string? QuestId { get; set; }
+    public MongoId QuestId { get; set; }
 
     public MongoId? ItemId { get; set; }
 }
@@ -593,7 +593,7 @@ public record Victim
 
     public string? AccountId { get; set; }
 
-    public string? ProfileId { get; set; }
+    public MongoId? ProfileId { get; set; }
 
     public string? Name { get; set; }
 
@@ -786,7 +786,7 @@ public record BackendCounter
     public string? Id { get; set; }
 
     [JsonPropertyName("qid")]
-    public string? QId { get; set; }
+    public MongoId? QId { get; set; }
 
     [JsonPropertyName("value")]
     public double? Value { get; set; }
@@ -801,7 +801,7 @@ public record InsuredItem
     ///     Trader ID item was insured by
     /// </summary>
     [JsonPropertyName("tid")]
-    public string? TId { get; set; }
+    public MongoId TId { get; set; }
 
     [JsonPropertyName("itemId")]
     public MongoId? ItemId { get; set; }
@@ -812,11 +812,11 @@ public record Hideout
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    public Dictionary<string, Production?>? Production { get; set; }
+    public Dictionary<MongoId, Production?>? Production { get; set; }
 
     public List<BotHideoutArea>? Areas { get; set; }
 
-    public Dictionary<string, HideoutImprovement>? Improvements { get; set; }
+    public Dictionary<MongoId, HideoutImprovement>? Improvements { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public HideoutCounters? HideoutCounters { get; set; }
@@ -826,12 +826,12 @@ public record Hideout
     /// </summary>
     public string? Seed { get; set; }
 
-    public Dictionary<string, MongoId>? MannequinPoses { get; set; }
+    public Dictionary<MongoId, MongoId>? MannequinPoses { get; set; }
 
     [JsonPropertyName("sptUpdateLastRunTimestamp")]
     public long? SptUpdateLastRunTimestamp { get; set; }
 
-    public Dictionary<string, string>? Customization { get; set; }
+    public Dictionary<string, MongoId>? Customization { get; set; } // Key = Area customisaion type as string, e.g. "Wall", "Light", "ShootingRangeMark"
 }
 
 public record HideoutCounters
@@ -1014,33 +1014,6 @@ public enum SurvivorClass
     MARAUDER = 2,
     PARAMEDIC = 3,
     SURVIVOR = 4,
-}
-
-public record Quests
-{
-    [JsonExtensionData]
-    public Dictionary<string, object>? ExtensionData { get; set; }
-
-    [JsonPropertyName("qid")]
-    public string? QId { get; set; }
-
-    [JsonPropertyName("startTime")]
-    public long? StartTime { get; set; }
-
-    [JsonPropertyName("status")]
-    public QuestStatusEnum? Status { get; set; }
-
-    [JsonPropertyName("statusTimers")]
-    public Dictionary<QuestStatusEnum, long>? StatusTimers { get; set; }
-
-    /// <summary>
-    ///     Property does not exist in live profile data, but is used by ProfileChanges.questsStatus when sent to client
-    /// </summary>
-    [JsonPropertyName("completedConditions")]
-    public List<string>? CompletedConditions { get; set; }
-
-    [JsonPropertyName("availableAfter")]
-    public long? AvailableAfter { get; set; }
 }
 
 public record TraderInfo

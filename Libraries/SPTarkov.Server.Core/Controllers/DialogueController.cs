@@ -355,7 +355,7 @@ public class DialogueController(
         result.Add(
             new UserDialogInfo
             {
-                Id = fullProfile.ProfileInfo?.ProfileId,
+                Id = fullProfile.ProfileInfo.ProfileId.Value,
                 Aid = fullProfile.ProfileInfo?.Aid,
                 Info = new UserDialogDetails
                 {

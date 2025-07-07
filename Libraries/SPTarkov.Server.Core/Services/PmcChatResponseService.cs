@@ -48,7 +48,7 @@ public class PmcChatResponseService(
             if (string.IsNullOrEmpty(victim.Name))
             {
                 logger.Warning(
-                    $"Victim: {victim.ProfileId} does not have a nickname, skipping pmc response message send"
+                    $"Victim: {victim.ProfileId.ToString()} does not have a nickname, skipping pmc response message send"
                 );
 
                 continue;
@@ -320,7 +320,7 @@ public class PmcChatResponseService(
 
         return new UserDialogInfo
         {
-            Id = pmcVictim.ProfileId,
+            Id = pmcVictim.ProfileId.Value,
             Aid = int.Parse(pmcVictim.AccountId),
             Info = new UserDialogDetails
             {
