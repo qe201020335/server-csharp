@@ -6,6 +6,7 @@ using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
 using SPTarkov.Server.Core.Models.Eft.Profile;
+using SPTarkov.Server.Core.Models.Eft.Ws;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
@@ -24,6 +25,7 @@ public class RewardHelper(
     ServerLocalisationService serverLocalisationService,
     TraderHelper traderHelper,
     PresetHelper presetHelper,
+    NotificationSendHelper notificationSendHelper,
     ICloner cloner
 )
 {
@@ -121,6 +123,15 @@ public class RewardHelper(
                     break;
                 case RewardType.CustomizationDirect:
                     profileHelper.AddHideoutCustomisationUnlock(fullProfile, reward, source);
+                    notificationSendHelper.SendMessage(
+                        sessionId.Value,
+                        new WsNotificationEvent
+                        {
+                            EventIdentifier = new MongoId(),
+                            EventType = NotificationEventType.CustomizationUpdateRequired,
+                        }
+                    );
+
                     break;
                 case RewardType.NotificationPopup:
                     // TODO: Wire up to notification system
