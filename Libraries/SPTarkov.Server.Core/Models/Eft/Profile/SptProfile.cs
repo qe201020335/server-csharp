@@ -269,10 +269,10 @@ public record Message
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("uid")]
-    public string? UserId { get; set; }
+    public MongoId UserId { get; set; }
 
     [JsonPropertyName("type")]
     public MessageType? MessageType { get; set; }

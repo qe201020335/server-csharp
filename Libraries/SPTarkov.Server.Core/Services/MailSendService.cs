@@ -187,7 +187,7 @@ public class MailSendService(
             RecipientId = sessionId,
             Sender = MessageType.SystemMessage,
             MessageText = message,
-            Items = new List<Item>(),
+            Items = [],
         };
 
         // add items to message
@@ -228,7 +228,7 @@ public class MailSendService(
             RecipientId = sessionId,
             Sender = MessageType.SystemMessage,
             TemplateId = messageLocaleId,
-            Items = new List<Item>(),
+            Items = [],
         };
 
         // add items to message
@@ -268,7 +268,7 @@ public class MailSendService(
             Sender = MessageType.UserMessage,
             SenderDetails = senderDetails,
             MessageText = message,
-            Items = new List<Item>(),
+            Items = [],
         };
 
         // add items to message
@@ -337,7 +337,7 @@ public class MailSendService(
             message.MessageType = MessageType.MessageWithItems; // Should prevent getting the same notification popup twice
         }
 
-        // Send message off to player so they get it in client
+        // Send notification to player informing them of mail delivery
         var notificationMessage = notifierHelper.CreateNewMessageNotification(message);
         notificationSendHelper.SendMessage(messageDetails.RecipientId, notificationMessage);
     }
@@ -368,7 +368,7 @@ public class MailSendService(
                 Id = new MongoId(),
                 DateTime = timeUtil.GetTimeStamp(),
                 HasRewards = false,
-                UserId = playerProfile.CharacterData.PmcData.Id,
+                UserId = playerProfile.CharacterData.PmcData.Id.Value,
                 MessageType = MessageType.UserMessage,
                 RewardCollected = false,
                 Text = message,
@@ -382,7 +382,7 @@ public class MailSendService(
     /// <param name="dialogId"> ID of dialog that will hold the message </param>
     /// <param name="messageDetails"> Various details on what the message must contain/do </param>
     /// <returns> Message </returns>
-    private Message CreateDialogMessage(string dialogId, SendMessageDetails messageDetails)
+    private Message CreateDialogMessage(MongoId dialogId, SendMessageDetails messageDetails)
     {
         Message message = new()
         {
@@ -394,7 +394,7 @@ public class MailSendService(
             TemplateId = messageDetails.TemplateId,
             HasRewards = false,
             RewardCollected = false,
-            SystemData = messageDetails.SystemData is not null ? messageDetails.SystemData : null,
+            SystemData = messageDetails.SystemData,
             ProfileChangeEvents =
                 messageDetails.ProfileChangeEvents?.Count == 0
                     ? messageDetails.ProfileChangeEvents
@@ -425,7 +425,7 @@ public class MailSendService(
     /// <param name="replyToId"> The ID of the message to reply to </param>
     /// <param name="dialogueId"> The ID of the dialogue (traderId or profileId) </param>
     /// <returns> A new instance with data from the found message, otherwise undefined </returns>
-    protected ReplyTo? GetMessageToReplyTo(string recipientId, string replyToId, string dialogueId)
+    protected ReplyTo? GetMessageToReplyTo(MongoId recipientId, string replyToId, string dialogueId)
     {
         var currentDialogue = dialogueHelper.GetDialogueFromProfile(recipientId, dialogueId);
 
@@ -511,8 +511,8 @@ public class MailSendService(
             // Prep return object
             itemsToSendToPlayer = new MessageItems
             {
-                Stash = parentItem.ParentId,
-                Data = new List<Item>(),
+                Stash = new MongoId(parentItem.ParentId),
+                Data = [],
             };
 
             // Ensure Ids are unique and cont collide with items in player inventory later
@@ -521,8 +521,7 @@ public class MailSendService(
             // Ensure item exits in items db
             foreach (var reward in messageDetails.Items)
             {
-                var itemTemplate = items[reward.Template];
-                if (itemTemplate is null)
+                if (!items.TryGetValue(reward.Template, out var itemTemplate))
                 {
                     logger.Error(
                         serverLocalisationService.GetText(
@@ -596,7 +595,7 @@ public class MailSendService(
     /// </summary>
     /// <param name="items"> Possible items to choose from </param>
     /// <returns> Chosen 'primary' item </returns>
-    private Item GetBaseItemFromRewards(List<Item>? items)
+    protected Item? GetBaseItemFromRewards(List<Item> items)
     {
         // Only one item in reward, return it
         if (items?.Count == 1)
@@ -604,14 +603,14 @@ public class MailSendService(
             return items[0];
         }
 
-        // Find first item with slotId that indicates its a 'base' item
+        // Find first item with slotId that indicates it's a 'base' item
         var item = items.FirstOrDefault(x => _slotNames.Contains(x.SlotId ?? ""));
         if (item is not null)
         {
             return item;
         }
 
-        // Not a singlular item + no items have a hideout/main slotid
+        // Not a singular item + no items have a hideout/main slotId
         // Look for first item without parent id
         item = items.FirstOrDefault(x => x.ParentId is null);
         if (item is not null)
@@ -620,7 +619,7 @@ public class MailSendService(
         }
 
         // Just return first item in array
-        return items[0];
+        return items.FirstOrDefault();
     }
 
     /// <summary>
