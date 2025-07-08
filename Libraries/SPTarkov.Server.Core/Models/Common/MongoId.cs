@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using SPTarkov.Server.Core.Extensions;
+﻿using SPTarkov.Server.Core.Extensions;
 
 namespace SPTarkov.Server.Core.Models.Common;
 
@@ -108,7 +107,7 @@ public readonly struct MongoId : IEquatable<MongoId>
 
     public bool Equals(MongoId other)
     {
-        return _stringId == other._stringId;
+        return string.Equals(_stringId, other._stringId, StringComparison.OrdinalIgnoreCase);
     }
 
     public override bool Equals(object? obj)
