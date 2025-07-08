@@ -419,17 +419,13 @@ public class LocationLifecycleService(
         );
 
         // Handle car extracts
-        if (ExtractWasViaCar(request.Results.ExitName))
+        if (TookCarExtract(request.Results))
         {
             HandleCarExtract(request.Results.ExitName, pmcProfile, sessionId);
         }
 
         // Handle coop exit
-        if (
-            request.Results.ExitName is not null
-            && ExtractTakenWasCoop(request.Results.ExitName)
-            && _traderConfig.Fence.CoopExtractGift.SendGift
-        )
+        if (TookCoopExtract(request.Results) && _traderConfig.Fence.CoopExtractGift.SendGift)
         {
             HandleCoopExtract(sessionId, pmcProfile, request.Results.ExitName);
             SendCoopTakenFenceMessage(sessionId);
@@ -469,22 +465,32 @@ public class LocationLifecycleService(
     /// <summary>
     ///     Was extract by car
     /// </summary>
-    /// <param name="extractName"> Name of extract </param>
+    /// <param name="requestResults">Result object from completed raid</param>
     /// <returns> True if extract was by car </returns>
-    protected bool ExtractWasViaCar(string extractName)
+    protected bool TookCarExtract(EndRaidResult? requestResults)
     {
         // exit name is undefined on death
-        if (string.IsNullOrEmpty(extractName))
+        if (string.IsNullOrEmpty(requestResults?.ExitName))
         {
             return false;
         }
 
-        if (extractName.ToLowerInvariant().Contains("v-ex"))
+        if (requestResults.ExitName.ToLowerInvariant().Contains("v-ex"))
         {
             return true;
         }
 
-        return _inRaidConfig.CarExtracts.Contains(extractName.Trim());
+        return _inRaidConfig.CarExtracts.Contains(requestResults.ExitName.Trim());
+    }
+
+    /// <summary>
+    /// Raid exit was via coop extract
+    /// </summary>
+    /// <param name="raidResult">Result object from completed raid</param>
+    /// <returns>True when exit was coop extract</returns>
+    protected bool TookCoopExtract(EndRaidResult? raidResult)
+    {
+        return raidResult?.ExitName is not null && ExtractTakenWasCoop(raidResult.ExitName);
     }
 
     /// <summary>
@@ -852,10 +858,11 @@ public class LocationLifecycleService(
         // MUST occur prior to profile achievements being overwritten by post-raid achievements
         ProcessAchievementRewards(fullServerProfile, postRaidProfile.Achievements);
 
+        // MUST occur AFTER ProcessAchievementRewards()
         serverPmcProfile.Achievements = postRaidProfile.Achievements;
         serverPmcProfile.Quests = ProcessPostRaidQuests(postRaidProfile.Quests);
 
-        // Handle edge case - must occur AFTER processPostRaidQuests()
+        // MUST occur AFTER processPostRaidQuests()
         LightkeeperQuestWorkaround(
             sessionId,
             postRaidProfile.Quests,
@@ -875,9 +882,9 @@ public class LocationLifecycleService(
         var fenceId = Traders.FENCE;
 
         // Clamp fence standing
-        var currentFenceStanding = postRaidProfile.TradersInfo[fenceId].Standing;
+        var currentFenceStanding = postRaidProfile.TradersInfo[fenceId].Standing ?? 0d;
         serverPmcProfile.TradersInfo[fenceId].Standing = Math.Min(
-            Math.Max((double)currentFenceStanding, -7),
+            Math.Max(currentFenceStanding, -7),
             15
         ); // Ensure it stays between -7 and 15
 
