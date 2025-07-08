@@ -895,6 +895,13 @@ public class LocationLifecycleService(
             isDead
         );
 
+        // Required when player loses limb in-raid and fixes it, max now stuck at 50% or less if lost multiple times
+        var profileTemplate = profileHelper.GetProfileTemplateForSide(
+            fullServerProfile.ProfileInfo.Edition,
+            serverPmcProfile.Info.Side
+        );
+        serverPmcProfile.ResetMaxLimbHp(profileTemplate);
+
         if (isTransfer)
         {
             // Adjust limb hp and effects while transiting

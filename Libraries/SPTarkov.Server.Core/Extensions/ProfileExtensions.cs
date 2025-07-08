@@ -241,5 +241,23 @@ namespace SPTarkov.Server.Core.Extensions
 
             return quest?.Status ?? QuestStatusEnum.Locked;
         }
+
+        /// <summary>
+        /// Use values from the profiles template to reset all body part max values
+        /// </summary>
+        /// <param name="profile">Profile to update</param>
+        /// <param name="profileTemplate">Template used to create profile</param>
+        public static void ResetMaxLimbHp(this PmcData profile, TemplateSide profileTemplate)
+        {
+            foreach (var (partKey, bodyPart) in profile.Health.BodyParts)
+            {
+                bodyPart.Health.Maximum = profileTemplate
+                    .Character
+                    .Health
+                    .BodyParts[partKey]
+                    .Health
+                    .Maximum;
+            }
+        }
     }
 }
