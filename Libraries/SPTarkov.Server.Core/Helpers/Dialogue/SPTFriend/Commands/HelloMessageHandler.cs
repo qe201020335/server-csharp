@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Dialog;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -33,7 +34,7 @@ public class HelloMessageHandler(MailSendService _mailSendService, RandomUtil _r
     }
 
     public void Process(
-        string sessionId,
+        MongoId sessionId,
         UserDialogInfo sptFriendUser,
         PmcData? sender,
         object? extraInfo = null
@@ -79,7 +80,7 @@ public class HelloMessageHandler(MailSendService _mailSendService, RandomUtil _r
 
     public string PerformAction(
         UserDialogInfo commandHandler,
-        string sessionId,
+        MongoId sessionId,
         SendMessageRequest request
     )
     {

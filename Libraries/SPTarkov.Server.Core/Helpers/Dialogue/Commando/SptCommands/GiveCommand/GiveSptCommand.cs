@@ -40,21 +40,27 @@ public class GiveSptCommand(
 
     protected readonly Dictionary<string, SavedCommand> _savedCommand = new();
 
-    public string GetCommand()
+    public string Command
     {
-        return "give";
+        get
+        {
+            return "give";
+        }
     }
 
-    public string GetCommandHelp()
+    public string CommandHelp
     {
-        return "spt give\n========\nSends items to the player through the message system.\n\n\tspt give [template ID] [quantity]\n\t\tEx: "
+        get
+        {
+            return "spt give\n========\nSends items to the player through the message system.\n\n\tspt give [template ID] [quantity]\n\t\tEx: "
             + "spt give 544fb25a4bdc2dfb738b4567 2\n\n\tspt give [\"item name\"] [quantity]\n\t\tEx: spt give \"pack of sugar\" 10\n\n\tspt "
             + "give [locale] [\"item name\"] [quantity]\n\t\tEx: spt give fr \"figurine de chat\" 3";
+        }
     }
 
     public ValueTask<string> PerformAction(
         UserDialogInfo commandHandler,
-        string sessionId,
+        MongoId sessionId,
         SendMessageRequest request
     )
     {

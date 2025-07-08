@@ -33,7 +33,7 @@ public class GiveMeSpaceMessageHandler(
     }
 
     public void Process(
-        string sessionId,
+        MongoId sessionId,
         UserDialogInfo sptFriendUser,
         PmcData? sender,
         object? extraInfo = null
