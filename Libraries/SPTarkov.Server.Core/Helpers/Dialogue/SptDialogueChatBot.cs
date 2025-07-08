@@ -1,11 +1,10 @@
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Helpers.Dialog.Commando;
 using SPTarkov.Server.Core.Helpers.Dialogue.SPTFriend.Commands;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Dialog;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Services;
 
@@ -40,7 +39,7 @@ public class SptDialogueChatBot(
         };
     }
 
-    public ValueTask<string> HandleMessage(string sessionId, SendMessageRequest request)
+    public ValueTask<string> HandleMessage(MongoId sessionId, SendMessageRequest request)
     {
         var sender = _profileHelper.GetPmcProfile(sessionId);
         var sptFriendUser = GetChatBot();
@@ -84,7 +83,7 @@ public class SptDialogueChatBot(
         return "Unknown command.";
     }
 
-    protected ValueTask<string> SendPlayerHelpMessage(string sessionId, SendMessageRequest request)
+    protected ValueTask<string> SendPlayerHelpMessage(MongoId sessionId, SendMessageRequest request)
     {
         _mailSendService.SendUserMessageToPlayer(
             sessionId,

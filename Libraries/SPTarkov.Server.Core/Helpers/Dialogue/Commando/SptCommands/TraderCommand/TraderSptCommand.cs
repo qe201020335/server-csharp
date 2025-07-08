@@ -24,19 +24,25 @@ public class TraderSptCommand(
         @"^spt trader (?<trader>[\w]+) (?<command>rep|spend) (?<quantity>(?!0+)[0-9]+)$"
     );
 
-    public string GetCommand()
+    public string Command
     {
-        return "trader";
+        get
+        {
+            return "trader";
+        }
     }
 
-    public string GetCommandHelp()
+    public string CommandHelp
     {
-        return "spt trader \n ======== \n Sets the reputation or money spent to the input quantity through the message system.\n\n\tspt trader [trader] rep [quantity]\n\t\tEx: spt trader prapor rep 2\n\n\tspt trader [trader] spend [quantity]\n\t\tEx: spt trader therapist spend 1000000";
+        get
+        {
+            return "spt trader \n ======== \n Sets the reputation or money spent to the input quantity through the message system.\n\n\tspt trader [trader] rep [quantity]\n\t\tEx: spt trader prapor rep 2\n\n\tspt trader [trader] spend [quantity]\n\t\tEx: spt trader therapist spend 1000000";
+        }
     }
 
     public ValueTask<string> PerformAction(
         UserDialogInfo commandHandler,
-        string sessionId,
+        MongoId sessionId,
         SendMessageRequest request
     )
     {

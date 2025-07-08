@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
@@ -26,7 +27,7 @@ public class ForceChristmasMessageHandler(
     }
 
     public void Process(
-        string sessionId,
+        MongoId sessionId,
         UserDialogInfo sptFriendUser,
         PmcData? sender,
         object? extraInfo = null

@@ -30,21 +30,27 @@ public class ProfileSptCommand(
 
     protected static readonly Regex _examineRegex = new(@"^spt profile (?<command>examine)");
 
-    public string GetCommand()
+    public string Command
     {
-        return "profile";
+        get
+        {
+            return "profile";
+        }
     }
 
-    public string GetCommandHelp()
+    public string CommandHelp
     {
-        return "spt profile\n========\nSets the profile level or skill to the desired level through the message system.\n\n\tspt "
+        get
+        {
+            return "spt profile\n========\nSets the profile level or skill to the desired level through the message system.\n\n\tspt "
             + "profile level [desired level]\n\t\tEx: spt profile level 20\n\n\tspt profile skill [skill name] [quantity]\n\t\tEx: "
             + "spt profile skill metabolism 51";
+        }
     }
 
     public ValueTask<string> PerformAction(
         UserDialogInfo commandHandler,
-        string sessionId,
+        MongoId sessionId,
         SendMessageRequest request
     )
     {

@@ -1,4 +1,5 @@
 using SPTarkov.Server.Core.Helpers.Dialog.Commando;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Dialog;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Utils;
@@ -14,12 +15,12 @@ public abstract class AbstractDialogChatBot(
 ) : IDialogueChatBot
 {
     protected readonly IDictionary<string, IChatCommand> _chatCommands = chatCommands.ToDictionary(
-        command => command.GetCommandPrefix()
+        command => command.CommandPrefix
     );
 
     public abstract UserDialogInfo GetChatBot();
 
-    public async ValueTask<string> HandleMessage(string sessionId, SendMessageRequest request)
+    public async ValueTask<string> HandleMessage(MongoId sessionId, SendMessageRequest request)
     {
         if ((request.Text ?? "").Length == 0)
         {
@@ -33,7 +34,7 @@ public abstract class AbstractDialogChatBot(
         if (
             splitCommand.Length > 1
             && _chatCommands.TryGetValue(splitCommand[0], out var commando)
-            && commando.GetCommands().Contains(splitCommand[1])
+            && commando.Commands.Contains(splitCommand[1])
         )
         {
             return await commando.Handle(splitCommand[1], GetChatBot(), sessionId, request);
@@ -58,7 +59,7 @@ public abstract class AbstractDialogChatBot(
     }
 
     protected async ValueTask<string> SendPlayerHelpMessage(
-        string sessionId,
+        MongoId sessionId,
         SendMessageRequest request
     )
     {
@@ -77,14 +78,14 @@ public abstract class AbstractDialogChatBot(
             _mailSendService.SendUserMessageToPlayer(
                 sessionId,
                 GetChatBot(),
-                $"Commands available for \"{chatCommand.GetCommandPrefix()}\" prefix:",
+                $"Commands available for \"{chatCommand.CommandPrefix}\" prefix:",
                 [],
                 null
             );
 
             await Task.Delay(TimeSpan.FromSeconds(1));
 
-            foreach (var subCommand in chatCommand.GetCommands())
+            foreach (var subCommand in chatCommand.Commands)
             {
                 _mailSendService.SendUserMessageToPlayer(
                     sessionId,
@@ -103,7 +104,7 @@ public abstract class AbstractDialogChatBot(
 
     public void RegisterChatCommand(IChatCommand chatCommand)
     {
-        var prefix = chatCommand.GetCommandPrefix();
+        var prefix = chatCommand.CommandPrefix;
         if (!_chatCommands.TryAdd(prefix, chatCommand))
         {
             throw new Exception(

@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Dialog;
 using SPTarkov.Server.Core.Models.Eft.Profile;
@@ -31,7 +32,7 @@ public class SendGiftMessageHandler(
     }
 
     public void Process(
-        string sessionId,
+        MongoId sessionId,
         UserDialogInfo sptFriendUser,
         PmcData sender,
         object? extraInfo = null
