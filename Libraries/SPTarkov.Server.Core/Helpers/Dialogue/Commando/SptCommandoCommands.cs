@@ -38,10 +38,7 @@ public class SptCommandoCommands : IChatCommand
 
     public string CommandPrefix
     {
-        get
-        {
-            return "spt";
-        }
+        get { return "spt"; }
     }
 
     public string GetCommandHelp(string command)
@@ -51,10 +48,7 @@ public class SptCommandoCommands : IChatCommand
 
     public List<string> Commands
     {
-        get
-        {
-            return _sptCommands.Keys.ToList();
-        }
+        get { return _sptCommands.Keys.ToList(); }
     }
 
     public async ValueTask<string> Handle(

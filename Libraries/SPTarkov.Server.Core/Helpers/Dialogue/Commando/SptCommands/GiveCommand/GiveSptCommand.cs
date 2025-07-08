@@ -42,10 +42,7 @@ public class GiveSptCommand(
 
     public string Command
     {
-        get
-        {
-            return "give";
-        }
+        get { return "give"; }
     }
 
     public string CommandHelp
@@ -53,8 +50,8 @@ public class GiveSptCommand(
         get
         {
             return "spt give\n========\nSends items to the player through the message system.\n\n\tspt give [template ID] [quantity]\n\t\tEx: "
-            + "spt give 544fb25a4bdc2dfb738b4567 2\n\n\tspt give [\"item name\"] [quantity]\n\t\tEx: spt give \"pack of sugar\" 10\n\n\tspt "
-            + "give [locale] [\"item name\"] [quantity]\n\t\tEx: spt give fr \"figurine de chat\" 3";
+                + "spt give 544fb25a4bdc2dfb738b4567 2\n\n\tspt give [\"item name\"] [quantity]\n\t\tEx: spt give \"pack of sugar\" 10\n\n\tspt "
+                + "give [locale] [\"item name\"] [quantity]\n\t\tEx: spt give fr \"figurine de chat\" 3";
         }
     }
 

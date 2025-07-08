@@ -26,10 +26,7 @@ public class TraderSptCommand(
 
     public string Command
     {
-        get
-        {
-            return "trader";
-        }
+        get { return "trader"; }
     }
 
     public string CommandHelp

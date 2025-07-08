@@ -32,10 +32,7 @@ public class ProfileSptCommand(
 
     public string Command
     {
-        get
-        {
-            return "profile";
-        }
+        get { return "profile"; }
     }
 
     public string CommandHelp
@@ -43,8 +40,8 @@ public class ProfileSptCommand(
         get
         {
             return "spt profile\n========\nSets the profile level or skill to the desired level through the message system.\n\n\tspt "
-            + "profile level [desired level]\n\t\tEx: spt profile level 20\n\n\tspt profile skill [skill name] [quantity]\n\t\tEx: "
-            + "spt profile skill metabolism 51";
+                + "profile level [desired level]\n\t\tEx: spt profile level 20\n\n\tspt profile skill [skill name] [quantity]\n\t\tEx: "
+                + "spt profile skill metabolism 51";
         }
     }
 
