@@ -1254,6 +1254,9 @@ public record ItemsCommonSettings
 
     [JsonPropertyName("ItemRemoveAfterInterruptionTime")]
     public double? ItemRemoveAfterInterruptionTime { get; set; }
+
+    [JsonPropertyName("MaxBackpackInserting")]
+    public double? MaxBackpackInserting { get; set; }
 }
 
 public record TradingSettings

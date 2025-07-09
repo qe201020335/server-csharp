@@ -336,6 +336,9 @@ public record SuitRequirements
     [JsonPropertyName("loyaltyLevel")]
     public double? LoyaltyLevel { get; set; }
 
+    [JsonPropertyName("prestigeLevel")]
+    public double? PrestigeLevel { get; set; }
+
     [JsonPropertyName("profileLevel")]
     public double? ProfileLevel { get; set; }
 

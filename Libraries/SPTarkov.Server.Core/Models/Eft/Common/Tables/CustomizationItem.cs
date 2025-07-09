@@ -79,6 +79,12 @@ public class CustomizationProps
     [JsonPropertyName("Description")]
     public string? Description { get; set; }
 
+    [JsonPropertyName("DisableForMannequin")]
+    public bool? DisableForMannequin { get; set; }
+
+    [JsonPropertyName("IsNotRandom")]
+    public bool? IsNotRandom { get; set; }
+
     [JsonPropertyName("AvailableAsDefault")]
     public bool? AvailableAsDefault { get; set; }
 

@@ -23,6 +23,7 @@ public enum RewardType
     CustomizationOffer,
     ExtraDailyQuest,
     CustomizationDirect,
+    Stub,
     WebPromoCode,
     NotificationPopup,
     Customization = 116,

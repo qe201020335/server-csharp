@@ -27,6 +27,8 @@ public class HideoutHelper(
     ProfileHelper profileHelper,
     InventoryHelper inventoryHelper,
     ItemHelper itemHelper,
+    NotificationSendHelper notificationSendHelper,
+    NotifierHelper notifierHelper,
     ICloner cloner
 )
 {
