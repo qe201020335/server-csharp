@@ -69,11 +69,11 @@ public class CreateProfileService(
         pmcData.Quests = [];
         pmcData.Hideout.Seed = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(16));
         pmcData.RepeatableQuests = [];
-        pmcData.CarExtractCounts = new Dictionary<string, int>();
-        pmcData.CoopExtractCounts = new Dictionary<string, int>();
-        pmcData.Achievements = new Dictionary<MongoId, long>();
+        pmcData.CarExtractCounts = [];
+        pmcData.CoopExtractCounts = [];
+        pmcData.Achievements = [];
 
-        pmcData.WishList = new DictionaryOrList<MongoId, int>(new Dictionary<MongoId, int>(), []);
+        pmcData.WishList = new DictionaryOrList<MongoId, int>([], []);
 
         // Process handling if the account has been forced to wipe
         // BSG keeps both the achievements, prestige level and the total in-game time in a wipe
@@ -122,7 +122,7 @@ public class CreateProfileService(
             InraidData = new Inraid(),
             InsuranceList = [],
             BtrDeliveryList = [],
-            TraderPurchases = new Dictionary<string, Dictionary<string, TraderPurchaseData>?>(),
+            TraderPurchases = [],
             FriendProfileIds = [],
             CustomisationUnlocks = [],
         };
