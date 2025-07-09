@@ -7,5 +7,5 @@ public enum CloudinessType
     Cloudy,
     CloudyWithGaps,
     HeavyCloudCover,
-    Thundercloud
+    Thundercloud,
 }
