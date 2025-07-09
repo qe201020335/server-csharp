@@ -232,7 +232,7 @@ public class DatabaseService(
     }
 
     /// <returns> assets/database/templates/customisation.json </returns>
-    public Dictionary<string, CustomizationItem?> GetCustomization()
+    public Dictionary<MongoId, CustomizationItem?> GetCustomization()
     {
         if (databaseServer.GetTables().Templates?.Customization == null)
         {

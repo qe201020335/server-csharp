@@ -32,7 +32,7 @@ public record Templates
     public HandbookBase? Handbook { get; set; }
 
     [JsonPropertyName("customization")]
-    public Dictionary<string, CustomizationItem>? Customization { get; set; }
+    public Dictionary<MongoId, CustomizationItem>? Customization { get; set; }
 
     /// <summary>
     ///     The profile templates listed in the launcher on profile creation, split by account type (e.g. Standard) then side (e.g. bear/usec)

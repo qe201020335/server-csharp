@@ -527,7 +527,7 @@ public class BotGenerator(
         bot.Customization.Body = weightedRandomHelper.GetWeightedValue<string>(appearance.Body);
 
         var bodyGlobalDictDb = databaseService.GetGlobals().Configuration.Customization.Body;
-        var chosenBodyTemplate = databaseService.GetCustomization()[bot.Customization.Body];
+        var chosenBodyTemplate = databaseService.GetCustomization()[bot.Customization.Body.Value];
 
         // Some bodies have matching hands, look up body to see if this is the case
         var chosenBody = bodyGlobalDictDb.FirstOrDefault(c =>

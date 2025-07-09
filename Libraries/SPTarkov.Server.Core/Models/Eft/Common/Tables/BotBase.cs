@@ -319,48 +319,17 @@ public record Customization
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    private string? _head;
-    private string? _body;
-    private string? _feet;
-    private string? _dogtag;
-    private string? _hands;
-    private string? _voice;
+    public MongoId? Head { get; set; }
 
-    public string? Head
-    {
-        get { return _head; }
-        set { _head = value == null ? null : string.Intern(value); }
-    }
+    public MongoId? Body { get; set; }
 
-    public string? Body
-    {
-        get { return _body; }
-        set { _body = value == null ? null : string.Intern(value); }
-    }
+    public MongoId? Feet { get; set; }
 
-    public string? Feet
-    {
-        get { return _feet; }
-        set { _feet = value == null ? null : string.Intern(value); }
-    }
+    public MongoId? Hands { get; set; }
 
-    public string? Hands
-    {
-        get { return _hands; }
-        set { _hands = value == null ? null : string.Intern(value); }
-    }
+    public MongoId? DogTag { get; set; }
 
-    public string? DogTag
-    {
-        get { return _dogtag; }
-        set { _dogtag = value == null ? null : string.Intern(value); }
-    }
-
-    public string? Voice
-    {
-        get { return _voice; }
-        set { _voice = value == null ? null : string.Intern(value); }
-    }
+    public MongoId? Voice { get; set; }
 }
 
 public record BotBaseHealth

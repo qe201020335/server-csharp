@@ -187,7 +187,7 @@ public class ProfileFixerService(
         );
 
         // Check Head
-        if (customizationDb[pmcProfile.Customization.Head] is null)
+        if (!customizationDb.ContainsKey(pmcProfile.Customization.Head.Value))
         {
             var defaultHead = playerIsUsec
                 ? customizationDbArray.FirstOrDefault(x => x.Name == "DefaultUsecHead")
@@ -196,7 +196,7 @@ public class ProfileFixerService(
         }
 
         // check Body
-        if (customizationDb[pmcProfile.Customization.Body] is null)
+        if (customizationDb.ContainsKey(pmcProfile.Customization.Body.Value))
         {
             var defaultBody = playerIsUsec
                 ? customizationDbArray.FirstOrDefault(x => x.Name == "DefaultUsecBody")
@@ -205,7 +205,7 @@ public class ProfileFixerService(
         }
 
         // check Hands
-        if (customizationDb[pmcProfile.Customization.Hands] is null)
+        if (customizationDb.ContainsKey(pmcProfile.Customization.Hands.Value))
         {
             var defaultHands = playerIsUsec
                 ? customizationDbArray.FirstOrDefault(x => x.Name == "DefaultUsecHands")
@@ -214,7 +214,7 @@ public class ProfileFixerService(
         }
 
         // check Feet
-        if (customizationDb[pmcProfile.Customization.Feet] is null)
+        if (customizationDb.ContainsKey(pmcProfile.Customization.Feet.Value))
         {
             var defaultFeet = playerIsUsec
                 ? customizationDbArray.FirstOrDefault(x => x.Name == "DefaultUsecFeet")
