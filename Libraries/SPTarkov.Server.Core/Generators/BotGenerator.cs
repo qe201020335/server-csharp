@@ -272,9 +272,15 @@ public class BotGenerator(
         );
         bot.Info.Settings.UseSimpleAnimator =
             botJsonTemplate.BotExperience.UseSimpleAnimator ?? false;
-        bot.Customization.Voice = weightedRandomHelper.GetWeightedValue(
+        var chosenVoiceName = weightedRandomHelper.GetWeightedValue(
             botJsonTemplate.BotAppearance.Voice
         );
+        bot.Customization.Voice = databaseService
+            .GetCustomization()
+            .FirstOrDefault(customisation =>
+                customisation.Value.Name.Equals(chosenVoiceName, StringComparison.OrdinalIgnoreCase)
+            )
+            .Key;
         bot.Health = GenerateHealth(
             botJsonTemplate.BotHealth,
             botGenerationDetails.IsPlayerScav.GetValueOrDefault(false)
