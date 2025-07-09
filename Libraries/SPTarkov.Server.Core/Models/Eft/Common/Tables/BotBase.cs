@@ -176,8 +176,6 @@ public record Info
 
     private string? _side;
 
-    private string? _voice;
-
     public string? EntryPoint { get; set; }
 
     public string? Nickname { get; set; }
@@ -190,12 +188,6 @@ public record Info
     {
         get { return _side; }
         set { _side = string.Intern(value); }
-    }
-
-    public string? Voice
-    {
-        get { return _voice; }
-        set { _voice = value == null ? null : string.Intern(value); }
     }
 
     public int? Level { get; set; }
@@ -327,14 +319,12 @@ public record Customization
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    private string? _body;
-
-    private string? _dogtag;
-
-    private string? _feet;
-
-    private string? _hands;
     private string? _head;
+    private string? _body;
+    private string? _feet;
+    private string? _dogtag;
+    private string? _hands;
+    private string? _voice;
 
     public string? Head
     {
@@ -364,6 +354,12 @@ public record Customization
     {
         get { return _dogtag; }
         set { _dogtag = value == null ? null : string.Intern(value); }
+    }
+
+    public string? Voice
+    {
+        get { return _voice; }
+        set { _voice = value == null ? null : string.Intern(value); }
     }
 }
 

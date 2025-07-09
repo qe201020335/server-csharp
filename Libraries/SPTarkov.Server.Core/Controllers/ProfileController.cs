@@ -186,7 +186,7 @@ public class ProfileController(
     public virtual void ChangeVoice(ProfileChangeVoiceRequestData request, MongoId sessionID)
     {
         var pmcData = profileHelper.GetPmcProfile(sessionID);
-        pmcData.Info.Voice = request.Voice;
+        pmcData.Customization.Voice = request.Voice;
     }
 
     /// <summary>
@@ -328,6 +328,7 @@ public class ProfileController(
                 Feet = profileToViewPmc.Customization.Feet,
                 Hands = profileToViewPmc.Customization.Hands,
                 Dogtag = profileToViewPmc.Customization.DogTag,
+                Voice = profileToViewPmc.Customization.Voice,
             },
             Skills = profileToViewPmc.Skills,
             Equipment = new OtherProfileEquipment
