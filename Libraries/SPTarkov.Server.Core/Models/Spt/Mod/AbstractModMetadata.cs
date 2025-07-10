@@ -1,4 +1,6 @@
-﻿namespace SPTarkov.Server.Core.Models.Spt.Mod;
+﻿using SPTarkov.Server.Core.Models.Common;
+
+namespace SPTarkov.Server.Core.Models.Spt.Mod;
 
 /// <summary>
 /// Represents a collection of metadata used to determine things such as author, version,
@@ -7,6 +9,11 @@
 /// </summary>
 public abstract record AbstractModMetadata
 {
+    /// <summary>
+    /// A unique ID value for the mod to distinguish it from others
+    /// </summary>
+    public abstract MongoId ModId { get; set; }
+
     /// <summary>
     /// Name of this mod
     /// </summary>
