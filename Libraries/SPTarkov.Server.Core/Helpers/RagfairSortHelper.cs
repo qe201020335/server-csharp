@@ -79,7 +79,10 @@ public class RagfairSortHelper(LocaleService localeService)
 
     protected int SortOffersByRating(RagfairOffer a, RagfairOffer b)
     {
-        return (int)(a.User.Rating.Value - b.User.Rating.Value);
+        double ratingA = a?.User?.Rating ?? 0.0;
+        double ratingB = b?.User?.Rating ?? 0.0;
+
+        return ratingA.CompareTo(ratingB);
     }
 
     protected int SortOffersByName(RagfairOffer a, RagfairOffer b)
