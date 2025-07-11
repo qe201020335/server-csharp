@@ -88,19 +88,6 @@ public class CreateProfileService(
             pmcData.Info.PrestigeLevel = account.CharacterData.PmcData.Info.PrestigeLevel;
         }
 
-        if (account.CharacterData?.PmcData?.Stats?.Eft is not null)
-        {
-            if (pmcData.Stats.Eft is not null)
-            {
-                pmcData.Stats.Eft.TotalInGameTime = account
-                    .CharacterData
-                    .PmcData
-                    .Stats
-                    .Eft
-                    .TotalInGameTime;
-            }
-        }
-
         UpdateInventoryEquipmentId(pmcData);
 
         pmcData.UnlockedInfo ??= new UnlockedInfo { UnlockedProductionRecipe = [] };
@@ -126,6 +113,34 @@ public class CreateProfileService(
             FriendProfileIds = [],
             CustomisationUnlocks = [],
         };
+
+        // Set old account in-game time data on wipe, if it exists to the pmc
+        if (account.CharacterData?.PmcData?.Stats?.Eft is not null)
+        {
+            if (pmcData.Stats.Eft is not null)
+            {
+                pmcData.Stats.Eft.TotalInGameTime = account
+                    .CharacterData
+                    .PmcData
+                    .Stats
+                    .Eft
+                    .TotalInGameTime;
+
+                // Get the old profile's scav lifetime counter, if it exists
+                var lifetimeCounter =
+                    account.CharacterData?.PmcData?.Stats?.Eft?.OverallCounters?.Items?.FirstOrDefault(
+                        x => x.Key?.Contains("LifeTime") == true
+                    );
+
+                if (lifetimeCounter is not null)
+                {
+                    // Set the old lifetime counter back, bsg seems to use this as well to keep track of the total amount of time played
+                    profileDetails.CharacterData.PmcData.Stats.Eft.OverallCounters.Items.Add(
+                        lifetimeCounter
+                    );
+                }
+            }
+        }
 
         profileDetails.AddCustomisationUnlocksToProfile();
 
@@ -219,6 +234,36 @@ public class CreateProfileService(
         saveServer.GetProfile(sessionId).CharacterData.ScavData = playerScavGenerator.Generate(
             sessionId
         );
+
+        // Set old account in-game time data on wipe, if it exists to the scav
+        if (account.CharacterData?.ScavData?.Stats?.Eft is not null)
+        {
+            if (profileDetails.CharacterData.ScavData.Stats?.Eft is not null)
+            {
+                profileDetails.CharacterData.ScavData.Stats.Eft.TotalInGameTime = account
+                    .CharacterData
+                    .ScavData
+                    .Stats
+                    .Eft
+                    .TotalInGameTime;
+
+                // Get the old profile's scav lifetime counter, if it exists
+                var lifetimeCounter =
+                    account.CharacterData?.ScavData?.Stats?.Eft?.OverallCounters?.Items?.FirstOrDefault(
+                        x => x.Key?.Contains("LifeTime") == true
+                    );
+
+                if (lifetimeCounter is not null)
+                {
+                    // Set the old lifetime counter back, bsg seems to use this as well to keep track of the total amount of time played
+                    saveServer
+                        .GetProfile(sessionId)
+                        .CharacterData.ScavData.Stats.Eft.OverallCounters.Items.Add(
+                            lifetimeCounter
+                        );
+                }
+            }
+        }
 
         // Store minimal profile and reload it
         await saveServer.SaveProfileAsync(sessionId);
