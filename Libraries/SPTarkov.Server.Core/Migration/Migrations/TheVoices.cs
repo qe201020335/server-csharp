@@ -11,6 +11,9 @@ namespace SPTarkov.Server.Core.Migration.Migrations
     [Injectable]
     public class TheVoices(DatabaseService databaseService) : AbstractProfileMigration
     {
+        private bool _pmcVoiceIsMissing = false;
+        private bool _scavVoiceIsMissing = false;
+
         public override string FromVersion
         {
             get { return "~4.0"; }
@@ -37,15 +40,25 @@ namespace SPTarkov.Server.Core.Migration.Migrations
             IEnumerable<IProfileMigration> previouslyRanMigrations
         )
         {
-            bool voiceIsMissing = profile["characters"]?["pmc"]?["Customization"]?["Voice"] == null;
+            _pmcVoiceIsMissing = profile["characters"]?["pmc"]?["Customization"]?["Voice"] == null;
 
-            return voiceIsMissing;
+            _scavVoiceIsMissing =
+                profile["characters"]?["scav"]?["Customization"]?["Voice"] == null;
+
+            return _pmcVoiceIsMissing || _scavVoiceIsMissing;
         }
 
         public override JsonObject? Migrate(JsonObject profile)
         {
-            HandlePmcVoice(profile);
-            HandleScavVoice(profile);
+            if (_pmcVoiceIsMissing)
+            {
+                HandlePmcVoice(profile);
+            }
+
+            if (_scavVoiceIsMissing)
+            {
+                HandleScavVoice(profile);
+            }
 
             return profile;
         }
