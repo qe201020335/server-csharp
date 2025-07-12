@@ -8,12 +8,6 @@ public record InventoryConfig : BaseConfig
     [JsonPropertyName("kind")]
     public override string Kind { get; set; } = "spt-inventory";
 
-    /// <summary>
-    ///     Should new items purchased by flagged as found in raid
-    /// </summary>
-    [JsonPropertyName("newItemsMarkedFound")]
-    public bool NewItemsMarkedFound { get; set; }
-
     [JsonPropertyName("randomLootContainers")]
     public required Dictionary<MongoId, RewardDetails> RandomLootContainers { get; set; }
 

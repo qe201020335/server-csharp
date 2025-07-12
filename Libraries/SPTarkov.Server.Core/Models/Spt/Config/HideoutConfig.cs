@@ -81,12 +81,6 @@ public record CultistCircleSettings
     [JsonPropertyName("rewardPriceMultiplerMinMax")]
     public required MinMax<double> RewardPriceMultiplierMinMax { get; set; }
 
-    /// <summary>
-    ///     The odds that meeting the highest threshold gives you a bonus to crafting time
-    /// </summary>
-    [JsonPropertyName("bonusAmountMultiplier")]
-    public double BonusAmountMultiplier { get; set; }
-
     [JsonPropertyName("bonusChanceMultiplier")]
     public double BonusChanceMultiplier { get; set; }
 

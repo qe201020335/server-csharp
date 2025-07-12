@@ -18,13 +18,13 @@ public record RagfairConfig : BaseConfig
     ///     Default values used to hydrate `runIntervalSeconds` with
     /// </summary>
     [JsonPropertyName("runIntervalValues")]
-    public RunIntervalValues RunIntervalValues { get; set; }
+    public required RunIntervalValues RunIntervalValues { get; set; }
 
     /// <summary>
     ///     Player listing settings
     /// </summary>
     [JsonPropertyName("sell")]
-    public Sell Sell { get; set; }
+    public required Sell Sell { get; set; }
 
     /// <summary>
     ///     Trader ids + should their assorts be listed on flea
@@ -33,10 +33,10 @@ public record RagfairConfig : BaseConfig
     public required Dictionary<MongoId, bool> Traders { get; set; }
 
     [JsonPropertyName("dynamic")]
-    public Dynamic Dynamic { get; set; }
+    public required Dynamic Dynamic { get; set; }
 
     [JsonPropertyName("tieredFlea")]
-    public TieredFlea TieredFlea { get; set; }
+    public required TieredFlea TieredFlea { get; set; }
 }
 
 public record Sell
@@ -54,13 +54,13 @@ public record Sell
     ///     Settings to control chances of offer being sold
     /// </summary>
     [JsonPropertyName("chance")]
-    public Chance Chance { get; set; }
+    public required Chance Chance { get; set; }
 
     /// <summary>
     ///     Settings to control how long it takes for a player offer to sell
     /// </summary>
     [JsonPropertyName("time")]
-    public MinMax<double> Time { get; set; }
+    public required MinMax<double> Time { get; set; }
 
     /// <summary>
     ///     Seconds from clicking remove to remove offer from market
@@ -120,16 +120,16 @@ public record Dynamic
     ///     Barter offer specific settings
     /// </summary>
     [JsonPropertyName("barter")]
-    public BarterDetails Barter { get; set; }
+    public required BarterDetails Barter { get; set; }
 
     [JsonPropertyName("pack")]
-    public PackDetails Pack { get; set; }
+    public required PackDetails Pack { get; set; }
 
     /// <summary>
     ///     Dynamic offer price below handbook adjustment values
     /// </summary>
     [JsonPropertyName("offerAdjustment")]
-    public OfferAdjustment OfferAdjustment { get; set; }
+    public required OfferAdjustment OfferAdjustment { get; set; }
 
     /// <summary>
     ///     How many offers should expire before an offer regeneration occurs
@@ -141,13 +141,13 @@ public record Dynamic
     ///     How many offers should be listed
     /// </summary>
     [JsonPropertyName("offerItemCount")]
-    public Dictionary<string, MinMax<int>> OfferItemCount { get; set; }
+    public required Dictionary<string, MinMax<int>> OfferItemCount { get; set; }
 
     /// <summary>
     ///     How much should the price of an offer vary by (percent 0.8 = 80%, 1.2 = 120%)
     /// </summary>
     [JsonPropertyName("priceRanges")]
-    public PriceRanges PriceRanges { get; set; }
+    public required PriceRanges PriceRanges { get; set; }
 
     /// <summary>
     ///     Should default presets to listed only or should non-standard presets found in globals.json be listed too
@@ -159,40 +159,40 @@ public record Dynamic
     ///     Tpls that should not use the variable price system when their quality is less than 100% (lower dura/uses = lower price)
     /// </summary>
     [JsonPropertyName("ignoreQualityPriceVarianceBlacklist")]
-    public HashSet<MongoId> IgnoreQualityPriceVarianceBlacklist { get; set; }
+    public required HashSet<MongoId> IgnoreQualityPriceVarianceBlacklist { get; set; }
 
     [JsonPropertyName("endTimeSeconds")]
-    public MinMax<int> EndTimeSeconds { get; set; }
+    public required MinMax<int> EndTimeSeconds { get; set; }
 
     /// <summary>
     ///     Settings to control the durability range of item items listed on flea
     /// </summary>
     [JsonPropertyName("condition")]
-    public Dictionary<MongoId, Condition> Condition { get; set; }
+    public required Dictionary<MongoId, Condition> Condition { get; set; }
 
     /// <summary>
     ///     Size stackable items should be listed for in percent of max stack size
     /// </summary>
     [JsonPropertyName("stackablePercent")]
-    public MinMax<double> StackablePercent { get; set; }
+    public required MinMax<double> StackablePercent { get; set; }
 
     /// <summary>
     ///     Items that cannot be stacked can have multiples sold in one offer, what range of values can be listed
     /// </summary>
     [JsonPropertyName("nonStackableCount")]
-    public MinMax<int> NonStackableCount { get; set; }
+    public required MinMax<int> NonStackableCount { get; set; }
 
     /// <summary>
     ///     Range of rating offers for items being listed
     /// </summary>
     [JsonPropertyName("rating")]
-    public MinMax<double> Rating { get; set; }
+    public required MinMax<double> Rating { get; set; }
 
     /// <summary>
     ///     Armor specific flea settings
     /// </summary>
     [JsonPropertyName("armor")]
-    public ArmorSettings Armor { get; set; }
+    public required ArmorSettings Armor { get; set; }
 
     /// <summary>
     ///     A multipler to apply to individual tpls price just prior to item quality adjustment
@@ -207,13 +207,13 @@ public record Dynamic
     ///     Percentages to sell offers in each currency
     /// </summary>
     [JsonPropertyName("currencies")]
-    public Dictionary<MongoId, double> Currencies { get; set; }
+    public required Dictionary<MongoId, double> Currencies { get; set; }
 
     /// <summary>
     ///     Item tpls that should be forced to sell as a single item
     /// </summary>
     [JsonPropertyName("showAsSingleStack")]
-    public HashSet<MongoId> ShowAsSingleStack { get; set; }
+    public required HashSet<MongoId> ShowAsSingleStack { get; set; }
 
     /// <summary>
     ///     Should christmas/halloween items be removed from flea when not within the seasonal bounds
@@ -225,19 +225,19 @@ public record Dynamic
     ///     Flea blacklist settings
     /// </summary>
     [JsonPropertyName("blacklist")]
-    public RagfairBlacklist Blacklist { get; set; }
+    public required RagfairBlacklist Blacklist { get; set; }
 
     /// <summary>
     ///     Dict of price limits keyed by item type
     /// </summary>
     [JsonPropertyName("unreasonableModPrices")]
-    public Dictionary<MongoId, UnreasonableModPrices> UnreasonableModPrices { get; set; }
+    public required Dictionary<MongoId, UnreasonableModPrices> UnreasonableModPrices { get; set; }
 
     /// <summary>
     ///     Custom rouble prices for items to override values from prices.json
     /// </summary>
     [JsonPropertyName("itemPriceOverrideRouble")]
-    public Dictionary<MongoId, double> ItemPriceOverrideRouble { get; set; }
+    public required Dictionary<MongoId, double> ItemPriceOverrideRouble { get; set; }
 }
 
 public record PriceRanges
@@ -246,13 +246,13 @@ public record PriceRanges
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("default")]
-    public MinMax<double> Default { get; set; }
+    public required MinMax<double> Default { get; set; }
 
     [JsonPropertyName("preset")]
-    public MinMax<double> Preset { get; set; }
+    public required MinMax<double> Preset { get; set; }
 
     [JsonPropertyName("pack")]
-    public MinMax<double> Pack { get; set; }
+    public required MinMax<double> Pack { get; set; }
 }
 
 public record BarterDetails
@@ -300,7 +300,7 @@ public record BarterDetails
     ///     Item Tpls to never be turned into a barter
     /// </summary>
     [JsonPropertyName("itemTypeBlacklist")]
-    public HashSet<MongoId> ItemTypeBlacklist { get; set; }
+    public required HashSet<MongoId> ItemTypeBlacklist { get; set; }
 }
 
 public record PackDetails
@@ -330,7 +330,7 @@ public record PackDetails
     ///     item types to allow being a pack
     /// </summary>
     [JsonPropertyName("itemTypeWhitelist")]
-    public HashSet<MongoId> ItemTypeWhitelist { get; set; }
+    public required HashSet<MongoId> ItemTypeWhitelist { get; set; }
 }
 
 public record OfferAdjustment
@@ -375,13 +375,13 @@ public record Condition
     public double ConditionChance { get; set; }
 
     [JsonPropertyName("current")]
-    public MinMax<double> Current { get; set; }
+    public required MinMax<double> Current { get; set; }
 
     [JsonPropertyName("max")]
-    public MinMax<double> Max { get; set; }
+    public required MinMax<double> Max { get; set; }
 
     [JsonPropertyName("_name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 public record RagfairBlacklist
@@ -399,7 +399,7 @@ public record RagfairBlacklist
     ///     Custom blacklist for item Tpls
     /// </summary>
     [JsonPropertyName("custom")]
-    public HashSet<MongoId> Custom { get; set; }
+    public required HashSet<MongoId> Custom { get; set; }
 
     /// <summary>
     ///     BSG blacklist a large number of items from flea, true = use blacklist
@@ -423,7 +423,7 @@ public record RagfairBlacklist
     ///     Maximum level an armor plate can be found in a flea-listed armor item
     /// </summary>
     [JsonPropertyName("armorPlate")]
-    public ArmorPlateBlacklistSettings ArmorPlate { get; set; }
+    public required ArmorPlateBlacklistSettings ArmorPlate { get; set; }
 
     /// <summary>
     ///     Should specific categories be blacklisted from the flea, true = use blacklist
@@ -435,7 +435,7 @@ public record RagfairBlacklist
     ///     Custom category blacklist for parent Ids
     /// </summary>
     [JsonPropertyName("customItemCategoryList")]
-    public HashSet<string> CustomItemCategoryList { get; set; }
+    public required HashSet<string> CustomItemCategoryList { get; set; }
 }
 
 public record ArmorPlateBlacklistSettings
@@ -453,7 +453,7 @@ public record ArmorPlateBlacklistSettings
     ///     Item slots to NOT remove from items on flea
     /// </summary>
     [JsonPropertyName("ignoreSlots")]
-    public HashSet<string> IgnoreSlots { get; set; }
+    public required HashSet<string> IgnoreSlots { get; set; }
 }
 
 public record UnreasonableModPrices
@@ -480,7 +480,7 @@ public record UnreasonableModPrices
     public int NewPriceHandbookMultiplier { get; set; }
 
     [JsonPropertyName("itemType")]
-    public string ItemType { get; set; }
+    public string? ItemType { get; set; }
 }
 
 public record ArmorSettings
@@ -513,13 +513,13 @@ public record TieredFlea
     ///     key: tpl, value: playerlevel
     /// </summary>
     [JsonPropertyName("unlocksTpl")]
-    public Dictionary<MongoId, int> UnlocksTpl { get; set; }
+    public required Dictionary<MongoId, int> UnlocksTpl { get; set; }
 
     /// <summary>
     ///     key: item type id, value: playerlevel
     /// </summary>
     [JsonPropertyName("unlocksType")]
-    public Dictionary<MongoId, int> UnlocksType { get; set; }
+    public required Dictionary<MongoId, int> UnlocksType { get; set; }
 
     [JsonPropertyName("ammoTplUnlocks")]
     public Dictionary<MongoId, int>? AmmoTplUnlocks { get; set; }

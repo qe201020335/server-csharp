@@ -148,9 +148,6 @@ public record PmcConfig : BaseConfig
     [JsonPropertyName("addSecureContainerLootFromBotConfig")]
     public required bool AddSecureContainerLootFromBotConfig { get; set; }
 
-    [JsonPropertyName("addPrefixToSameNamePMCAsPlayerChance")]
-    public required int? AddPrefixToSameNamePMCAsPlayerChance { get; set; }
-
     [JsonPropertyName("lootItemLimitsRub")]
     public required List<MinMaxLootItemValue>? LootItemLimitsRub { get; set; }
 
