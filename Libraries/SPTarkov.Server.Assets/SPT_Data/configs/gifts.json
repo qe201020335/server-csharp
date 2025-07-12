@@ -439,7 +439,6 @@
             ],
             "sender": "System",
             "messageText": "Merry christmas!",
-            "timestampToSend": 42069,
             "associatedEvent": "Christmas",
             "collectionTimeHours": 48,
             "maxToSendPlayer": 1
@@ -579,7 +578,6 @@
             ],
             "sender": "System",
             "messageText": "1CLICKDRESSUP",
-            "timestampToSend": 42069,
             "collectionTimeHours": 48,
             "associatedEvent": "Promo",
             "maxToSendPlayer": 1
@@ -722,7 +720,6 @@
             ],
             "sender": "System",
             "messageText": "BARMALEY",
-            "timestampToSend": 42069,
             "collectionTimeHours": 48,
             "associatedEvent": "Promo",
             "maxToSendPlayer": 1
@@ -792,7 +789,6 @@
             ],
             "sender": "System",
             "messageText": "S00NS00N",
-            "timestampToSend": 42069,
             "collectionTimeHours": 48,
             "associatedEvent": "Promo",
             "maxToSendPlayer": 1
@@ -942,7 +938,6 @@
             ],
             "sender": "System",
             "messageText": "TRAMBON",
-            "timestampToSend": 42069,
             "collectionTimeHours": 48,
             "associatedEvent": "Promo",
             "maxToSendPlayer": 1
@@ -1020,7 +1015,6 @@
             ],
             "sender": "System",
             "messageText": "PINEWOOD",
-            "timestampToSend": 42069,
             "collectionTimeHours": 48,
             "associatedEvent": "Promo",
             "maxToSendPlayer": 1
@@ -1428,7 +1422,6 @@
             "messageText": "JONKLER NO",
             "collectionTimeHours": 48,
             "associatedEvent": "Promo",
-            "maxToSendToPlayer": 1,
             "maxToSendPlayer": 1
         },
         "BSGBIRTHDAY2023": {
