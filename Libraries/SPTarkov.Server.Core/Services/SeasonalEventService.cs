@@ -363,9 +363,10 @@ public class SeasonalEventService(
         var christmasItems = GetChristmasEventItems();
 
         // Remove christmas related equipment
+        botInventory.Equipment ??= new Dictionary<EquipmentSlots, Dictionary<MongoId, double>>();
         foreach (var equipmentSlotKey in _equipmentSlotsToFilter)
         {
-            if (botInventory.Equipment[equipmentSlotKey] is null)
+            if (!botInventory.Equipment.TryGetValue(equipmentSlotKey, out var equipment))
             {
                 logger.Warning(
                     serverLocalisationService.GetText(
@@ -373,39 +374,32 @@ public class SeasonalEventService(
                         new { equipmentSlot = equipmentSlotKey, botRole }
                     )
                 );
+
+                continue;
             }
 
-            var equipment = botInventory.Equipment[equipmentSlotKey];
             botInventory.Equipment[equipmentSlotKey] = equipment
                 .Where(i => !_christmasEventItems.Contains(i.Key))
                 .ToDictionary();
         }
 
-        // Remove christmas related loot from loot containers
-        var props = botInventory.Items.GetType().GetProperties();
-        foreach (var lootContainerKey in _lootContainersToFilter)
+        var containersToCheck = new List<Dictionary<MongoId, double>>
         {
-            var propInfo = props.FirstOrDefault(p =>
-                string.Equals(
-                    p.Name.ToLowerInvariant(),
-                    lootContainerKey.ToLowerInvariant(),
-                    StringComparison.OrdinalIgnoreCase
-                )
-            );
-            var prop = (Dictionary<MongoId, double>?)propInfo.GetValue(botInventory.Items);
+            botInventory.Items.Backpack,
+            botInventory.Items.Pockets,
+            botInventory.Items.SecuredContainer,
+            botInventory.Items.TacticalVest,
+            botInventory.Items.SpecialLoot,
+        };
 
-            if (prop is null)
+        foreach (var container in containersToCheck)
+        {
+            // Find all Christmas items in container
+            var keysToRemove = container.Keys.Where(key => christmasItems.Contains(key)).ToList();
+            foreach (var key in keysToRemove)
             {
-                logger.Warning(
-                    serverLocalisationService.GetText(
-                        "seasonal-missing_loot_container_slot_on_bot",
-                        new { lootContainer = lootContainerKey, botRole }
-                    )
-                );
+                container.Remove(key);
             }
-
-            var newProp = prop.Where(tpl => !christmasItems.Contains(tpl.Key)).ToDictionary();
-            propInfo.SetValue(botInventory.Items, newProp);
         }
     }
 
@@ -413,7 +407,7 @@ public class SeasonalEventService(
     ///     Make adjusted to server code based on the name of the event passed in
     /// </summary>
     /// <param name="globalConfig">globals.json</param>
-    /// <param name="event">Name of the event to enable. e.g. Christmas</param>
+    /// <param name="eventType">Name of the event to enable. e.g. Christmas</param>
     private void UpdateGlobalEvents(Config globalConfig, SeasonalEvent eventType)
     {
         logger.Success(serverLocalisationService.GetText("season-event_is_active", eventType.Type));

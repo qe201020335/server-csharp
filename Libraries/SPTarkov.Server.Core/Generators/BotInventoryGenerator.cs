@@ -221,8 +221,8 @@ public class BotInventoryGenerator(
         var pmcProfile = profileHelper.GetPmcProfile(sessionId);
         var botEquipmentRole = botGeneratorHelper.GetBotEquipmentRole(botRole);
 
-        // Iterate over all equipment slots of bot, do it in specifc order to reduce conflicts
-        // e.g. ArmorVest should be generated after TactivalVest
+        // Iterate over all equipment slots of bot, do it in specific order to reduce conflicts
+        // e.g. ArmorVest should be generated after TacticalVest
         // or FACE_COVER before HEADWEAR
         foreach (var (equipmentSlot, value) in templateInventory.Equipment)
         {
@@ -409,14 +409,14 @@ public class BotInventoryGenerator(
     /// <param name="templateInventory"></param>
     /// <param name="isPmc">is bot a PMC</param>
     /// <returns></returns>
-    protected Dictionary<string, double>? GetPocketPoolByGameEdition(
+    protected Dictionary<MongoId, double>? GetPocketPoolByGameEdition(
         string chosenGameVersion,
         BotTypeInventory templateInventory,
         bool isPmc
     )
     {
         return chosenGameVersion == GameEditions.UNHEARD && isPmc
-            ? new Dictionary<string, double> { [ItemTpl.POCKETS_1X4_TUE] = 1 }
+            ? new Dictionary<MongoId, double> { [ItemTpl.POCKETS_1X4_TUE] = 1 }
             : templateInventory.Equipment.GetValueOrDefault(EquipmentSlots.Pockets);
     }
 
@@ -426,7 +426,7 @@ public class BotInventoryGenerator(
     /// <param name="templateEquipment">Equipment to filter TacticalVest of</param>
     /// <param name="botRole">Role of bot vests are being filtered for</param>
     public void FilterRigsToThoseWithProtection(
-        Dictionary<EquipmentSlots, Dictionary<string, double>> templateEquipment,
+        Dictionary<EquipmentSlots, Dictionary<MongoId, double>> templateEquipment,
         string botRole
     )
     {
@@ -456,7 +456,7 @@ public class BotInventoryGenerator(
     /// <param name="botRole">Role of bot vests are being filtered for</param>
     /// <param name="allowEmptyResult">Should the function return all rigs when 0 unarmored are found</param>
     public void FilterRigsToThoseWithoutProtection(
-        Dictionary<EquipmentSlots, Dictionary<string, double>> templateEquipment,
+        Dictionary<EquipmentSlots, Dictionary<MongoId, double>> templateEquipment,
         string botRole,
         bool allowEmptyResult = true
     )

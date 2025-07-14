@@ -267,8 +267,7 @@ public class BotEquipmentFilterService(
                 }
 
                 // Filter equipment slot items to just items in whitelist
-                baseBotNode.BotInventory.Equipment[equipmentSlotKey.Key] =
-                    new Dictionary<string, double>();
+                baseBotNode.BotInventory.Equipment[equipmentSlotKey.Key] = [];
                 foreach (var dict in botEquipment)
                 {
                     if (whitelistEquipmentForSlot.Contains(dict.Key))
@@ -384,7 +383,7 @@ public class BotEquipmentFilterService(
     /// <param name="botItemPool">Bot item dictionary to adjust</param>
     protected void AdjustWeighting(
         AdjustmentDetails? weightingAdjustments,
-        Dictionary<EquipmentSlots, Dictionary<string, double>> botItemPool,
+        Dictionary<EquipmentSlots, Dictionary<MongoId, double>> botItemPool,
         bool showEditWarnings = true
     )
     {

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -20,7 +21,7 @@ public record GenerateEquipmentProperties
     ///     Equipment pool for root slot being generated
     /// </summary>
     [JsonPropertyName("rootEquipmentPool")]
-    public Dictionary<string, double>? RootEquipmentPool { get; set; }
+    public Dictionary<MongoId, double>? RootEquipmentPool { get; set; }
 
     [JsonPropertyName("modPool")]
     public GlobalMods? ModPool { get; set; }
