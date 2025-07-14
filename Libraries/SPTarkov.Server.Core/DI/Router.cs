@@ -75,17 +75,8 @@ public abstract class StaticRouter : Router
     }
 }
 
-public abstract class DynamicRouter : Router
+public abstract class DynamicRouter(JsonUtil jsonUtil, List<RouteAction> routes) : Router
 {
-    private readonly JsonUtil _jsonUtil;
-    private readonly List<RouteAction> actions;
-
-    public DynamicRouter(JsonUtil jsonUtil, List<RouteAction> routes)
-    {
-        actions = routes;
-        _jsonUtil = jsonUtil;
-    }
-
     public async ValueTask<object> HandleDynamic(
         string url,
         string? body,
@@ -93,12 +84,12 @@ public abstract class DynamicRouter : Router
         string output
     )
     {
-        var action = actions.First(r => url.Contains(r.url));
+        var action = routes.First(r => url.Contains(r.url));
         var type = action.bodyType;
         IRequestData? info = null;
         if (type != null && !string.IsNullOrEmpty(body))
         {
-            info = (IRequestData?)_jsonUtil.Deserialize(body, type);
+            info = (IRequestData?)jsonUtil.Deserialize(body, type);
         }
 
         return await action.action(url, info, sessionID, output);
@@ -106,7 +97,7 @@ public abstract class DynamicRouter : Router
 
     protected override List<HandledRoute> GetHandledRoutes()
     {
-        return actions.Select(route => new HandledRoute(route.url, true)).ToList();
+        return routes.Select(route => new HandledRoute(route.url, true)).ToList();
     }
 }
 
