@@ -444,7 +444,7 @@ public class BotGenerator(
             botGenerationDetails.PlayerLevel.GetValueOrDefault(1)
         );
 
-        if (blacklist?.Gear is null)
+        if (blacklist?.Gear is { Count: < 1 })
         // Nothing to filter by
         {
             return;
@@ -452,12 +452,26 @@ public class BotGenerator(
 
         foreach (var (equipmentSlot, blacklistedTpls) in blacklist.Gear)
         {
-            var equipmentDict = botJsonTemplate.BotInventory.Equipment[equipmentSlot];
-
-            foreach (var blacklistedTpl in blacklistedTpls)
-            // Set weighting to 0, will never be picked
+            if (
+                !botJsonTemplate.BotInventory.Equipment.TryGetValue(
+                    equipmentSlot,
+                    out var equipmentTplWeights
+                )
+            )
             {
-                equipmentDict[blacklistedTpl] = 0;
+                // Bot doesn't have this equipment slot, skip
+                continue;
+            }
+
+            // Inner join between equipment tpls and blacklist tpls
+            var tplsToZeroOut = equipmentTplWeights
+                .Keys.Where(tpl => blacklistedTpls.Contains(tpl))
+                .ToList();
+
+            foreach (var tpl in tplsToZeroOut)
+            {
+                // Set weighting to 0, will never be picked
+                equipmentTplWeights[tpl] = 0;
             }
         }
     }
