@@ -301,9 +301,6 @@ public class BotGenerator(
         // Add drip
         SetBotAppearance(bot, botJsonTemplate.BotAppearance, botGenerationDetails);
 
-        // Filter out blacklisted gear from the base template
-        FilterBlacklistedGear(botJsonTemplate, botGenerationDetails);
-
         bot.Inventory = botInventoryGenerator.GenerateInventory(
             sessionId,
             botJsonTemplate,
@@ -427,53 +424,6 @@ public class BotGenerator(
         }
 
         return result;
-    }
-
-    /// <summary>
-    ///     Set weighting of flagged equipment to 0
-    /// </summary>
-    /// <param name="botJsonTemplate">Bot data to adjust</param>
-    /// <param name="botGenerationDetails">Generation details of bot</param>
-    public void FilterBlacklistedGear(
-        BotType botJsonTemplate,
-        BotGenerationDetails botGenerationDetails
-    )
-    {
-        var blacklist = botEquipmentFilterService.GetBotEquipmentBlacklist(
-            botGeneratorHelper.GetBotEquipmentRole(botGenerationDetails.Role),
-            botGenerationDetails.PlayerLevel.GetValueOrDefault(1)
-        );
-
-        if (blacklist?.Gear is { Count: < 1 })
-        // Nothing to filter by
-        {
-            return;
-        }
-
-        foreach (var (equipmentSlot, blacklistedTpls) in blacklist.Gear)
-        {
-            if (
-                !botJsonTemplate.BotInventory.Equipment.TryGetValue(
-                    equipmentSlot,
-                    out var equipmentTplWeights
-                )
-            )
-            {
-                // Bot doesn't have this equipment slot, skip
-                continue;
-            }
-
-            // Inner join between equipment tpls and blacklist tpls
-            var tplsToZeroOut = equipmentTplWeights
-                .Keys.Where(tpl => blacklistedTpls.Contains(tpl))
-                .ToList();
-
-            foreach (var tpl in tplsToZeroOut)
-            {
-                // Set weighting to 0, will never be picked
-                equipmentTplWeights[tpl] = 0;
-            }
-        }
     }
 
     /// <summary>

@@ -568,33 +568,30 @@ public class SeasonalEventService(
 
     private void AdjustBotAppearanceValues(SeasonalEventType season)
     {
-        var adjustments = _seasonalEventConfig.BotAppearanceChanges[season];
-        if (adjustments is null)
+        if (
+            !_seasonalEventConfig.BotAppearanceChanges.TryGetValue(
+                season,
+                out var appearanceAdjustments
+            )
+        )
         {
             return;
         }
 
-        foreach (var botTypeKey in adjustments)
+        foreach (var (botType, botAppearanceAdjustments) in appearanceAdjustments)
         {
-            var botDb = databaseService.GetBots().Types[botTypeKey.Key];
-            if (botDb is null)
+            if (!databaseService.GetBots().Types.TryGetValue(botType, out var botDb))
             {
                 continue;
             }
 
-            var botAppearanceAdjustments = botTypeKey.Value;
-            foreach (var appearanceKey in botAppearanceAdjustments)
+            foreach (var (key, weightAdjustments) in botAppearanceAdjustments)
             {
-                var weightAdjustments = appearanceKey.Value;
                 var props = botDb.BotAppearance.GetType().GetProperties();
                 foreach (var itemKey in weightAdjustments)
                 {
                     var prop = props.FirstOrDefault(x =>
-                        string.Equals(
-                            x.Name,
-                            appearanceKey.Key,
-                            StringComparison.CurrentCultureIgnoreCase
-                        )
+                        string.Equals(x.Name, key, StringComparison.CurrentCultureIgnoreCase)
                     );
                     var propValue = (Dictionary<string, double>)prop.GetValue(botDb.BotAppearance);
                     propValue[itemKey.Key] = weightAdjustments[itemKey.Key];

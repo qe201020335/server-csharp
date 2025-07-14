@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Enums;
 
 namespace SPTarkov.Server.Core.Models.Spt.Config;
 
@@ -397,12 +396,6 @@ public record EquipmentFilterDetails
     /// </summary>
     [JsonPropertyName("equipment")]
     public Dictionary<string, HashSet<MongoId>>? Equipment { get; set; }
-
-    /// <summary>
-    ///     Key: equipment slot name e.g. FirstPrimaryWeapon, value: item tpls
-    /// </summary>
-    [JsonPropertyName("gear")]
-    public Dictionary<EquipmentSlots, HashSet<MongoId>>? Gear { get; set; }
 
     /// <summary>
     ///     Key: cartridge type e.g. Caliber23x75, value: item tpls
