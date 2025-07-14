@@ -51,10 +51,10 @@ public class BotInventoryGenerator(
 
     private readonly BotConfig _botConfig = configServer.GetConfig<BotConfig>();
 
-    private readonly HashSet<string> _slotsToCheck =
+    private readonly FrozenSet<string> _slotsToCheck =
     [
-        EquipmentSlots.Pockets.ToString(),
-        EquipmentSlots.SecuredContainer.ToString(),
+        nameof(EquipmentSlots.Pockets),
+        nameof(EquipmentSlots.SecuredContainer),
     ];
 
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
@@ -44,7 +45,7 @@ public class FenceService(
     /// </summary>
     protected TraderAssort? fenceDiscountAssort;
 
-    protected readonly HashSet<string> fenceItemUpdCompareProperties =
+    protected readonly FrozenSet<string> fenceItemUpdCompareProperties =
     [
         "Buff",
         "Repairable",

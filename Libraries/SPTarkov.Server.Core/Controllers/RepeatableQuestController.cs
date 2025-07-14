@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators.RepeatableQuestGeneration;
@@ -45,7 +46,12 @@ public class RepeatableQuestController(
     ICloner cloner
 )
 {
-    protected static readonly List<string> _questTypes = ["PickUp", "Exploration", "Elimination"];
+    protected static readonly FrozenSet<string> _questTypes =
+    [
+        "PickUp",
+        "Exploration",
+        "Elimination",
+    ];
     protected readonly QuestConfig QuestConfig = configServer.GetConfig<QuestConfig>();
 
     /// <summary>

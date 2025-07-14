@@ -19,7 +19,7 @@ namespace SPTarkov.Server.Core.Extensions
         public static bool IsSameItem(
             this Item item1,
             Item item2,
-            HashSet<string>? compareUpdProperties = null
+            ISet<string>? compareUpdProperties = null
         )
         {
             // Different tpl == different item

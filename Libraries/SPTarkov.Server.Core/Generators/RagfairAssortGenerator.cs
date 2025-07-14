@@ -1,4 +1,5 @@
-﻿using SPTarkov.DI.Annotations;
+﻿using System.Collections.Frozen;
+using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -23,7 +24,7 @@ public class RagfairAssortGenerator(
 {
     protected readonly RagfairConfig RagfairConfig = configServer.GetConfig<RagfairConfig>();
 
-    protected readonly List<MongoId> RagfairItemInvalidBaseTypes =
+    protected readonly FrozenSet<MongoId> RagfairItemInvalidBaseTypes =
     [
         BaseClasses.LOOT_CONTAINER, // Safe, barrel cache etc
         BaseClasses.STASH, // Player inventory stash
@@ -58,7 +59,7 @@ public class RagfairAssortGenerator(
             .Where(item => !string.Equals(item.Type, "Node", StringComparison.OrdinalIgnoreCase));
 
         // Store processed preset tpls so we don't add them when processing non-preset items
-        HashSet<string> processedArmorItems = [];
+        HashSet<MongoId> processedArmorItems = [];
         var seasonalEventActive = seasonalEventService.SeasonalEventEnabled();
         var seasonalItemTplBlacklist = seasonalEventService.GetInactiveSeasonalEventItems();
 

@@ -28,7 +28,7 @@ public class BtrDeliveryService(
         configServer.GetConfig<BtrDeliveryConfig>();
     protected readonly TraderConfig _traderConfig = configServer.GetConfig<TraderConfig>();
 
-    protected static readonly List<string> _transferTypes = new() { "btr", "transit" };
+    protected static readonly List<string> _transferTypes = ["btr", "transit"];
 
     /// <summary>
     ///     Check if player used BTR or transit item sending service and send items to player via mail if found
@@ -42,7 +42,7 @@ public class BtrDeliveryService(
             var rootId = $"{Traders.BTR}_{transferType}";
             List<Item>? itemsToSend = null;
 
-            // if rootId doesnt exist in TransferItems, skip
+            // if rootId doesn't exist in TransferItems, skip
             if (!request?.TransferItems?.TryGetValue(rootId, out itemsToSend) ?? false)
             {
                 continue;

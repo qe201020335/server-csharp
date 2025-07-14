@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -34,13 +35,14 @@ public class EliminationQuestGenerator(
     /// <summary>
     /// Body parts to present to the client as opposed to the body part information in quest data.
     /// </summary>
-    private static readonly Dictionary<string, List<string>> _bodyPartsToClient = new()
-    {
-        { BodyParts.Arms, [BodyParts.LeftArm, BodyParts.RightArm] },
-        { BodyParts.Legs, [BodyParts.LeftLeg, BodyParts.RightLeg] },
-        { BodyParts.Head, [BodyParts.Head] },
-        { BodyParts.Chest, [BodyParts.Chest, BodyParts.Stomach] },
-    };
+    private static readonly FrozenDictionary<string, List<string>> _bodyPartsToClient =
+        new Dictionary<string, List<string>>
+        {
+            { BodyParts.Arms, [BodyParts.LeftArm, BodyParts.RightArm] },
+            { BodyParts.Legs, [BodyParts.LeftLeg, BodyParts.RightLeg] },
+            { BodyParts.Head, [BodyParts.Head] },
+            { BodyParts.Chest, [BodyParts.Chest, BodyParts.Stomach] },
+        }.ToFrozenDictionary();
 
     /// <summary>
     /// MaxDistDifficulty is defined by 2, this could be a tuning parameter if we don't like the reward generation

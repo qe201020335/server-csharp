@@ -1,4 +1,5 @@
-﻿using SPTarkov.Common.Extensions;
+﻿using System.Collections.Frozen;
+using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Common;
@@ -19,7 +20,7 @@ public class InRaidHelper(
     DatabaseService databaseService
 )
 {
-    protected static readonly List<string> _pocketSlots =
+    protected static readonly FrozenSet<string> _pocketSlots =
     [
         "pocket1",
         "pocket2",

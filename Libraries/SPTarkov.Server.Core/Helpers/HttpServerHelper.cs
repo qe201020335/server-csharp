@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Frozen;
+using System.Net;
 using System.Net.Sockets;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -11,7 +12,7 @@ public class HttpServerHelper(ConfigServer configServer)
 {
     protected readonly HttpConfig _httpConfig = configServer.GetConfig<HttpConfig>();
 
-    protected readonly Dictionary<string, string> mime = new()
+    protected readonly FrozenDictionary<string, string> mime = new Dictionary<string, string>
     {
         { "css", "text/css" },
         { "bin", "application/octet-stream" },
@@ -22,7 +23,7 @@ public class HttpServerHelper(ConfigServer configServer)
         { "png", "image/png" },
         { "svg", "image/svg+xml" },
         { "txt", "text/plain" },
-    };
+    }.ToFrozenDictionary();
 
     public string? GetMimeText(string key)
     {

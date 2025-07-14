@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
@@ -28,7 +29,7 @@ public class SeasonalEventService(
 {
     private bool _christmasEventActive;
 
-    protected readonly HashSet<MongoId> _christmasEventItems =
+    protected readonly FrozenSet<MongoId> _christmasEventItems =
     [
         ItemTpl.ARMOR_6B13_M_ASSAULT_ARMOR_CHRISTMAS_EDITION,
         ItemTpl.BACKPACK_SANTAS_BAG,
@@ -61,7 +62,7 @@ public class SeasonalEventService(
 
     private List<SeasonalEvent> _currentlyActiveEvents = [];
 
-    protected readonly HashSet<EquipmentSlots> _equipmentSlotsToFilter =
+    protected readonly FrozenSet<EquipmentSlots> _equipmentSlotsToFilter =
     [
         EquipmentSlots.FaceCover,
         EquipmentSlots.Headwear,
@@ -71,7 +72,7 @@ public class SeasonalEventService(
 
     private bool _halloweenEventActive;
 
-    protected readonly HashSet<MongoId> _halloweenEventItems =
+    protected readonly FrozenSet<MongoId> _halloweenEventItems =
     [
         ItemTpl.HEADWEAR_JACKOLANTERN_TACTICAL_PUMPKIN_HELMET,
         ItemTpl.FACECOVER_FACELESS_MASK,
@@ -88,12 +89,6 @@ public class SeasonalEventService(
 
     protected readonly HttpConfig _httpConfig = configServer.GetConfig<HttpConfig>();
     protected readonly LocationConfig _locationConfig = configServer.GetConfig<LocationConfig>();
-    protected readonly HashSet<string> _lootContainersToFilter =
-    [
-        "Backpack",
-        "Pockets",
-        "TacticalVest",
-    ];
     protected readonly QuestConfig _questConfig = configServer.GetConfig<QuestConfig>();
     protected readonly SeasonalEventConfig _seasonalEventConfig =
         configServer.GetConfig<SeasonalEventConfig>();
@@ -103,7 +98,7 @@ public class SeasonalEventService(
     ///     Get an array of christmas items found in bots inventories as loot
     /// </summary>
     /// <returns>array</returns>
-    public HashSet<MongoId> GetChristmasEventItems()
+    public FrozenSet<MongoId> GetChristmasEventItems()
     {
         return _christmasEventItems;
     }
@@ -112,7 +107,7 @@ public class SeasonalEventService(
     ///     Get an array of halloween items found in bots inventories as loot
     /// </summary>
     /// <returns>array</returns>
-    public HashSet<MongoId> GetHalloweenEventItems()
+    public FrozenSet<MongoId> GetHalloweenEventItems()
     {
         return _halloweenEventItems;
     }
@@ -207,7 +202,7 @@ public class SeasonalEventService(
     /// <summary>
     ///     Get a dictionary of gear changes to apply to bots for a specific event e.g. Christmas/Halloween
     /// </summary>
-    /// <param name="eventName">Name of event to get gear changes for</param>
+    /// <param name="eventType">Name of event to get gear changes for</param>
     /// <returns>bots with equipment changes</returns>
     protected Dictionary<string, Dictionary<string, Dictionary<MongoId, int>>>? GetEventBotGear(
         SeasonalEventType eventType

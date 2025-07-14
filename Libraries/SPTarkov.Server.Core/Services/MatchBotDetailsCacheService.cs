@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Constants;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -14,7 +15,7 @@ namespace SPTarkov.Server.Core.Services;
 [Injectable(InjectionType.Singleton)]
 public class MatchBotDetailsCacheService(ISptLogger<MatchBotDetailsCacheService> logger)
 {
-    private static readonly HashSet<string> _sidesToCache = [Sides.PmcUsec, Sides.PmcBear];
+    private static readonly FrozenSet<string> _sidesToCache = [Sides.PmcUsec, Sides.PmcBear];
 
     protected readonly ConcurrentDictionary<string, BotDetailsForChatMessages> BotDetailsCache =
         new();

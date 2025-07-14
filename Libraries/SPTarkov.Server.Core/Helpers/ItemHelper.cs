@@ -157,7 +157,7 @@ public class ItemHelper(
     public bool IsSameItems(
         ICollection<Item> item1,
         ICollection<Item> item2,
-        HashSet<string>? compareUpdProperties = null
+        ISet<string>? compareUpdProperties = null
     )
     {
         if (item1.Count != item2.Count)

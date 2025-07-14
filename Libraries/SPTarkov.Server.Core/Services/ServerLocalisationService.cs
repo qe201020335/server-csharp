@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Utils;
@@ -20,8 +21,9 @@ public class ServerLocalisationService(
 {
     private readonly Dictionary<string, LazyLoad<Dictionary<string, string>>> _loadedLocales = [];
     private string _serverLocale = localeService.GetDesiredServerLocale();
-    private readonly Dictionary<string, string> _localeFallbacks =
-        localeService.GetLocaleFallbacks();
+    private readonly FrozenDictionary<string, string> _localeFallbacks = localeService
+        .GetLocaleFallbacks()
+        .ToFrozenDictionary();
 
     private const string DefaultLocale = "en";
     private const string LocaleDirectory = "./SPT_Data/database/locales/server";

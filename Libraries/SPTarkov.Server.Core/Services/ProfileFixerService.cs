@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text.RegularExpressions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
@@ -29,7 +30,7 @@ public class ProfileFixerService(
     InventoryHelper inventoryHelper
 )
 {
-    protected readonly List<string> _areas = ["hideout", "main"];
+    protected readonly FrozenSet<string> _areas = ["hideout", "main"];
     protected readonly CoreConfig _coreConfig = configServer.GetConfig<CoreConfig>();
 
     /// <summary>

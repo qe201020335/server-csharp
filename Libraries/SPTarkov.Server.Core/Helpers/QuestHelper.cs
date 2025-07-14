@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Globalization;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
@@ -38,7 +39,7 @@ public class QuestHelper(
     ICloner cloner
 )
 {
-    protected readonly HashSet<QuestStatusEnum> _startedOrAvailToFinish =
+    protected readonly FrozenSet<QuestStatusEnum> _startedOrAvailToFinish =
     [
         QuestStatusEnum.Started,
         QuestStatusEnum.AvailableForFinish,

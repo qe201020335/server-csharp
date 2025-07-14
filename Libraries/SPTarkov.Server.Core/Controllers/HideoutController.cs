@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Generators;
@@ -45,7 +46,7 @@ public class HideoutController(
 {
     public const string NameTaskConditionCountersCraftingId = "673f5d6fdd6ed700c703afdc";
 
-    protected readonly HashSet<HideoutAreas> _areasWithResources =
+    protected readonly FrozenSet<HideoutAreas> _areasWithResources =
     [
         HideoutAreas.AirFilteringUnit,
         HideoutAreas.WaterCollector,
