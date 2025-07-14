@@ -886,7 +886,7 @@ public class InsuranceController(
     /// </summary>
     /// <param name="request">request object</param>
     /// <param name="sessionId">Session/Player id</param>
-    /// <returns>GetInsuranceCostResponseData object to send to client</returns>
+    /// <returns>Dictionary keyed by trader with every item price from each trader</returns>
     public GetInsuranceCostResponseData Cost(GetInsuranceCostRequestData request, MongoId sessionId)
     {
         var response = new GetInsuranceCostResponseData();
@@ -897,13 +897,13 @@ public class InsuranceController(
         var inventoryItemsHash = pmcData.Inventory.Items.ToDictionary(item => item.Id);
 
         // Loop over each trader in request
-        foreach (var trader in request.Traders ?? [])
+        foreach (var traderId in request.Traders ?? [])
         {
-            var items = new Dictionary<string, double>();
+            var traderItems = new Dictionary<MongoId, double>();
             foreach (var itemId in request.Items ?? [])
             {
-                // Ensure hash has item in it
-                if (!inventoryItemsHash.ContainsKey(itemId))
+                // Ensure inventory has item in it
+                if (!inventoryItemsHash.TryGetValue(itemId, out var inventoryItem))
                 {
                     if (logger.IsLogEnabled(LogLevel.Debug))
                     {
@@ -915,17 +915,24 @@ public class InsuranceController(
                     continue;
                 }
 
-                items.TryAdd(
-                    inventoryItemsHash[itemId].Template,
-                    insuranceService.GetRoublePriceToInsureItemWithTrader(
-                        pmcData,
-                        inventoryItemsHash[itemId],
-                        trader
+                if (
+                    !traderItems.TryAdd(
+                        inventoryItem.Template,
+                        insuranceService.GetRoublePriceToInsureItemWithTrader(
+                            pmcData,
+                            inventoryItem,
+                            traderId
+                        )
                     )
-                );
+                )
+                {
+                    logger.Warning(
+                        $"Unable to add item id: {itemId.ToString()} to client/insurance/items/list/cost response, already exists"
+                    );
+                }
             }
 
-            response.Add(trader, items);
+            response.Add(traderId, traderItems);
         }
 
         return response;
