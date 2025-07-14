@@ -257,6 +257,42 @@ public record EquipmentFilters
     [JsonPropertyName("armorPlateWeighting")]
     public List<ArmorPlateWeights>? ArmorPlateWeighting { get; set; }
 
+    /// <summary>
+    ///     Chance face shield is down/active
+    /// </summary>
+    [JsonPropertyName("faceShieldIsActiveChancePercent")]
+    public double? FaceShieldIsActiveChancePercent { get; set; }
+
+    /// <summary>
+    ///     Chance gun flashlight is active during the day
+    /// </summary>
+    [JsonPropertyName("lightIsActiveDayChancePercent")]
+    public double? LightIsActiveDayChancePercent { get; set; }
+
+    /// <summary>
+    ///     Chance gun flashlight is active during the night
+    /// </summary>
+    [JsonPropertyName("lightIsActiveNightChancePercent")]
+    public double? LightIsActiveNightChancePercent { get; set; }
+
+    /// <summary>
+    ///     Chance gun laser is active during the day
+    /// </summary>
+    [JsonPropertyName("laserIsActiveChancePercent")]
+    public double? LaserIsActiveChancePercent { get; set; }
+
+    /// <summary>
+    ///     Chance NODS are down/active during the day
+    /// </summary>
+    [JsonPropertyName("nvgIsActiveChanceDayPercent")]
+    public double? NvgIsActiveChanceDayPercent { get; set; }
+
+    /// <summary>
+    ///     Chance NODS are down/active during the night
+    /// </summary>
+    [JsonPropertyName("nvgIsActiveChanceNightPercent")]
+    public double? NvgIsActiveChanceNightPercent { get; set; }
+
     [JsonPropertyName("forceRigWhenNoVest")]
     public bool? ForceRigWhenNoVest { get; set; }
 }

@@ -265,8 +265,12 @@ public class BotGeneratorHelper(
             return defaultValue;
         }
 
-        var botEquipmentSettings = _botConfig.Equipment[GetBotEquipmentRole(botRole)];
-        if (botEquipmentSettings is null)
+        if (
+            !_botConfig.Equipment.TryGetValue(
+                GetBotEquipmentRole(botRole),
+                out var botEquipmentSettings
+            )
+        )
         {
             logger.Warning(
                 serverLocalisationService.GetText(
