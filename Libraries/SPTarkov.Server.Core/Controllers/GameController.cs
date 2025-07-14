@@ -440,13 +440,13 @@ public class GameController(
         // One day post-profile creation
         if (currentTimeStamp > timeStampProfileCreated + oneDaySeconds)
         {
-            giftService.SendPraporStartingGift(pmcProfile.SessionId!, 1);
+            giftService.SendPraporStartingGift(pmcProfile.SessionId.Value, 1);
         }
 
         // Two day post-profile creation
         if (currentTimeStamp > timeStampProfileCreated + oneDaySeconds * 2)
         {
-            giftService.SendPraporStartingGift(pmcProfile.SessionId!, 2);
+            giftService.SendPraporStartingGift(pmcProfile.SessionId.Value, 2);
         }
     }
 
@@ -456,7 +456,11 @@ public class GameController(
     /// <param name="pmcProfile"></param>
     protected void SendMechanicGiftsToNewProfile(PmcData pmcProfile)
     {
-        giftService.SendGiftWithSilentReceivedCheck("MechanicGiftDay1", pmcProfile.SessionId, 1);
+        giftService.SendGiftWithSilentReceivedCheck(
+            "MechanicGiftDay1",
+            pmcProfile.SessionId.Value,
+            1
+        );
     }
 
     /// <summary>

@@ -85,10 +85,7 @@ public class ReflectionsCloner(ISptLogger<ReflectionsCloner> logger) : ICloner
                     "Add",
                     BindingFlags.Instance | BindingFlags.Public
                 );
-                while (!AddMethodInfoCache.TryAdd(objectType, addMethodInfo))
-                {
-                    ;
-                }
+                while (!AddMethodInfoCache.TryAdd(objectType, addMethodInfo)) { }
             }
 
             var toCloneEnumerable = (IEnumerable)obj;
@@ -112,10 +109,7 @@ public class ReflectionsCloner(ISptLogger<ReflectionsCloner> logger) : ICloner
             if (!MemberInfoCache.TryGetValue(objectType, out var memberInfos))
             {
                 memberInfos = objectType.GetMembers(BindingFlags.Public | BindingFlags.Instance);
-                while (!MemberInfoCache.TryAdd(objectType, memberInfos))
-                {
-                    ;
-                }
+                while (!MemberInfoCache.TryAdd(objectType, memberInfos)) { }
             }
 
             foreach (var member in memberInfos)
@@ -181,19 +175,13 @@ public class ReflectionsCloner(ISptLogger<ReflectionsCloner> logger) : ICloner
             if (!_itemPropertyInfoCache.TryGetValue(type, out var item))
             {
                 item = objectType.GetProperty("Item", BindingFlags.Public | BindingFlags.Instance);
-                while (!_itemPropertyInfoCache.TryAdd(type, item))
-                {
-                    ;
-                }
+                while (!_itemPropertyInfoCache.TryAdd(type, item)) { }
             }
 
             if (!_listPropertyInfoCache.TryGetValue(type, out var list))
             {
                 list = objectType.GetProperty("List", BindingFlags.Public | BindingFlags.Instance);
-                while (!_listPropertyInfoCache.TryAdd(type, list))
-                {
-                    ;
-                }
+                while (!_listPropertyInfoCache.TryAdd(type, list)) { }
             }
 
             item.GetSetMethod(true)

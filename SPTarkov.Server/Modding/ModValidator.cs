@@ -21,11 +21,11 @@ public class ModValidator(
 {
     protected readonly string basepath = "user/mods/";
     protected readonly string modOrderPath = "user/mods/order.json";
-    protected Dictionary<string, SptMod> imported = [];
-    protected Dictionary<string, int> order = [];
-    protected HashSet<string> skippedMods = [];
+    protected readonly Dictionary<string, SptMod> imported = [];
+    protected readonly Dictionary<string, int> order = [];
+    protected readonly HashSet<string> skippedMods = [];
 
-    protected CoreConfig sptConfig = configServer.GetConfig<CoreConfig>();
+    protected readonly CoreConfig sptConfig = configServer.GetConfig<CoreConfig>();
 
     public List<SptMod> ValidateAndSort(List<SptMod> mods)
     {
@@ -189,7 +189,7 @@ public class ModValidator(
             groupedMods.Add(name, [.. groupedMods.GetValueOrDefault(name) ?? [], mod]);
 
             // if there's more than one entry for a given mod it means there's at least 2 mods with the same author and name trying to load.
-            if (groupedMods[name].Count > 1 && !skippedMods.Contains(name))
+            if (groupedMods[name].Count > 1)
             {
                 skippedMods.Add(name);
             }

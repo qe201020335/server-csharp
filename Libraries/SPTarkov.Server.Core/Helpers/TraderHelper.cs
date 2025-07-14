@@ -21,7 +21,6 @@ public class TraderHelper(
     DatabaseService databaseService,
     ProfileHelper profileHelper,
     HandbookHelper handbookHelper,
-    ItemHelper itemHelper,
     ServerLocalisationService serverLocalisationService,
     FenceService fenceService,
     TraderStore traderStore,
@@ -451,6 +450,7 @@ public class TraderHelper(
     /// </summary>
     /// <param name="sessionID">Session id</param>
     /// <param name="newPurchaseDetails">New item assort id + count</param>
+    /// <param name="itemPurchased">Item purchased</param>
     public void AddTraderPurchasesToPlayerProfile(
         MongoId sessionID,
         PurchaseDetails newPurchaseDetails,

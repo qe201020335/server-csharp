@@ -43,12 +43,10 @@ public class ModLoadOrder(ICloner cloner)
 
     public HashSet<string> GetModsOnLoadBefore(string mod)
     {
-        if (!mods.ContainsKey(mod))
+        if (!mods.TryGetValue(mod, out var config))
         {
             throw new Exception($"The mod {mod} does not exist!");
         }
-
-        var config = mods[mod];
 
         var loadBefore = new HashSet<string>(config.LoadBefore);
 
@@ -93,12 +91,10 @@ public class ModLoadOrder(ICloner cloner)
         }
 
         // Check dependencies
-        if (!modsAvailable.ContainsKey(mod))
+        if (!modsAvailable.TryGetValue(mod, out var config))
         {
             throw new Exception("modloader-error_parsing_mod_load_order");
         }
-
-        var config = modsAvailable[mod];
 
         config.LoadAfter ??= [];
         config.ModDependencies ??= [];
@@ -107,9 +103,9 @@ public class ModLoadOrder(ICloner cloner)
 
         foreach (var modAfter in config.LoadAfter)
         {
-            if (modsAvailable.ContainsKey(modAfter))
+            if (modsAvailable.TryGetValue(modAfter, out var value))
             {
-                if (modsAvailable[modAfter]?.LoadAfter?.Contains(mod) ?? false)
+                if (value?.LoadAfter?.Contains(mod) ?? false)
                 {
                     throw new Exception("modloader-load_order_conflict");
                 }

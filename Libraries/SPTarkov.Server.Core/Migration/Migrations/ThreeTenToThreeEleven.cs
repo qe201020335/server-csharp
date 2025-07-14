@@ -6,7 +6,6 @@ using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using Range = SemanticVersioning.Range;
 
 namespace SPTarkov.Server.Core.Migration.Migrations
@@ -77,10 +76,7 @@ namespace SPTarkov.Server.Core.Migration.Migrations
                 profile.AddCustomisationUnlocksToProfile();
             }
 
-            if (profile.CharacterData.PmcData.Prestige is null)
-            {
-                profile.CharacterData.PmcData.Prestige = [];
-            }
+            profile.CharacterData.PmcData.Prestige ??= [];
 
             if (profile.CharacterData.PmcData.Inventory.HideoutCustomizationStashId is null)
             {

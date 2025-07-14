@@ -28,7 +28,10 @@ public class FileLogHandler(IEnumerable<IFilePatternReplacer> replacers) : BaseL
     private readonly ConcurrentDictionary<string, Lock> _fileLocks = new();
     private readonly ConcurrentDictionary<string, FileInfo> _fileInfos = new();
     private readonly ConcurrentDictionary<string, FileSptLoggerReference> _fileConfigs = new();
-    public override LoggerType LoggerType => LoggerType.File;
+    public override LoggerType LoggerType
+    {
+        get { return LoggerType.File; }
+    }
 
     public override void Log(SptLogMessage message, BaseSptLoggerReference reference)
     {

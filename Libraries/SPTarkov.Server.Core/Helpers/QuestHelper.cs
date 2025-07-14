@@ -467,9 +467,7 @@ public class QuestHelper(
 
                 // Include if quest found in profile and is started or ready to hand in
                 return startedQuestInProfile is not null
-                    && _startedOrAvailToFinish.Contains(
-                        (QuestStatusEnum)startedQuestInProfile.Status
-                    );
+                    && _startedOrAvailToFinish.Contains(startedQuestInProfile.Status);
             });
 
         return GetQuestsWithOnlyLevelRequirementStartCondition(eligibleQuests).ToList();
@@ -616,7 +614,7 @@ public class QuestHelper(
     }
 
     /// <summary>
-    /// Sets the item stack to new value, or delete the item if value <= 0
+    /// Sets the item stack to new value, or delete the item if value is less than or equal 0
     /// </summary>
     /// <param name="pmcData">Profile</param>
     /// <param name="itemId">Id of item to adjust stack size of</param>

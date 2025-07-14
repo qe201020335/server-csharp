@@ -214,7 +214,7 @@ public class SeasonalEventService(
     /// <summary>
     ///     Get a dictionary of loot changes to apply to bots for a specific event e.g. Christmas/Halloween
     /// </summary>
-    /// <param name="eventName">Name of event to get gear changes for</param>
+    /// <param name="eventType">Name of event to get gear changes for</param>
     /// <returns>bots with loot changes</returns>
     protected Dictionary<string, Dictionary<string, Dictionary<MongoId, int>>> GetEventBotLoot(
         SeasonalEventType eventType
@@ -290,7 +290,7 @@ public class SeasonalEventService(
         var seasonalEvents = GetEventDetails();
 
         // reset existing data
-        _currentlyActiveEvents = new List<SeasonalEvent>();
+        _currentlyActiveEvents = [];
 
         // Add active events to array
         foreach (var events in seasonalEvents)

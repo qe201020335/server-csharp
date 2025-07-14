@@ -37,7 +37,7 @@ public class RagfairSortHelper(LocaleService localeService)
                 break;
 
             case RagfairSort.OFFER_TITLE:
-                offers.Sort((a, b) => SortOffersByName(a, b));
+                offers.Sort(SortOffersByName);
                 break;
 
             case RagfairSort.PRICE:
@@ -79,8 +79,8 @@ public class RagfairSortHelper(LocaleService localeService)
 
     protected int SortOffersByRating(RagfairOffer a, RagfairOffer b)
     {
-        double ratingA = a?.User?.Rating ?? 0.0;
-        double ratingB = b?.User?.Rating ?? 0.0;
+        var ratingA = a.User?.Rating ?? 0.0;
+        var ratingB = b.User?.Rating ?? 0.0;
 
         return ratingA.CompareTo(ratingB);
     }
@@ -94,7 +94,7 @@ public class RagfairSortHelper(LocaleService localeService)
         var nameA = locale.GetValueOrDefault($"{tplA} Name", tplA);
         var nameB = locale.GetValueOrDefault($"{tplB} Name", tplB);
 
-        return string.Compare(nameA, nameB);
+        return string.CompareOrdinal(nameA, nameB);
     }
 
     /**

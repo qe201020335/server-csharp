@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 
 namespace SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
@@ -56,13 +57,13 @@ public class CustomizationProps
     public List<string>? Game { get; set; }
 
     [JsonPropertyName("Hands")]
-    public string? Hands { get; set; }
+    public MongoId? Hands { get; set; }
 
     [JsonPropertyName("Feet")]
-    public string? Feet { get; set; }
+    public MongoId? Feet { get; set; }
 
     [JsonPropertyName("Body")]
-    public string? Body { get; set; }
+    public MongoId? Body { get; set; }
 
     [JsonPropertyName("ProfileVersions")]
     public List<string>? ProfileVersions { get; set; }

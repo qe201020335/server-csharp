@@ -57,7 +57,7 @@ public record SptProfile
     ///     List of friend profile IDs
     /// </summary>
     [JsonPropertyName("friends")]
-    public List<string>? FriendProfileIds { get; set; }
+    public List<MongoId>? FriendProfileIds { get; set; }
 
     /// <summary>
     ///     Stores profile-related customisation, e.g. clothing / hideout walls / floors
@@ -232,7 +232,7 @@ public record Dialogue
     public List<Message>? Messages { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 }
 
 //TODO: @Cleanup: Maybe the same as Dialogue?
@@ -557,7 +557,7 @@ public record BtrDelivery
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("scheduledTime")]
     public int? ScheduledTime { get; set; }

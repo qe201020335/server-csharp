@@ -348,9 +348,10 @@ public class CircleOfCultistService(
     /// <param name="rewardItemTplPool">Items that can be picked</param>
     /// <param name="rewardBudget">Rouble budget to reach</param>
     /// <param name="cultistCircleStashId">Id of stash item</param>
+    /// <param name="circleConfig"></param>
     /// <returns>Array of item arrays</returns>
     protected List<List<Item>> GetRewardsWithinBudget(
-        List<string> rewardItemTplPool,
+        List<MongoId> rewardItemTplPool,
         double rewardBudget,
         MongoId cultistCircleStashId,
         CultistCircleSettings circleConfig
@@ -543,6 +544,7 @@ public class CircleOfCultistService(
     /// </summary>
     /// <param name="sessionId">sessionId</param>
     /// <param name="sacrificedItems">Items sacrificed</param>
+    /// <param name="directRewardsCache"></param>
     /// <returns>Direct reward items to send to player</returns>
     protected DirectRewardSettings? CheckForDirectReward(
         MongoId sessionId,
@@ -691,14 +693,14 @@ public class CircleOfCultistService(
     /// <param name="craftingInfo">Do we return bonus items (hideout/task items)</param>
     /// <param name="cultistCircleConfig">Circle config</param>
     /// <returns>Array of tpls</returns>
-    protected List<string> GetCultistCircleRewardPool(
+    protected List<MongoId> GetCultistCircleRewardPool(
         MongoId sessionId,
         PmcData pmcData,
         CircleCraftDetails craftingInfo,
         CultistCircleSettings cultistCircleConfig
     )
     {
-        var rewardPool = new HashSet<string>();
+        var rewardPool = new HashSet<MongoId>();
         var hideoutDbData = databaseService.GetHideout();
         var itemsDb = databaseService.GetItems();
 
@@ -784,7 +786,7 @@ public class CircleOfCultistService(
     protected void AddTaskItemRequirementsToRewardPool(
         PmcData pmcData,
         HashSet<MongoId> itemRewardBlacklist,
-        HashSet<string> rewardPool
+        HashSet<MongoId> rewardPool
     )
     {
         var activeTasks = pmcData.Quests.Where(quest => quest.Status == QuestStatusEnum.Started);
@@ -823,7 +825,7 @@ public class CircleOfCultistService(
         Hideout hideoutDbData,
         PmcData pmcData,
         HashSet<MongoId> itemRewardBlacklist,
-        HashSet<string> rewardPool
+        HashSet<MongoId> rewardPool
     )
     {
         var dbAreas = hideoutDbData.Areas;
@@ -893,9 +895,8 @@ public class CircleOfCultistService(
     /// <param name="rewardPool">Reward pool to add to</param>
     /// <param name="itemRewardBlacklist">Item tpls to ignore</param>
     /// <param name="itemsShouldBeHighValue">Should these items meet the valuable threshold</param>
-    /// <returns>Set of item tpls</returns>
-    protected HashSet<string> GenerateRandomisedItemsAndAddToRewardPool(
-        HashSet<string> rewardPool,
+    protected void GenerateRandomisedItemsAndAddToRewardPool(
+        HashSet<MongoId> rewardPool,
         HashSet<MongoId> itemRewardBlacklist,
         bool itemsShouldBeHighValue
     )
@@ -937,8 +938,6 @@ public class CircleOfCultistService(
             rewardPool.Add(randomItem.Id);
             currentItemCount++;
         }
-
-        return rewardPool;
     }
 
     /// <summary>

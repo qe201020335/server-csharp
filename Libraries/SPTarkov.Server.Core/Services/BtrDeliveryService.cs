@@ -71,10 +71,7 @@ public class BtrDeliveryService(
             .InsuredItems.Where(insuredItem => !deliveredItemIds.Contains(insuredItem.ItemId.Value))
             .ToList();
 
-        if (saveServer.GetProfile(sessionId).BtrDeliveryList == null)
-        {
-            saveServer.GetProfile(sessionId).BtrDeliveryList = new List<BtrDelivery>();
-        }
+        saveServer.GetProfile(sessionId).BtrDeliveryList ??= [];
 
         // Store delivery to send to player later in profile
         saveServer

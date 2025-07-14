@@ -72,10 +72,7 @@ public class DialogueHelper(ISptLogger<DialogueHelper> logger, ProfileHelper pro
 
             // Check reward count when item being moved isn't in reward list
             // If count is 0, it means after this move occurs the reward array will be empty and all rewards collected
-            if (message.Items.Data is null)
-            {
-                message.Items.Data = [];
-            }
+            message.Items.Data ??= [];
 
             var messageItems = message.Items.Data?.Where(x => x.Id != itemId);
             if (messageItems is null || !messageItems.Any())

@@ -181,7 +181,7 @@ public class RagfairOfferHelper(
     {
         // Get all offers that require the desired item and filter out offers from non traders if player below ragfair unlock
         var offerIDsForItem = ragfairRequiredItemsService.GetRequiredOffersById(
-            searchRequest.NeededSearchId
+            searchRequest.NeededSearchId.Value
         );
 
         var tieredFlea = _ragfairConfig.TieredFlea;
@@ -438,12 +438,7 @@ public class RagfairOfferHelper(
                 return false;
             }
 
-            if (
-                !assort.Items.Any(item =>
-                {
-                    return item.Id == offer.Root;
-                })
-            )
+            if (!assort.Items.Any(item => item.Id == offer.Root))
             // skip (quest) locked items
             {
                 return false;
@@ -561,12 +556,12 @@ public class RagfairOfferHelper(
     /// <returns>true if out of stock</returns>
     protected bool TraderOutOfStock(RagfairOffer offer)
     {
-        if (offer?.Items?.Count == 0)
+        if (offer.Items?.Count == 0)
         {
             return true;
         }
 
-        return offer.Items[0]?.Upd?.StackObjectsCount == 0;
+        return offer.Items.FirstOrDefault()?.Upd?.StackObjectsCount == 0;
     }
 
     /// <summary>
@@ -620,7 +615,7 @@ public class RagfairOfferHelper(
     protected HashSet<string> GetLoyaltyLockedOffers(List<RagfairOffer> offers, PmcData pmcProfile)
     {
         var loyaltyLockedOffers = new HashSet<string>();
-        foreach (var offer in offers.Where(offer => OfferIsFromTrader(offer)))
+        foreach (var offer in offers.Where(OfferIsFromTrader))
         {
             if (
                 pmcProfile.TradersInfo.TryGetValue(offer.User.Id, out var traderDetails)
@@ -645,7 +640,7 @@ public class RagfairOfferHelper(
         var profileOffers = GetProfileOffers(sessionId);
 
         // No offers, don't do anything
-        if (profileOffers?.Count == 0)
+        if (!profileOffers.Any())
         {
             return true;
         }
@@ -1078,7 +1073,7 @@ public class RagfairOfferHelper(
             var offerRootTemplate = itemHelper.GetItem(offerRootItem.Template).Value;
             var requiredPlateCount = offerRootTemplate
                 .Properties.Slots?.Where(item => item.Required.GetValueOrDefault(false))
-                ?.Count();
+                .Count();
 
             return offer.Items.Count > requiredPlateCount;
         }

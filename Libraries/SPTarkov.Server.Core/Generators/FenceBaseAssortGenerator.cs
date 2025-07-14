@@ -166,25 +166,16 @@ public class FenceBaseAssortGenerator(
             var itemAndChildren = _cloner.Clone(defaultPreset.Items).ReplaceIDs().ToList();
 
             // Find root item and add some properties to it
-            for (var i = 0; i < itemAndChildren.Count; i++)
+            var rootItem = itemAndChildren.FirstOrDefault(item =>
+                string.IsNullOrEmpty(item.ParentId)
+            );
+            rootItem.ParentId = "hideout";
+            rootItem.SlotId = "hideout";
+            rootItem.Upd = new Upd
             {
-                var mod = itemAndChildren[i];
-
-                // Build root Item info
-                if (string.IsNullOrEmpty(mod.ParentId))
-                {
-                    mod.ParentId = "hideout";
-                    mod.SlotId = "hideout";
-                    mod.Upd = new Upd
-                    {
-                        StackObjectsCount = 1,
-                        SptPresetId = defaultPreset.Id, // Store preset id here so we can check it later to prevent preset dupes
-                    };
-
-                    // Updated root item, exit loop
-                    break;
-                }
-            }
+                StackObjectsCount = 1,
+                SptPresetId = defaultPreset.Id, // Store preset id here so we can check it later to prevent preset dupes
+            };
 
             // Add constructed preset to assorts
             baseFenceAssort.Items.AddRange(itemAndChildren);
@@ -294,10 +285,10 @@ public class FenceBaseAssortGenerator(
             foreach (var requiredSlot in requiredSlots)
             {
                 var modItemDbDetails = itemHelper
-                    .GetItem(requiredSlot.Props.Filters[0].Plate)
+                    .GetItem(requiredSlot.Props.Filters[0].Plate.Value)
                     .Value;
                 var plateTpl = requiredSlot.Props.Filters[0].Plate; // `Plate` property appears to be the 'default' item for slot
-                if (string.IsNullOrEmpty(plateTpl))
+                if (plateTpl is null)
                 // Some bsg plate properties are empty, skip mod
                 {
                     continue;
@@ -306,7 +297,7 @@ public class FenceBaseAssortGenerator(
                 var mod = new Item
                 {
                     Id = new MongoId(),
-                    Template = plateTpl,
+                    Template = plateTpl.Value,
                     ParentId = armor[0].Id,
                     SlotId = requiredSlot.Name,
                     Upd = new Upd
@@ -338,12 +329,12 @@ public class FenceBaseAssortGenerator(
                     continue;
                 }
 
-                var modItemDbDetails = itemHelper.GetItem(plateTpl).Value;
+                var modItemDbDetails = itemHelper.GetItem(plateTpl.Value).Value;
                 armor.Add(
                     new Item
                     {
                         Id = new MongoId(),
-                        Template = plateSlot.Props.Filters[0].Plate, // `Plate` property appears to be the 'default' item for slot
+                        Template = plateSlot.Props.Filters[0].Plate.Value, // `Plate` property appears to be the 'default' item for slot
                         ParentId = armor[0].Id,
                         SlotId = plateSlot.Name,
                         Upd = new Upd

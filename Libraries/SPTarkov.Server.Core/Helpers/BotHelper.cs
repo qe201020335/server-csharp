@@ -39,7 +39,7 @@ public class BotHelper(
     /// <returns>BotType object</returns>
     public BotType? GetBotTemplate(string role)
     {
-        if (!databaseService.GetBots().Types.TryGetValue(role?.ToLowerInvariant(), out var bot))
+        if (!databaseService.GetBots().Types.TryGetValue(role.ToLowerInvariant(), out var bot))
         {
             logger.Error($"Unable to get bot of type: {role} from DB");
 
@@ -69,12 +69,12 @@ public class BotHelper(
 
     public bool IsBotFollower(string botRole)
     {
-        return botRole?.StartsWith("follower", StringComparison.CurrentCultureIgnoreCase) ?? false;
+        return botRole.StartsWith("follower", StringComparison.CurrentCultureIgnoreCase);
     }
 
     public bool IsBotZombie(string botRole)
     {
-        return botRole?.StartsWith("infected", StringComparison.CurrentCultureIgnoreCase) ?? false;
+        return botRole.StartsWith("infected", StringComparison.CurrentCultureIgnoreCase);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class BotHelper(
         const string friendlyBotTypesKey = "FRIENDLY_BOT_TYPES";
 
         // Null guard
-        if (difficultySettings.Mind[friendlyBotTypesKey] is null)
+        if (!difficultySettings.Mind.ContainsKey(friendlyBotTypesKey))
         {
             difficultySettings.Mind[friendlyBotTypesKey] = new List<string>();
         }
@@ -105,13 +105,13 @@ public class BotHelper(
         const string revengePropKey = "REVENGE_BOT_TYPES";
 
         // Nothing to add
-        if (typesToAdd is null)
+        if (typesToAdd.Length == 0)
         {
             return;
         }
 
         // Null guard
-        if (difficultySettings.Mind[revengePropKey] is null)
+        if (!difficultySettings.Mind.ContainsKey(revengePropKey))
         {
             difficultySettings.Mind[revengePropKey] = new List<string>();
         }
@@ -154,7 +154,7 @@ public class BotHelper(
     {
         // No randomisation details found, skip
 
-        return botEquipConfig?.Randomisation?.FirstOrDefault(randDetails =>
+        return botEquipConfig.Randomisation?.FirstOrDefault(randDetails =>
             botLevel >= randDetails.LevelRange.Min && botLevel <= randDetails.LevelRange.Max
         );
     }

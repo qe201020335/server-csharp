@@ -31,7 +31,7 @@ public class BotWeaponGeneratorHelper(
     {
         var randomizedMagazineCount = GetRandomizedMagazineCount(magCounts);
         var parentItem = itemHelper.GetItem(magTemplate.Parent).Value;
-        double? chamberBulletCount = 0;
+        double? chamberBulletCount;
         if (MagazineIsCylinderRelated(parentItem.Name))
         {
             var firstSlotAmmoTpl =
@@ -115,10 +115,8 @@ public class BotWeaponGeneratorHelper(
         HashSet<EquipmentSlots>? equipmentSlotsToAddTo = null
     )
     {
-        if (equipmentSlotsToAddTo is null)
-        {
-            equipmentSlotsToAddTo = [EquipmentSlots.TacticalVest, EquipmentSlots.Pockets];
-        }
+        // null guard input param
+        equipmentSlotsToAddTo ??= [EquipmentSlots.TacticalVest, EquipmentSlots.Pockets];
 
         var ammoItems = itemHelper.SplitStack(
             new Item

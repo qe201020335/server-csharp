@@ -175,6 +175,7 @@ public class BotInventoryGenerator(
     /// <param name="botInventory">Inventory to add equipment to</param>
     /// <param name="botLevel">Level of bot</param>
     /// <param name="chosenGameVersion">Game version for bot, only really applies for PMCs</param>
+    /// <param name="isPmc">Is the generated bot a PMC</param>
     /// <param name="raidConfig">RadiConfig</param>
     public void GenerateAndAddEquipmentToBot(
         MongoId sessionId,

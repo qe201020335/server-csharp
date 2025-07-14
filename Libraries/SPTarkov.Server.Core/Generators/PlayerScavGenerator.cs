@@ -5,7 +5,6 @@ using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Eft.Notes;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
@@ -114,7 +113,7 @@ public class PlayerScavGenerator(
         scavData.TaskConditionCounters =
             existingScavDataClone.TaskConditionCounters
             ?? new Dictionary<MongoId, TaskConditionCounter>();
-        scavData.Notes = existingScavDataClone.Notes ?? new Notes { DataNotes = new List<Note>() };
+        scavData.Notes = existingScavDataClone.Notes ?? new Notes { DataNotes = [] };
         scavData.WishList =
             existingScavDataClone.WishList
             ?? new DictionaryOrList<MongoId, int>(new Dictionary<MongoId, int>(), []);
@@ -379,34 +378,29 @@ public class PlayerScavGenerator(
 
     protected Stats GetScavStats(PmcData scavProfile)
     {
-        if (scavProfile?.Stats != null)
-        {
-            return scavProfile.Stats;
-        }
-
-        return profileHelper.GetDefaultCounters();
+        return scavProfile.Stats ?? profileHelper.GetDefaultCounters();
     }
 
     protected int GetScavLevel(PmcData scavProfile)
     {
         // Info can be null on initial account creation
-        if (scavProfile?.Info?.Level == null)
+        if (scavProfile.Info?.Level == null)
         {
             return 1;
         }
 
-        return scavProfile?.Info?.Level ?? 1;
+        return scavProfile.Info?.Level ?? 1;
     }
 
     protected int GetScavExperience(PmcData scavProfile)
     {
         // Info can be null on initial account creation
-        if (scavProfile?.Info?.Experience == null)
+        if (scavProfile.Info?.Experience == null)
         {
             return 0;
         }
 
-        return scavProfile?.Info?.Experience ?? 0;
+        return scavProfile.Info?.Experience ?? 0;
     }
 
     /// <summary>
@@ -432,7 +426,7 @@ public class PlayerScavGenerator(
         var scavLockDuration =
             databaseService.GetGlobals().Configuration.SavagePlayCooldown * modifier;
 
-        var fullProfile = profileHelper.GetFullProfile(pmcData?.SessionId);
+        var fullProfile = profileHelper.GetFullProfile(pmcData.SessionId.Value);
         if (
             fullProfile?.ProfileInfo?.Edition?.StartsWith(
                 AccountTypes.SPT_DEVELOPER,

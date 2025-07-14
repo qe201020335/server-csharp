@@ -789,7 +789,7 @@ public record Props
     public MongoId? DefMagType { get; set; }
 
     [JsonPropertyName("defAmmo")]
-    public string? DefAmmo { get; set; }
+    public MongoId? DefAmmo { get; set; }
 
     [JsonPropertyName("AdjustCollimatorsToTrajectory")]
     public bool? AdjustCollimatorsToTrajectory { get; set; }
@@ -1797,7 +1797,7 @@ public record SlotFilter
     public bool? Locked { get; set; }
 
     [JsonPropertyName("Plate")]
-    public string? Plate { get; set; }
+    public MongoId? Plate { get; set; }
 
     [JsonPropertyName("armorColliders")]
     public List<string>? ArmorColliders { get; set; }

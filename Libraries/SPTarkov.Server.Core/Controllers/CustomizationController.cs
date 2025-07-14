@@ -34,17 +34,17 @@ public class CustomizationController(
     /// <param name="traderId">trader to look up clothing for</param>
     /// <param name="sessionId">Session id</param>
     /// <returns>Suit array</returns>
-    public List<Suit> GetTraderSuits(string traderId, MongoId sessionId)
+    public List<Suit> GetTraderSuits(MongoId traderId, MongoId sessionId)
     {
         var pmcData = profileHelper.GetPmcProfile(sessionId);
         var clothing = databaseService.GetCustomization();
         var suits = databaseService.GetTrader(traderId).Suits;
 
-        var matchingSuits = suits?.Where(s => clothing.ContainsKey(s.SuiteId!)).ToList();
+        var matchingSuits = suits?.Where(s => clothing.ContainsKey(s.SuiteId)).ToList();
         matchingSuits = matchingSuits
             ?.Where(s =>
-                clothing[s.SuiteId ?? string.Empty]
-                    ?.Properties?.Side?.Contains(pmcData?.Info?.Side ?? string.Empty) ?? false
+                clothing[s.SuiteId]?.Properties?.Side?.Contains(pmcData?.Info?.Side ?? string.Empty)
+                ?? false
             )
             .ToList();
 
@@ -90,9 +90,9 @@ public class CustomizationController(
         }
 
         var suitId = traderOffer.SuiteId;
-        if (OutfitAlreadyPurchased(suitId ?? string.Empty, sessionId))
+        if (OutfitAlreadyPurchased(traderOffer.SuiteId, sessionId))
         {
-            var suitDetails = databaseService.GetCustomization()!.GetValueOrDefault(suitId);
+            var suitDetails = databaseService.GetCustomization().GetValueOrDefault(suitId);
             logger.Error(
                 serverLocalisationService.GetText(
                     "customisation-item_already_purchased",
@@ -127,7 +127,7 @@ public class CustomizationController(
     /// <param name="suitId">clothing id</param>
     /// <param name="sessionId">Session id of profile to check for clothing in</param>
     /// <returns>true if already purchased</returns>
-    protected bool OutfitAlreadyPurchased(object suitId, MongoId sessionId)
+    protected bool OutfitAlreadyPurchased(MongoId suitId, MongoId sessionId)
     {
         var fullProfile = profileHelper.GetFullProfile(sessionId);
 
@@ -297,9 +297,7 @@ public class CustomizationController(
     /// <param name="pmcData">Profile to update</param>
     protected void ApplyClothingItemToProfile(CustomizationSetOption customisation, PmcData pmcData)
     {
-        var dbSuit = databaseService.GetCustomization()[customisation.Id!];
-
-        if (dbSuit is null)
+        if (!databaseService.GetCustomization().TryGetValue(customisation.Id, out var dbSuit))
         {
             logger.Error(
                 $"Unable to find suit customisation id: {customisation.Id}, cannot apply clothing to player profile: {pmcData.Id}"

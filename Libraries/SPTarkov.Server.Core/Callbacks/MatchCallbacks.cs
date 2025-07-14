@@ -32,7 +32,7 @@ public class MatchCallbacks(
     ///     Handle client/match/exit
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> ExitMatch(string url, EmptyRequestData _, MongoId sessionID)
@@ -320,7 +320,7 @@ public class MatchCallbacks(
     ///     Handle client/match/group/raid/not-ready
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> NotRaidReady(string url, EmptyRequestData _, MongoId sessionID)

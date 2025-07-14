@@ -49,12 +49,12 @@ public class LocationLifecycleService(
     BtrDeliveryService btrDeliveryService
 )
 {
-    protected LocationConfig _locationConfig = configServer.GetConfig<LocationConfig>();
-    protected InRaidConfig _inRaidConfig = configServer.GetConfig<InRaidConfig>();
-    protected TraderConfig _traderConfig = configServer.GetConfig<TraderConfig>();
-    protected RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
-    protected HideoutConfig _hideoutConfig = configServer.GetConfig<HideoutConfig>();
-    protected PmcConfig _pmcConfig = configServer.GetConfig<PmcConfig>();
+    protected readonly LocationConfig _locationConfig = configServer.GetConfig<LocationConfig>();
+    protected readonly InRaidConfig _inRaidConfig = configServer.GetConfig<InRaidConfig>();
+    protected readonly TraderConfig _traderConfig = configServer.GetConfig<TraderConfig>();
+    protected readonly RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
+    protected readonly HideoutConfig _hideoutConfig = configServer.GetConfig<HideoutConfig>();
+    protected readonly PmcConfig _pmcConfig = configServer.GetConfig<PmcConfig>();
 
     /// <summary>
     ///     Handle client/match/local/start

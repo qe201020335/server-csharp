@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 
 namespace SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -27,7 +28,7 @@ public record TemplateSide
     public PmcData? Character { get; set; }
 
     [JsonPropertyName("suits")]
-    public List<string>? Suits { get; set; }
+    public List<MongoId>? Suits { get; set; }
 
     [JsonPropertyName("dialogues")]
     public Dictionary<string, Dialogue>? Dialogues { get; set; }

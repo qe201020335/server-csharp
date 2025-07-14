@@ -304,13 +304,15 @@ public class HealthController(
             return output;
         }
 
-        foreach (var bodyPartKvP in healthTreatmentRequest.Difference.BodyParts.GetAllPropsAsDict())
+        foreach (
+            var (key, rawEffects) in healthTreatmentRequest.Difference.BodyParts.GetAllPropsAsDict()
+        )
         {
             // Get body part from request + from pmc profile
-            var partRequest = (BodyPartEffects)bodyPartKvP.Value;
-            var profilePart = pmcData.Health.BodyParts[bodyPartKvP.Key];
+            var partRequest = (BodyPartEffects)rawEffects;
+            var profilePart = pmcData.Health.BodyParts[key];
 
-            // Bodypart healing is chosen when part request hp is above 0
+            // Body part healing is chosen when part request hp is above 0
             if (partRequest.Health > 0)
             // Heal bodypart
             {
@@ -318,18 +320,18 @@ public class HealthController(
             }
 
             // Check for effects to remove
-            if (partRequest.Effects?.Count > 0)
+            if (partRequest.Effects.Count > 0)
             {
                 // Found some, loop over them and remove from pmc profile
                 foreach (var effect in partRequest.Effects)
                 {
-                    pmcData.Health.BodyParts[bodyPartKvP.Key].Effects.Remove(effect);
+                    pmcData.Health.BodyParts[key].Effects.Remove(effect);
                 }
 
                 // Remove empty effect object
-                if (pmcData.Health.BodyParts[bodyPartKvP.Key].Effects.Count == 0)
+                if (pmcData.Health.BodyParts[key].Effects.Count == 0)
                 {
-                    pmcData.Health.BodyParts[bodyPartKvP.Key].Effects = null;
+                    pmcData.Health.BodyParts[key].Effects = null;
                 }
             }
         }

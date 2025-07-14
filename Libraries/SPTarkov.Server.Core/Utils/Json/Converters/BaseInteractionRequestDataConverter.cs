@@ -18,7 +18,10 @@ namespace SPTarkov.Server.Core.Utils.Json.Converters;
 
 public class BaseInteractionRequestDataConverter : JsonConverter<BaseInteractionRequestData>
 {
-    private static Dictionary<string, Func<string, BaseInteractionRequestData?>> _modHandlers = [];
+    private static readonly Dictionary<
+        string,
+        Func<string, BaseInteractionRequestData?>
+    > _modHandlers = [];
 
     public override BaseInteractionRequestData? Read(
         ref Utf8JsonReader reader,
@@ -43,6 +46,7 @@ public class BaseInteractionRequestDataConverter : JsonConverter<BaseInteraction
     /// <param name="action">e.g. "Eat"</param>
     /// <param name="jsonDocumentRoot">Root json element of client request</param>
     /// <param name="jsonText">Raw JSON request text</param>
+    /// <param name="options">Json parsing options</param>
     /// <returns>BaseInteractionRequestData</returns>
     private static BaseInteractionRequestData? ConvertToCorrectType(
         string action,

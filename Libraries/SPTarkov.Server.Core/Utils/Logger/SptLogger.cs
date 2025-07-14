@@ -25,14 +25,11 @@ public class SptLogger<T> : ISptLogger<T>, IDisposable
         _category = typeof(T).FullName;
         _loggerQueueManager = loggerQueueManager;
 
-        if (ProgramStatics.DEBUG())
-        {
-            LoadConfig(fileUtil, jsonUtil, ConfigurationPathDev);
-        }
-        else
-        {
-            LoadConfig(fileUtil, jsonUtil, ConfigurationPath);
-        }
+        LoadConfig(
+            fileUtil,
+            jsonUtil,
+            ProgramStatics.DEBUG() ? ConfigurationPathDev : ConfigurationPath
+        );
 
         if (_config == null)
         {

@@ -68,7 +68,7 @@ public record SearchRequestData : IRequestData
     public string? LinkedSearchId { get; set; }
 
     [JsonPropertyName("neededSearchId")]
-    public string? NeededSearchId { get; set; }
+    public MongoId? NeededSearchId { get; set; }
 
     [JsonPropertyName("buildItems")]
     public Dictionary<MongoId, double>? BuildItems { get; set; }

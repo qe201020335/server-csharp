@@ -277,7 +277,7 @@ public class TradeHelper(
                 return;
             }
 
-            /// Pay for purchase
+            // Pay for purchase
             paymentService.PayMoney(pmcData, buyRequestData, sessionID, output);
             if (output.Warnings?.Count > 0)
             {

@@ -608,7 +608,6 @@ public class RepairService(
     ///     Check if item should be buffed by checking the item type and relevant player skill level
     /// </summary>
     /// <param name="repairDetails">Item that was repaired</param>
-    /// <param name="itemTpl">tpl of item to be buffed</param>
     /// <param name="pmcData">Player profile</param>
     /// <returns>True if item should have buff applied</returns>
     protected bool ShouldBuffItem(RepairDetails repairDetails, PmcData pmcData)

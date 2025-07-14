@@ -559,7 +559,7 @@ public class InsuranceController(
             var price = ragfairPriceService.GetDynamicItemPrice(attachment.Template, Money.ROUBLES);
             if (price is not null)
             {
-                result[attachment.Id] = Math.Round(price ?? 0);
+                result.Add(attachment.Id, Math.Round(price.Value));
             }
         }
 
@@ -675,7 +675,7 @@ public class InsuranceController(
     ///     Edge case - labyrinth doesn't allow for insurance returns unless location config is edited
     /// </summary>
     /// <param name="insurance">The insured items to process</param>
-    /// <param name="labsId">OPTIONAL - id of labs location</param>
+    /// <param name="labyrinthId">OPTIONAL - id of labyrinth location</param>
     /// <returns></returns>
     protected bool IsMapLabyrinthAndInsuranceDisabled(
         Insurance insurance,

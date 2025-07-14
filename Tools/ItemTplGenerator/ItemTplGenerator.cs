@@ -161,16 +161,16 @@ public class ItemTplGenerator(
                     itemKey = SanitizeEnumKey($"{itemKey}_{itemNameSuffix}");
 
                     // If we still collide, log an error
-                    if (itemsObject.ContainsKey(itemKey))
+                    if (itemsObject.TryGetValue(itemKey, out var value))
                     {
                         _logger.Error(
-                            $"After rename, itemsObject already contains {itemKey}  {itemsObject[itemKey]} => {item.Id}"
+                            $"After rename, itemsObject already contains {itemKey}  {value} => {item.Id}"
                         );
                     }
                 }
                 else
                 {
-                    var val = itemsObject.ContainsKey(itemKey) ? itemsObject[itemKey] : itemKey;
+                    var val = itemsObject.TryGetValue(itemKey, out var value) ? value : itemKey;
                     _logger.Error(
                         $"New itemOverride entry required: itemsObject already contains {itemKey}  {val} => {item.Id}"
                     );
@@ -444,9 +444,9 @@ public class ItemTplGenerator(
         var localeDb = _localeService.GetLocaleDb();
 
         // Manual item name overrides
-        if (_itemOverrides.ContainsKey(item.Id))
+        if (_itemOverrides.TryGetValue(item.Id, out var itemNameOverride))
         {
-            itemName = _itemOverrides[item.Id].ToUpper();
+            itemName = itemNameOverride.ToUpper();
         }
         // For the listed types, user the item's _name property
         else if (

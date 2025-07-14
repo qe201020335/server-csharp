@@ -31,8 +31,7 @@ public class HttpServer(
     /// <summary>
     ///     Handle server loading event
     /// </summary>
-    /// <param name="builder"> Server builder </param>
-    /// <exception cref="Exception"> Throws Exception when WebApplicationBuiler or WebApplication are null </exception>
+    /// <exception cref="Exception"> Throws Exception when WebApplicationBuilder or WebApplication are null </exception>
     public void Load()
     {
         if (_builder is null)

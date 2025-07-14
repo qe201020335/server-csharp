@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 
 namespace SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
@@ -150,7 +151,7 @@ public record ChangeCost
     ///     What item it will take to reset daily
     /// </summary>
     [JsonPropertyName("templateId")]
-    public string? TemplateId { get; set; }
+    public MongoId TemplateId { get; set; }
 
     /// <summary>
     ///     Amount of item needed to reset

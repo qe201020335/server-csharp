@@ -1,3 +1,4 @@
+using System.Globalization;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Spt.Config;
@@ -141,7 +142,7 @@ public class RagfairSellHelper(
                 if (logger.IsLogEnabled(LogLevel.Debug))
                 {
                     logger.Debug(
-                        $"Offer will sell at: {timeUtil.GetDateTimeFromTimeStamp(sellTimestamp).ToLocalTime().ToString()}, bought: {boughtAmount}"
+                        $"Offer will sell at: {timeUtil.GetDateTimeFromTimeStamp(sellTimestamp).ToLocalTime().ToString(CultureInfo.InvariantCulture)}, bought: {boughtAmount}"
                     );
                 }
             }

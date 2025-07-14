@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Hideout;
 using SPTarkov.Server.Core.Models.Enums;
@@ -5016,7 +5017,7 @@ public record Preset
     ///     Default presets have this property
     /// </summary>
     [JsonPropertyName("_encyclopedia")]
-    public string? Encyclopedia { get; set; }
+    public MongoId? Encyclopedia { get; set; }
 }
 
 public record QuestSettings

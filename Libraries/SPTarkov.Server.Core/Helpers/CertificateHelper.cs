@@ -16,7 +16,7 @@ public class CertificateHelper(ISptLogger<CertificateHelper> logger, FileUtil fi
 
     //Todo: Finish off to match TS server
     /// <summary>
-    ///     Currently not in use
+    ///     Not currently in use
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
@@ -85,17 +85,17 @@ public class CertificateHelper(ISptLogger<CertificateHelper> logger, FileUtil fi
     /// <returns></returns>
     private bool TryLoadCertificatePfx(out X509Certificate2? certificate)
     {
-        X509Certificate2 cert = null;
         if (!File.Exists(certificatePfxPath))
         {
-            // file doesnt exist so create straight away
-            cert = GenerateSelfSignedCertificate("localhost");
+            // file doesn't exist so create straight away
+            var cert = GenerateSelfSignedCertificate("localhost");
             SaveCertificatePfx(cert);
             logger.Success($"Generated and stored self-signed certificate ({certificatePath})");
         }
 
         try
         {
+            // TODO:
             //Archangel: For some reason despite this being deprecated this is the only way to load a certificate file
             //No idea why, I want to eventually switch over to the other format so it lines up with the TS server
             //But for now this works fine
@@ -107,12 +107,7 @@ public class CertificateHelper(ISptLogger<CertificateHelper> logger, FileUtil fi
             throw;
         }
 
-        if (certificate is not null)
-        {
-            return true;
-        }
-
-        return false;
+        return certificate is not null;
     }
 
     /// <summary>

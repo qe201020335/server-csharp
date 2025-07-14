@@ -199,7 +199,7 @@ public record LockableComponent
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    public string[]? KeyIds { get; set; }
+    public List<string>? KeyIds { get; set; }
     public bool? Locked { get; set; }
     public LockableKeyComponent? KeyComponent { get; set; }
 }

@@ -16,7 +16,7 @@ public class WeatherCallbacks(
     ///     Handle client/weather
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> GetWeather(string url, EmptyRequestData _, MongoId sessionID)
@@ -28,7 +28,7 @@ public class WeatherCallbacks(
     ///     Handle client/localGame/weather
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> GetLocalWeather(string url, EmptyRequestData _, MongoId sessionID)

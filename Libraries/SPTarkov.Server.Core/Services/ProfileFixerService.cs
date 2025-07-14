@@ -134,7 +134,7 @@ public class ProfileFixerService(
             else
             {
                 // Items are different, replace ID with unique value
-                // Only replace ID if items have no children, we dont want orphaned children
+                // Only replace ID if items have no children, we don't want orphaned children
                 var itemsHaveChildren = pmcProfile.Inventory.Items.Any(x =>
                     x.ParentId == mappingKvP.Key
                 );
@@ -428,10 +428,8 @@ public class ProfileFixerService(
 
         // Add above match to pmc profile
         var matchingProductionId = matchingProductions[0].Id;
-        if (!pmcProfile.UnlockedInfo.UnlockedProductionRecipe.Contains(matchingProductionId))
+        if (pmcProfile.UnlockedInfo.UnlockedProductionRecipe.Add(matchingProductionId))
         {
-            pmcProfile.UnlockedInfo.UnlockedProductionRecipe.Add(matchingProductionId);
-
             if (logger.IsLogEnabled(LogLevel.Debug))
             {
                 logger.Debug(
@@ -677,30 +675,19 @@ public class ProfileFixerService(
         if (fullProfile.UserBuildData is not null)
         {
             // Remove invalid builds from weapon, equipment and magazine build lists
-            var weaponBuilds = fullProfile.UserBuildData?.WeaponBuilds ?? new List<WeaponBuild>();
+            var weaponBuilds = fullProfile.UserBuildData?.WeaponBuilds ?? [];
             fullProfile.UserBuildData.WeaponBuilds = weaponBuilds
-                .Where(build =>
-                {
-                    return !ShouldRemoveWeaponEquipmentBuild("weapon", build, itemsDb);
-                })
+                .Where(build => !ShouldRemoveWeaponEquipmentBuild("weapon", build, itemsDb))
                 .ToList();
 
-            var equipmentBuilds =
-                fullProfile.UserBuildData.EquipmentBuilds ?? new List<EquipmentBuild>();
+            var equipmentBuilds = fullProfile.UserBuildData.EquipmentBuilds ?? [];
             fullProfile.UserBuildData.EquipmentBuilds = equipmentBuilds
-                .Where(build =>
-                {
-                    return !ShouldRemoveWeaponEquipmentBuild("equipment", build, itemsDb);
-                })
+                .Where(build => !ShouldRemoveWeaponEquipmentBuild("equipment", build, itemsDb))
                 .ToList();
 
-            var magazineBuild =
-                fullProfile.UserBuildData.MagazineBuilds ?? new List<MagazineBuild>();
+            var magazineBuild = fullProfile.UserBuildData.MagazineBuilds ?? [];
             fullProfile.UserBuildData.MagazineBuilds = magazineBuild
-                .Where(build =>
-                {
-                    return !ShouldRemoveMagazineBuild(build, itemsDb);
-                })
+                .Where(build => !ShouldRemoveMagazineBuild(build, itemsDb))
                 .ToList();
         }
 
@@ -753,9 +740,11 @@ public class ProfileFixerService(
 
         var clothingDb = databaseService.GetTemplates().Customization;
         foreach (
-            var clothingItem in fullProfile.CustomisationUnlocks.Where(customisation =>
-                customisation.Type == CustomisationType.SUITE
-            )
+            var clothingItem in fullProfile
+                .CustomisationUnlocks.Where(customisation =>
+                    customisation.Type == CustomisationType.SUITE
+                )
+                .ToList() // We're removing element, ToList to allow that to occur
         )
         {
             if (!clothingDb.ContainsKey(clothingItem.Id))
@@ -775,10 +764,7 @@ public class ProfileFixerService(
             }
         }
 
-        foreach (
-            var repeatable in fullProfile.CharacterData.PmcData.RepeatableQuests
-                ?? new List<PmcDataRepeatableQuest>()
-        )
+        foreach (var repeatable in fullProfile.CharacterData.PmcData.RepeatableQuests ?? [])
         {
             if (repeatable.ActiveQuests is null)
             {

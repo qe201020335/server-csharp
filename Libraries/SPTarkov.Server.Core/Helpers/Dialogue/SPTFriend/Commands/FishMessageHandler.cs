@@ -14,7 +14,7 @@ public class FishMessageHandler(MailSendService _mailSendService) : IChatMessage
         return 100;
     }
 
-    public bool CanHandle(string message)
+    public bool CanHandle(string? message)
     {
         return string.Equals(message, "fish", StringComparison.OrdinalIgnoreCase);
     }

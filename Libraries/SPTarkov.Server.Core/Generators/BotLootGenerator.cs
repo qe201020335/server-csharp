@@ -765,10 +765,10 @@ public class BotLootGenerator(
     {
         var chosenWeaponType = randomUtil.GetArrayValue<string>(
             [
-                EquipmentSlots.FirstPrimaryWeapon.ToString(),
-                EquipmentSlots.FirstPrimaryWeapon.ToString(),
-                EquipmentSlots.FirstPrimaryWeapon.ToString(),
-                EquipmentSlots.Holster.ToString(),
+                nameof(EquipmentSlots.FirstPrimaryWeapon),
+                nameof(EquipmentSlots.FirstPrimaryWeapon),
+                nameof(EquipmentSlots.FirstPrimaryWeapon),
+                nameof(EquipmentSlots.Holster),
             ]
         );
         var randomisedWeaponCount = randomUtil.GetInt(

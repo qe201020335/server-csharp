@@ -334,7 +334,7 @@ public class TradeController(
         };
 
         // Ensure money is properly split to follow its max stack size limit
-        var curencyReward = itemHelper.SplitStackIntoSeparateItems(rootCurrencyReward);
+        var currencyReward = itemHelper.SplitStackIntoSeparateItems(rootCurrencyReward);
 
         // Send mail from trader
         mailSendService.SendLocalisedNpcMessageToPlayer(
@@ -344,9 +344,9 @@ public class TradeController(
             randomUtil.GetArrayValue(
                 databaseService.GetTrader(trader).Dialogue.TryGetValue("soldItems", out var items)
                     ? items
-                    : new List<string>()
+                    : []
             ),
-            curencyReward.SelectMany(x => x).ToList(),
+            currencyReward.SelectMany(x => x).ToList(),
             timeUtil.GetHoursAsSeconds(72)
         );
     }

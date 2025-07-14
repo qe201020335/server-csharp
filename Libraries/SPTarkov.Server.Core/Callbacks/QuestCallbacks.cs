@@ -102,7 +102,7 @@ public class QuestCallbacks(
     ///     Handle client/repeatalbeQuests/activityPeriods
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> ActivityPeriods(string url, EmptyRequestData _, MongoId sessionID)

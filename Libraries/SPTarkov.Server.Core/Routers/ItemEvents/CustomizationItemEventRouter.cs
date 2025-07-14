@@ -19,11 +19,11 @@ public class CustomizationItemEventRouter(
 {
     protected override List<HandledRoute> GetHandledRoutes()
     {
-        return new List<HandledRoute>
-        {
+        return
+        [
             new(ItemEventActions.CUSTOMIZATION_BUY, false),
             new(ItemEventActions.CUSTOMIZATION_SET, false),
-        };
+        ];
     }
 
     public override ValueTask<ItemEventRouterResponse> HandleItemEvent(

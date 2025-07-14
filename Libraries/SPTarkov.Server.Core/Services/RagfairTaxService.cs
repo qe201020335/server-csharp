@@ -108,9 +108,7 @@ public class RagfairTaxService(
             itemWorth * itemTaxMult * itemPriceMult
             + requirementsPrice * requirementTaxMult * requirementPriceMult;
         var discountedTax = tax * (1.0 - taxDiscountPercent);
-        var itemComissionMult = itemTemplate.Properties.RagFairCommissionModifier.HasValue
-            ? itemTemplate.Properties.RagFairCommissionModifier.Value
-            : 1;
+        var itemComissionMult = itemTemplate.Properties.RagFairCommissionModifier ?? 1;
 
         if (item.Upd.Buff is not null)
         {

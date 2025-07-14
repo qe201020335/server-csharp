@@ -24,7 +24,7 @@ public record BotBase
     ///     SPT property - use to store player id - TODO - move to AID ( account id as guid of choice)
     /// </summary>
     [JsonPropertyName("sessionId")]
-    public string? SessionId { get; set; }
+    public MongoId? SessionId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("savage")]
@@ -620,7 +620,7 @@ public record Aggressor
     public string? AccountId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
-    public string? ProfileId { get; set; }
+    public MongoId? ProfileId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public string? MainProfileNickname { get; set; }
@@ -1039,7 +1039,7 @@ public record Bonus
     public BonusType? Type { get; set; }
 
     [JsonPropertyName("templateId")]
-    public string? TemplateId { get; set; }
+    public MongoId? TemplateId { get; set; }
 
     [JsonPropertyName("passive")]
     public bool? IsPassive { get; set; }

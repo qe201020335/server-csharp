@@ -65,7 +65,7 @@ public class GiftService(
     /// <param name="playerId"> Player to send gift to / sessionID </param>
     /// <param name="giftId"> ID of gift in configs/gifts.json to send player </param>
     /// <returns> Outcome of sending gift to player </returns>
-    public GiftSentResult SendGiftToPlayer(string playerId, string giftId)
+    public GiftSentResult SendGiftToPlayer(MongoId playerId, string giftId)
     {
         var giftData = GetGiftById(giftId);
         if (giftData is null)
@@ -130,28 +130,14 @@ public class GiftService(
         }
         else if (giftData.Sender == GiftSenderType.Trader)
         {
-            if (giftData.LocaleTextId is not null)
-            {
-                mailSendService.SendLocalisedNpcMessageToPlayer(
-                    playerId,
-                    giftData.Trader,
-                    MessageType.MessageWithItems,
-                    giftData.LocaleTextId,
-                    giftData.Items,
-                    timeUtil.GetHoursAsSeconds(giftData.CollectionTimeHours ?? 1)
-                );
-            }
-            else
-            {
-                mailSendService.SendLocalisedNpcMessageToPlayer(
-                    playerId,
-                    giftData.Trader,
-                    MessageType.MessageWithItems,
-                    giftData.MessageText,
-                    giftData.Items,
-                    timeUtil.GetHoursAsSeconds(giftData.CollectionTimeHours ?? 1)
-                );
-            }
+            mailSendService.SendLocalisedNpcMessageToPlayer(
+                playerId,
+                giftData.Trader,
+                MessageType.MessageWithItems,
+                giftData.LocaleTextId ?? giftData.LocaleTextId,
+                giftData.Items,
+                timeUtil.GetHoursAsSeconds(giftData.CollectionTimeHours ?? 1)
+            );
         }
         else
         {
@@ -262,9 +248,9 @@ public class GiftService(
     /// <param name="giftId"> ID of gift to send </param>
     /// <param name="sessionId"> Session ID of player to send to </param>
     /// <param name="giftCount"> Optional, how many to send </param>
-    public void SendGiftWithSilentReceivedCheck(string giftId, MongoId? sessionId, int giftCount)
+    public void SendGiftWithSilentReceivedCheck(string giftId, MongoId sessionId, int giftCount)
     {
-        if (!profileHelper.PlayerHasReceivedMaxNumberOfGift(sessionId.Value, giftId, giftCount))
+        if (!profileHelper.PlayerHasReceivedMaxNumberOfGift(sessionId, giftId, giftCount))
         {
             SendGiftToPlayer(sessionId, giftId);
         }

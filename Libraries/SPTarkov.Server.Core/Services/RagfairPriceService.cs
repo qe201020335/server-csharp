@@ -523,7 +523,7 @@ public class RagfairPriceService(
     ///     Attempt to get the default preset for a weapon, failing that get the first preset in the array
     ///     (assumes default = has encyclopedia entry)
     /// </summary>
-    /// <param name="presets">weapon presets to choose from</param>
+    /// <param name="weapon">weapon item to get preset of</param>
     /// <returns>Default preset object</returns>
     protected WeaponPreset GetWeaponPreset(Item weapon)
     {

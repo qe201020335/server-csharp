@@ -224,6 +224,7 @@ namespace SPTarkov.Server.Core.Extensions
             return list;
         }
 
+        /// <summary>
         /// Check if the passed in item has buy count restrictions
         /// </summary>
         /// <param name="itemToCheck">Item to check</param>

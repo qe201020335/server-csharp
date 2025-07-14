@@ -58,7 +58,7 @@ public class HideoutCraftQuestIdGenerator(
             _databaseServer.GetTables().Hideout.Production,
             true
         );
-        _fileUtil.WriteFile(productionFilePath, updatedProductionJson);
+        await _fileUtil.WriteFileAsync(productionFilePath, updatedProductionJson);
     }
 
     // Build a list of all quests and what production they unlock

@@ -29,7 +29,6 @@ public class BotGenerator(
     BotEquipmentFilterService botEquipmentFilterService,
     WeightedRandomHelper weightedRandomHelper,
     BotHelper botHelper,
-    BotGeneratorHelper botGeneratorHelper,
     SeasonalEventService seasonalEventService,
     ItemFilterService itemFilterService,
     BotNameService botNameService,

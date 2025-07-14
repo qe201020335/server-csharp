@@ -20,5 +20,5 @@ public record InsuranceEquipmentPkg
     public Item? ItemToReturnToPlayer { get; set; }
 
     [JsonPropertyName("traderId")]
-    public string? TraderId { get; set; }
+    public MongoId TraderId { get; set; }
 }

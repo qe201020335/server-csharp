@@ -633,7 +633,7 @@ public class RepeatableQuestRewardGenerator(
 
                 return new KeyValuePair<Reward, double>(
                     GeneratePresetReward(
-                        chosenPreset.Encyclopedia,
+                        chosenPreset.Encyclopedia.Value,
                         1,
                         rewardIndex,
                         chosenPreset.Items

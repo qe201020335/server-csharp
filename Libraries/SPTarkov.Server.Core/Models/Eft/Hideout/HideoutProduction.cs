@@ -91,7 +91,7 @@ public record Requirement
     public int? Resource { get; set; }
 
     [JsonPropertyName("questId")]
-    public string? QuestId { get; set; }
+    public MongoId? QuestId { get; set; }
 
     [JsonPropertyName("isSpawnedInSession")]
     public bool? IsSpawnedInSession { get; set; }

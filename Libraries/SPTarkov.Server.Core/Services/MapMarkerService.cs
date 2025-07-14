@@ -22,7 +22,7 @@ public class MapMarkerService(ISptLogger<MapMarkerService> logger)
         var mapItem = pmcData?.Inventory?.Items?.FirstOrDefault(i => i?.Id == request?.Item);
 
         // add marker to map item
-        mapItem.Upd.Map = mapItem?.Upd?.Map ?? new UpdMap { Markers = new List<MapMarker>() };
+        mapItem.Upd.Map = mapItem?.Upd?.Map ?? new UpdMap { Markers = [] };
 
         // Update request note with text, then add to maps upd
         request.MapMarker.Note = SanitiseMapMarkerText(request.MapMarker.Note);
@@ -44,10 +44,7 @@ public class MapMarkerService(ISptLogger<MapMarkerService> logger)
 
         // remove marker
         var markers = mapItem
-            .Upd.Map.Markers.Where(marker =>
-            {
-                return marker.X != request.X && marker.Y != request.Y;
-            })
+            .Upd.Map.Markers.Where(marker => marker.X != request.X && marker.Y != request.Y)
             .ToList();
         mapItem.Upd.Map.Markers = markers;
 

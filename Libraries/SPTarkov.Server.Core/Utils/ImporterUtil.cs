@@ -150,7 +150,7 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
                     result,
                     isDictionary
                         ? [_fileUtil.StripExtension(file), fileDeserialized]
-                        : new[] { fileDeserialized }
+                        : [fileDeserialized]
                 );
             }
         }
@@ -215,10 +215,7 @@ public class ImporterUtil(ISptLogger<ImporterUtil> _logger, FileUtil _fileUtil, 
 
                 lock (dictionaryLock)
                 {
-                    setMethod.Invoke(
-                        result,
-                        isDictionary ? [directory, loadedData] : new[] { loadedData }
-                    );
+                    setMethod.Invoke(result, isDictionary ? [directory, loadedData] : [loadedData]);
                 }
             }
         }

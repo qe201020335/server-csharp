@@ -9,6 +9,7 @@ namespace SPTarkov.Server.Core.Migration
         /// Allows for adding checks if the profile in question can migrate
         /// </summary>
         /// <param name="profile">The profile to check</param>
+        /// <param name="previouslyRanMigrations"></param>
         /// <returns>Returns true if the profile can migrate, returns false if not</returns>
         public bool CanMigrate(
             JsonObject profile,

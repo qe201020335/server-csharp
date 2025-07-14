@@ -280,7 +280,7 @@ public class PostDbLoadService(
 
     private void RemovePraporTestMessage()
     {
-        foreach ((var locale, var lazyLoad) in databaseService.GetLocales().Global)
+        foreach (var (locale, lazyLoad) in databaseService.GetLocales().Global)
         {
             lazyLoad.AddTransformer(lazyloadedData =>
             {

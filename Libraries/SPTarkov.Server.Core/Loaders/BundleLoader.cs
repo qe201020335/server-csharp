@@ -43,35 +43,15 @@ public class BundleInfo
 }
 
 [Injectable(InjectionType.Singleton)]
-public class BundleLoader
+public class BundleLoader(
+    ISptLogger<BundleLoader> logger,
+    JsonUtil jsonUtil,
+    FileUtil fileUtil,
+    BundleHashCacheService bundleHashCacheService,
+    ICloner cloner
+)
 {
-    private readonly BundleHashCacheService _bundleHashCacheService;
     private readonly Dictionary<string, BundleInfo> _bundles = new();
-    private readonly ICloner _cloner;
-    private readonly FileUtil _fileUtil;
-    private readonly HashUtil _hashUtil;
-    private readonly InMemoryCacheService _inMemoryCacheService;
-    private readonly JsonUtil _jsonUtil;
-    private readonly ISptLogger<BundleLoader> _logger;
-
-    public BundleLoader(
-        ISptLogger<BundleLoader> logger,
-        HashUtil hashUtil,
-        JsonUtil jsonUtil,
-        FileUtil fileUtil,
-        BundleHashCacheService bundleHashCacheService,
-        InMemoryCacheService inMemoryCacheService,
-        ICloner cloner
-    )
-    {
-        _logger = logger;
-        _hashUtil = hashUtil;
-        _jsonUtil = jsonUtil;
-        _fileUtil = fileUtil;
-        _bundleHashCacheService = bundleHashCacheService;
-        _inMemoryCacheService = inMemoryCacheService;
-        _cloner = cloner;
-    }
 
     /// <summary>
     ///     Handle singleplayer/bundles
@@ -91,7 +71,7 @@ public class BundleLoader
 
     public BundleInfo? GetBundle(string bundleKey)
     {
-        return _cloner.Clone(_bundles.GetValueOrDefault(bundleKey));
+        return cloner.Clone(_bundles.GetValueOrDefault(bundleKey));
     }
 
     public void AddBundles(string modPath)
@@ -99,10 +79,10 @@ public class BundleLoader
         // modPath should be relative to the server exe - ./user/mods/Mod3
         // TODO: make sure the mod is passing a path that is relative from the server exe
 
-        var modBundlesJson = _fileUtil.ReadFile(
+        var modBundlesJson = fileUtil.ReadFile(
             Path.Join(Directory.GetCurrentDirectory(), modPath, "bundles.json")
         );
-        var modBundles = _jsonUtil.Deserialize<BundleManifest>(modBundlesJson);
+        var modBundles = jsonUtil.Deserialize<BundleManifest>(modBundlesJson);
         var bundleManifestArr = modBundles?.Manifest;
 
         foreach (var bundleManifest in bundleManifestArr)
@@ -112,12 +92,12 @@ public class BundleLoader
             var bundleLocalPath = Path.Join(relativeModPath, "bundles", bundleManifest.Key)
                 .Replace('\\', '/');
 
-            if (!_bundleHashCacheService.CalculateAndMatchHash(bundleLocalPath))
+            if (!bundleHashCacheService.CalculateAndMatchHash(bundleLocalPath))
             {
-                _bundleHashCacheService.CalculateAndStoreHash(bundleLocalPath);
+                bundleHashCacheService.CalculateAndStoreHash(bundleLocalPath);
             }
 
-            var bundleHash = _bundleHashCacheService.GetStoredValue(bundleLocalPath);
+            var bundleHash = bundleHashCacheService.GetStoredValue(bundleLocalPath);
 
             AddBundle(
                 bundleManifest.Key,
@@ -131,7 +111,7 @@ public class BundleLoader
         var success = _bundles.TryAdd(key, bundle);
         if (!success)
         {
-            _logger.Error($"Unable to add bundle: {key}");
+            logger.Error($"Unable to add bundle: {key}");
         }
     }
 }

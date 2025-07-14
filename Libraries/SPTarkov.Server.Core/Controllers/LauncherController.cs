@@ -224,7 +224,7 @@ public class LauncherController(
     /// <summary>
     ///     Get the mods a profile has ever loaded into game with
     /// </summary>
-    /// <param name="sessionID">Session/Player id</param>
+    /// <param name="sessionId">Session/Player id</param>
     /// <returns>Array of mod details</returns>
     public List<ModDetails> GetServerModsProfileUsed(MongoId sessionId)
     {

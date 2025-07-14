@@ -11,7 +11,7 @@ public class SptLoggerProvider(
     SptLoggerQueueManager queueManager
 ) : ILoggerProvider, ILoggerFactory
 {
-    private List<ILoggerProvider> loggerProviders = new();
+    private readonly List<ILoggerProvider> loggerProviders = [];
 
     public void Dispose() { }
 

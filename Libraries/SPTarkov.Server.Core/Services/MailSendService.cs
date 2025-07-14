@@ -114,7 +114,7 @@ public class MailSendService(
     /// <param name="ragfair"></param>
     public void SendLocalisedNpcMessageToPlayer(
         MongoId sessionId,
-        string? trader,
+        MongoId? trader,
         MessageType messageType,
         string messageLocaleId,
         List<Item>? items,

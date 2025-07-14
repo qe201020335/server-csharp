@@ -172,7 +172,7 @@ public class DialogueController(
         var result = new DialogueInfo
         {
             Id = dialogue.Id,
-            Type = dialogue?.Type ?? MessageType.NpcTraderMessage,
+            Type = dialogue.Type ?? MessageType.NpcTraderMessage,
             Message = dialogueHelper.GetMessagePreview(dialogue),
             New = dialogue?.New,
             AttachmentsNew = dialogue?.AttachmentsNew,
@@ -210,7 +210,7 @@ public class DialogueController(
             dialog.Users.Add(
                 new UserDialogInfo
                 {
-                    Id = profile.CharacterData?.PmcData?.SessionId,
+                    Id = profile.CharacterData.PmcData.SessionId.Value,
                     Aid = profile.CharacterData?.PmcData?.Aid,
                     Info = new UserDialogDetails
                     {
@@ -478,7 +478,7 @@ public class DialogueController(
     public virtual void SetRead(List<string>? dialogueIds, MongoId sessionId)
     {
         var dialogs = dialogueHelper.GetDialogsForProfile(sessionId);
-        if (dialogs?.Any() != true)
+        if (dialogs.Any() != true)
         {
             logger.Error(
                 serverLocalisationService.GetText(
@@ -543,7 +543,7 @@ public class DialogueController(
         SendMessageRequest request
     )
     {
-        mailSendService.SendPlayerMessageToNpc(sessionId, request.DialogId!, request.Text!);
+        mailSendService.SendPlayerMessageToNpc(sessionId, request.DialogId, request.Text);
 
         var chatBot = _dialogueChatBots.FirstOrDefault(cb =>
             cb.GetChatBot().Id == request.DialogId
@@ -638,9 +638,9 @@ public class DialogueController(
 
         // Only add the profile to the friends list if it doesn't already exist
         var profile = saveServer.GetProfile(sessionID);
-        if (!profile.FriendProfileIds.Contains(request.To))
+        if (!profile.FriendProfileIds.Contains(request.To.Value))
         {
-            profile.FriendProfileIds.Add(request.To);
+            profile.FriendProfileIds.Add(request.To.Value);
         }
 
         // We need to delay this so that the friend request gets properly added to the clientside list before we accept it

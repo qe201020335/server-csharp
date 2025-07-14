@@ -173,7 +173,7 @@ public class JsonUtil
     /// <summary>
     ///     Convert JSON into an object from a MemoryStream asynchronously
     /// </summary>
-    /// <param name="fs">The memory stream to deserialize</param>
+    /// <param name="ms">The memory stream to deserialize</param>
     /// <returns>T</returns>
     public async Task<T?> DeserializeFromMemoryStreamAsync<T>(MemoryStream ms)
     {

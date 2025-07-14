@@ -27,7 +27,7 @@ namespace SPTarkov.Server.Core.Extensions
         /// <summary>
         ///     Check if item is quest item
         /// </summary>
-        /// <param name="tpl">Items tpl to check quest status of</param>
+        /// <param name="templateItem">Item to check quest status of</param>
         /// <returns>true if item is flagged as quest item</returns>
         public static bool IsQuestItem(this TemplateItem templateItem)
         {

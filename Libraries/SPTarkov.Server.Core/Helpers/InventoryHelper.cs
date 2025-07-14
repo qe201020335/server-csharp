@@ -1171,7 +1171,7 @@ public class InventoryHelper(
         HandleCartridgeMove(sourceItems, request);
 
         // Get all children item has, they need to move with item
-        var idsToMove = sourceItems.FindAndReturnChildrenByItems(request.Item);
+        var idsToMove = sourceItems.FindAndReturnChildrenByItems(request.Item.Value);
         foreach (var itemId in idsToMove)
         {
             var itemToMove = sourceItems.FirstOrDefault(item => item.Id == itemId);
@@ -1192,16 +1192,8 @@ public class InventoryHelper(
                 itemToMove.ParentId = request.To.Id;
                 itemToMove.SlotId = request.To.Container;
 
-                if (request.To.Location is not null)
                 // Update location object
-                {
-                    itemToMove.Location = request.To.Location;
-                }
-                else
-                // No location in request, delete it
-                {
-                    itemToMove.Location = null;
-                }
+                itemToMove.Location = request.To.Location ?? null; // No location in request, delete it
             }
 
             toItems.Add(itemToMove);

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Inventory;
 
 namespace SPTarkov.Server.Core.Models.Eft.Customization;
@@ -24,7 +25,7 @@ public record PaymentItemForClothing
     public bool? Del { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("count")]
     public int? Count { get; set; }

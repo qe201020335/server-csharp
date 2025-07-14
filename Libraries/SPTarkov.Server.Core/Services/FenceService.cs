@@ -1286,7 +1286,9 @@ public class FenceService(
     {
         foreach (var requiredSlot in softInsertSlots)
         {
-            var modItemDbDetails = itemHelper.GetItem(requiredSlot.Props.Filters[0].Plate).Value;
+            var modItemDbDetails = itemHelper
+                .GetItem(requiredSlot.Props.Filters[0].Plate.Value)
+                .Value;
 
             var durabilityValues = GetRandomisedArmorDurabilityValues(
                 modItemDbDetails,
@@ -1352,15 +1354,15 @@ public class FenceService(
         foreach (var plateSlot in plateSlots)
         {
             var plateTpl = plateSlot.Props.Filters[0].Plate;
-            if (string.IsNullOrEmpty(plateTpl))
-            // Bsg data lacks a default plate, skip randomisng for this mod
+            if (plateTpl == null || plateTpl.Value.IsEmpty())
+            // Bsg data lacks a default plate, skip randomising for this mod
             {
                 continue;
             }
 
             var armorWithMods = armorItemAndMods;
 
-            var modItemDbDetails = itemHelper.GetItem(plateTpl).Value;
+            var modItemDbDetails = itemHelper.GetItem(plateTpl.Value).Value;
 
             // Chance to remove plate
             var plateExistsChance = traderConfig.Fence.ChancePlateExistsInArmorPercent[
@@ -1725,7 +1727,7 @@ public class FenceService(
     /// </summary>
     /// <param name="pmcData"> Player profile </param>
     /// <returns> FenceLevel object </returns>
-    public FenceLevel GetFenceInfo(PmcData pmcData)
+    public FenceLevel? GetFenceInfo(PmcData pmcData)
     {
         var fenceSettings = databaseService.GetGlobals().Configuration.FenceSettings;
         if (!pmcData.TradersInfo.TryGetValue(fenceSettings.FenceIdentifier, out var pmcFenceInfo))
@@ -1748,7 +1750,7 @@ public class FenceService(
             return fenceSettings.Levels[maxLevel];
         }
 
-        return fenceSettings.Levels[pmcFenceLevel];
+        return fenceSettings.Levels.GetValueOrDefault(pmcFenceLevel);
     }
 
     /// <summary>

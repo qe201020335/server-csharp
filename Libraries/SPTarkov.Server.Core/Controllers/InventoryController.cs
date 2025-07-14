@@ -59,7 +59,7 @@ public class InventoryController(
         // Changes made to result apply to character inventory
         var ownerInventoryItems = inventoryHelper.GetOwnerInventoryItems(
             moveRequest,
-            moveRequest.Item,
+            moveRequest.Item.Value,
             sessionId
         );
         if (ownerInventoryItems.SameInventory.GetValueOrDefault(false))
@@ -503,14 +503,7 @@ public class InventoryController(
 
             inventoryItem.ParentId = change.ParentId;
             inventoryItem.SlotId = change.SlotId;
-            if (change.Location is not null)
-            {
-                inventoryItem.Location = change.Location;
-            }
-            else
-            {
-                inventoryItem.Location = null;
-            }
+            inventoryItem.Location = change.Location ?? null;
         }
     }
 
@@ -829,9 +822,7 @@ public class InventoryController(
             playerData = profileHelper.GetScavProfile(sessionId);
         }
 
-        var itemToFold = playerData.Inventory.Items.FirstOrDefault(item =>
-            item?.Id == request.Item
-        );
+        var itemToFold = playerData.Inventory.Items.FirstOrDefault(item => item.Id == request.Item);
         if (itemToFold is null)
         {
             // Item not found
@@ -897,32 +888,18 @@ public class InventoryController(
             );
         }
 
-        // to.id is the parentid
+        // to.id is the parentId
         itemOne.ParentId = request.To.Id;
 
-        // to.container is the slotid
+        // to.container is the slotId
         itemOne.SlotId = request.To.Container;
 
         // Request object has location data, add it in, otherwise remove existing location from object
-        if (request.To.Location is not null)
-        {
-            itemOne.Location = request.To.Location;
-        }
-        else
-        {
-            itemOne.Location = null;
-        }
+        itemOne.Location = request.To.Location ?? null;
 
         itemTwo.ParentId = request.To2.Id;
         itemTwo.SlotId = request.To2.Container;
-        if (request.To2.Location is not null)
-        {
-            itemTwo.Location = request.To2.Location;
-        }
-        else
-        {
-            itemTwo.Location = null;
-        }
+        itemTwo.Location = request.To2.Location ?? null;
 
         // Client already informed of inventory locations, nothing for us to do
         return eventOutputHolder.GetOutput(sessionId);

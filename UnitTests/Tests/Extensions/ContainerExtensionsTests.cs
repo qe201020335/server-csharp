@@ -145,9 +145,9 @@ public partial class ContainerExtensionsTests
     [TestMethod]
     public void FindSlotForItem_1x2_item_fits_3x3_container_rotated_with_items()
     {
-        /// |1|1|1|
-        /// |1|0|0|
-        /// |1|1|1|
+        // |1|1|1|
+        // |1|0|0|
+        // |1|1|1|
         var container = new int[3, 3];
         container[0, 0] = 1;
         container[0, 1] = 1;

@@ -34,7 +34,7 @@ public class RepairController(EventOutputHolder eventOutputHolder, RepairService
                 sessionID,
                 pmcData,
                 repairItem,
-                request.TId
+                request.TraderId
             );
 
             repairService.PayForRepair(
@@ -42,7 +42,7 @@ public class RepairController(EventOutputHolder eventOutputHolder, RepairService
                 pmcData,
                 repairItem.Id,
                 repairDetails.RepairCost.Value,
-                request.TId,
+                request.TraderId,
                 output
             );
 

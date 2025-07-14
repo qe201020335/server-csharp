@@ -15,12 +15,12 @@ public class TradeItemEventRouter(TradeCallbacks tradeCallbacks) : ItemEventRout
 {
     protected override List<HandledRoute> GetHandledRoutes()
     {
-        return new List<HandledRoute>
-        {
+        return
+        [
             new(ItemEventActions.TRADING_CONFIRM, false),
             new(ItemEventActions.RAGFAIR_BUY_OFFER, false),
             new(ItemEventActions.SELL_ALL_FROM_SAVAGE, false),
-        };
+        ];
     }
 
     public override ValueTask<ItemEventRouterResponse> HandleItemEvent(

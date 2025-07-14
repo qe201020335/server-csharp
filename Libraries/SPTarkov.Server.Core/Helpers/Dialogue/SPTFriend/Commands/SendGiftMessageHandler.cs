@@ -34,7 +34,7 @@ public class SendGiftMessageHandler(
     public void Process(
         MongoId sessionId,
         UserDialogInfo sptFriendUser,
-        PmcData sender,
+        PmcData? sender,
         object? extraInfo = null
     )
     {

@@ -15,12 +15,12 @@ public class NoteItemEventRouter(NoteCallbacks noteCallbacks) : ItemEventRouterD
 {
     protected override List<HandledRoute> GetHandledRoutes()
     {
-        return new List<HandledRoute>
-        {
+        return
+        [
             new(ItemEventActions.ADD_NOTE, false),
             new(ItemEventActions.EDIT_NOTE, false),
             new(ItemEventActions.DELETE_NOTE, false),
-        };
+        ];
     }
 
     public override ValueTask<ItemEventRouterResponse> HandleItemEvent(

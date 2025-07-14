@@ -22,7 +22,7 @@ public abstract class AbstractDialogChatBot(
 
     public async ValueTask<string> HandleMessage(MongoId sessionId, SendMessageRequest request)
     {
-        if ((request.Text ?? "").Length == 0)
+        if (request.Text.Length == 0)
         {
             _logger.Error(localisationService.GetText("chatbot-command_was_empty"));
 

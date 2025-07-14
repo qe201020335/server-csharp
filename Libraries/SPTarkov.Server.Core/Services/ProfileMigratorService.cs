@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Migration;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Utils;
@@ -41,7 +40,6 @@ namespace SPTarkov.Server.Core.Services
                     ?? throw new InvalidOperationException(
                         $"Could not deserialize the profile {profileId}"
                     );
-                ;
             }
 
             var ranMigrations = new List<AbstractProfileMigration>();
@@ -87,13 +85,6 @@ namespace SPTarkov.Server.Core.Services
             }
 
             return SptReadyProfile;
-        }
-
-        protected void SetCompletedMigration(JsonObject profile, string migrationName)
-        {
-            var profileMigrations = profile["spt"]["migrations"] as JsonObject;
-
-            profileMigrations[migrationName] = JsonValue.Create(timeUtil.GetTimeStamp());
         }
 
         protected IEnumerable<AbstractProfileMigration> SortMigrations()

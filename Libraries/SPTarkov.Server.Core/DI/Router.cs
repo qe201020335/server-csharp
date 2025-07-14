@@ -40,17 +40,8 @@ public abstract class Router
     }
 }
 
-public abstract class StaticRouter : Router
+public abstract class StaticRouter(JsonUtil jsonUtil, List<RouteAction> routes) : Router
 {
-    private readonly List<RouteAction> _actions;
-    private readonly JsonUtil _jsonUtil;
-
-    public StaticRouter(JsonUtil jsonUtil, List<RouteAction> routes)
-    {
-        _actions = routes;
-        _jsonUtil = jsonUtil;
-    }
-
     public async ValueTask<object> HandleStatic(
         string url,
         string? body,
@@ -58,12 +49,12 @@ public abstract class StaticRouter : Router
         string output
     )
     {
-        var action = _actions.Single(route => route.url == url);
+        var action = routes.Single(route => route.url == url);
         var type = action.bodyType;
         IRequestData? info = null;
         if (type != null && !string.IsNullOrEmpty(body))
         {
-            info = (IRequestData?)_jsonUtil.Deserialize(body, type);
+            info = (IRequestData?)jsonUtil.Deserialize(body, type);
         }
 
         return await action.action(url, info, sessionId, output);
@@ -71,7 +62,7 @@ public abstract class StaticRouter : Router
 
     protected override List<HandledRoute> GetHandledRoutes()
     {
-        return _actions.Select(route => new HandledRoute(route.url, false)).ToList();
+        return routes.Select(route => new HandledRoute(route.url, false)).ToList();
     }
 }
 

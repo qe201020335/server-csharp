@@ -288,7 +288,7 @@ public class RagfairOfferService(
         );
         notificationSendHelper.SendMessage(offerCreatorId, notificationMessage);
 
-        ragfairServerHelper.ReturnItems(offerCreatorProfile.SessionId, unstackedItems);
+        ragfairServerHelper.ReturnItems(offerCreatorProfile.SessionId.Value, unstackedItems);
         offerCreatorProfile.RagfairInfo.Offers.Splice(indexOfOfferInProfile, 1);
 
         if (logger.IsLogEnabled(LogLevel.Debug))

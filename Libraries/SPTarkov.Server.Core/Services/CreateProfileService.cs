@@ -195,9 +195,9 @@ public class CreateProfileService(
             || account.SptData?.PendingPrestige is not null
         )
         {
-            var pendingPrestige = account.SptData.PendingPrestige is not null
-                ? account.SptData.PendingPrestige
-                : new PendingPrestige { PrestigeLevel = request.SptForcePrestigeLevel };
+            var pendingPrestige =
+                account.SptData.PendingPrestige
+                ?? new PendingPrestige { PrestigeLevel = request.SptForcePrestigeLevel };
 
             prestigeHelper.ProcessPendingPrestige(account, profileDetails, pendingPrestige);
         }

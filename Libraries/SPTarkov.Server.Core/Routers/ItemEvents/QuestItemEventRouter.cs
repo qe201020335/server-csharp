@@ -15,13 +15,13 @@ public class QuestItemEventRouter(QuestCallbacks questCallbacks) : ItemEventRout
 {
     protected override List<HandledRoute> GetHandledRoutes()
     {
-        return new List<HandledRoute>
-        {
+        return
+        [
             new(ItemEventActions.QUEST_ACCEPT, false),
             new(ItemEventActions.QUEST_COMPLETE, false),
             new(ItemEventActions.QUEST_HANDOVER, false),
             new(ItemEventActions.REPEATABLE_QUEST_CHANGE, false),
-        };
+        ];
     }
 
     public override ValueTask<ItemEventRouterResponse> HandleItemEvent(

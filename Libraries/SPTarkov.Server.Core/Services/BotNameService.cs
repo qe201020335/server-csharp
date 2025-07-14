@@ -22,14 +22,17 @@ public class BotNameService(
 {
     protected readonly Lock _lockObject = new();
     protected readonly BotConfig _botConfig = configServer.GetConfig<BotConfig>();
-    protected readonly HashSet<string> _usedNameCache = new();
+    protected readonly HashSet<string> _usedNameCache = [];
 
     /// <summary>
     ///     Clear out any entries in Name Set
     /// </summary>
     public void ClearNameCache()
     {
-        _usedNameCache.Clear();
+        lock (_lockObject)
+        {
+            _usedNameCache.Clear();
+        }
     }
 
     /// <summary>

@@ -242,8 +242,12 @@ public class GiveSptCommand(
         {
             for (var i = 0; i < quantity; i++)
             {
-                List<Item> ammoBoxArray = [];
-                ammoBoxArray.Add(new Item { Id = new MongoId(), Template = checkedItem.Value.Id });
+                List<Item> ammoBoxArray =
+                [
+                    new() { Id = new MongoId(), Template = checkedItem.Value.Id },
+                    // DO NOT generate the ammo box cartridges, the mail service does it for us! :)
+                    // _itemHelper.addCartridgesToAmmoBox(ammoBoxArray, checkedItem[1]);
+                ];
                 // DO NOT generate the ammo box cartridges, the mail service does it for us! :)
                 // _itemHelper.addCartridgesToAmmoBox(ammoBoxArray, checkedItem[1]);
                 itemsToSend.AddRange(ammoBoxArray);

@@ -91,7 +91,7 @@ public class DialogueCallbacks(
     ///     Handle client/mail/dialog/view
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="request"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public virtual ValueTask<string> GetMailDialogView(

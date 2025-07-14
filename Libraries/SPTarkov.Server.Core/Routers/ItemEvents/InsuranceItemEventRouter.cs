@@ -16,7 +16,7 @@ public class InsuranceItemEventRouter(InsuranceCallbacks insuranceCallbacks)
 {
     protected override List<HandledRoute> GetHandledRoutes()
     {
-        return new List<HandledRoute> { new(ItemEventActions.INSURE, false) };
+        return [new(ItemEventActions.INSURE, false)];
     }
 
     public override ValueTask<ItemEventRouterResponse> HandleItemEvent(

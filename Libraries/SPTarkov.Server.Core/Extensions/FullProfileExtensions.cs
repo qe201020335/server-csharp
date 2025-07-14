@@ -1,4 +1,5 @@
-﻿using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+﻿using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Profile;
 using SPTarkov.Server.Core.Models.Enums;
 
@@ -11,7 +12,7 @@ namespace SPTarkov.Server.Core.Extensions
         /// </summary>
         /// <param name="fullProfile">Profile to add clothing to</param>
         /// <param name="clothingIds">Clothing Ids to add to profile</param>
-        public static void AddSuitsToProfile(this SptProfile fullProfile, List<string> clothingIds)
+        public static void AddSuitsToProfile(this SptProfile fullProfile, List<MongoId> clothingIds)
         {
             fullProfile.CustomisationUnlocks ??= [];
 

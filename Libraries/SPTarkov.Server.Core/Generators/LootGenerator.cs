@@ -114,7 +114,9 @@ public class LootGenerator(
         if (randomisedWeaponPresetCount > 0)
         {
             var weaponDefaultPresets = globalDefaultPresets
-                .Where(preset => itemHelper.IsOfBaseclass(preset.Encyclopedia, BaseClasses.WEAPON))
+                .Where(preset =>
+                    itemHelper.IsOfBaseclass(preset.Encyclopedia.Value, BaseClasses.WEAPON)
+                )
                 .ToList();
 
             if (weaponDefaultPresets.Any())
@@ -145,7 +147,7 @@ public class LootGenerator(
         if (randomisedArmorPresetCount > 0)
         {
             var armorDefaultPresets = globalDefaultPresets.Where(preset =>
-                itemHelper.ArmorItemCanHoldMods(preset.Encyclopedia)
+                itemHelper.ArmorItemCanHoldMods(preset.Encyclopedia.Value)
             );
             var levelFilteredArmorPresets = armorDefaultPresets
                 .Where(armor => IsArmorOfDesiredProtectionLevel(armor, options))
@@ -457,7 +459,7 @@ public class LootGenerator(
         }
 
         // Get preset root item db details via its `_encyclopedia` property
-        var itemDbDetails = itemHelper.GetItem(chosenPreset.Encyclopedia);
+        var itemDbDetails = itemHelper.GetItem(chosenPreset.Encyclopedia.Value);
         if (!itemDbDetails.Key)
         {
             if (logger.IsLogEnabled(LogLevel.Debug))
@@ -799,7 +801,7 @@ public class LootGenerator(
         );
     }
 
-    public record ItemRewardPoolResults
+    protected record ItemRewardPoolResults
     {
         public List<TemplateItem> ItemPool { get; set; }
 

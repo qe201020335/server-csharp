@@ -33,7 +33,9 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
         var weapons = GetDefaultWeaponPresets();
         var equipment = GetDefaultEquipmentPresets();
 
-        return weapons.Union(equipment).ToDictionary();
+        return weapons
+            .UnionBy(equipment, kvp => kvp.Key)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
     /// <summary>
@@ -64,7 +66,7 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
             _defaultWeaponPresets = tempPresets
                 .Where(p =>
                     p.Value.Encyclopedia != null
-                    && itemHelper.IsOfBaseclass(p.Value.Encyclopedia, BaseClasses.WEAPON)
+                    && itemHelper.IsOfBaseclass(p.Value.Encyclopedia.Value, BaseClasses.WEAPON)
                 )
                 .ToDictionary();
         }
@@ -84,7 +86,7 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
             _defaultEquipmentPresets = tempPresets
                 .Where(p =>
                     p.Value.Encyclopedia != null
-                    && itemHelper.ArmorItemCanHoldMods(p.Value.Encyclopedia)
+                    && itemHelper.ArmorItemCanHoldMods(p.Value.Encyclopedia.Value)
                 )
                 .ToDictionary();
         }
@@ -115,7 +117,8 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
      */
     public bool IsPresetBaseClass(MongoId id, MongoId baseClass)
     {
-        return IsPreset(id) && itemHelper.IsOfBaseclass(GetPreset(id).Encyclopedia, baseClass);
+        return IsPreset(id)
+            && itemHelper.IsOfBaseclass(GetPreset(id).Encyclopedia.Value, baseClass);
     }
 
     /// <summary>

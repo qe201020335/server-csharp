@@ -27,8 +27,8 @@ public class App(
     HttpServerHelper _httpServerHelper
 )
 {
-    protected CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
-    protected Dictionary<string, long> _onUpdateLastRun = new();
+    protected readonly CoreConfig _coreConfig = _configServer.GetConfig<CoreConfig>();
+    protected readonly Dictionary<string, long> _onUpdateLastRun = new();
 
     public async Task InitializeAsync()
     {

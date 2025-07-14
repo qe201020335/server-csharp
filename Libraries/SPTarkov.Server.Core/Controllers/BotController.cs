@@ -78,7 +78,6 @@ public class BotController(
     /// <param name="sessionId">Which user is requesting his bot settings</param>
     /// <param name="type">what bot the server is requesting settings for</param>
     /// <param name="diffLevel">difficulty level server requested settings for</param>
-    /// <param name="raidConfig">OPTIONAL - applicationContext Data stored at start of raid</param>
     /// <param name="ignoreRaidSettings">OPTIONAL - should raid settings chosen pre-raid be ignored</param>
     /// <returns>Difficulty object</returns>
     public DifficultyCategories GetBotDifficulty(
@@ -92,7 +91,7 @@ public class BotController(
 
         var raidConfig = _profileActivityService
             .GetProfileActivityRaidData(sessionId)
-            ?.RaidConfiguration;
+            .RaidConfiguration;
 
         if (!(raidConfig != null || ignoreRaidSettings))
         {

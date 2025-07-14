@@ -141,11 +141,11 @@ public class ItemBaseClassService(
             HydrateItemBaseClassCache();
         }
 
-        if (!_itemBaseClassesCache.ContainsKey(itemTpl))
+        if (!_itemBaseClassesCache.TryGetValue(itemTpl, out var value))
         {
             return [];
         }
 
-        return _itemBaseClassesCache[itemTpl].ToList();
+        return value.ToList();
     }
 }

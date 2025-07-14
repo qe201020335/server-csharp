@@ -68,7 +68,7 @@ public class TraderCallbacks(
     ///     Handle /singleplayer/moddedTraders
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> GetModdedTraderData(string url, EmptyRequestData _, MongoId sessionID)

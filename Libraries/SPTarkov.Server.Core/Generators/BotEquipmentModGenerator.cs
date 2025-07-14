@@ -197,7 +197,8 @@ public class BotEquipmentModGenerator(
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE
+                    or Result.NO_DEFAULT_FILTER:
                         if (logger.IsLogEnabled(LogLevel.Debug))
                         {
                             logger.Debug(
@@ -1373,10 +1374,9 @@ public class BotEquipmentModGenerator(
         // Limit how many attempts to find a compatible mod can occur before giving up
         var maxBlockedAttempts = Math.Round(modPool.Count * 0.75); // 75% of pool size
         var blockedAttemptCount = 0;
-        string chosenTpl;
         while (exhaustableModPool.HasValues())
         {
-            chosenTpl = exhaustableModPool.GetRandomValue();
+            var chosenTpl = exhaustableModPool.GetRandomValue();
             var pickedItemDetails = itemHelper.GetItem(chosenTpl);
             if (!pickedItemDetails.Key)
             // Not valid item, try again
@@ -1408,7 +1408,7 @@ public class BotEquipmentModGenerator(
             if (existingItemBlockingChoice is not null)
             {
                 // Give max of x attempts of picking a mod if blocked by another
-                // OR Blocked and modpool only had 1 item
+                // OR Blocked and mod pool only had 1 item
                 if (blockedAttemptCount > maxBlockedAttempts || modPool.Count == 1)
                 {
                     blockedAttemptCount = 0; // reset
@@ -1420,11 +1420,10 @@ public class BotEquipmentModGenerator(
 
                 blockedAttemptCount++;
                 // Not compatible - Try again
-                ;
                 continue;
             }
 
-            // Edge case- Some mod combos will never work, make sure this isnt the case
+            // Edge case - Some mod combos will never work, make sure this isn't the case
             if (WeaponModComboIsIncompatible(weapon, chosenTpl))
             {
                 chosenModResult.Reason =
@@ -1492,12 +1491,7 @@ public class BotEquipmentModGenerator(
         }
 
         // Required mod is not default or randomisable, use existing pool
-        if (!request.ItemModPool.TryGetValue(request.ModSlot, out var modsForSlot))
-        {
-            return null;
-        }
-
-        return modsForSlot;
+        return request.ItemModPool.GetValueOrDefault(request.ModSlot);
     }
 
     /// <summary>
@@ -1733,8 +1727,8 @@ public class BotEquipmentModGenerator(
             }
         }
 
-        // No mod found
-        return null;
+        // No mod found, return fallback
+        return tmpModTpl;
     }
 
     /// <summary>
@@ -1774,7 +1768,7 @@ public class BotEquipmentModGenerator(
         }
 
         // Mod has invalid db item
-        if (!modToAdd.HasValue)
+        if (!modToAdd.Value.Key)
         {
             // Parent slot must be filled but db object is invalid, show warning and return false
             if (slotAddedToTemplate.Required ?? false)

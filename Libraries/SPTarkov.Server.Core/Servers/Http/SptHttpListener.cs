@@ -132,10 +132,7 @@ public class SptHttpListener(
         string output
     )
     {
-        if (body == null)
-        {
-            body = new object();
-        }
+        body ??= new object();
 
         var bodyInfo = _jsonUtil.Serialize(body);
 
@@ -235,7 +232,7 @@ public class SptHttpListener(
     {
         using (var ms = new MemoryStream())
         {
-            using (var deflateStream = new ZLibStream(ms, CompressionLevel.SmallestSize))
+            await using (var deflateStream = new ZLibStream(ms, CompressionLevel.SmallestSize))
             {
                 await deflateStream.WriteAsync(Encoding.UTF8.GetBytes(output));
             }

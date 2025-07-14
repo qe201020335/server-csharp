@@ -1,3 +1,4 @@
+using System.Globalization;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Bot;
@@ -44,7 +45,8 @@ public class BotLevelGenerator(
         // Get random level based on the exp table.
         var exp = 0;
         var level = int.Parse(
-            ChooseBotLevel(botLevelRange.Min, botLevelRange.Max, 1, 1.15).ToString()
+            ChooseBotLevel(botLevelRange.Min, botLevelRange.Max, 1, 1.15)
+                .ToString(CultureInfo.InvariantCulture)
         ); // TODO - nasty double to string to int conversion
         for (var i = 0; i < level; i++)
         {

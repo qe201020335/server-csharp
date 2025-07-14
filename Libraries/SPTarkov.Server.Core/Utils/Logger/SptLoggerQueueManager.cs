@@ -20,17 +20,13 @@ public class SptLoggerQueueManager(IEnumerable<ILogHandler> logHandlers)
     {
         _config = config;
 
-        if (_logHandlers == null)
-        {
-            _logHandlers = logHandlers.ToDictionary(lh => lh.LoggerType, lh => lh);
-        }
+        _logHandlers ??= logHandlers.ToDictionary(lh => lh.LoggerType, lh => lh);
 
         lock (LoggerTaskLock)
         {
             if (_loggerTask == null)
             {
-                _loggerTask = new Thread(LoggerWorkerThread);
-                _loggerTask.IsBackground = true;
+                _loggerTask = new Thread(LoggerWorkerThread) { IsBackground = true };
                 _loggerTask.Start();
             }
         }

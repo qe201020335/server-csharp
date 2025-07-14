@@ -805,7 +805,7 @@ public class RepeatableQuestController(
     protected bool PlayerHasDailyScavQuestsUnlocked(PmcData pmcData)
     {
         return pmcData
-                ?.Hideout?.Areas?.FirstOrDefault(hideoutArea =>
+                .Hideout?.Areas?.FirstOrDefault(hideoutArea =>
                     hideoutArea.Type == HideoutAreas.IntelligenceCenter
                 )
                 ?.Level >= 1;

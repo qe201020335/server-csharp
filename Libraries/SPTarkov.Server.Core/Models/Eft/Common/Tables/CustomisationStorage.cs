@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 
 namespace SPTarkov.Server.Core.Models.Eft.Common.Tables;
 
@@ -9,7 +10,7 @@ public record CustomisationStorage
 
     // Customisation.json/itemId
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("source")]
     public string? Source { get; set; }

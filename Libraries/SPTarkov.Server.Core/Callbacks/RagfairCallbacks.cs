@@ -138,7 +138,7 @@ public class RagfairCallbacks(
     ///     Called when clicking an item to list on flea
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> GetFleaPrices(string url, EmptyRequestData _, MongoId sessionID)

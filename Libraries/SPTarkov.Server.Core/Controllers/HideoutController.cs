@@ -212,7 +212,19 @@ public class HideoutController(
         }
 
         // Apply bonuses
-        var hideoutStage = hideoutData.Stages[profileHideoutArea.Level.ToString()];
+        if (
+            !hideoutData.Stages.TryGetValue(
+                profileHideoutArea.Level.ToString(),
+                out var hideoutStage
+            )
+        )
+        {
+            logger.Error(
+                $"Stage level: {profileHideoutArea.Level} not found for area: {request.AreaType}"
+            );
+
+            return;
+        }
         var bonuses = hideoutStage.Bonuses;
         if (bonuses?.Count > 0)
         {
@@ -223,7 +235,7 @@ public class HideoutController(
         }
 
         // Upgrade includes a container improvement/addition
-        if (!string.IsNullOrEmpty(hideoutStage?.Container))
+        if (!string.IsNullOrEmpty(hideoutStage.Container))
         {
             AddContainerImprovementToProfile(
                 output,
@@ -411,7 +423,7 @@ public class HideoutController(
         if (existingInventoryItem is not null)
         {
             // Update existing items container tpl to point to new id (tpl)
-            existingInventoryItem.Template = hideoutStage.Container;
+            existingInventoryItem.Template = hideoutStage.Container.Value;
 
             return;
         }
@@ -420,7 +432,7 @@ public class HideoutController(
         var newContainerItem = new Item
         {
             Id = dbHideoutArea.Id,
-            Template = hideoutStage.Container,
+            Template = hideoutStage.Container.Value,
         };
         pmcData.Inventory.Items.Add(newContainerItem);
     }
@@ -611,7 +623,7 @@ public class HideoutController(
         BotHideoutArea hideoutArea
     )
     {
-        var slotIndexToRemove = removeResourceRequest?.Slots?.FirstOrDefault();
+        var slotIndexToRemove = removeResourceRequest.Slots?.FirstOrDefault();
         if (slotIndexToRemove is null)
         {
             logger.Error(
@@ -1709,7 +1721,7 @@ public class HideoutController(
     )
     {
         // Each slot is a single Mannequin
-        var slots = itemHelper.GetItem(equipmentPresetStage.Container).Value.Properties.Slots;
+        var slots = itemHelper.GetItem(equipmentPresetStage.Container.Value).Value.Properties.Slots;
         foreach (var mannequinSlot in slots)
         {
             // Check if we've already added this mannequin

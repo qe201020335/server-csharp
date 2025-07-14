@@ -28,7 +28,7 @@ public record RepairKitsInfo
     ///     id of repair kit to use
     /// </summary>
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     /// <summary>
     ///     amount of units to reduce kit by

@@ -38,7 +38,7 @@ public class ProfileHelper(
     /// <summary>
     ///     Remove/reset a completed quest condition from players profile quest data
     /// </summary>
-    /// <param name="sessionID">Session id</param>
+    /// <param name="pmcData">Player profile</param>
     /// <param name="questConditionId">Quest with condition to remove</param>
     public void RemoveQuestConditionFromProfile(
         PmcData pmcData,
@@ -273,7 +273,7 @@ public class ProfileHelper(
     {
         return new SearchFriendResponse
         {
-            Id = pmcProfile.Id,
+            Id = pmcProfile.Id.Value,
             Aid = pmcProfile.Aid,
             Info = new UserDialogDetails
             {

@@ -243,7 +243,8 @@ public class BotEquipmentFilterService(
     ///     Prioritizes whitelist first, if one is found blacklist is ignored
     /// </summary>
     /// <param name="baseBotNode">bot .json file to update</param>
-    /// <param name="blacklist">equipment blacklist</param>
+    /// <param name="blacklist">Equipment blacklist</param>
+    /// <param name="whitelist">Equipment whitelist</param>
     /// <returns>Filtered bot file</returns>
     protected void FilterEquipment(
         BotType baseBotNode,
@@ -381,6 +382,7 @@ public class BotEquipmentFilterService(
     /// </summary>
     /// <param name="weightingAdjustments">Weighting change to apply to bot</param>
     /// <param name="botItemPool">Bot item dictionary to adjust</param>
+    /// <param name="showEditWarnings">OPTIONAL - show warnings when editing existing value</param>
     protected void AdjustWeighting(
         AdjustmentDetails? weightingAdjustments,
         Dictionary<EquipmentSlots, Dictionary<MongoId, double>> botItemPool,

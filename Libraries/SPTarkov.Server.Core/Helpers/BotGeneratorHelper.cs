@@ -30,11 +30,11 @@ public class BotGeneratorHelper(
     // Equipment slot ids that do not conflict with other slots
     private static readonly FrozenSet<string> _slotsWithNoCompatIssues =
     [
-        EquipmentSlots.Scabbard.ToString(),
-        EquipmentSlots.Backpack.ToString(),
-        EquipmentSlots.SecuredContainer.ToString(),
-        EquipmentSlots.Holster.ToString(),
-        EquipmentSlots.ArmBand.ToString(),
+        nameof(EquipmentSlots.Scabbard),
+        nameof(EquipmentSlots.Backpack),
+        nameof(EquipmentSlots.SecuredContainer),
+        nameof(EquipmentSlots.Holster),
+        nameof(EquipmentSlots.ArmBand),
     ];
 
     private static readonly string[] _pmcTypes =

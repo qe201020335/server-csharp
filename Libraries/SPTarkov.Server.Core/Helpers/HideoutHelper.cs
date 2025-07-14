@@ -213,7 +213,7 @@ public class HideoutHelper(
                     );
                 }
 
-                stashItem.Template = bonus.TemplateId;
+                stashItem.Template = bonus.TemplateId.Value;
 
                 break;
             }
@@ -869,9 +869,7 @@ public class HideoutHelper(
             var waterFilterItemInSlot = waterFilterArea.Slots[i].Items[0];
 
             // How many units of filter are left
-            var resourceValue = waterFilterItemInSlot.Upd?.Resource is not null
-                ? waterFilterItemInSlot.Upd.Resource.Value
-                : null;
+            var resourceValue = waterFilterItemInSlot.Upd?.Resource?.Value;
             if (resourceValue is null)
             {
                 // Missing, is new filter, add default and subtract usage
@@ -1184,7 +1182,7 @@ public class HideoutHelper(
         // BSG finally fixed their settings, they now get loaded from the settings and used in the client
         var adjustedCraftTime =
             (
-                profileHelper.IsDeveloperAccount(pmcData.SessionId)
+                profileHelper.IsDeveloperAccount(pmcData.SessionId.Value)
                     ? 40
                     : bitcoinProdData.ProductionTime
             ) / (1 + (btcFarmCGs - 1) * databaseService.GetHideout().Settings.GpuBoostRate);
@@ -1491,7 +1489,7 @@ public class HideoutHelper(
     /// <summary>
     ///     Add/remove bonus combat skill based on number of dogtags in place of fame hideout area
     /// </summary>
-    /// <param name="profileData">Player profile</param>
+    /// <param name="pmcData">Player profile</param>
     public void ApplyPlaceOfFameDogtagBonus(PmcData pmcData)
     {
         var fameAreaProfile = pmcData.Hideout.Areas.FirstOrDefault(area =>

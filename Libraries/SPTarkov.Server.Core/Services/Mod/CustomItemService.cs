@@ -38,9 +38,9 @@ public class CustomItemService(
         var newItemId = GetOrGenerateIdForItem(newItemDetails.NewId);
 
         // Fail if itemId already exists
-        if (tables.Templates.Items.ContainsKey(newItemId))
+        if (tables.Templates.Items.TryGetValue(newItemId, out var item))
         {
-            result.Errors.Add($"ItemId already exists. {tables.Templates.Items[newItemId].Name}");
+            result.Errors.Add($"ItemId already exists. {item.Name}");
             result.Success = false;
             result.ItemId = newItemId;
 
@@ -102,9 +102,9 @@ public class CustomItemService(
         var newItem = newItemDetails.NewItem;
 
         // Fail if itemId already exists
-        if (tables.Templates.Items.ContainsKey(newItem.Id))
+        if (tables.Templates.Items.TryGetValue(newItem.Id, out var item))
         {
-            result.Errors.Add($"ItemId already exists. {tables.Templates.Items[newItem.Id].Name}");
+            result.Errors.Add($"ItemId already exists. {item.Name}");
             return result;
         }
 
@@ -221,7 +221,7 @@ public class CustomItemService(
     /// <param name="newItemId"> ID of the item being added </param>
     /// <param name="parentId"> Parent ID of the item being added </param>
     /// <param name="priceRoubles"> Price of the item being added </param>
-    protected void AddToHandbookDb(string newItemId, string parentId, double? priceRoubles)
+    protected void AddToHandbookDb(MongoId newItemId, string parentId, double? priceRoubles)
     {
         databaseService
             .GetTemplates()

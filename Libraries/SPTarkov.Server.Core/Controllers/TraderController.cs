@@ -58,7 +58,7 @@ public class TraderController(
             }
 
             // Adjust price by traderPriceMultiplier config property
-            if (!TraderConfig.TraderPriceMultiplier.Approx(1, 0.001))
+            if (!TraderConfig.TraderPriceMultiplier.Approx(1))
             {
                 AdjustTraderItemPrices(trader, TraderConfig.TraderPriceMultiplier);
             }
@@ -82,7 +82,7 @@ public class TraderController(
     {
         foreach (var kvp in trader.Assort?.BarterScheme)
         {
-            var barterSchemeItem = kvp.Value?.FirstOrDefault()?.FirstOrDefault();
+            var barterSchemeItem = kvp.Value.FirstOrDefault()?.FirstOrDefault();
             if (
                 barterSchemeItem?.Template != null
                 && paymentHelper.IsMoneyTpl(barterSchemeItem.Template)

@@ -33,7 +33,7 @@ public class BuildController(
         const string secureContainerSlotId = "SecuredContainer";
 
         var profile = profileHelper.GetFullProfile(sessionID);
-        if (profile?.UserBuildData is null)
+        if (profile.UserBuildData is null)
         {
             profile.UserBuildData = new UserBuilds
             {
@@ -50,12 +50,12 @@ public class BuildController(
 
         // Get players secure container
         var playerSecureContainer =
-            profile?.CharacterData?.PmcData?.Inventory?.Items?.FirstOrDefault(x =>
+            profile.CharacterData?.PmcData?.Inventory?.Items?.FirstOrDefault(x =>
                 x.SlotId == secureContainerSlotId
             );
 
         var firstDefaultItemsSecureContainer = defaultEquipmentPresetsClone
-            ?.FirstOrDefault()
+            .FirstOrDefault()
             ?.Items?.FirstOrDefault(x => x.SlotId == secureContainerSlotId);
 
         if (
@@ -81,7 +81,7 @@ public class BuildController(
         var userBuildsClone = cloner.Clone(profile?.UserBuildData);
 
         userBuildsClone.EquipmentBuilds ??= [];
-        userBuildsClone?.EquipmentBuilds?.AddRange(defaultEquipmentPresetsClone);
+        userBuildsClone.EquipmentBuilds?.AddRange(defaultEquipmentPresetsClone);
 
         return userBuildsClone;
     }

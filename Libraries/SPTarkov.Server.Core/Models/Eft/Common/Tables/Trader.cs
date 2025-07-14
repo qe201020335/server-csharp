@@ -298,7 +298,7 @@ public record Suit
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("externalObtain")]
     public bool? ExternalObtain { get; set; }
@@ -310,10 +310,10 @@ public record Suit
     public bool? IsHiddenInPVE { get; set; }
 
     [JsonPropertyName("tid")]
-    public string? Tid { get; set; }
+    public MongoId Tid { get; set; }
 
     [JsonPropertyName("suiteId")]
-    public string? SuiteId { get; set; }
+    public MongoId SuiteId { get; set; }
 
     [JsonPropertyName("isActive")]
     public bool? IsActive { get; set; }
@@ -356,7 +356,7 @@ public record SuitRequirements
     public List<ItemRequirement>? ItemRequirements { get; set; }
 
     [JsonPropertyName("requiredTid")]
-    public string? RequiredTid { get; set; }
+    public MongoId? RequiredTid { get; set; }
 }
 
 public record ItemRequirement
@@ -368,7 +368,7 @@ public record ItemRequirement
     public double? Count { get; set; }
 
     [JsonPropertyName("_tpl")]
-    public string? Tpl { get; set; }
+    public MongoId Tpl { get; set; }
 
     [JsonPropertyName("id")]
     public string? Id { get; set; }

@@ -99,7 +99,7 @@ public class PmcChatResponseService(
 
         var killerDetails = new UserDialogInfo
         {
-            Id = killer.ProfileId,
+            Id = killer.ProfileId.Value,
             Aid = killerDetailsInCache.Aid,
             Info = new UserDialogDetails
             {

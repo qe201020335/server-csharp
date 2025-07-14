@@ -25,9 +25,9 @@ public class InMemoryCacheService(ICloner cloner)
     /// <returns> Stored data </returns>
     public T? GetDataByKey<T>(string key)
     {
-        if (_cacheData.ContainsKey(key))
+        if (_cacheData.TryGetValue(key, out var value))
         {
-            return (T)_cacheData[key];
+            return (T)value;
         }
 
         return default;

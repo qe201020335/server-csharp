@@ -244,6 +244,7 @@ public class ScavCaseRewardGenerator(
     /// </summary>
     /// <param name="items">item pool to pick rewards from</param>
     /// <param name="itemFilters">how the rewards should be filtered down (by item count)</param>
+    /// <param name="rarity">Rarity of reward</param>
     /// <returns></returns>
     protected List<TemplateItem> PickRandomRewards(
         List<TemplateItem> items,

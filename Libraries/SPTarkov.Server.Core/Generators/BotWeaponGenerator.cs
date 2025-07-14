@@ -585,7 +585,7 @@ public class BotWeaponGenerator(
         {
             var id = new MongoId();
             botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
-                new HashSet<EquipmentSlots> { EquipmentSlots.SecuredContainer },
+                [EquipmentSlots.SecuredContainer],
                 id,
                 ammoTpl,
                 new List<Item>
@@ -658,7 +658,7 @@ public class BotWeaponGenerator(
     /// <param name="cartridgePool">Dictionary of all cartridges keyed by type e.g. Caliber556x45NATO</param>
     /// <param name="weaponTemplate">Weapon details from database we want to pick ammo for</param>
     /// <returns>Ammo template that works with the desired gun</returns>
-    protected string? GetWeightedCompatibleAmmo(
+    protected MongoId GetWeightedCompatibleAmmo(
         Dictionary<string, Dictionary<string, double>> cartridgePool,
         TemplateItem weaponTemplate
     )
@@ -686,7 +686,7 @@ public class BotWeaponGenerator(
 
             // Immediately returns, default ammo is guaranteed to be compatible
             // it is not guaranteed to even have a default ammo
-            return weaponTemplate.Properties.DefAmmo;
+            return weaponTemplate.Properties.DefAmmo.Value;
         }
 
         // Get cartridges the weapons first chamber allow
@@ -696,7 +696,7 @@ public class BotWeaponGenerator(
         if (compatibleCartridgesInTemplate.Count == 0)
         // No chamber data found in weapon, send default
         {
-            return weaponTemplate.Properties.DefAmmo;
+            return weaponTemplate.Properties.DefAmmo.Value;
         }
 
         // Inner join the weapons allowed + passed in cartridge pool to get compatible cartridges
@@ -719,7 +719,7 @@ public class BotWeaponGenerator(
             if (compatibleCartridgesInMagazine.Count == 0)
             {
                 // No compatible cartridges found in magazine, use default
-                return weaponTemplate.Properties.DefAmmo;
+                return weaponTemplate.Properties.DefAmmo.Value;
             }
 
             // Get the caliber data from the first compatible round in the magazine
@@ -739,7 +739,7 @@ public class BotWeaponGenerator(
             // Nothing found after also checking magazines, return default ammo
             if (compatibleCartridges.Count == 0)
             {
-                return weaponTemplate.Properties.DefAmmo;
+                return weaponTemplate.Properties.DefAmmo.Value;
             }
         }
 

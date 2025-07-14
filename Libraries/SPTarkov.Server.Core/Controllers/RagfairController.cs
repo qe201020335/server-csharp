@@ -48,7 +48,7 @@ public class RagfairController(
     ConfigServer configServer
 )
 {
-    protected RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
+    protected readonly RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
 
     /// <summary>
     ///     Check all profiles and sell player offers / send player money for listing if it sold
@@ -127,11 +127,7 @@ public class RagfairController(
         }
 
         // Update trader offers' values, Lock quest-linked offers + adjust offer buy limits
-        foreach (
-            var traderOffer in result.Offers.Where(offer =>
-                ragfairOfferHelper.OfferIsFromTrader(offer)
-            )
-        )
+        foreach (var traderOffer in result.Offers.Where(ragfairOfferHelper.OfferIsFromTrader))
         {
             // For the items, check the barter schemes. The method getDisplayableAssorts sets a flag sptQuestLocked
             // to true if the quest is not completed yet
@@ -353,7 +349,7 @@ public class RagfairController(
             );
         }
 
-        if (searchRequest.NeededSearchId?.Length > 0)
+        if (searchRequest.NeededSearchId is not null)
         {
             return ragfairOfferHelper.GetOffersThatRequireItem(searchRequest, pmcProfile);
         }
@@ -521,7 +517,7 @@ public class RagfairController(
     /// <returns>Is offer valid</returns>
     protected bool IsValidPlayerOfferRequest(AddOfferRequestData offerRequest)
     {
-        if (offerRequest?.Items is null || offerRequest.Items.Count == 0)
+        if (offerRequest.Items is null || offerRequest.Items.Count == 0)
         {
             logger.Error(localisationService.GetText("ragfair-invalid_player_offer_request"));
 
@@ -1091,7 +1087,7 @@ public class RagfairController(
             itemsToReturn.Add(pmcData.Inventory.Items.FindAndReturnChildrenAsItems(itemId));
         }
 
-        if (itemsToReturn?.Count == 0)
+        if (itemsToReturn.Count == 0)
         {
             errorMessage = localisationService.GetText(
                 "ragfair-unable_to_find_requested_items_in_inventory"
@@ -1280,7 +1276,7 @@ public class RagfairController(
         return offerToReturn;
     }
 
-    public record GetItemsToListOnFleaFromInventoryResult
+    protected record GetItemsToListOnFleaFromInventoryResult
     {
         public List<List<Item>>? Items { get; set; }
 

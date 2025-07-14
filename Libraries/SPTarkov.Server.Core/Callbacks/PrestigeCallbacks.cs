@@ -17,7 +17,7 @@ public class PrestigeCallbacks(
     ///     Handle client/prestige/list
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="info"></param>
+    /// <param name="_"></param>
     /// <param name="sessionID">Session/player id</param>
     /// <returns></returns>
     public ValueTask<string> GetPrestige(string url, EmptyRequestData _, MongoId sessionID)

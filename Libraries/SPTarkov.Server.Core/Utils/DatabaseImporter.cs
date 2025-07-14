@@ -3,8 +3,6 @@ using System.Security.Cryptography;
 using System.Text;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Models.Common;
-using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Server;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Routers;
@@ -25,8 +23,7 @@ public class DatabaseImporter(
 ) : IOnLoad
 {
     private const string _sptDataPath = "./SPT_Data/";
-    protected ISptLogger<DatabaseImporter> _logger = logger;
-    protected Dictionary<string, string> databaseHashes = [];
+    protected readonly Dictionary<string, string> databaseHashes = [];
 
     public async Task OnLoad()
     {
@@ -101,14 +98,14 @@ public class DatabaseImporter(
             }
             else
             {
-                _logger.Error(
+                logger.Error(
                     _serverLocalisationService.GetText("validation_error_exception", checksFilePath)
                 );
             }
         }
         catch (Exception)
         {
-            _logger.Error(
+            logger.Error(
                 _serverLocalisationService.GetText("validation_error_exception", checksFilePath)
             );
         }
@@ -120,7 +117,7 @@ public class DatabaseImporter(
      */
     protected async Task HydrateDatabase(string filePath)
     {
-        _logger.Info(_serverLocalisationService.GetText("importing_database"));
+        logger.Info(_serverLocalisationService.GetText("importing_database"));
         Stopwatch timer = new();
         timer.Start();
 
@@ -131,8 +128,8 @@ public class DatabaseImporter(
 
         timer.Stop();
 
-        _logger.Info(_serverLocalisationService.GetText("importing_database_finish"));
-        _logger.Debug($"Database import took {timer.ElapsedMilliseconds}ms");
+        logger.Info(_serverLocalisationService.GetText("importing_database_finish"));
+        logger.Debug($"Database import took {timer.ElapsedMilliseconds}ms");
         _databaseServer.SetTables(dataToImport);
     }
 
@@ -161,14 +158,14 @@ public class DatabaseImporter(
                 {
                     if (databaseHashes[relativePath] != hashString)
                     {
-                        _logger.Warning(
+                        logger.Warning(
                             _serverLocalisationService.GetText("validation_error_file", fileName)
                         );
                     }
                 }
                 else
                 {
-                    _logger.Warning(
+                    logger.Warning(
                         _serverLocalisationService.GetText("validation_error_file", fileName)
                     );
                 }

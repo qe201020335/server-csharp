@@ -10,10 +10,10 @@ using SPTarkov.Server.Core.Utils;
 namespace SPTarkov.Server.Core.Helpers.Dialogue.SPTFriend.Commands;
 
 [Injectable]
-public class HelloMessageHandler(MailSendService _mailSendService, RandomUtil _randomUtil)
+public class HelloMessageHandler(MailSendService mailSendService, RandomUtil randomUtil)
     : IChatMessageHandler
 {
-    protected static readonly FrozenSet<string> _listOfGreetings =
+    protected static readonly FrozenSet<string> _greetings =
     [
         "hello",
         "hi",
@@ -30,7 +30,7 @@ public class HelloMessageHandler(MailSendService _mailSendService, RandomUtil _r
 
     public bool CanHandle(string message)
     {
-        return _listOfGreetings.Contains(message, StringComparer.OrdinalIgnoreCase);
+        return _greetings.Contains(message, StringComparer.OrdinalIgnoreCase);
     }
 
     public void Process(
@@ -40,10 +40,10 @@ public class HelloMessageHandler(MailSendService _mailSendService, RandomUtil _r
         object? extraInfo = null
     )
     {
-        _mailSendService.SendUserMessageToPlayer(
+        mailSendService.SendUserMessageToPlayer(
             sessionId,
             sptFriendUser,
-            _randomUtil.GetArrayValue(
+            randomUtil.GetArrayValue(
                 [
                     "Howdy",
                     "Hi",
@@ -84,10 +84,10 @@ public class HelloMessageHandler(MailSendService _mailSendService, RandomUtil _r
         SendMessageRequest request
     )
     {
-        _mailSendService.SendUserMessageToPlayer(
+        mailSendService.SendUserMessageToPlayer(
             sessionId,
             commandHandler,
-            _randomUtil.GetArrayValue(
+            randomUtil.GetArrayValue(
                 [
                     "Howdy",
                     "Hi",
