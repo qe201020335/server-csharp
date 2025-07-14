@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
@@ -52,10 +51,7 @@ public class SaveServer(
     /// <param name="id"> ID of Callback to remove </param>
     public void RemoveBeforeSaveCallback(string id)
     {
-        if (onBeforeSaveCallbacks.ContainsKey(id))
-        {
-            onBeforeSaveCallbacks.Remove(id);
-        }
+        onBeforeSaveCallbacks.Remove(id);
     }
 
     /// <summary>

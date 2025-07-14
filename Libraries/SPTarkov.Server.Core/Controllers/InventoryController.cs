@@ -722,10 +722,7 @@ public class InventoryController(
     )
     {
         // Remove link
-        if (pmcData.Inventory.FastPanel.ContainsKey(bindRequest.Index))
-        {
-            pmcData.Inventory.FastPanel.Remove(bindRequest.Index);
-        }
+        pmcData.Inventory.FastPanel.Remove(bindRequest.Index);
 
         // Create link between fast panel slot and requested item
         pmcData.Inventory.FastPanel[bindRequest.Index] = bindRequest.Item;

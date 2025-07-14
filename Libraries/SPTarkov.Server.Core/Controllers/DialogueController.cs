@@ -434,7 +434,7 @@ public class DialogueController(
     public virtual void RemoveDialogue(string? dialogueId, MongoId sessionId)
     {
         var profile = saveServer.GetProfile(sessionId);
-        if (!profile.DialogueRecords.ContainsKey(dialogueId))
+        if (!profile.DialogueRecords.Remove(dialogueId))
         {
             logger.Error(
                 serverLocalisationService.GetText(
@@ -442,11 +442,7 @@ public class DialogueController(
                     new { sessionId, dialogueId }
                 )
             );
-
-            return;
         }
-
-        profile.DialogueRecords.Remove(dialogueId);
     }
 
     /// <summary>
