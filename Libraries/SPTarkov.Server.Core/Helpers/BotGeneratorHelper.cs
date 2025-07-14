@@ -59,7 +59,7 @@ public class BotGeneratorHelper(
             .GetFirstProfileActivityRaidData()
             ?.RaidConfiguration;
 
-        RandomisedResourceDetails randomisationSettings = null;
+        RandomisedResourceDetails? randomisationSettings = null;
         if (botRole is not null)
         {
             _botConfig.LootItemResourceRandomization.TryGetValue(
