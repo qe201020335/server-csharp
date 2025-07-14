@@ -146,21 +146,14 @@ public class BotGeneratorHelper(
             hasProperties = true;
         }
 
+        var equipmentSettings = GetBotEquipmentSettingFromConfig(botRole);
         if (itemTemplate?.Parent == BaseClasses.FLASHLIGHT)
         {
-            // Get chance from botconfig for bot type
             var lightLaserActiveChance =
-                raidSettings?.IsNightRaid ?? false
-                    ? GetBotEquipmentSettingFromConfig(
-                        botRole,
-                        "lightIsActiveNightChancePercent",
-                        50
-                    )
-                    : GetBotEquipmentSettingFromConfig(
-                        botRole,
-                        "lightIsActiveDayChancePercent",
-                        25
-                    );
+                raidSettings?.IsNightRaid ?? false // Higher chance of laser/light at night
+                    ? equipmentSettings?.LightIsActiveNightChancePercent ?? 50
+                    : equipmentSettings?.LightIsActiveDayChancePercent ?? 25;
+
             itemProperties.Light = new UpdLight
             {
                 IsActive = randomUtil.GetChance100(lightLaserActiveChance),
@@ -171,11 +164,8 @@ public class BotGeneratorHelper(
         else if (itemTemplate?.Parent == BaseClasses.TACTICAL_COMBO)
         {
             // Get chance from botconfig for bot type, use 50% if no value found
-            var lightLaserActiveChance = GetBotEquipmentSettingFromConfig(
-                botRole,
-                "laserIsActiveChancePercent",
-                50
-            );
+            var lightLaserActiveChance = equipmentSettings?.LaserIsActiveChancePercent ?? 50;
+
             itemProperties.Light = new UpdLight
             {
                 IsActive = randomUtil.GetChance100(lightLaserActiveChance),
@@ -189,8 +179,9 @@ public class BotGeneratorHelper(
             // Get chance from botconfig for bot type
             var nvgActiveChance =
                 raidSettings?.IsNightRaid ?? false
-                    ? GetBotEquipmentSettingFromConfig(botRole, "nvgIsActiveChanceNightPercent", 90)
-                    : GetBotEquipmentSettingFromConfig(botRole, "nvgIsActiveChanceDayPercent", 15);
+                    ? equipmentSettings?.NvgIsActiveChanceNightPercent ?? 90
+                    : equipmentSettings?.NvgIsActiveChanceDayPercent ?? 15;
+
             itemProperties.Togglable = new UpdTogglable
             {
                 On = randomUtil.GetChance100(nvgActiveChance),
@@ -204,11 +195,7 @@ public class BotGeneratorHelper(
             && (itemTemplate.Properties.FaceShieldComponent ?? false)
         )
         {
-            var faceShieldActiveChance = GetBotEquipmentSettingFromConfig(
-                botRole,
-                "faceShieldIsActiveChancePercent",
-                75
-            );
+            var faceShieldActiveChance = equipmentSettings?.FaceShieldIsActiveChancePercent ?? 75;
             itemProperties.Togglable = new UpdTogglable
             {
                 On = randomUtil.GetChance100(faceShieldActiveChance),
@@ -248,71 +235,13 @@ public class BotGeneratorHelper(
     }
 
     /// <summary>
-    ///     Get the chance for the weapon attachment or helmet equipment to be set as activated
+    /// Get equipment specific flags (e.g. nvg settings) for a particular bot type
     /// </summary>
-    /// <param name="botRole">role of bot with weapon/helmet</param>
-    /// <param name="setting">the setting of the weapon attachment/helmet equipment to be activated</param>
-    /// <param name="defaultValue">default value for the chance of activation if the botrole or bot equipment role is undefined</param>
-    /// <returns>Percent chance to be active</returns>
-    protected double? GetBotEquipmentSettingFromConfig(
-        string? botRole,
-        string setting,
-        double defaultValue
-    )
+    /// <param name="botRole">bot to get settings for</param>
+    /// <returns>Equipment filter settings</returns>
+    protected EquipmentFilters? GetBotEquipmentSettingFromConfig(string botRole)
     {
-        if (botRole is null)
-        {
-            return defaultValue;
-        }
-
-        if (
-            !_botConfig.Equipment.TryGetValue(
-                GetBotEquipmentRole(botRole),
-                out var botEquipmentSettings
-            )
-        )
-        {
-            logger.Warning(
-                serverLocalisationService.GetText(
-                    "bot-missing_equipment_settings",
-                    new
-                    {
-                        botRole,
-                        setting,
-                        defaultValue,
-                    }
-                )
-            );
-
-            return defaultValue;
-        }
-
-        var props = botEquipmentSettings.GetType().GetProperties();
-        var propValue = (double?)
-            props
-                .FirstOrDefault(x =>
-                    string.Equals(x.Name, setting, StringComparison.CurrentCultureIgnoreCase)
-                )
-                ?.GetValue(botEquipmentSettings);
-
-        if (propValue is not null)
-        {
-            return propValue;
-        }
-
-        logger.Warning(
-            serverLocalisationService.GetText(
-                "bot-missing_equipment_settings_property",
-                new
-                {
-                    botRole,
-                    setting,
-                    defaultValue,
-                }
-            )
-        );
-
-        return defaultValue;
+        return _botConfig.Equipment.GetValueOrDefault(GetBotEquipmentRole(botRole));
     }
 
     /// <summary>
