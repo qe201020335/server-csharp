@@ -255,7 +255,7 @@ public class PmcChatResponseService(
             ? _pmcResponsesConfig.Victim.ResponseTypeWeights
             : _pmcResponsesConfig.Killer.ResponseTypeWeights;
 
-        return weightedRandomHelper.GetWeightedValue<string>(responseWeights);
+        return weightedRandomHelper.GetWeightedValue(responseWeights);
     }
 
     /// <summary>

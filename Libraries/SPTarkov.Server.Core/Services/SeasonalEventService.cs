@@ -408,7 +408,7 @@ public class SeasonalEventService(
     /// </summary>
     /// <param name="globalConfig">globals.json</param>
     /// <param name="eventType">Name of the event to enable. e.g. Christmas</param>
-    private void UpdateGlobalEvents(Config globalConfig, SeasonalEvent eventType)
+    protected void UpdateGlobalEvents(Config globalConfig, SeasonalEvent eventType)
     {
         logger.Success(serverLocalisationService.GetText("season-event_is_active", eventType.Type));
         _christmasEventActive = false;
@@ -465,7 +465,7 @@ public class SeasonalEventService(
         }
     }
 
-    private void ApplyHalloweenEvent(SeasonalEvent eventType, Config globalConfig)
+    protected void ApplyHalloweenEvent(SeasonalEvent eventType, Config globalConfig)
     {
         _halloweenEventActive = true;
 
@@ -509,7 +509,7 @@ public class SeasonalEventService(
         AdjustTraderIcons(eventType.Type);
     }
 
-    private void ApplyChristmasEvent(SeasonalEvent eventType, Config globalConfig)
+    protected void ApplyChristmasEvent(SeasonalEvent eventType, Config globalConfig)
     {
         _christmasEventActive = true;
 
@@ -537,7 +537,7 @@ public class SeasonalEventService(
         }
     }
 
-    private void ApplyNewYearsEvent(SeasonalEvent eventType, Config globalConfig)
+    protected void ApplyNewYearsEvent(SeasonalEvent eventType, Config globalConfig)
     {
         _christmasEventActive = true;
 
@@ -566,7 +566,12 @@ public class SeasonalEventService(
         }
     }
 
-    private void AdjustBotAppearanceValues(SeasonalEventType season)
+    /// <summary>
+    /// Adjust the weights for all bots body part appearances, based on data inside
+    /// seasonalevents.json/botAppearanceChanges
+    /// </summary>
+    /// <param name="season">Season to apply changes for</param>
+    protected void AdjustBotAppearanceValues(SeasonalEventType season)
     {
         if (
             !_seasonalEventConfig.BotAppearanceChanges.TryGetValue(
@@ -575,33 +580,49 @@ public class SeasonalEventService(
             )
         )
         {
+            // No changes found for this season
             return;
         }
 
         foreach (var (botType, botAppearanceAdjustments) in appearanceAdjustments)
         {
-            if (!databaseService.GetBots().Types.TryGetValue(botType, out var botDb))
+            if (!databaseService.GetBots().Types.TryGetValue(botType, out var bot))
             {
+                // Bot defined in config doesn't exist
                 continue;
             }
 
-            foreach (var (key, weightAdjustments) in botAppearanceAdjustments)
+            foreach (var (bodyPart, weightAdjustments) in botAppearanceAdjustments)
             {
-                var props = botDb.BotAppearance.GetType().GetProperties();
-                foreach (var itemKey in weightAdjustments)
+                // Get the matching bots appearance pool by key
+                var partPool = bodyPart switch
                 {
-                    var prop = props.FirstOrDefault(x =>
-                        string.Equals(x.Name, key, StringComparison.CurrentCultureIgnoreCase)
+                    "body" => bot.BotAppearance.Body,
+                    "feet" => bot.BotAppearance.Feet,
+                    "hands" => bot.BotAppearance.Hands,
+                    "head" => bot.BotAppearance.Head,
+                    _ => null,
+                };
+
+                if (partPool is null)
+                {
+                    logger.Warning(
+                        $"Unable to adjust bot: {botType} body part appearance: {bodyPart}"
                     );
-                    var propValue = (Dictionary<string, double>)prop.GetValue(botDb.BotAppearance);
-                    propValue[itemKey.Key] = weightAdjustments[itemKey.Key];
-                    prop.SetValue(botDb.BotAppearance, propValue);
+
+                    continue;
+                }
+
+                // Apply new weights to values from config
+                foreach (var (itemId, weighting) in weightAdjustments)
+                {
+                    partPool[itemId] = weighting;
                 }
             }
         }
     }
 
-    private void ReplaceBotHostility(
+    protected void ReplaceBotHostility(
         Dictionary<string, List<AdditionalHostilitySettings>> hostilitySettings
     )
     {
@@ -695,7 +716,7 @@ public class SeasonalEventService(
         }
     }
 
-    private void RemoveEntryRequirement(List<string> locationIds)
+    protected void RemoveEntryRequirement(List<string> locationIds)
     {
         foreach (var locationId in locationIds)
         {

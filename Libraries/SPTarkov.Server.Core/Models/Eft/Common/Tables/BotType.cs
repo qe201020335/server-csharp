@@ -47,18 +47,18 @@ public record Appearance
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("body")]
-    public Dictionary<string, double>? Body { get; set; }
+    public Dictionary<MongoId, double>? Body { get; set; }
 
     [JsonPropertyName("feet")]
-    public Dictionary<string, double>? Feet { get; set; }
+    public Dictionary<MongoId, double>? Feet { get; set; }
 
     [JsonPropertyName("hands")]
     [JsonConverter(typeof(ArrayToObjectFactoryConverter))]
-    public Dictionary<string, double>? Hands { get; set; }
+    public Dictionary<MongoId, double>? Hands { get; set; }
 
     [JsonPropertyName("head")]
     [JsonConverter(typeof(ArrayToObjectFactoryConverter))]
-    public Dictionary<string, double>? Head { get; set; }
+    public Dictionary<MongoId, double>? Head { get; set; }
 
     [JsonPropertyName("voice")]
     [JsonConverter(typeof(ArrayToObjectFactoryConverter))]

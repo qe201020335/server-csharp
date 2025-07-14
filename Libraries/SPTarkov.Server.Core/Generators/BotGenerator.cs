@@ -486,9 +486,9 @@ public class BotGenerator(
     )
     {
         // Choose random values by weight
-        bot.Customization.Head = weightedRandomHelper.GetWeightedValue<string>(appearance.Head);
-        bot.Customization.Feet = weightedRandomHelper.GetWeightedValue<string>(appearance.Feet);
-        bot.Customization.Body = weightedRandomHelper.GetWeightedValue<string>(appearance.Body);
+        bot.Customization.Head = weightedRandomHelper.GetWeightedValue(appearance.Head);
+        bot.Customization.Feet = weightedRandomHelper.GetWeightedValue(appearance.Feet);
+        bot.Customization.Body = weightedRandomHelper.GetWeightedValue(appearance.Body);
 
         var bodyGlobalDictDb = databaseService.GetGlobals().Configuration.Customization.Body;
         var chosenBodyTemplate = databaseService.GetCustomization()[bot.Customization.Body.Value];
@@ -500,7 +500,7 @@ public class BotGenerator(
         bot.Customization.Hands =
             chosenBody.Value?.IsNotRandom ?? false
                 ? chosenBody.Value.Hands // Has fixed hands for chosen body, update to match
-                : weightedRandomHelper.GetWeightedValue<string>(appearance.Hands); // Hands can be random, choose any from weighted dict
+                : weightedRandomHelper.GetWeightedValue(appearance.Hands); // Hands can be random, choose any from weighted dict
     }
 
     /// <summary>
