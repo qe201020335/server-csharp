@@ -17,18 +17,6 @@ public record RepeatableQuest : Quest
     [JsonPropertyName("acceptanceAndFinishingSource")]
     public string? AcceptanceAndFinishingSource { get; set; }
 
-    [JsonPropertyName("progressSource")]
-    public string? ProgressSource { get; set; }
-
-    [JsonPropertyName("rankingModes")]
-    public List<string?>? RankingModes { get; set; }
-
-    [JsonPropertyName("gameModes")]
-    public List<string>? GameModes { get; set; }
-
-    [JsonPropertyName("arenaLocations")]
-    public List<string>? ArenaLocations { get; set; }
-
     [JsonPropertyName("questStatus")]
     public RepeatableQuestStatus? QuestStatus { get; set; }
 }
@@ -57,13 +45,13 @@ public record RepeatableQuestStatus
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("uid")]
     public string? Uid { get; set; }
 
     [JsonPropertyName("qid")]
-    public string? QId { get; set; }
+    public MongoId QId { get; set; }
 
     [JsonPropertyName("startTime")]
     public long? StartTime { get; set; }

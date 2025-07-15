@@ -90,9 +90,9 @@
             ],
             "changeStandingCost": 0,
 			"questStatus": {
-				"id": "mongoId",
+				"id": "000000000000000000000000",
 				"uid": "playerId",
-				"qid": "questId",
+				"qid": "000000000000000000000000",
 				"startTime": 0,
 				"status": 1,
 				"statusTimers": {}
@@ -143,9 +143,9 @@
             ],
             "changeStandingCost": 0,
 			"questStatus": {
-				"id": "mongoId",
+				"id": "000000000000000000000000",
 				"uid": "playerId",
-				"qid": "questId",
+				"qid": "000000000000000000000000",
 				"startTime": 0,
 				"status": 1,
 				"statusTimers": {}
@@ -227,9 +227,9 @@
             ],
             "changeStandingCost": 0,
 			"questStatus": {
-				"id": "mongoId",
+				"id": "000000000000000000000000",
 				"uid": "playerId",
-				"qid": "questId",
+				"qid": "000000000000000000000000",
 				"startTime": 0,
 				"status": 1,
 				"statusTimers": {}
@@ -331,9 +331,9 @@
             ],
             "changeStandingCost": 0,
 			"questStatus": {
-				"id": "mongoId",
+				"id": "000000000000000000000000",
 				"uid": "playerId",
-				"qid": "questId",
+				"qid": "000000000000000000000000",
 				"startTime": 0,
 				"status": 1,
 				"statusTimers": {}

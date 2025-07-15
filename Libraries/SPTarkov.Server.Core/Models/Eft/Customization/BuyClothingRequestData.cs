@@ -10,7 +10,7 @@ public record BuyClothingRequestData : InventoryBaseActionRequestData
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("offer")]
-    public string? Offer { get; set; }
+    public MongoId Offer { get; set; }
 
     [JsonPropertyName("items")]
     public List<PaymentItemForClothing>? Items { get; set; }

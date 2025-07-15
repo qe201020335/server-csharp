@@ -613,7 +613,7 @@ public class InventoryController(
         // get tpl from trader assort
         {
             return databaseService
-                .GetTrader(request.FromOwner.Id)
+                .GetTrader(request.FromOwner.Id.Value)
                 .Assort.Items.FirstOrDefault(item => item.Id == request.ItemId)
                 ?.Template;
         }
@@ -630,7 +630,7 @@ public class InventoryController(
             // Try alternate way of getting offer if first approach fails
             var offer =
                 ragfairOfferService.GetOfferByOfferId(request.ItemId)
-                ?? ragfairOfferService.GetOfferByOfferId(request.FromOwner.Id);
+                ?? ragfairOfferService.GetOfferByOfferId(request.FromOwner.Id.Value);
 
             // Try find examine item inside offer items array
             var matchingItem = offer.Items.FirstOrDefault(offerItem =>
@@ -1080,7 +1080,7 @@ public class InventoryController(
         // Changes made to result apply to character inventory
         var inventoryItems = inventoryHelper.GetOwnerInventoryItems(
             request,
-            request.NewItem,
+            request.NewItem.Value,
             sessionID
         );
 
@@ -1117,7 +1117,7 @@ public class InventoryController(
             .Items.NewItems.Add(
                 new Item
                 {
-                    Id = request.NewItem,
+                    Id = request.NewItem.Value,
                     Template = itemToSplit.Template,
                     Upd = updatedUpd,
                 }
@@ -1127,7 +1127,7 @@ public class InventoryController(
         inventoryItems.To.Add(
             new Item
             {
-                Id = request.NewItem,
+                Id = request.NewItem.Value,
                 Template = itemToSplit.Template,
                 ParentId = request.Container.Id,
                 SlotId = request.Container.ContainerName,

@@ -193,7 +193,7 @@ public record MagazineTemplateAmmoItem
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("TemplateId")]
-    public string? TemplateId { get; set; }
+    public MongoId TemplateId { get; set; }
 
     [JsonPropertyName("Count")]
     public int? Count { get; set; }
@@ -533,7 +533,7 @@ public record Insurance
     public int? ScheduledTime { get; set; }
 
     [JsonPropertyName("traderId")]
-    public string? TraderId { get; set; }
+    public MongoId TraderId { get; set; }
 
     [JsonPropertyName("maxStorageTime")]
     public int? MaxStorageTime { get; set; }

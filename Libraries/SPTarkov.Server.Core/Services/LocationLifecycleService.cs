@@ -1244,7 +1244,7 @@ public class LocationLifecycleService(
     protected void MergePmcAndScavEncyclopedias(PmcData primary, PmcData secondary)
     {
         var mergedDicts = primary
-            .Encyclopedia?.Union(secondary.Encyclopedia)
+            .Encyclopedia?.UnionBy(secondary.Encyclopedia, kvp => kvp.Key)
             .GroupBy(kvp => kvp.Key)
             .ToDictionary(g => g.Key, g => g.Any(kvp => kvp.Value));
 

@@ -157,7 +157,7 @@ public class MatchCallbacks(
     ///     Handle client/putMetrics
     /// </summary>
     /// <returns></returns>
-    public ValueTask<string> PutMetrics(string url, PutMetricsRequestData info, MongoId sessionID)
+    public ValueTask<string> PutMetrics(string url, PutMetricsRequestData info, MongoId sessionId)
     {
         return new ValueTask<string>(httpResponseUtil.NullResponse());
     }
@@ -166,7 +166,11 @@ public class MatchCallbacks(
     ///     Handle client/analytics/event-disconnect
     /// </summary>
     /// <returns></returns>
-    public ValueTask<string> EventDisconnect(string url, PutMetricsRequestData info, string MongoId)
+    public ValueTask<string> EventDisconnect(
+        string url,
+        PutMetricsRequestData request,
+        MongoId sessionId
+    )
     {
         return new ValueTask<string>(httpResponseUtil.NullResponse());
     }

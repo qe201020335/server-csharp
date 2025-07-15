@@ -455,12 +455,6 @@ public record Limit : MinMax<int>
 {
     [JsonPropertyName("items")]
     public List<string>? Items { get; set; }
-
-    [JsonPropertyName("min")]
-    public int? Min { get; set; }
-
-    [JsonPropertyName("max")]
-    public int? Max { get; set; }
 }
 
 public record AirdropParameter

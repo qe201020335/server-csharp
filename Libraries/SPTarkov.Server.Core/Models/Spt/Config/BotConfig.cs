@@ -440,10 +440,10 @@ public record AdjustmentDetails
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("add")]
-    public Dictionary<string, Dictionary<string, float>>? Add { get; set; }
+    public Dictionary<string, Dictionary<MongoId, float>>? Add { get; set; }
 
     [JsonPropertyName("edit")]
-    public Dictionary<string, Dictionary<string, float>>? Edit { get; set; }
+    public Dictionary<string, Dictionary<MongoId, float>>? Edit { get; set; }
 }
 
 public class ArmorPlateWeights

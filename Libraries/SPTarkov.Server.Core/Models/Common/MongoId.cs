@@ -120,6 +120,16 @@ public readonly struct MongoId : IEquatable<MongoId>
         return left.Equals(right);
     }
 
+    public static bool operator !=(MongoId left, MongoId? right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator ==(MongoId left, MongoId? right)
+    {
+        return left.Equals(right);
+    }
+
     public static bool operator !=(MongoId left, MongoId right)
     {
         return !left.Equals(right);

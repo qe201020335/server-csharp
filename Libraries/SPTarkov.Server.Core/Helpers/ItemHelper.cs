@@ -1491,7 +1491,7 @@ public class ItemHelper(
             return;
         }
 
-        FillMagazineWithCartridge(magazine, magTemplate, cartridgeTpl, minSizePercent);
+        FillMagazineWithCartridge(magazine, magTemplate, cartridgeTpl.Value, minSizePercent);
     }
 
     /// <summary>
@@ -1621,7 +1621,7 @@ public class ItemHelper(
     /// <param name="fallbackCartridgeTpl">If a cartridge cannot be found in the above staticAmmoDist param, use this instead</param>
     /// <param name="cartridgeWhitelist">OPTIONAL whitelist for cartridges</param>
     /// <returns>Tpl of cartridge</returns>
-    protected string? DrawAmmoTpl(
+    protected MongoId? DrawAmmoTpl(
         string caliber,
         Dictionary<string, List<StaticAmmoDetails>> staticAmmoDist,
         MongoId? fallbackCartridgeTpl = null,
@@ -1647,19 +1647,19 @@ public class ItemHelper(
             return null;
         }
 
-        var ammoArray = new ProbabilityObjectArray<string, float?>(cloner);
+        var ammoArray = new ProbabilityObjectArray<MongoId, float?>(cloner);
         foreach (var icd in ammos)
         {
             // Whitelist exists and tpl not inside it, skip
             // Fixes 9x18mm kedr issues
-            if (cartridgeWhitelist is not null && !cartridgeWhitelist.Contains(icd.Tpl))
+            if (cartridgeWhitelist is not null && !cartridgeWhitelist.Contains(icd.Tpl.Value))
             {
                 continue;
             }
 
             ammoArray.Add(
-                new ProbabilityObject<string, float?>(
-                    icd.Tpl,
+                new ProbabilityObject<MongoId, float?>(
+                    icd.Tpl.Value,
                     (double)icd.RelativeProbability,
                     null
                 )

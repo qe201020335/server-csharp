@@ -197,7 +197,8 @@ public class BotEquipmentModGenerator(
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE
+                    or Result.NO_DEFAULT_FILTER:
                         if (logger.IsLogEnabled(LogLevel.Debug))
                         {
                             logger.Debug(
@@ -225,7 +226,7 @@ public class BotEquipmentModGenerator(
             {
                 modTpl = exhaustableModPool.GetRandomValue();
                 if (
-                    modTpl is not null
+                    !modTpl.Value.IsEmpty()
                     && !botGeneratorHelper
                         .IsItemIncompatibleWithCurrentItems(equipment, modTpl.Value, modSlotName)
                         .Incompatible.GetValueOrDefault(false)
@@ -1120,7 +1121,7 @@ public class BotEquipmentModGenerator(
         // It's ammo, use predefined ammo parameter
         if (GetAmmoContainers().Contains(request.ModSlot) && request.ModSlot != "mod_magazine")
         {
-            return itemHelper.GetItem(request.AmmoTpl);
+            return itemHelper.GetItem(request.AmmoTpl.Value);
         }
 
         // Ensure there's a pool of mods to pick from
@@ -1258,7 +1259,7 @@ public class BotEquipmentModGenerator(
             return null;
         }
 
-        return itemHelper.GetItem(chosenModResult.ChosenTemplate);
+        return itemHelper.GetItem(chosenModResult.ChosenTemplate.Value);
     }
 
     /// <summary>

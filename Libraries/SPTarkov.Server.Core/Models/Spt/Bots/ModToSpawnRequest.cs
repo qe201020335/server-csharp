@@ -54,7 +54,7 @@ public record ModToSpawnRequest
     ///     Ammo tpl to use if slot requires a cartridge to be added (e.g. mod_magazine)
     /// </summary>
     [JsonPropertyName("ammoTpl")]
-    public string? AmmoTpl { get; set; }
+    public MongoId? AmmoTpl { get; set; }
 
     /// <summary>
     ///     Parent item the mod will go into

@@ -105,9 +105,6 @@ public record Quest
     [JsonPropertyName("side")]
     public required string Side { get; set; }
 
-    [JsonPropertyName("acceptanceAndFinishingSource")]
-    public string? AcceptanceAndFinishingSource { get; set; }
-
     [JsonPropertyName("progressSource")]
     public string? ProgressSource { get; set; }
 
@@ -125,15 +122,6 @@ public record Quest
     /// </summary>
     [JsonPropertyName("sptStatus")]
     public QuestStatusEnum? SptStatus { get; set; }
-
-    [JsonPropertyName("questStatus")]
-    public QuestStatus? QuestStatus { get; set; }
-
-    [JsonPropertyName("changeCost")]
-    public List<object> ChangeCost { get; set; }
-
-    [JsonPropertyName("changeStandingCost")]
-    public double ChangeStandingCost { get; set; }
 }
 
 /// <summary>

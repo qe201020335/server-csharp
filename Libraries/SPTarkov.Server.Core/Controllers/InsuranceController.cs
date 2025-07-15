@@ -185,9 +185,9 @@ public class InsuranceController(
     /// <param name="rootItemParentId">The ID that should be assigned to all "hideout"/root items</param>
     /// <param name="insured">The insurance object containing the items to evaluate for deletion</param>
     /// <returns>A Set containing the IDs of items that should be deleted</returns>
-    protected HashSet<string> FindItemsToDelete(string rootItemParentId, Insurance insured)
+    protected HashSet<MongoId> FindItemsToDelete(string rootItemParentId, Insurance insured)
     {
-        var toDelete = new HashSet<string>();
+        var toDelete = new HashSet<MongoId>();
 
         // Populate a Map object of items for quick lookup by their ID and use it to populate a Map of main-parent items
         // and each of their attachments. For example, a gun mapped to each of its attachments.
@@ -388,7 +388,7 @@ public class InsuranceController(
     /// <param name="parentAttachmentsMap">Dictionary containing parent item IDs to arrays of their attachment items</param>
     protected void ProcessRegularItems(
         Insurance insured,
-        HashSet<string> toDelete,
+        HashSet<MongoId> toDelete,
         Dictionary<string, List<Item>> parentAttachmentsMap
     )
     {
@@ -440,8 +440,8 @@ public class InsuranceController(
     protected void ProcessAttachments(
         Dictionary<string, List<Item>> mainParentToAttachmentsMap,
         Dictionary<MongoId, Item> itemsMap,
-        string? insuredTraderId,
-        HashSet<string> toDelete
+        MongoId? insuredTraderId,
+        HashSet<MongoId> toDelete
     )
     {
         foreach (var parentObj in mainParentToAttachmentsMap)
@@ -462,7 +462,7 @@ public class InsuranceController(
             }
 
             // Process the attachments for this individual parent item.
-            ProcessAttachmentByParent(parentObj.Value, insuredTraderId, toDelete);
+            ProcessAttachmentByParent(parentObj.Value, insuredTraderId.Value, toDelete);
         }
     }
 
@@ -477,8 +477,8 @@ public class InsuranceController(
     /// <param name="toDelete">array that accumulates the IDs of the items to be deleted</param>
     protected void ProcessAttachmentByParent(
         List<Item> attachments,
-        string? traderId,
-        HashSet<string> toDelete
+        MongoId traderId,
+        HashSet<MongoId> toDelete
     )
     {
         // Create dict of item ids + their flea/handbook price (highest is chosen)
@@ -576,7 +576,7 @@ public class InsuranceController(
     /// <returns>Attachment count to remove</returns>
     protected double GetAttachmentCountToRemove(
         Dictionary<MongoId, double> weightedAttachmentByPrice,
-        string? traderId
+        MongoId traderId
     )
     {
         const int removeCount = 0;
@@ -599,7 +599,7 @@ public class InsuranceController(
     /// </summary>
     /// <param name="insured">The insured items to process</param>
     /// <param name="toDelete">The items that should be deleted</param>
-    protected void RemoveItemsFromInsurance(Insurance insured, HashSet<string> toDelete)
+    protected void RemoveItemsFromInsurance(Insurance insured, HashSet<MongoId> toDelete)
     {
         insured.Items = insured.Items.Where(item => !toDelete.Contains(item.Id)).ToList();
     }

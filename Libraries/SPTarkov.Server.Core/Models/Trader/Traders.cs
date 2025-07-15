@@ -6,7 +6,7 @@ using SPTarkov.Server.Core.Models.Enums;
 namespace SPTarkov.Server.Core.Models;
 
 [Injectable]
-public record Prapor() : ITrader
+public record Prapor : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -16,7 +16,7 @@ public record Prapor() : ITrader
 }
 
 [Injectable]
-public record Therapist() : ITrader
+public record Therapist : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -26,7 +26,7 @@ public record Therapist() : ITrader
 }
 
 [Injectable]
-public record Fence() : ITrader
+public record Fence : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -36,7 +36,7 @@ public record Fence() : ITrader
 }
 
 [Injectable]
-public record Skier() : ITrader
+public record Skier : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -46,7 +46,7 @@ public record Skier() : ITrader
 }
 
 [Injectable]
-public record Peacekeeper() : ITrader
+public record Peacekeeper : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -56,7 +56,7 @@ public record Peacekeeper() : ITrader
 }
 
 [Injectable]
-public record Mechanic() : ITrader
+public record Mechanic : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -66,7 +66,7 @@ public record Mechanic() : ITrader
 }
 
 [Injectable]
-public record Ragman() : ITrader
+public record Ragman : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -76,7 +76,7 @@ public record Ragman() : ITrader
 }
 
 [Injectable]
-public record Jaeger() : ITrader
+public record Jaeger : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -86,7 +86,7 @@ public record Jaeger() : ITrader
 }
 
 [Injectable]
-public record LighthouseKeeper() : ITrader
+public record LighthouseKeeper : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -96,7 +96,7 @@ public record LighthouseKeeper() : ITrader
 }
 
 [Injectable]
-public record Btr() : ITrader
+public record Btr : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
@@ -106,7 +106,7 @@ public record Btr() : ITrader
 }
 
 [Injectable]
-public record Ref() : ITrader
+public record Ref : ITrader
 {
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }

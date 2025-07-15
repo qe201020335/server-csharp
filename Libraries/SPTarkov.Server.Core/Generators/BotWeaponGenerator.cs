@@ -243,7 +243,7 @@ public class BotWeaponGenerator(
 
         // Fill UBGL if found
         var ubglMod = weaponWithModsArray.FirstOrDefault(x => x.SlotId == "mod_launcher");
-        string? ubglAmmoTpl = null;
+        MongoId? ubglAmmoTpl = null;
         if (ubglMod is not null)
         {
             var ubglTemplate = itemHelper.GetItem(ubglMod.Template).Value;
@@ -252,7 +252,7 @@ public class BotWeaponGenerator(
             // the default ammo passed from GetWeightCompatibleAmmo can be null
             if (ubglAmmoTpl is not null)
             {
-                FillUbgl(weaponWithModsArray, ubglMod, ubglAmmoTpl);
+                FillUbgl(weaponWithModsArray, ubglMod, ubglAmmoTpl.Value);
             }
         }
 
@@ -497,7 +497,10 @@ public class BotWeaponGenerator(
         }
 
         // Has an UBGL
-        if (generatedWeaponResult.ChosenUbglAmmoTemplate is not null)
+        if (
+            generatedWeaponResult.ChosenUbglAmmoTemplate is not null
+            && !generatedWeaponResult.ChosenUbglAmmoTemplate.Value.IsEmpty()
+        )
         {
             AddUbglGrenadesToBotInventory(weaponAndMods, generatedWeaponResult, inventory);
         }
@@ -548,7 +551,7 @@ public class BotWeaponGenerator(
 
         // get ammo template from db
         var ubglAmmoDbTemplate = itemHelper
-            .GetItem(generatedWeaponResult.ChosenUbglAmmoTemplate)
+            .GetItem(generatedWeaponResult.ChosenUbglAmmoTemplate.Value)
             .Value;
 
         // Add greandes to bot inventory
@@ -564,7 +567,12 @@ public class BotWeaponGenerator(
             .Process(ubglAmmoGenModel);
 
         // Store extra grenades in secure container
-        AddAmmoToSecureContainer(5, generatedWeaponResult.ChosenUbglAmmoTemplate, 20, inventory);
+        AddAmmoToSecureContainer(
+            5,
+            generatedWeaponResult.ChosenUbglAmmoTemplate.Value,
+            20,
+            inventory
+        );
     }
 
     /// <summary>
@@ -659,7 +667,7 @@ public class BotWeaponGenerator(
     /// <param name="weaponTemplate">Weapon details from database we want to pick ammo for</param>
     /// <returns>Ammo template that works with the desired gun</returns>
     protected MongoId GetWeightedCompatibleAmmo(
-        Dictionary<string, Dictionary<string, double>> cartridgePool,
+        Dictionary<string, Dictionary<MongoId, double>> cartridgePool,
         TemplateItem weaponTemplate
     )
     {
@@ -700,7 +708,7 @@ public class BotWeaponGenerator(
         }
 
         // Inner join the weapons allowed + passed in cartridge pool to get compatible cartridges
-        Dictionary<string, double> compatibleCartridges = new();
+        Dictionary<MongoId, double> compatibleCartridges = new();
         foreach (var cartridge in cartridgePoolForWeapon)
         {
             if (compatibleCartridgesInTemplate.Contains(cartridge.Key))

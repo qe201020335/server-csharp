@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
@@ -52,7 +53,7 @@ public record EndRaidResult
     public ExitStatus? Result { get; set; }
 
     [JsonPropertyName("killerId")]
-    public string? KillerId { get; set; }
+    public MongoId? KillerId { get; set; }
 
     [JsonPropertyName("killerAid")]
     public string? KillerAid { get; set; }

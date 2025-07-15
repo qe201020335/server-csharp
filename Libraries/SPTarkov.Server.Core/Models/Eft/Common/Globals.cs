@@ -1594,7 +1594,7 @@ public record WildBody
     public string? Body { get; set; }
 
     [JsonPropertyName("hands")]
-    public string? Hands { get; set; }
+    public MongoId? Hands { get; set; }
 
     [JsonPropertyName("isNotRandom")]
     public bool? IsNotRandom { get; set; }

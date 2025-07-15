@@ -143,7 +143,7 @@ public class CustomizationController(
     /// <param name="sessionId">Session/Player id</param>
     /// <param name="offerId"></param>
     /// <returns>Suit</returns>
-    protected Suit? GetTraderClothingOffer(MongoId sessionId, string? offerId)
+    protected Suit? GetTraderClothingOffer(MongoId sessionId, MongoId offerId)
     {
         var foundSuit = GetAllTraderSuits(sessionId).FirstOrDefault(s => s.Id == offerId);
         if (foundSuit is null)

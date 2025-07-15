@@ -83,7 +83,7 @@ public class FileSptLoggerReference : BaseSptLoggerReference
     [JsonPropertyName("filePattern")]
     public string FilePattern { get; set; }
 
-    private int _maxFileSizeMb;
+    private readonly int _maxFileSizeMb;
 
     [JsonPropertyName("maxFileSizeMB")]
     public int MaxFileSizeMb
@@ -99,7 +99,7 @@ public class FileSptLoggerReference : BaseSptLoggerReference
         }
     }
 
-    private int _maxRollingFiles;
+    private readonly int _maxRollingFiles;
 
     [JsonPropertyName("maxRollingFiles")]
     public int MaxRollingFiles

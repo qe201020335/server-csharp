@@ -451,7 +451,7 @@ public class BotEquipmentFilterService(
     /// <param name="showEditWarnings"></param>
     protected void AdjustWeighting(
         AdjustmentDetails? weightingAdjustments,
-        Dictionary<string, Dictionary<string, double>> botItemPool,
+        Dictionary<string, Dictionary<MongoId, double>> botItemPool,
         bool showEditWarnings = true
     )
     {

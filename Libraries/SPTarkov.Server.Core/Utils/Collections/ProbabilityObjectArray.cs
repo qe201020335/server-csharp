@@ -18,7 +18,6 @@ namespace SPTarkov.Server.Core.Utils.Collections;
 ///     // count the elements which should be distributed according to the relative probabilities
 ///     res.filter(x => x==="b").reduce((sum, x) => sum + 1 , 0)
 /// </summary>
-/// <typeparam name="T"></typeparam>
 /// <typeparam name="K"></typeparam>
 /// <typeparam name="V"></typeparam>
 public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>

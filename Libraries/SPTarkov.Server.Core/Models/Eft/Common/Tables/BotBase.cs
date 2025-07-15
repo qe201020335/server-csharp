@@ -936,7 +936,7 @@ public record BotHideoutArea
     public List<HideoutSlot>? Slots { get; set; }
 
     [JsonPropertyName("lastRecipe")]
-    public string? LastRecipe { get; set; }
+    public MongoId? LastRecipe { get; set; }
 }
 
 public record HideoutSlot

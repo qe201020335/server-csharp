@@ -118,7 +118,7 @@ public record ItemDistribution
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("tpl")]
-    public string? Tpl { get; set; }
+    public MongoId Tpl { get; set; }
 
     [JsonPropertyName("relativeProbability")]
     public float? RelativeProbability { get; set; }
@@ -169,7 +169,7 @@ public record StaticAmmoDetails
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("tpl")]
-    public string? Tpl { get; set; }
+    public MongoId? Tpl { get; set; }
 
     [JsonPropertyName("relativeProbability")]
     public float? RelativeProbability { get; set; }

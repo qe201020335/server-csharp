@@ -448,7 +448,7 @@ public record BotTypeInventory
     [JsonPropertyName("equipment")]
     public Dictionary<EquipmentSlots, Dictionary<MongoId, double>>? Equipment { get; set; }
 
-    public GlobalAmmo? Ammo { get; set; }
+    public Dictionary<string, Dictionary<MongoId, double>>? Ammo { get; set; }
 
     [JsonPropertyName("items")]
     public ItemPools? Items { get; set; }

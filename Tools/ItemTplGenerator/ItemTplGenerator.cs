@@ -170,7 +170,7 @@ public class ItemTplGenerator(
                 }
                 else
                 {
-                    var val = itemsObject.TryGetValue(itemKey, out var value) ? value : itemKey;
+                    var val = itemsObject.GetValueOrDefault(itemKey, itemKey);
                     _logger.Error(
                         $"New itemOverride entry required: itemsObject already contains {itemKey}  {val} => {item.Id}"
                     );
