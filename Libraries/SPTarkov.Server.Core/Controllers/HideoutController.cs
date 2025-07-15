@@ -44,7 +44,9 @@ public class HideoutController(
     ConfigServer configServer
 )
 {
-    public const string NameTaskConditionCountersCraftingId = "673f5d6fdd6ed700c703afdc";
+    public static readonly MongoId NameTaskConditionCountersCraftingId = new(
+        "673f5d6fdd6ed700c703afdc"
+    );
 
     protected readonly FrozenSet<HideoutAreas> _areasWithResources =
     [
@@ -977,7 +979,7 @@ public class HideoutController(
     {
         // Validate that we have a matching production
         var productionDict = pmcData.Hideout.Production;
-        string? prodId = null;
+        MongoId? prodId = null;
         foreach (var (productionId, production) in productionDict)
         {
             // Skip undefined production objects
@@ -1020,8 +1022,8 @@ public class HideoutController(
         // Variables for management of skill
         var craftingExpAmount = 0;
 
-        var counterHoursCrafting = GetHoursCraftingTaskConditionCounter(pmcData, recipe);
-        var hoursCrafting = counterHoursCrafting.Value;
+        var counterHoursCrafting = GetCustomSptHoursCraftingTaskConditionCounter(pmcData, recipe);
+        var totalCraftingHours = counterHoursCrafting.Value;
 
         // Array of arrays of item + children
         List<List<Item>> itemAndChildrenToSendToPlayer = [];
@@ -1051,7 +1053,7 @@ public class HideoutController(
 
         // Build an array of the tools that need to be returned to the player
         List<List<Item>> toolsToSendToPlayer = [];
-        var hideoutProduction = pmcData.Hideout.Production[prodId];
+        pmcData.Hideout.Production.TryGetValue(prodId.Value, out Production hideoutProduction);
         if (hideoutProduction.SptRequiredTools?.Count > 0)
         {
             foreach (var tool in hideoutProduction.SptRequiredTools)
@@ -1070,15 +1072,15 @@ public class HideoutController(
 
         // Update variable with time spent crafting item(s)
         // 1 point per 8 hours of crafting
-        hoursCrafting += recipe.ProductionTime;
-        if (hoursCrafting / _hideoutConfig.HoursForSkillCrafting >= 1)
+        totalCraftingHours += recipe.ProductionTime;
+        if (totalCraftingHours / _hideoutConfig.HoursForSkillCrafting >= 1)
         {
             // Spent enough time crafting to get a bonus xp multiplier
             var multiplierCrafting = Math.Floor(
-                hoursCrafting.Value / _hideoutConfig.HoursForSkillCrafting
+                totalCraftingHours.Value / _hideoutConfig.HoursForSkillCrafting
             );
             craftingExpAmount += (int)(1 * multiplierCrafting);
-            hoursCrafting -= _hideoutConfig.HoursForSkillCrafting * multiplierCrafting;
+            totalCraftingHours -= _hideoutConfig.HoursForSkillCrafting * multiplierCrafting;
         }
 
         // Make sure we can fit both the craft result and tools in the stash
@@ -1160,7 +1162,7 @@ public class HideoutController(
         area.LastRecipe = request.RecipeId;
 
         // Update profiles hours crafting value
-        counterHoursCrafting.Value = hoursCrafting;
+        counterHoursCrafting.Value = totalCraftingHours;
 
         // Continuous crafts have special handling in EventOutputHolder.updateOutputProperties()
         hideoutProduction.SptIsComplete = true;
@@ -1256,30 +1258,30 @@ public class HideoutController(
     }
 
     /// <summary>
+    ///     Create our own craft counter
     ///     Get the "CounterHoursCrafting" TaskConditionCounter from a profile
     /// </summary>
     /// <param name="pmcData">Profile to get counter from</param>
     /// <param name="recipe">Recipe being crafted</param>
     /// <returns>TaskConditionCounter</returns>
-    protected TaskConditionCounter GetHoursCraftingTaskConditionCounter(
+    protected TaskConditionCounter GetCustomSptHoursCraftingTaskConditionCounter(
         PmcData pmcData,
         HideoutProduction recipe
     )
     {
-        if (!pmcData.TaskConditionCounters.TryGetValue(NameTaskConditionCountersCraftingId, out _))
-        // Doesn't exist, create
-        {
-            pmcData.TaskConditionCounters[NameTaskConditionCountersCraftingId] =
-                new TaskConditionCounter
-                {
-                    Id = recipe.Id,
-                    Type = NameTaskConditionCountersCraftingId,
-                    SourceId = "CounterCrafting",
-                    Value = 0,
-                };
-        }
+        // Add if doesn't exist
+        pmcData.TaskConditionCounters.TryAdd(
+            NameTaskConditionCountersCraftingId,
+            new TaskConditionCounter
+            {
+                Id = recipe.Id,
+                Type = "CounterCrafting",
+                SourceId = NameTaskConditionCountersCraftingId,
+                Value = 0,
+            }
+        );
 
-        return pmcData.TaskConditionCounters[NameTaskConditionCountersCraftingId];
+        return pmcData.TaskConditionCounters.GetValueOrDefault(NameTaskConditionCountersCraftingId);
     }
 
     /// <summary>
