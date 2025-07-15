@@ -349,7 +349,7 @@ public class RagfairController(
             );
         }
 
-        if (searchRequest.NeededSearchId is not null)
+        if (searchRequest.NeededSearchId != null && !searchRequest.NeededSearchId.Value.IsEmpty())
         {
             return ragfairOfferHelper.GetOffersThatRequireItem(searchRequest, pmcProfile);
         }
