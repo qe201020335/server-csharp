@@ -241,7 +241,7 @@ public class BotGeneratorHelper(
     /// <returns>Equipment filter settings</returns>
     protected EquipmentFilters? GetBotEquipmentSettingFromConfig(string botRole)
     {
-        return _botConfig.Equipment.GetValueOrDefault(GetBotEquipmentRole(botRole));
+        return _botConfig.Equipment?.GetValueOrDefault(GetBotEquipmentRole(botRole));
     }
 
     /// <summary>
