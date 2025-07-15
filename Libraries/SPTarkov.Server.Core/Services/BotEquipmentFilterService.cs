@@ -525,7 +525,7 @@ public class BotEquipmentFilterService(
         {
             foreach (var poolAdjustmentKvP in weightingAdjustments.Add)
             {
-                var locationToUpdate = botItemPool.GetByJsonProp<Dictionary<string, double>>(
+                var locationToUpdate = botItemPool.GetByJsonProp<Dictionary<MongoId, double>>(
                     poolAdjustmentKvP.Key
                 );
                 if (locationToUpdate is null)
@@ -544,7 +544,7 @@ public class BotEquipmentFilterService(
         {
             foreach (var poolAdjustmentKvP in weightingAdjustments.Edit)
             {
-                var locationToUpdate = botItemPool.GetByJsonProp<Dictionary<string, double>>(
+                var locationToUpdate = botItemPool.GetByJsonProp<Dictionary<MongoId, double>>(
                     poolAdjustmentKvP.Key
                 );
                 if (locationToUpdate is null)
