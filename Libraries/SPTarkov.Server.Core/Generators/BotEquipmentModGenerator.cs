@@ -197,7 +197,8 @@ public class BotEquipmentModGenerator(
                 );
                 switch (plateSlotFilteringOutcome.Result)
                 {
-                    case Result.UNKNOWN_FAILURE or Result.NO_DEFAULT_FILTER:
+                    case Result.UNKNOWN_FAILURE
+                    or Result.NO_DEFAULT_FILTER:
                         if (logger.IsLogEnabled(LogLevel.Debug))
                         {
                             logger.Debug(
@@ -1958,17 +1959,17 @@ public class BotEquipmentModGenerator(
             itemModPool = modPool[cylinderMagTemplate.Id];
         }
 
-        ExhaustableArray<MongoId>? exhaustableModPool = null;
+        ExhaustableArray<MongoId>? exhaustibleModPool;
         var modSlot = "cartridges";
         const string camoraFirstSlot = "camora_000";
         if (itemModPool.TryGetValue(modSlot, out var value))
         {
-            exhaustableModPool = CreateExhaustableArray(value.ToList());
+            exhaustibleModPool = CreateExhaustableArray(value.ToList());
         }
         else if (itemModPool.ContainsKey(camoraFirstSlot))
         {
             modSlot = camoraFirstSlot;
-            exhaustableModPool = CreateExhaustableArray(MergeCamoraPools(itemModPool).ToList());
+            exhaustibleModPool = CreateExhaustableArray(MergeCamoraPools(itemModPool).ToList());
         }
         else
         {
@@ -1984,9 +1985,9 @@ public class BotEquipmentModGenerator(
 
         var modTpl = MongoId.Empty();
         var found = false;
-        while (exhaustableModPool.HasValues())
+        while (exhaustibleModPool.HasValues())
         {
-            modTpl = exhaustableModPool.GetRandomValue();
+            modTpl = exhaustibleModPool.GetRandomValue();
             if (
                 !botGeneratorHelper
                     .IsItemIncompatibleWithCurrentItems(items, modTpl, modSlot)
@@ -2098,7 +2099,7 @@ public class BotEquipmentModGenerator(
                 // Mods scope slot found must allow ALL whitelisted scope types OR be a mount
                 if (
                     scopeSlot?.All(slot =>
-                        slot.Props.Filters[0]
+                        slot.Props.Filters.FirstOrDefault()
                             .Filter.All(tpl =>
                                 itemHelper.IsOfBaseclasses(tpl, whitelistedSightTypes)
                                 || itemHelper.IsOfBaseclass(tpl, BaseClasses.MOUNT)
