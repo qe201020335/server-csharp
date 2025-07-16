@@ -102,11 +102,11 @@ public class TraderHelper(
     /// </summary>
     /// <param name="traderId">Trader to get assorts for</param>
     /// <returns>TraderAssort</returns>
-    public TraderAssort GetTraderAssortsByTraderId(MongoId traderId)
+    public TraderAssort? GetTraderAssortsByTraderId(MongoId traderId)
     {
         return traderId == Traders.FENCE
             ? fenceService.GetRawFenceAssorts()
-            : databaseService.GetTrader(traderId).Assort;
+            : databaseService.GetTrader(traderId)?.Assort;
     }
 
     /// <summary>
@@ -151,7 +151,6 @@ public class TraderHelper(
     /// <param name="traderID">trader id to reset</param>
     public void ResetTrader(MongoId sessionID, MongoId traderID)
     {
-        var profiles = databaseService.GetProfileTemplates();
         var trader = databaseService.GetTrader(traderID);
 
         var fullProfile = profileHelper.GetFullProfile(sessionID);

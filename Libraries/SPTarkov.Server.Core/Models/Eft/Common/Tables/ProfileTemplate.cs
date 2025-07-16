@@ -52,7 +52,7 @@ public record ProfileTraderTemplate
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("initialLoyaltyLevel")]
-    public Dictionary<string, int?>? InitialLoyaltyLevel { get; set; }
+    public Dictionary<MongoId, int?>? InitialLoyaltyLevel { get; set; }
 
     [JsonPropertyName("initialStanding")]
     public Dictionary<string, double?>? InitialStanding { get; set; }
@@ -79,11 +79,11 @@ public record ProfileTraderTemplate
     ///     What traders default to being locked on profile creation
     /// </summary>
     [JsonPropertyName("lockedByDefaultOverride")]
-    public List<string>? LockedByDefaultOverride { get; set; }
+    public List<MongoId>? LockedByDefaultOverride { get; set; }
 
     /// <summary>
     ///     What traders should have their clothing unlocked/purchased on creation
     /// </summary>
     [JsonPropertyName("purchaseAllClothingByDefaultForTrader")]
-    public List<string>? PurchaseAllClothingByDefaultForTrader { get; set; }
+    public List<MongoId>? PurchaseAllClothingByDefaultForTrader { get; set; }
 }
