@@ -170,7 +170,7 @@ public class SptWebSocketConnectionHandler(
             foreach (var sessionID in _sockets.Keys)
             {
                 SendMessage(sessionID, output); // this currently serializes for every socket, might want to separate into sending already serialized data
-            } 
+            }
         }
     }
 
