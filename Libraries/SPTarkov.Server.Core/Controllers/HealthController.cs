@@ -1,4 +1,3 @@
-using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
@@ -304,34 +303,35 @@ public class HealthController(
             return output;
         }
 
-        foreach (
-            var (key, rawEffects) in healthTreatmentRequest.Difference.BodyParts.GetAllPropsAsDict()
-        )
+        foreach (var (key, partValues) in healthTreatmentRequest.Difference?.BodyParts)
         {
             // Get body part from request + from pmc profile
-            var partRequest = (BodyPartEffects)rawEffects;
-            var profilePart = pmcData.Health.BodyParts[key];
+            if (!pmcData.Health.BodyParts.TryGetValue(key, out var profilePart))
+            {
+                // Profile somehow doesn't have part therapist health, skip
+                continue;
+            }
 
-            // Body part healing is chosen when part request hp is above 0
-            if (partRequest.Health > 0)
-            // Heal bodypart
+            // Update hp value when health value is above 0, indicating healing was performed
+            if (partValues.Health > 0)
             {
                 profilePart.Health.Current = profilePart.Health.Maximum;
             }
 
             // Check for effects to remove
-            if (partRequest.Effects?.Count > 0)
+            if (partValues.Effects?.Count > 0)
             {
-                // Found some, loop over them and remove from pmc profile
-                foreach (var effect in partRequest.Effects)
+                // Found effects that have been healed by therapist
+                // key e.g. "LightBleeding"
+                foreach (var effectKey in partValues.Effects)
                 {
-                    pmcData.Health.BodyParts[key].Effects.Remove(effect);
+                    profilePart.Effects.Remove(effectKey);
                 }
 
-                // Remove empty effect object
-                if (pmcData.Health.BodyParts[key].Effects.Count == 0)
+                // Remove empty effect object to match what live data shows
+                if (profilePart.Effects.Count == 0)
                 {
-                    pmcData.Health.BodyParts[key].Effects = null;
+                    profilePart.Effects = null;
                 }
             }
         }
