@@ -12,13 +12,13 @@ public record Trader
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("assort")]
-    public TraderAssort? Assort { get; set; }
+    public TraderAssort Assort { get; set; }
 
     [JsonPropertyName("base")]
-    public TraderBase? Base { get; set; }
+    public TraderBase Base { get; set; }
 
     [JsonPropertyName("dialogue")]
-    public Dictionary<string, List<string>?>? Dialogue { get; set; }
+    public Dictionary<string, List<string>?> Dialogue { get; set; }
 
     [JsonPropertyName("questassort")]
     public Dictionary<string, Dictionary<string, string>>? QuestAssort { get; set; }
@@ -257,13 +257,13 @@ public record TraderAssort
     public double? NextResupply { get; set; }
 
     [JsonPropertyName("items")]
-    public List<Item>? Items { get; set; }
+    public List<Item> Items { get; set; }
 
     [JsonPropertyName("barter_scheme")]
-    public Dictionary<MongoId, List<List<BarterScheme>>>? BarterScheme { get; set; }
+    public Dictionary<MongoId, List<List<BarterScheme>>> BarterScheme { get; set; }
 
     [JsonPropertyName("loyal_level_items")]
-    public Dictionary<MongoId, int>? LoyalLevelItems { get; set; }
+    public Dictionary<MongoId, int> LoyalLevelItems { get; set; }
 }
 
 public record BarterScheme

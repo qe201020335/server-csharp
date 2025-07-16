@@ -59,7 +59,7 @@ public class SptHttpListener(
                     || compressHeader != "0";
                 var requestCompressed = req.Method == "PUT" || requestIsCompressed;
 
-                var body = string.Empty;
+                string body;
                 using MemoryStream bufferStream = new();
 
                 var buffer = new byte[BodyReadBufferSize];

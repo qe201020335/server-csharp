@@ -275,7 +275,7 @@ public class RagfairController(
         var playerHasFleaUnlocked =
             pmcProfile.Info.Level
             >= databaseService.GetGlobals().Configuration.RagFair.MinUserLevel;
-        List<RagfairOffer> offerPool = [];
+        List<RagfairOffer> offerPool;
         if (IsLinkedSearch(searchRequest) || IsRequiredSearch(searchRequest))
         {
             offerPool = offers;

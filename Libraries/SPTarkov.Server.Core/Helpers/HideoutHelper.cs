@@ -847,9 +847,6 @@ public class HideoutHelper(
             filterDrainRate
         );
 
-        // Production hasn't completed
-        var pointsConsumed = 0D;
-
         // Check progress against the productions craft time (don't use base time as it doesn't include any time bonuses profile has)
         if (production.Progress > production.ProductionTime)
         // Craft is complete nothing to do
@@ -866,10 +863,11 @@ public class HideoutHelper(
                 continue;
             }
 
-            var waterFilterItemInSlot = waterFilterArea.Slots[i].Items[0];
+            var waterFilterItemInSlot = waterFilterArea.Slots[i].Items.FirstOrDefault();
 
             // How many units of filter are left
-            var resourceValue = waterFilterItemInSlot.Upd?.Resource?.Value;
+            var resourceValue = waterFilterItemInSlot?.Upd?.Resource?.Value;
+            double pointsConsumed;
             if (resourceValue is null)
             {
                 // Missing, is new filter, add default and subtract usage
@@ -911,7 +909,7 @@ public class HideoutHelper(
                     logger.Debug($"Water filter has: {resourceValue} units left in slot {i + 1}");
                 }
 
-                break; // Break here to avoid iterating other filters now w're done
+                break; // Break here to avoid iterating other filters now we're done
             }
 
             // Filter ran out / used up
