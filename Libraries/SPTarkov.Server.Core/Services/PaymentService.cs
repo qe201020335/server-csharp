@@ -51,7 +51,7 @@ public class PaymentService(
             request.TransactionId != "ragfair" && traderHelper.TraderExists(request.TransactionId);
 
         // Track the amounts of each type of currency involved in the trade.
-        var currencyAmounts = new Dictionary<string, double?>();
+        var currencyAmounts = new Dictionary<MongoId, double>();
 
         // Delete barter items and track currencies
         foreach (var itemRequest in request.SchemeItems)
@@ -76,11 +76,7 @@ public class PaymentService(
                 {
                     // If the item is money, add its count to the currencyAmounts object.
                     // sometimes the currency can be in two parts, so it fails to tryadd the second part
-                    if (!currencyAmounts.TryAdd(item.Template, itemRequest.Count))
-                    {
-                        // if it fails, add the amount to the existing amount
-                        currencyAmounts[item.Template] += itemRequest.Count;
-                    }
+                    currencyAmounts.AddOrUpdate(item.Template, itemRequest.Count.Value);
                 }
             }
             else
@@ -89,11 +85,7 @@ public class PaymentService(
                 // Handle differently, `id` is the money type tpl
                 var currencyTpl = itemRequest.Id;
                 // sometimes the currency can be in two parts, so it fails to tryadd the second part
-                if (!currencyAmounts.TryAdd(currencyTpl, itemRequest.Count))
-                {
-                    // if it fails, add the amount to the existing amount
-                    currencyAmounts[currencyTpl] += itemRequest.Count;
-                }
+                currencyAmounts.AddOrUpdate(currencyTpl, itemRequest.Count.Value);
             }
         }
 
@@ -108,10 +100,10 @@ public class PaymentService(
                 continue;
             }
 
-            totalCurrencyAmount += currencyAmount.Value;
+            totalCurrencyAmount += currencyAmount;
 
             // Find money stacks in inventory and remove amount needed + update output object to inform client of changes
-            AddPaymentToOutput(pmcData, currencyTpl, currencyAmount.Value, sessionID, output);
+            AddPaymentToOutput(pmcData, currencyTpl, currencyAmount, sessionID, output);
 
             // If there are warnings, exit early.
             if (output.Warnings?.Count > 0)
@@ -123,7 +115,7 @@ public class PaymentService(
             {
                 // Convert the amount to the trader's currency and update the sales sum.
                 var costOfPurchaseInCurrency = handbookHelper.FromRUB(
-                    handbookHelper.InRUB(currencyAmount ?? 0, currencyTpl),
+                    handbookHelper.InRUB(currencyAmount, currencyTpl),
                     trader.Currency.Value.GetCurrencyTpl()
                 );
 
