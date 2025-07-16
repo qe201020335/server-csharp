@@ -92,6 +92,11 @@ public class PaymentService(
         // Track the total amount of all currencies.
         var totalCurrencyAmount = 0d;
 
+        // Convert id to mongoId if we know it'll be valid (trader id)
+        var requestTransactionId = payToTrader
+            ? new MongoId(request.TransactionId)
+            : MongoId.Empty(); // Likely flea, use default
+
         // Loop through each type of currency involved in the trade.
         foreach (var (currencyTpl, currencyAmount) in currencyAmounts)
         {
@@ -120,7 +125,7 @@ public class PaymentService(
                 );
 
                 // Only update traders
-                pmcData.TradersInfo[request.TransactionId].SalesSum += costOfPurchaseInCurrency;
+                pmcData.TradersInfo[requestTransactionId].SalesSum += costOfPurchaseInCurrency;
             }
         }
 
@@ -131,16 +136,16 @@ public class PaymentService(
 
             // Convert the handbook price to the trader's currency and update the sales sum.
             var costOfPurchaseInCurrency = handbookHelper.FromRUB(
-                GetTraderItemHandbookPriceRouble(request.ItemId, request.TransactionId) ?? 0,
+                GetTraderItemHandbookPriceRouble(request.ItemId, requestTransactionId) ?? 0,
                 trader.Currency.Value.GetCurrencyTpl()
             );
 
-            pmcData.TradersInfo[request.TransactionId].SalesSum += costOfPurchaseInCurrency;
+            pmcData.TradersInfo[requestTransactionId].SalesSum += costOfPurchaseInCurrency;
         }
 
         if (payToTrader)
         {
-            traderHelper.LevelUp(request.TransactionId, pmcData);
+            traderHelper.LevelUp(requestTransactionId, pmcData);
         }
 
         if (logger.IsLogEnabled(LogLevel.Debug))
