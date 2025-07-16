@@ -488,7 +488,7 @@ public class ProfileFixerService(
 
                 AddEmptyObjectsToHideoutAreaSlots(
                     HideoutAreas.Generator,
-                    (int)(6 + extraGenSlots ?? 0),
+                    (int)(6 + extraGenSlots),
                     pmcProfile
                 );
             }
@@ -516,7 +516,7 @@ public class ProfileFixerService(
 
             AddEmptyObjectsToHideoutAreaSlots(
                 HideoutAreas.WaterCollector,
-                (int)(1 + extraWaterCollSlots ?? 0),
+                (int)(1 + extraWaterCollSlots),
                 pmcProfile
             );
         }
@@ -543,7 +543,7 @@ public class ProfileFixerService(
 
             AddEmptyObjectsToHideoutAreaSlots(
                 HideoutAreas.AirFilteringUnit,
-                (int)(3 + extraFilterSlots ?? 0),
+                (int)(3 + extraFilterSlots),
                 pmcProfile
             );
         }
@@ -571,7 +571,7 @@ public class ProfileFixerService(
 
             AddEmptyObjectsToHideoutAreaSlots(
                 HideoutAreas.BitcoinFarm,
-                (int)(50 + extraBtcSlots ?? 0),
+                (int)(50 + extraBtcSlots),
                 pmcProfile
             );
         }

@@ -440,17 +440,14 @@ public class RepairService(
             var armorClassDivisor = globals.Configuration.RepairSettings.ArmorClassDivisor;
             var armorClassMultiplier = 1.0 + armorClass / armorClassDivisor;
 
-            return durabilityPointCostArmor.Value
-                * armorBonus.Value
-                * destructability.Value
-                * armorClassMultiplier.Value;
+            return durabilityPointCostArmor * armorBonus * destructability * armorClassMultiplier;
         }
 
         var repairWeaponBonus = GetBonusMultiplierValue(BonusType.RepairWeaponBonus, pmcData) - 1;
         var repairPointMultiplier = 1.0 - repairWeaponBonus - intellectPointReduction;
         var durabilityPointCostGuns = globals.Configuration.RepairSettings.DurabilityPointCostGuns;
 
-        return durabilityPointCostGuns.Value * repairPointMultiplier.Value;
+        return durabilityPointCostGuns * repairPointMultiplier;
     }
 
     /// <summary>
@@ -688,7 +685,7 @@ public class RepairService(
         var durabilityToRestorePercent =
             repairDetails.RepairPoints / template.Properties.MaxDurability;
         var durabilityMultiplier = GetDurabilityMultiplier(
-            receivedDurabilityMaxPercent.Value,
+            receivedDurabilityMaxPercent,
             durabilityToRestorePercent.Value
         );
 

@@ -189,7 +189,7 @@ namespace SPTarkov.Server.Core.Extensions
             var accExp = 0;
             for (var i = 0; i < expTable.Length; i++)
             {
-                accExp += expTable[i].Experience ?? 0;
+                accExp += expTable[i].Experience;
 
                 if (pmcData.Info.Experience < accExp)
                 {

@@ -194,8 +194,7 @@ public class InsuranceService(
             randomisedReturnTimeSeconds *= globals
                 .Configuration
                 .Insurance
-                .CoefOfHavingMarkOfUnknown
-                .Value;
+                .CoefOfHavingMarkOfUnknown;
         }
 
         // EoD has 30% faster returns
@@ -206,7 +205,7 @@ public class InsuranceService(
             )
         )
         {
-            randomisedReturnTimeSeconds *= editionModifier.Multiplier.Value;
+            randomisedReturnTimeSeconds *= editionModifier.Multiplier;
         }
 
         // Calculate the final return time based on our bonus percent

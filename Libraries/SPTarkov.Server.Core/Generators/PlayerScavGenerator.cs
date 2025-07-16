@@ -420,7 +420,7 @@ public class PlayerScavGenerator(
                 .Sum(bonus => (bonus?.Value ?? 1) / 100);
 
         var fenceInfo = fenceService.GetFenceInfo(pmcData);
-        modifier *= fenceInfo.SavageCooldownModifier ?? 1d;
+        modifier *= fenceInfo.SavageCooldownModifier;
 
         // Make sure to apply ScavCooldownTimer bonus from Hideout if the player has it.
         var scavLockDuration =
@@ -440,9 +440,7 @@ public class PlayerScavGenerator(
 
         if (scavData?.Info != null)
         {
-            scavData.Info.SavageLockTime = Math.Round(
-                timeUtil.GetTimeStamp() + (scavLockDuration ?? 0)
-            );
+            scavData.Info.SavageLockTime = Math.Round(timeUtil.GetTimeStamp() + (scavLockDuration));
         }
 
         return scavData;

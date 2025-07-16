@@ -792,7 +792,7 @@ public class HideoutHelper(
                 pmcData,
                 recipe.ProductionTime ?? 0,
                 SkillTypes.Crafting,
-                globalSkillsDb.Crafting.ProductionTimeReductionPerLevel ?? 0
+                globalSkillsDb.Crafting.ProductionTimeReductionPerLevel
             );
         }
 
@@ -803,7 +803,7 @@ public class HideoutHelper(
                 pmcData,
                 recipe.ProductionTime ?? 0,
                 SkillTypes.HideoutManagement,
-                globalSkillsDb.HideoutManagement.ConsumptionReductionPerLevel ?? 0
+                globalSkillsDb.HideoutManagement.ConsumptionReductionPerLevel
             );
         }
 
@@ -961,12 +961,12 @@ public class HideoutHelper(
         var hideoutManagementConsumptionBonus = GetSkillBonusMultipliedBySkillLevel(
             pmcData,
             SkillTypes.HideoutManagement,
-            globalSkillsDb.HideoutManagement.ConsumptionReductionPerLevel ?? 0
+            globalSkillsDb.HideoutManagement.ConsumptionReductionPerLevel
         );
         var craftSkillTimeReductionMultiplier = GetSkillBonusMultipliedBySkillLevel(
             pmcData,
             SkillTypes.Crafting,
-            globalSkillsDb.Crafting.CraftTimeReductionPerLevel ?? 0
+            globalSkillsDb.Crafting.CraftTimeReductionPerLevel
         );
 
         // Never let bonus become 0

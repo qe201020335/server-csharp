@@ -186,9 +186,16 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
         }
 
         // Use default preset id from above cache to find the weapon/equipment preset
-        if (!_defaultWeaponPresets.TryGetValue(presetDetails.DefaultId, out var defaultPreset))
+        if (
+            !_defaultWeaponPresets.TryGetValue(presetDetails.DefaultId.Value, out var defaultPreset)
+        )
         {
-            if (!_defaultEquipmentPresets.TryGetValue(presetDetails.DefaultId, out defaultPreset))
+            if (
+                !_defaultEquipmentPresets.TryGetValue(
+                    presetDetails.DefaultId.Value,
+                    out defaultPreset
+                )
+            )
             {
                 // Default not found in weapon or equipment, return first preset in list
                 return cloner.Clone(

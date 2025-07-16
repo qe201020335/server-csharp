@@ -50,13 +50,13 @@ public class BotLevelGenerator(
         ); // TODO - nasty double to string to int conversion
         for (var i = 0; i < level; i++)
         {
-            exp += expTable[i].Experience.Value;
+            exp += expTable[i].Experience;
         }
 
         // Sprinkle in some random exp within the level, unless we are at max level.
         if (level < expTable.Length - 1)
         {
-            exp += randomUtil.GetInt(0, expTable[level].Experience.Value - 1);
+            exp += randomUtil.GetInt(0, expTable[level].Experience - 1);
         }
 
         return new RandomisedBotLevelResult { Level = level, Exp = exp };

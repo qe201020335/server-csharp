@@ -842,7 +842,7 @@ public class HideoutController(
                 SkillTypes.Crafting,
                 databaseService
                     .GetGlobals()
-                    .Configuration.SkillsSettings.Crafting.CraftTimeReductionPerLevel ?? 0
+                    .Configuration.SkillsSettings.Crafting.CraftTimeReductionPerLevel
             );
 
         var modifiedScavCaseTime = GetScavCaseTime(pmcData, adjustedCraftTime);

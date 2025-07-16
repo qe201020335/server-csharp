@@ -980,9 +980,7 @@ public class RepeatableQuestController(
         {
             questCount += databaseService
                 .GetGlobals()
-                .Configuration.SkillsSettings.Charisma.BonusSettings.EliteBonusSettings.RepeatableQuestExtraCount.GetValueOrDefault(
-                    0
-                );
+                .Configuration.SkillsSettings.Charisma.BonusSettings.EliteBonusSettings.RepeatableQuestExtraCount;
         }
 
         // Add any extra repeatable quests the profile has unlocked

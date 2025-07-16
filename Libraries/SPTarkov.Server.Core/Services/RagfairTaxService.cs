@@ -120,16 +120,11 @@ public class RagfairTaxService(
             {
                 BuffType.DamageReduction => itemEnhancementSettings
                     .DamageReduction
-                    .PriceModifierValue
-                    .Value,
+                    .PriceModifierValue,
                 BuffType.MalfunctionProtections => itemEnhancementSettings
                     .MalfunctionProtections
-                    .PriceModifierValue
-                    .Value,
-                BuffType.WeaponSpread => itemEnhancementSettings
-                    .WeaponSpread
-                    .PriceModifierValue
-                    .Value,
+                    .PriceModifierValue,
+                BuffType.WeaponSpread => itemEnhancementSettings.WeaponSpread.PriceModifierValue,
                 _ => 1d,
             };
             discountedTax *= 1.0 + Math.Abs(item.Upd.Buff.Value.Value - 1.0) * priceModiferValue;
