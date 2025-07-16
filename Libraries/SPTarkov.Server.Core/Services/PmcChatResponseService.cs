@@ -26,7 +26,6 @@ public class PmcChatResponseService(
     ConfigServer configServer
 )
 {
-    protected GiftsConfig _giftConfig = configServer.GetConfig<GiftsConfig>();
     protected readonly PmcChatResponse _pmcResponsesConfig =
         configServer.GetConfig<PmcChatResponse>();
 
@@ -76,11 +75,6 @@ public class PmcChatResponseService(
     /// <param name="killer"> The bot who killed the player </param>
     public void SendKillerResponse(MongoId sessionId, PmcData pmcData, Aggressor killer)
     {
-        if (killer is null)
-        {
-            return;
-        }
-
         if (!randomUtil.GetChance100(_pmcResponsesConfig.Killer.ResponseChancePercent))
         {
             return;
@@ -199,7 +193,7 @@ public class PmcChatResponseService(
     /// <returns> Localised location name </returns>
     protected string GetLocationName(string locationKey)
     {
-        return localeService.GetLocaleDb()[locationKey] ?? locationKey;
+        return localeService.GetLocaleDb().GetValueOrDefault(locationKey, locationKey);
     }
 
     /// <summary>

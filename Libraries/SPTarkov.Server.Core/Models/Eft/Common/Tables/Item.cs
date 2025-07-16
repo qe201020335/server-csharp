@@ -137,7 +137,7 @@ public record Upd
     ///     SPT specific property, not made by BSG
     /// </summary>
     [JsonPropertyName("sptPresetId")]
-    public string? SptPresetId { get; set; }
+    public MongoId? SptPresetId { get; set; }
 
     public UpdFaceShield? FaceShield { get; set; }
 

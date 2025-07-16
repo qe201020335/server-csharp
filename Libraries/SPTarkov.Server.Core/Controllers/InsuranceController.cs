@@ -823,13 +823,14 @@ public class InsuranceController(
         pmcData.InsuredItems ??= [];
         foreach (var key in request.Items)
         {
+            var inventoryItem = inventoryItemsHash.GetValueOrDefault(key);
             pmcData.InsuredItems.Add(
-                new InsuredItem { TId = request.TransactionId, ItemId = inventoryItemsHash[key].Id }
+                new InsuredItem { TId = request.TransactionId, ItemId = inventoryItem.Id }
             );
             // If Item is Helmet or Body Armour -> Handle insurance of soft inserts
-            if (itemHelper.ArmorItemHasRemovableOrSoftInsertSlots(inventoryItemsHash[key].Template))
+            if (itemHelper.ArmorItemHasRemovableOrSoftInsertSlots(inventoryItem.Template))
             {
-                InsureSoftInserts(inventoryItemsHash[key], pmcData, request);
+                InsureSoftInserts(inventoryItem, pmcData, request);
             }
         }
 

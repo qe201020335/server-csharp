@@ -229,9 +229,9 @@ public class RagfairPriceService(
             // Check if the item is a weapon preset.
             if (
                 item?.Upd?.SptPresetId is not null
-                && presetHelper.IsPresetBaseClass(item.Upd.SptPresetId, BaseClasses.WEAPON)
+                && presetHelper.IsPresetBaseClass(item.Upd.SptPresetId.Value, BaseClasses.WEAPON)
             )
-            // This is a weapon preset, which has it's own price calculation that takes into account the mods in the
+            // This is a weapon preset, which has its own price calculation that takes into account the mods in the
             // preset. Since we've already calculated the price for the preset entire preset in
             // `getDynamicItemPrice`, we can skip the rest of the items in the offer.
             {
@@ -281,7 +281,7 @@ public class RagfairPriceService(
         if (
             item?.Upd?.SptPresetId is not null
             && offerItems is not null
-            && presetHelper.IsPresetBaseClass(item.Upd.SptPresetId, BaseClasses.WEAPON)
+            && presetHelper.IsPresetBaseClass(item.Upd.SptPresetId.Value, BaseClasses.WEAPON)
         )
         {
             price = GetWeaponPresetPrice(item, offerItems, price);

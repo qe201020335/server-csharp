@@ -33,15 +33,12 @@ public class BuildController(
         const string secureContainerSlotId = "SecuredContainer";
 
         var profile = profileHelper.GetFullProfile(sessionID);
-        if (profile.UserBuildData is null)
+        profile.UserBuildData ??= new UserBuilds
         {
-            profile.UserBuildData = new UserBuilds
-            {
-                EquipmentBuilds = [],
-                WeaponBuilds = [],
-                MagazineBuilds = [],
-            };
-        }
+            EquipmentBuilds = [],
+            WeaponBuilds = [],
+            MagazineBuilds = [],
+        };
 
         // Ensure the secure container in the default presets match what the player has equipped
         var defaultEquipmentPresetsClone = cloner

@@ -440,7 +440,9 @@ public class RagfairOfferGenerator(
         }
 
         // Armor presets can hold plates above the allowed flea level, remove if necessary
-        var isPreset = presetHelper.IsPreset(rootItem.Upd.SptPresetId);
+        var isPreset =
+            rootItem?.Upd?.SptPresetId is not null
+            && presetHelper.IsPreset(rootItem.Upd.SptPresetId.Value);
         if (!isExpiredOffer && isPreset && ragfairConfig.Dynamic.Blacklist.EnableBsgList)
         {
             RemoveBannedPlatesFromPreset(

@@ -20,8 +20,8 @@ namespace SPTarkov.Server.Core.Services
         public SptProfile HandlePendingMigrations(JsonObject profile)
         {
             // On the initial run, begin sorting our migrations
-            // This will sort it so that any non prerequisite migrations go first
-            // And then all of the prerequisite ones.
+            // This will sort it so that any non-prerequisite migrations go first
+            // And then all the prerequisite ones.
             if (!_sortedMigrations.Any())
             {
                 _sortedMigrations = SortMigrations();
@@ -63,7 +63,7 @@ namespace SPTarkov.Server.Core.Services
                 }
             }
 
-            var SptReadyProfile =
+            var sptReadyProfile =
                 profile.Deserialize<SptProfile>(JsonUtil.JsonSerializerOptionsNoIndent)
                 ?? throw new InvalidOperationException(
                     $"Could not deserialize the profile {profileId}"
@@ -71,20 +71,20 @@ namespace SPTarkov.Server.Core.Services
 
             foreach (var ranMigration in ranMigrations)
             {
-                if (ranMigration.PostMigrate(SptReadyProfile))
+                if (ranMigration.PostMigrate(sptReadyProfile))
                 {
                     logger.Success(
                         $"{profileId} successfully ran profile migration: {ranMigration.MigrationName}"
                     );
 
-                    SptReadyProfile.SptData.Migrations.Add(
+                    sptReadyProfile.SptData.Migrations.Add(
                         ranMigration.MigrationName,
                         timeUtil.GetTimeStamp()
                     );
                 }
             }
 
-            return SptReadyProfile;
+            return sptReadyProfile;
         }
 
         protected IEnumerable<AbstractProfileMigration> SortMigrations()

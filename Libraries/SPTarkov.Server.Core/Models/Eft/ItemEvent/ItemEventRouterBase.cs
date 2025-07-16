@@ -106,10 +106,10 @@ public record HideoutStashItem
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("tpl")]
-    public string? Template { get; set; }
+    public MongoId? Template { get; set; }
 }
 
 public record WeaponBuildChange

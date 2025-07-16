@@ -1146,12 +1146,10 @@ public class ItemHelper(
     /// <returns>bool Match found</returns>
     public bool DoesItemOrParentsIdMatch(MongoId tpl, List<MongoId> tplsToCheck)
     {
-        var itemDetails = GetItem(tpl);
-        var itemExists = itemDetails.Key;
-        var item = itemDetails.Value;
+        var (itemExists, item) = GetItem(tpl);
 
         // not an item, drop out
-        if (!itemExists)
+        if (!itemExists || item == null)
         {
             return false;
         }
@@ -1179,7 +1177,7 @@ public class ItemHelper(
 
     /// <summary>
     ///     Checks to see if the item is *actually* moddable in-raid. Checks include the items existence in the database, the
-    ///     parent items existence in the database, the existence (and value) of the items RaidModdable property, and that
+    ///     parent items existence in the database, the existence (and value) of the items `RaidModdable` property, and that
     ///     the parents slot-required property exists, matches that of the item, and its value.
     /// </summary>
     /// <param name="item">The item to be checked</param>
@@ -1359,7 +1357,7 @@ public class ItemHelper(
     /// </summary>
     /// <param name="item">Db item template to look up Cartridge filter values from</param>
     /// <returns>Valid caliber for cartridge</returns>
-    public string? GetRandomCompatibleCaliberTemplateId(TemplateItem item)
+    public MongoId? GetRandomCompatibleCaliberTemplateId(TemplateItem item)
     {
         var cartridges = item
             ?.Properties?.Cartridges?.FirstOrDefault()
@@ -1759,7 +1757,7 @@ public class ItemHelper(
                 }
             }
 
-            var itemPool = slot.Props.Filters[0].Filter ?? [];
+            var itemPool = slot.Props.Filters.FirstOrDefault().Filter ?? [];
             if (itemPool.Count == 0)
             {
                 if (logger.IsLogEnabled(LogLevel.Debug))
