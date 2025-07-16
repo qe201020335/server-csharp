@@ -176,10 +176,7 @@ public class BuildController(
     /// <param name="request"></param>
     public void RemoveBuild(MongoId sessionId, RemoveBuildRequestData request)
     {
-        if (request.Id is not null)
-        {
-            RemovePlayerBuild(request.Id, sessionId);
-        }
+        RemovePlayerBuild(request.Id, sessionId);
     }
 
     /// <summary>
@@ -222,7 +219,7 @@ public class BuildController(
     /// </summary>
     /// <param name="idToRemove"></param>
     /// <param name="sessionID">Session/Player id</param>
-    protected void RemovePlayerBuild(string idToRemove, MongoId sessionID)
+    protected void RemovePlayerBuild(MongoId idToRemove, MongoId sessionID)
     {
         var profile = saveServer.GetProfile(sessionID);
         var weaponBuilds = profile.UserBuildData.WeaponBuilds;

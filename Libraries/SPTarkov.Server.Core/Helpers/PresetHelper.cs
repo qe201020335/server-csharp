@@ -11,8 +11,8 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable(InjectionType.Singleton)]
 public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper, ICloner cloner)
 {
-    protected Dictionary<string, Preset>? _defaultEquipmentPresets;
-    protected Dictionary<string, Preset>? _defaultWeaponPresets;
+    protected Dictionary<MongoId, Preset>? _defaultEquipmentPresets;
+    protected Dictionary<MongoId, Preset>? _defaultWeaponPresets;
 
     /// <summary>
     ///     Preset cache - key = item tpl, value = preset ids
@@ -28,7 +28,7 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
     /// Get weapon and armor default presets, keyed to preset id NOT item tpl
     /// </summary>
     /// <returns></returns>
-    public Dictionary<string, Preset> GetDefaultPresets()
+    public Dictionary<MongoId, Preset> GetDefaultPresets()
     {
         var weapons = GetDefaultWeaponPresets();
         var equipment = GetDefaultEquipmentPresets();
@@ -58,7 +58,7 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
     /// Get default weapon presets
     /// </summary>
     /// <returns></returns>
-    public Dictionary<string, Preset> GetDefaultWeaponPresets()
+    public Dictionary<MongoId, Preset> GetDefaultWeaponPresets()
     {
         if (_defaultWeaponPresets is null)
         {
@@ -78,7 +78,7 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
     /// Get default equipment presets
     /// </summary>
     /// <returns>Dictionary</returns>
-    public Dictionary<string, Preset> GetDefaultEquipmentPresets()
+    public Dictionary<MongoId, Preset> GetDefaultEquipmentPresets()
     {
         if (_defaultEquipmentPresets == null)
         {

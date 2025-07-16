@@ -37,6 +37,9 @@ public record SpawnpointTemplate
 
     private string? _root;
 
+    /// <summary>
+    /// Not a mongoId
+    /// </summary>
     [JsonPropertyName("Id")]
     public string? Id { get; set; }
 

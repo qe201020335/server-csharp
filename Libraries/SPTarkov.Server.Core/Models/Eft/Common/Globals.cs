@@ -12,19 +12,19 @@ public record Globals
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("config")]
-    public Config? Configuration { get; set; }
+    public Config Configuration { get; set; }
 
     [JsonPropertyName("LocationInfection")]
-    public LocationInfection? LocationInfection { get; set; }
+    public LocationInfection LocationInfection { get; set; }
 
     [JsonPropertyName("bot_presets")]
-    public List<BotPreset>? BotPresets { get; set; }
+    public List<BotPreset> BotPresets { get; set; }
 
     [JsonPropertyName("BotWeaponScatterings")]
-    public List<BotWeaponScattering>? BotWeaponScatterings { get; set; }
+    public List<BotWeaponScattering> BotWeaponScatterings { get; set; }
 
     [JsonPropertyName("ItemPresets")]
-    public Dictionary<string, Preset>? ItemPresets { get; set; }
+    public Dictionary<MongoId, Preset> ItemPresets { get; set; }
 }
 
 public record PlayerSettings
@@ -295,7 +295,7 @@ public record ArtilleryShellingAirDropSettings
     public XYZ? AirDropPosition { get; set; }
 
     [JsonPropertyName("LootTemplateId")]
-    public string? LootTemplateId { get; set; }
+    public MongoId? LootTemplateId { get; set; }
 }
 
 public record ProjectileExplosionParams
@@ -532,10 +532,10 @@ public record Config
     public Tournament? Tournament { get; set; }
 
     [JsonPropertyName("QuestSettings")]
-    public QuestSettings? QuestSettings { get; set; }
+    public QuestSettings QuestSettings { get; set; }
 
     [JsonPropertyName("RagFair")]
-    public RagFair? RagFair { get; set; }
+    public RagFair RagFair { get; set; }
 
     [JsonPropertyName("handbook")]
     public Handbook? Handbook { get; set; }
@@ -1525,14 +1525,11 @@ public record Mastering
     [JsonExtensionData]
     public Dictionary<string, object>? ExtensionData { get; set; }
 
-    [JsonPropertyName("Id")]
-    public string? Id { get; set; }
-
     [JsonPropertyName("Name")]
     public string? Name { get; set; }
 
     [JsonPropertyName("Templates")]
-    public List<string>? Templates { get; set; }
+    public List<MongoId>? Templates { get; set; }
 
     [JsonPropertyName("Progress")]
     public double? Progress { get; set; }
@@ -1591,7 +1588,7 @@ public record WildBody
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("body")]
-    public string? Body { get; set; }
+    public MongoId? Body { get; set; }
 
     [JsonPropertyName("hands")]
     public MongoId? Hands { get; set; }
@@ -2721,10 +2718,10 @@ public record RagFair
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("enabled")]
-    public bool? Enabled { get; set; }
+    public bool Enabled { get; set; }
 
     [JsonPropertyName("priceStabilizerEnabled")]
-    public bool? PriceStabilizerEnabled { get; set; }
+    public bool PriceStabilizerEnabled { get; set; }
 
     [JsonPropertyName("includePveTraderSales")]
     public bool? IncludePveTraderSales { get; set; }
@@ -2734,13 +2731,13 @@ public record RagFair
 
     // Checked in client
     [JsonPropertyName("minUserLevel")]
-    public int? MinUserLevel { get; set; }
+    public int MinUserLevel { get; set; }
 
     [JsonPropertyName("communityTax")]
     public float? CommunityTax { get; set; }
 
     [JsonPropertyName("communityItemTax")]
-    public float? CommunityItemTax { get; set; }
+    public float CommunityItemTax { get; set; }
 
     // Checked in client
     [JsonPropertyName("communityRequirementTax")]
@@ -2750,7 +2747,7 @@ public record RagFair
     public float? OfferPriorityCost { get; set; }
 
     [JsonPropertyName("offerDurationTimeInHour")]
-    public double? OfferDurationTimeInHour { get; set; }
+    public double OfferDurationTimeInHour { get; set; }
 
     [JsonPropertyName("offerDurationTimeInHourAfterRemove")]
     public double? OfferDurationTimeInHourAfterRemove { get; set; }
@@ -2789,16 +2786,16 @@ public record RagFair
     public long? RagfairTurnOnTimestamp { get; set; }
 
     [JsonPropertyName("ratingSumForIncrease")]
-    public double? RatingSumForIncrease { get; set; }
+    public double RatingSumForIncrease { get; set; }
 
     [JsonPropertyName("ratingIncreaseCount")]
-    public double? RatingIncreaseCount { get; set; }
+    public double RatingIncreaseCount { get; set; }
 
     [JsonPropertyName("ratingSumForDecrease")]
     public double? RatingSumForDecrease { get; set; }
 
     [JsonPropertyName("ratingDecreaseCount")]
-    public double? RatingDecreaseCount { get; set; }
+    public double RatingDecreaseCount { get; set; }
 
     [JsonPropertyName("maxSumForIncreaseRatingPerOneSale")]
     public double? MaxSumForIncreaseRatingPerOneSale { get; set; }
@@ -2825,7 +2822,7 @@ public record RagFair
     public double? YouSellOfferMaxStorageTimeInHour { get; set; }
 
     [JsonPropertyName("yourOfferDidNotSellMaxStorageTimeInHour")]
-    public double? YourOfferDidNotSellMaxStorageTimeInHour { get; set; }
+    public double YourOfferDidNotSellMaxStorageTimeInHour { get; set; }
 
     [JsonPropertyName("isOnlyFoundInRaidAllowed")]
     public bool? IsOnlyFoundInRaidAllowed { get; set; }
@@ -2846,7 +2843,7 @@ public record ItemGlobalRestrictions
     public double? MaxFleaStacked { get; set; }
 
     [JsonPropertyName("TemplateId")]
-    public string? TemplateId { get; set; }
+    public MongoId? TemplateId { get; set; }
 }
 
 public record MaxActiveOfferCount
@@ -3156,7 +3153,7 @@ public record RestrictionsInRaid
     public double? MaxInRaid { get; set; }
 
     [JsonPropertyName("TemplateId")]
-    public string? TemplateId { get; set; }
+    public MongoId? TemplateId { get; set; }
 }
 
 public record FavoriteItemsSettings
@@ -3412,6 +3409,9 @@ public record PathConfig
     [JsonPropertyName("active")]
     public bool? Active { get; set; }
 
+    /// <summary>
+    /// Not mongoId
+    /// </summary>
     [JsonPropertyName("id")]
     public string? Id { get; set; }
 
@@ -4996,7 +4996,7 @@ public record Preset
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("_type")]
     public string? Type { get; set; }
@@ -5008,7 +5008,7 @@ public record Preset
     public string? Name { get; set; }
 
     [JsonPropertyName("_parent")]
-    public string? Parent { get; set; }
+    public MongoId Parent { get; set; }
 
     [JsonPropertyName("_items")]
     public List<Item>? Items { get; set; }
@@ -5026,8 +5026,8 @@ public record QuestSettings
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("GlobalRewardRepModifierDailyQuestPvE")]
-    public double? GlobalRewardRepModifierDailyQuestPvE { get; set; }
+    public double GlobalRewardRepModifierDailyQuestPvE { get; set; }
 
     [JsonPropertyName("GlobalRewardRepModifierQuestPvE")]
-    public double? GlobalRewardRepModifierQuestPvE { get; set; }
+    public double GlobalRewardRepModifierQuestPvE { get; set; }
 }

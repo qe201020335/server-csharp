@@ -144,7 +144,7 @@ public record UserBuild
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("Id")]
-    public string? Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("Name")]
     public string? Name { get; set; }

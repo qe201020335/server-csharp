@@ -542,7 +542,7 @@ public class InventoryController(
         ItemEventRouterResponse output
     )
     {
-        string? itemId = null;
+        MongoId? itemId = null;
         if (request.FromOwner is not null)
         {
             try
@@ -582,7 +582,7 @@ public class InventoryController(
         if (itemId is not null)
         {
             var fullProfile = profileHelper.GetFullProfile(sessionId);
-            FlagItemsAsInspectedAndRewardXp([itemId], fullProfile);
+            FlagItemsAsInspectedAndRewardXp([itemId.Value], fullProfile);
         }
     }
 

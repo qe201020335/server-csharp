@@ -468,7 +468,7 @@ public record UnreasonableModPrices
     public bool Enabled { get; set; }
 
     /// <summary>
-    ///     Multipler to start adjusting item values from, e.g. a value of 10 means any value over 10x the handbook price gets adjusted
+    ///     Multiplier to start adjusting item values from, e.g. a value of 10 means any value over 10x the handbook price gets adjusted
     /// </summary>
     [JsonPropertyName("handbookPriceOverMultiplier")]
     public int HandbookPriceOverMultiplier { get; set; }

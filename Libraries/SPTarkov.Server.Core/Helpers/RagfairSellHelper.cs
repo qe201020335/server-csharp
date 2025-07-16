@@ -79,8 +79,7 @@ public class RagfairSellHelper(
         var endTime =
             startTimestamp
             + timeUtil.GetHoursAsSeconds(
-                (int)
-                    databaseService.GetGlobals().Configuration.RagFair.OfferDurationTimeInHour.Value
+                (int)databaseService.GetGlobals().Configuration.RagFair.OfferDurationTimeInHour
             );
 
         var sellTimestamp = startTimestamp;
