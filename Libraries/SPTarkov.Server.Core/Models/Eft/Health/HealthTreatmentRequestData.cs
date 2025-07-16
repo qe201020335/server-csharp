@@ -78,5 +78,5 @@ public record BodyPartEffects
     /// <summary>
     ///     Effects in array to be removed
     /// </summary>
-    public List<string> Effects { get; set; }
+    public List<string>? Effects { get; set; }
 }

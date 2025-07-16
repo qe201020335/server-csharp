@@ -293,7 +293,7 @@ public class HealthController(
             TransactionId = Traders.THERAPIST,
             SchemeItems = healthTreatmentRequest.Items,
             Type = "",
-            ItemId = "",
+            ItemId = MongoId.Empty(),
             Count = 0,
             SchemeId = 0,
         };
@@ -320,7 +320,7 @@ public class HealthController(
             }
 
             // Check for effects to remove
-            if (partRequest.Effects.Count > 0)
+            if (partRequest.Effects?.Count > 0)
             {
                 // Found some, loop over them and remove from pmc profile
                 foreach (var effect in partRequest.Effects)
