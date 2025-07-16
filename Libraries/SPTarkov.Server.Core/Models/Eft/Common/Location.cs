@@ -13,7 +13,7 @@ public record Location
     ///     Map meta-data
     /// </summary>
     [JsonPropertyName("base")]
-    public LocationBase? Base { get; set; }
+    public LocationBase Base { get; set; }
 
     /// <summary>
     ///     Loose loot positions and item weights

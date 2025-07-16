@@ -72,7 +72,7 @@ public record LocationBase
     public int? BotImpossible { get; set; }
 
     [JsonPropertyName("BotLocationModifier")]
-    public BotLocationModifier? BotLocationModifier { get; set; }
+    public BotLocationModifier BotLocationModifier { get; set; }
 
     [JsonPropertyName("BotMarksman")]
     public int? BotMarksman { get; set; }
@@ -81,7 +81,7 @@ public record LocationBase
     ///     Maximum Number of bots that are currently alive/loading/delayed
     /// </summary>
     [JsonPropertyName("BotMax")]
-    public int? BotMax { get; set; }
+    public int BotMax { get; set; }
 
     /// <summary>
     ///     Is not used in 33420 TODO: still needed?
@@ -138,7 +138,7 @@ public record LocationBase
     ///     How soon bots will be allowed to spawn
     /// </summary>
     [JsonPropertyName("BotStart")]
-    public int? BotStart { get; set; }
+    public int BotStart { get; set; }
 
     /// <summary>
     ///     After this long bots will no longer spawn
@@ -159,7 +159,7 @@ public record LocationBase
     public string? DisabledScavExits { get; set; }
 
     [JsonPropertyName("Enabled")]
-    public bool? Enabled { get; set; }
+    public bool Enabled { get; set; }
 
     [JsonPropertyName("EnableCoop")]
     public bool? EnableCoop { get; set; }
@@ -186,10 +186,10 @@ public record LocationBase
     public double? IconY { get; set; }
 
     [JsonPropertyName("Id")]
-    public string? Id { get; set; }
+    public required string Id { get; set; }
 
     [JsonPropertyName("Insurance")]
-    public bool? Insurance { get; set; }
+    public bool Insurance { get; set; }
 
     [JsonPropertyName("IsSecret")]
     public bool? IsSecret { get; set; }
@@ -219,7 +219,7 @@ public record LocationBase
     public double? MinDistToFreePoint { get; set; }
 
     [JsonPropertyName("MinMaxBots")]
-    public List<MinMaxBot>? MinMaxBots { get; set; }
+    public List<MinMaxBot> MinMaxBots { get; set; }
 
     [JsonPropertyName("MinPlayers")]
     public int? MinPlayers { get; set; }
@@ -243,7 +243,7 @@ public record LocationBase
     public bool? OldSpawn { get; set; }
 
     [JsonPropertyName("OpenZones")]
-    public string? OpenZones { get; set; }
+    public string OpenZones { get; set; }
 
     [JsonPropertyName("Preview")]
     public Preview? Preview { get; set; }
@@ -288,7 +288,7 @@ public record LocationBase
     public Dictionary<string, Area>? Areas { get; set; }
 
     [JsonPropertyName("UnixDateTime")]
-    public long? UnixDateTime { get; set; }
+    public long UnixDateTime { get; set; }
 
     [JsonPropertyName("_Id")]
     public MongoId IdField { get; set; }
@@ -299,7 +299,7 @@ public record LocationBase
     [JsonPropertyName("EscapeTimeLimit")]
     public double? EscapeTimeLimit { get; set; }
 
-    // BSG fucked up another property name
+    [Obsolete("BSG fucked up another property name")]
     [JsonPropertyName("escape_time_limit")]
     public int Escape_Time_Limit_Do_Not_Use
     {
@@ -338,7 +338,7 @@ public record LocationBase
     public bool? OneTimeSpawn { get; set; }
 
     [JsonPropertyName("exits")]
-    public List<Exit>? Exits { get; set; }
+    public List<Exit> Exits { get; set; }
 
     [JsonPropertyName("filter_ex")]
     public List<string>? FilterEx { get; set; }
@@ -945,7 +945,7 @@ public record Exit
 
     [JsonPropertyName("PassageRequirement")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public RequirementState? PassageRequirement { get; set; }
+    public RequirementState PassageRequirement { get; set; }
 
     [JsonPropertyName("PlayersCount")]
     public int? PlayersCount { get; set; }

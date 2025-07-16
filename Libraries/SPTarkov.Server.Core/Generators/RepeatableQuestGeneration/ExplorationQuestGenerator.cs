@@ -313,8 +313,7 @@ public class ExplorationQuestGenerator(
         // Exclude exits with a requirement to leave (e.g. car extracts)
         var possibleExits = exitPool
             .Where(exit =>
-                exit.PassageRequirement is not null
-                || repeatableConfig.QuestConfig.Exploration.SpecificExits.PassageRequirementWhitelist.Contains(
+                repeatableConfig.QuestConfig.Exploration.SpecificExits.PassageRequirementWhitelist.Contains(
                     "PassageRequirement"
                 )
             )

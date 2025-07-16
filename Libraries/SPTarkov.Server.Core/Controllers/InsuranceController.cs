@@ -664,11 +664,7 @@ public class InsuranceController(
                 insurance.SystemData?.Location,
                 labsId,
                 StringComparison.OrdinalIgnoreCase
-            )
-            && !(
-                databaseService.GetLocation(labsId)?.Base?.Insurance.GetValueOrDefault(false)
-                ?? false
-            );
+            ) && !(databaseService.GetLocation(labsId)?.Base?.Insurance ?? false);
     }
 
     /// <summary>
@@ -686,11 +682,7 @@ public class InsuranceController(
                 insurance.SystemData?.Location,
                 labyrinthId,
                 StringComparison.OrdinalIgnoreCase
-            )
-            && !(
-                databaseService.GetLocation(labyrinthId)?.Base?.Insurance.GetValueOrDefault(false)
-                ?? false
-            );
+            ) && !(databaseService.GetLocation(labyrinthId)?.Base?.Insurance ?? false);
     }
 
     /// <summary>

@@ -69,5 +69,5 @@ public record AchievementQuestConditionTypes
     public List<QuestCondition>? Success { get; set; }
 
     [JsonPropertyName("fail")]
-    public List<QuestCondition>? Fail { get; set; }
+    public List<QuestCondition> Fail { get; set; }
 }

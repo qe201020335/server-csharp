@@ -13,10 +13,10 @@ public record CustomisationStorage
     public MongoId Id { get; set; }
 
     [JsonPropertyName("source")]
-    public string? Source { get; set; }
+    public string Source { get; set; }
 
     [JsonPropertyName("type")]
-    public string? Type { get; set; }
+    public string Type { get; set; }
 }
 
 public record CustomisationType

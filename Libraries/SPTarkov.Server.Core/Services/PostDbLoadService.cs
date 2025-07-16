@@ -569,7 +569,7 @@ public class PostDbLoadService(
             map.Base.BotMax = cap;
 
             // make values no larger than 30 secs
-            map.Base.BotStart = Math.Min(map.Base.BotStart.Value, 30);
+            map.Base.BotStart = Math.Min(map.Base.BotStart, 30);
         }
     }
 

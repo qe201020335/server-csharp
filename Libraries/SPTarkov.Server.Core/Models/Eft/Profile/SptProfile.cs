@@ -162,14 +162,14 @@ public record WeaponBuild : UserBuild
 public record EquipmentBuild : UserBuild
 {
     [JsonPropertyName("Root")]
-    public string? Root { get; set; }
+    public MongoId Root { get; set; }
 
     [JsonPropertyName("Items")]
-    public List<Item>? Items { get; set; } // Same as PMC inventory items
+    public List<Item> Items { get; set; } // Same as PMC inventory items
 
     [JsonPropertyName("BuildType")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public EquipmentBuildType? BuildType { get; set; }
+    public EquipmentBuildType BuildType { get; set; }
 }
 
 public record MagazineBuild : UserBuild
@@ -205,7 +205,7 @@ public record MagazineTemplateAmmoItem
 public record DefaultEquipmentPreset : EquipmentBuild
 {
     [JsonPropertyName("type")]
-    public string? Type { get; set; }
+    public string Type { get; set; }
 }
 
 public record Dialogue
