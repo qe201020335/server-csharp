@@ -63,7 +63,7 @@ public class BotInventoryGenerator(
     /// <param name="sessionId">Session id</param>
     /// <param name="botJsonTemplate">Base json db file for the bot having its loot generated</param>
     /// <param name="botRole">Role bot has (assault/pmcBot)</param>
-    /// <param name="isPmc">Is bot being converted into a pmc</param>
+    /// <param name="botGenerationDetails">Details related to generating a bot</param>
     /// <param name="botLevel">Level of bot being generated</param>
     /// <param name="chosenGameVersion">Game version for bot, only really applies for PMCs</param>
     /// <returns>PmcInventory object with equipment/weapons/loot</returns>
@@ -71,7 +71,7 @@ public class BotInventoryGenerator(
         MongoId sessionId,
         BotType botJsonTemplate,
         string botRole,
-        bool isPmc,
+        BotGenerationDetails botGenerationDetails,
         int botLevel,
         string chosenGameVersion
     )
@@ -79,6 +79,8 @@ public class BotInventoryGenerator(
         var templateInventory = botJsonTemplate.BotInventory;
         var wornItemChances = botJsonTemplate.BotChances;
         var itemGenerationLimitsMinMax = botJsonTemplate.BotGeneration;
+
+        var isPmc = botGenerationDetails.IsPmc;
 
         // Generate base inventory with no items
         var botInventory = GenerateInventoryBase();
@@ -116,6 +118,7 @@ public class BotInventoryGenerator(
         botLootGenerator.GenerateLoot(
             sessionId,
             botJsonTemplate,
+            botGenerationDetails,
             isPmc,
             botRole,
             botInventory,

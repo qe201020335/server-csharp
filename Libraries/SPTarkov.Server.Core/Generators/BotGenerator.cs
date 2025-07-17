@@ -131,10 +131,9 @@ public class BotGenerator(
         );
 
         // Get raw json data for bot (Cloned)
-        var botRole =
-            botGenerationDetails.IsPmc ?? false
-                ? preparedBotBase.Info.Side // Use side to get usec.json or bear.json when bot will be PMC
-                : botGenerationDetails.Role;
+        var botRole = botGenerationDetails.IsPmc
+            ? preparedBotBase.Info.Side // Use side to get usec.json or bear.json when bot will be PMC
+            : botGenerationDetails.Role;
         var botJsonTemplateClone = cloner.Clone(botHelper.GetBotTemplate(botRole));
         if (botJsonTemplateClone is null)
         {
@@ -195,7 +194,7 @@ public class BotGenerator(
         );
 
         // Only filter bot equipment, never players
-        if (!botGenerationDetails.IsPlayerScav.GetValueOrDefault(false))
+        if (!botGenerationDetails.IsPlayerScav)
         {
             botEquipmentFilterService.FilterBotEquipment(
                 sessionId,
@@ -213,15 +212,12 @@ public class BotGenerator(
         );
 
         // Only Pmcs should have a lower nickname
-        bot.Info.LowerNickname = botGenerationDetails.IsPmc.GetValueOrDefault(false)
+        bot.Info.LowerNickname = botGenerationDetails.IsPmc
             ? bot.Info.Nickname.ToLowerInvariant()
             : string.Empty;
 
         // Only run when generating a 'fake' playerscav, not actual player scav
-        if (
-            !botGenerationDetails.IsPlayerScav.GetValueOrDefault(false)
-            && ShouldSimulatePlayerScav(botRoleLowercase)
-        )
+        if (!botGenerationDetails.IsPlayerScav && ShouldSimulatePlayerScav(botRoleLowercase))
         {
             botNameService.AddRandomPmcNameToBotMainProfileNicknameProperty(bot);
             SetRandomisedGameVersionAndCategory(bot.Info);
@@ -242,12 +238,7 @@ public class BotGenerator(
         RemoveBlacklistedLootFromBotTemplate(botJsonTemplate.BotInventory);
 
         // Remove hideout data if bot is not a PMC or pscav - match what live sends
-        if (
-            !(
-                botGenerationDetails.IsPmc.GetValueOrDefault(false)
-                || botGenerationDetails.IsPlayerScav.GetValueOrDefault(false)
-            )
-        )
+        if (!(botGenerationDetails.IsPmc || botGenerationDetails.IsPlayerScav))
         {
             bot.Hideout = null;
         }
@@ -280,14 +271,11 @@ public class BotGenerator(
                 customisation.Value.Name.Equals(chosenVoiceName, StringComparison.OrdinalIgnoreCase)
             )
             .Key;
-        bot.Health = GenerateHealth(
-            botJsonTemplate.BotHealth,
-            botGenerationDetails.IsPlayerScav.GetValueOrDefault(false)
-        );
+        bot.Health = GenerateHealth(botJsonTemplate.BotHealth, botGenerationDetails.IsPlayerScav);
         bot.Skills = GenerateSkills(botJsonTemplate.BotSkills);
         bot.Info.PrestigeLevel = 0;
 
-        if (botGenerationDetails.IsPmc.GetValueOrDefault(false))
+        if (botGenerationDetails.IsPmc)
         {
             bot.Info.IsStreamerModeAvailable = true; // Set to true so client patches can pick it up later - client sometimes alters botrole to assaultGroup
             SetRandomisedGameVersionAndCategory(bot.Info);
@@ -304,7 +292,7 @@ public class BotGenerator(
             sessionId,
             botJsonTemplate,
             botRoleLowercase,
-            botGenerationDetails.IsPmc.GetValueOrDefault(false),
+            botGenerationDetails,
             bot.Info.Level.Value,
             bot.Info.GameVersion
         );
@@ -764,9 +752,7 @@ public class BotGenerator(
     public void AddIdsToBot(BotBase bot, BotGenerationDetails botGenerationDetails)
     {
         bot.Id = new MongoId();
-        bot.Aid = botGenerationDetails.IsPmc.GetValueOrDefault(false)
-            ? hashUtil.GenerateAccountId()
-            : 0;
+        bot.Aid = botGenerationDetails.IsPmc ? hashUtil.GenerateAccountId() : 0;
     }
 
     /// <summary>

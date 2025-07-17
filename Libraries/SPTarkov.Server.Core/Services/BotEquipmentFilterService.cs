@@ -41,7 +41,7 @@ public class BotEquipmentFilterService(
     {
         var pmcProfile = profileHelper.GetPmcProfile(sessionId);
 
-        var botRole = botGenerationDetails.IsPmc ?? false ? "pmc" : botGenerationDetails.Role;
+        var botRole = botGenerationDetails.IsPmc ? "pmc" : botGenerationDetails.Role;
         var botEquipmentBlacklist = GetBotEquipmentBlacklist(botRole, botLevel);
         var botEquipmentWhitelist = GetBotEquipmentWhitelist(botRole, botLevel);
         var botWeightingAdjustments = GetBotWeightingAdjustments(botRole, botLevel);

@@ -418,6 +418,7 @@ public class BotController(
             LocationSpecificPmcLevelOverride = GetPmcLevelRangeForMap(raidSettings?.Location), // Min/max levels for PMCs to generate within
             IsPlayerScav = false,
             AllPmcsHaveSameNameAsPlayer = allPmcsHaveSameNameAsPlayer,
+            Location = raidSettings?.Location,
         };
     }
 

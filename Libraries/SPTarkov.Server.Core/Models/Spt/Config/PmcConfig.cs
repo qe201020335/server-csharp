@@ -106,14 +106,8 @@ public record PmcConfig : BaseConfig
         Dictionary<string, Dictionary<string, double>>
     > PmcType { get; set; }
 
-    [JsonPropertyName("maxBackpackLootTotalRub")]
-    public required List<MinMaxLootValue> MaxBackpackLootTotalRub { get; set; }
-
-    [JsonPropertyName("maxPocketLootTotalRub")]
-    public required int MaxPocketLootTotalRub { get; set; }
-
-    [JsonPropertyName("maxVestLootTotalRub")]
-    public required int MaxVestLootTotalRub { get; set; }
+    [JsonPropertyName("lootSettings")]
+    public required PmcLootSettings LootSettings { get; set; }
 
     /// <summary>
     ///     How many levels above player level can a PMC be
@@ -156,6 +150,27 @@ public record PmcConfig : BaseConfig
 
     [JsonPropertyName("customPmcWaves")]
     public required Dictionary<string, List<BossLocationSpawn>> CustomPmcWaves { get; set; }
+}
+
+public record PmcLootSettings
+{
+    [JsonPropertyName("pocket")]
+    public LootContainerSettings Pocket { get; set; }
+
+    [JsonPropertyName("vest")]
+    public LootContainerSettings Vest { get; set; }
+
+    [JsonPropertyName("backpack")]
+    public LootContainerSettings Backpack { get; set; }
+}
+
+public record LootContainerSettings
+{
+    [JsonPropertyName("totalRubByLevel")]
+    public List<MinMaxLootValue> TotalRubByLevel { get; set; }
+
+    [JsonPropertyName("locationMultipler")]
+    public Dictionary<string, double> LocationMultipler { get; set; }
 }
 
 public record HostilitySettings

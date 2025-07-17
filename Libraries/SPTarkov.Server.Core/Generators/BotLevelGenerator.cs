@@ -30,7 +30,7 @@ public class BotLevelGenerator(
         BotBase bot
     )
     {
-        if (!botGenerationDetails.IsPmc.GetValueOrDefault(false))
+        if (!botGenerationDetails.IsPmc)
         {
             return new RandomisedBotLevelResult { Exp = 0, Level = 1 };
         }

@@ -54,15 +54,14 @@ public class BotNameService(
 
         // Never show for players
         var showTypeInNickname =
-            !botGenerationDetails.IsPlayerScav.GetValueOrDefault(false)
-            && _botConfig.ShowTypeInNickname;
+            !botGenerationDetails.IsPlayerScav && _botConfig.ShowTypeInNickname;
         var roleShouldBeUnique = uniqueRoles?.Contains(botRole.ToLowerInvariant());
 
         var attempts = 0;
         while (attempts <= 5)
         {
             // Get bot name with leading/trailing whitespace removed
-            var name = isPmc.GetValueOrDefault(false) // Explicit handling of PMCs, all other bots will get "first_name last_name"
+            var name = isPmc // Explicit handling of PMCs, all other bots will get "first_name last_name"
                 ? botHelper.GetPmcNicknameOfMaxLength(
                     _botConfig.BotNameLengthLimit,
                     botGenerationDetails.Side
@@ -78,10 +77,7 @@ public class BotNameService(
             }
 
             // Replace pmc bot names with player name + prefix
-            if (
-                botGenerationDetails.IsPmc.GetValueOrDefault(false)
-                && botGenerationDetails.AllPmcsHaveSameNameAsPlayer.GetValueOrDefault(false)
-            )
+            if (botGenerationDetails.IsPmc && botGenerationDetails.AllPmcsHaveSameNameAsPlayer)
             {
                 var prefix = serverLocalisationService.GetRandomTextThatMatchesPartialKey(
                     "pmc-name_prefix_"

@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -62,6 +63,7 @@ public class BotLootGenerator(
     /// </summary>
     /// <param name="sessionId">Session id</param>
     /// <param name="botJsonTemplate">Clone of Base JSON db file for the bot having its loot generated</param>
+    /// <param name="botGenerationDetails">Details relating to generating a bot</param>
     /// <param name="isPmc">Will bot be a pmc</param>
     /// <param name="botRole">Role of bot, e.g. assault</param>
     /// <param name="botInventory">Inventory to add loot to</param>
@@ -69,6 +71,7 @@ public class BotLootGenerator(
     public void GenerateLoot(
         MongoId sessionId,
         BotType botJsonTemplate,
+        BotGenerationDetails botGenerationDetails,
         bool isPmc,
         string botRole,
         BotBaseInventory botInventory,
@@ -300,7 +303,13 @@ public class BotLootGenerator(
                 );
             }
 
-            var backpackLootRoubleTotal = GetBackpackRoubleTotalByLevel(botLevel, isPmc);
+            var backpackLootRoubleTotal = isPmc
+                ? _pmcConfig.LootSettings.Backpack.GetRoubleValue(
+                    botLevel,
+                    botGenerationDetails.Location
+                )
+                : 0;
+
             AddLootFromPool(
                 botLootCacheService.GetLootFromCache(
                     botRole,
@@ -314,11 +323,15 @@ public class BotLootGenerator(
                 botInventory,
                 botRole,
                 botItemLimits,
-                backpackLootRoubleTotal ?? 0,
+                backpackLootRoubleTotal,
                 isPmc,
                 filledContainerIds
             );
         }
+
+        var vestLootRoubleTotal = isPmc
+            ? _pmcConfig.LootSettings.Vest.GetRoubleValue(botLevel, botGenerationDetails.Location)
+            : 0;
 
         // TacticalVest - generate loot if they have one
         if (containersBotHasAvailable.Contains(EquipmentSlots.TacticalVest))
@@ -337,11 +350,15 @@ public class BotLootGenerator(
                 botInventory,
                 botRole,
                 botItemLimits,
-                _pmcConfig.MaxVestLootTotalRub,
+                vestLootRoubleTotal,
                 isPmc,
                 filledContainerIds
             );
         }
+
+        var pocketLootRoubleTotal = isPmc
+            ? _pmcConfig.LootSettings.Pocket.GetRoubleValue(botLevel, botGenerationDetails.Location)
+            : 0;
 
         // Pockets
         AddLootFromPool(
@@ -357,7 +374,7 @@ public class BotLootGenerator(
             botInventory,
             botRole,
             botItemLimits,
-            _pmcConfig.MaxPocketLootTotalRub,
+            pocketLootRoubleTotal,
             isPmc,
             filledContainerIds
         );
@@ -399,26 +416,6 @@ public class BotLootGenerator(
         );
 
         return matchingValue;
-    }
-
-    /// <summary>
-    ///     Gets the rouble cost total for loot in a bots backpack by the bots levl
-    ///     Will return 0 for non PMCs
-    /// </summary>
-    /// <param name="botLevel">Bots level</param>
-    /// <param name="isPmc">Is the bot a PMC</param>
-    /// <returns>int</returns>
-    protected double? GetBackpackRoubleTotalByLevel(int botLevel, bool isPmc)
-    {
-        if (!isPmc)
-        {
-            return 0;
-        }
-
-        var matchingValue = _pmcConfig.MaxBackpackLootTotalRub.FirstOrDefault(minMaxValue =>
-            botLevel >= minMaxValue.Min && botLevel <= minMaxValue.Max
-        );
-        return matchingValue?.Value;
     }
 
     /// <summary>
