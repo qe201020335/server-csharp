@@ -106,13 +106,13 @@ public class LauncherController(
     /// </summary>
     /// <param name="info"></param>
     /// <returns></returns>
-    public async Task<string> Register(RegisterData info)
+    public async Task<MongoId> Register(RegisterData info)
     {
         foreach (var (_, profile) in saveServer.GetProfiles())
         {
             if (info.Username == profile.ProfileInfo?.Username)
             {
-                return "";
+                return MongoId.Empty();
             }
         }
 

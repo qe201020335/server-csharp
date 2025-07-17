@@ -24,13 +24,13 @@ public class LauncherCallbacks(
     public ValueTask<string> Login(string url, LoginRequestData info, MongoId sessionID)
     {
         var output = launcherController.Login(info);
-        return new ValueTask<string>(output.IsEmpty() ? "FAILED" : output);
+        return new ValueTask<string>(output.IsEmpty() ? "FAILED" : output.ToString());
     }
 
     public async ValueTask<string> Register(string url, RegisterData info, MongoId sessionID)
     {
         var output = await launcherController.Register(info);
-        return string.IsNullOrEmpty(output) ? "FAILED" : "OK";
+        return output.IsEmpty() ? string.Empty : output.ToString();
     }
 
     public ValueTask<string> Get(string url, LoginRequestData info, MongoId sessionID)
