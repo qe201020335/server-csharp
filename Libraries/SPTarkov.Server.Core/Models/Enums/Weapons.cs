@@ -210,6 +210,9 @@ public static class Weapons
     public static readonly MongoId MACHINEGUN_762X54R_PKTM = new MongoId(
         "657857faeff4c850222dff1b"
     );
+    public static readonly MongoId MARKSMANRIFLE_127X99_AK_50 = new MongoId(
+        "67d0576f29f580ebc10efd08"
+    );
     public static readonly MongoId MARKSMANRIFLE_762X51_G28 = new MongoId(
         "6176aca650224f204c1da3fb"
     );

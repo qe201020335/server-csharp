@@ -12,6 +12,10 @@ public static class ItemTpl
     public static readonly MongoId AMMO_127X55_PS12 = new MongoId("5cadf6ddae9215051e1c23b2");
     public static readonly MongoId AMMO_127X55_PS12A = new MongoId("5cadf6e5ae921500113bb973");
     public static readonly MongoId AMMO_127X55_PS12B = new MongoId("5cadf6eeae921500134b2799");
+    public static readonly MongoId AMMO_127X99_HP = new MongoId("67d41936f378a36c4706eeb9");
+    public static readonly MongoId AMMO_127X99_M21 = new MongoId("67dc212493ce32834b0fa446");
+    public static readonly MongoId AMMO_127X99_M33 = new MongoId("67dc255ee3028a8b120efc48");
+    public static readonly MongoId AMMO_127X99_M903 = new MongoId("67dc2648ba5b79876906a166");
     public static readonly MongoId AMMO_12G_50_BMG = new MongoId("5d6e68c4a4b9361b93413f79");
     public static readonly MongoId AMMO_12G_525MM = new MongoId("5d6e6772a4b936088465b17c");
     public static readonly MongoId AMMO_12G_7MM = new MongoId("560d5e524bdc2d25448b4571");
@@ -793,6 +797,9 @@ public static class ItemTpl
     public static readonly MongoId ARMBAND_OF_THE_UNHEARD = new MongoId("660312cc4d6cdfa6f500c703");
     public static readonly MongoId ARMBAND_PRESTIGE_1 = new MongoId("67614b542eb91250020f2b86");
     public static readonly MongoId ARMBAND_PRESTIGE_2 = new MongoId("67614b6b47c71ea3d40256d7");
+    public static readonly MongoId ARMBAND_PRESTIGE_3 = new MongoId("6841b2506c1fcc41ed0db319");
+    public static readonly MongoId ARMBAND_PRESTIGE_4 = new MongoId("6841b3463fcc417de40a6768");
+    public static readonly MongoId ARMBAND_PRESTIGE_5 = new MongoId("6841b3ab322db20d190b4b9b");
     public static readonly MongoId ARMBAND_RED = new MongoId("5b3f3ade86f7746b6b790d8e");
     public static readonly MongoId ARMBAND_RFARMY = new MongoId("619bdeb986e01e16f839a99e");
     public static readonly MongoId ARMBAND_RIVALS_2020 = new MongoId("5f9949d869e2777a0e779ba5");
@@ -1532,6 +1539,9 @@ public static class ItemTpl
     public static readonly MongoId BARREL_AI_AXMC_338_LM_28_INCH = new MongoId(
         "628121434fa03b6b6c35dc6a"
     );
+    public static readonly MongoId BARREL_AK50_50_BMG_24_INCH = new MongoId(
+        "67d4178bffb910d21f04720a"
+    );
     public static readonly MongoId BARREL_AR10_762X51_18_INCH = new MongoId(
         "5a34f7f1c4a2826c6e06d75d"
     );
@@ -2132,7 +2142,7 @@ public static class ItemTpl
     public static readonly MongoId BARTER_DISPOSABLE_SYRINGE = new MongoId(
         "5d1b3f2d86f774253763b735"
     );
-    public static readonly MongoId BARTER_DOGTAG_BEAR = new MongoId("59f32bb586f774757e1e8442");
+    public static readonly MongoId BARTER_DOGTAG_BEAR = new MongoId("684180bc51bf8645f7067bc8");
     public static readonly MongoId BARTER_DOGTAG_BEAR_EOD = new MongoId("6662e9aca7e0b43baa3d5f74");
     public static readonly MongoId BARTER_DOGTAG_BEAR_PRESTIGE_1 = new MongoId(
         "675dc9d37ae1a8792107ca96"
@@ -2374,6 +2384,9 @@ public static class ItemTpl
     );
     public static readonly MongoId BARTER_PLIERS = new MongoId("590c2b4386f77425357b6123");
     public static readonly MongoId BARTER_PLIERS_ELITE = new MongoId("5af04b6486f774195a3ebb49");
+    public static readonly MongoId BARTER_PMC_ORIGINS_FIGURINE = new MongoId(
+        "6841b6b674a3c16f5e03d653"
+    );
     public static readonly MongoId BARTER_POINTY_GUY_FIGURINE = new MongoId(
         "679b9d6390622daf9708da76"
     );
@@ -4096,6 +4109,9 @@ public static class ItemTpl
     public static readonly MongoId FLASHHIDER_AK12_545X39_MUZZLE_BRAKE = new MongoId(
         "649ec2af961514b22506b10f"
     );
+    public static readonly MongoId FLASHHIDER_AK50_BMG_MUZZLE_BRAKE = new MongoId(
+        "67d41883f378a36c4706eeb7"
+    );
     public static readonly MongoId FLASHHIDER_AK74_545X39_MUZZLE_BRAKECOMPENSATOR = new MongoId(
         "5649aa744bdc2ded0b8b457e"
     );
@@ -4454,6 +4470,10 @@ public static class ItemTpl
     public static readonly MongoId FLYER_GENEBURN_CONCERT_ADVERTISEMENT = new MongoId(
         "675a0b8d4ff23436160d8031"
     );
+    public static readonly MongoId FLYER_GET_A_LIFE_POSTER = new MongoId(
+        "6841b179322db20d190b4b99"
+    );
+    public static readonly MongoId FLYER_GET_A_PAW_POSTER = new MongoId("6841b1ff51bf8645f7067bca");
     public static readonly MongoId FLYER_GIRL_POSTER_1 = new MongoId("6759e19a8367ee2b0c0f4b92");
     public static readonly MongoId FLYER_GIRL_POSTER_2 = new MongoId("6759e61067c8eb5cd10352f1");
     public static readonly MongoId FLYER_GIRL_POSTER_3 = new MongoId("6759e6c39422e1708e0e9b81");
@@ -4733,6 +4753,9 @@ public static class ItemTpl
     public static readonly MongoId GASBLOCK_AK_VEZHLIVYY_STRELOK_VS24_VS33C_HANDGUARD_WITH_GAS_TUBE_WHITE =
         new MongoId("5d4aab30a4b9365435358c55");
     public static readonly MongoId GASBLOCK_AK12_GAS_TUBE = new MongoId("649ec107961514b22506b10c");
+    public static readonly MongoId GASBLOCK_AK50_MLOK_HANDGUARD_WITH_GAS_TUBE = new MongoId(
+        "67d417c023ec241bb70d4896"
+    );
     public static readonly MongoId GASBLOCK_AK545_MK_21_GAS_TUBE = new MongoId(
         "628b8d83717774443b15e248"
     );
@@ -6795,6 +6818,9 @@ public static class ItemTpl
     public static readonly MongoId MAGAZINE_127X55_RSH12_CYL_5RND = new MongoId(
         "633ec6ee025b096d320a3b15"
     );
+    public static readonly MongoId MAGAZINE_127X99_M82_10RND = new MongoId(
+        "67d418d0ffb910d21f04720e"
+    );
     public static readonly MongoId MAGAZINE_12G_255_CYL_5RND = new MongoId(
         "60dc519adf4c47305f6d410d"
     );
@@ -7466,6 +7492,9 @@ public static class ItemTpl
     );
     public static readonly MongoId MARKSMANRIFLE_SWORD_INTERNATIONAL_MK18_338_LM_MARKSMAN_RIFLE =
         new MongoId("5fc22d7c187fea44d52eda44");
+    public static readonly MongoId MARKSMANRIFLE_THEAKGUY_AK50_50_BMG_SNIPER_RIFLE = new MongoId(
+        "67d0576f29f580ebc10efd08"
+    );
     public static readonly MongoId MARKSMANRIFLE_VSS_VINTOREZ_9X39_SPECIAL_SNIPER_RIFLE =
         new MongoId("57838ad32459774a17445cd2");
     public static readonly MongoId MEDICAL_ALUMINUM_SPLINT = new MongoId(
@@ -8829,6 +8858,11 @@ public static class ItemTpl
         "63a943cead5cc12f22161ff7"
     );
     public static readonly MongoId QUEST_AG_GUITAR_PICK = new MongoId("638df4cc7b560b03794a18d2");
+    public static readonly MongoId QUEST_AK50_BARREL = new MongoId("683ed6aed885538c4102d8c8");
+    public static readonly MongoId QUEST_AK50_DUST_COVER = new MongoId("683ed6c2e4b1dd7ec4069dc8");
+    public static readonly MongoId QUEST_AK50_HANDGUARD_WITH_GAS_BLOCK = new MongoId(
+        "683ed6ccd9a096739b0c9228"
+    );
     public static readonly MongoId QUEST_ARENA_POSTER_BISON = new MongoId(
         "664a5775f3d3570fba06be64"
     );
@@ -9442,6 +9476,9 @@ public static class ItemTpl
     );
     public static readonly MongoId RECEIVER_AK12_RAILED_DUST_COVER = new MongoId(
         "649ec2f3961514b22506b111"
+    );
+    public static readonly MongoId RECEIVER_AK50_DUST_COVER = new MongoId(
+        "67d416e19bd76ef20f0e743b"
     );
     public static readonly MongoId RECEIVER_AK545_RAILED_DUST_COVER = new MongoId(
         "628b9be6cff66b70c002b14c"
