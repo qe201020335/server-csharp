@@ -34,6 +34,8 @@ public class PostDbLoadService(
 
     public void PerformPostDbLoadActions()
     {
+        _coreConfig.ServerStartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         // Regenerate base cache now mods are loaded and game is starting
         // Mods that add items and use the baseClass service generate the cache including their items, the next mod that
         // add items gets left out,causing warnings
