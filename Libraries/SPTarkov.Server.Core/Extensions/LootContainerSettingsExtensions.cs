@@ -10,7 +10,7 @@ namespace SPTarkov.Server.Core.Extensions
         public static double GetRoubleValue(
             this LootContainerSettings settings,
             int botLevel,
-            string locationId
+            string? locationId
         )
         {
             var roubleTotalByLevel = GetContainerRoubleTotalByLevel(
@@ -18,10 +18,18 @@ namespace SPTarkov.Server.Core.Extensions
                 settings.TotalRubByLevel
             );
 
+            if (locationId is null)
+            {
+                return roubleTotalByLevel;
+            }
+
             // Get multiplier for map, use default if map not found
             if (!settings.LocationMultipler.TryGetValue(locationId, out var multiplier))
             {
-                settings.LocationMultipler.TryGetValue("default", out multiplier);
+                if (!settings.LocationMultipler.TryGetValue("default", out multiplier))
+                {
+                    return roubleTotalByLevel;
+                }
             }
 
             return roubleTotalByLevel * multiplier;
