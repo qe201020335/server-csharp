@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Extensions;
@@ -75,29 +76,21 @@ public class App(
 
         // Discard here, as this task will run indefinitely
         _ = Task.Run(Update);
-    }
 
-    public async Task StartAsync()
-    {
-        if (!_httpServer.IsStarted())
-        {
-            _logger.Success(
-                _serverLocalisationService.GetText(
-                    "started_webserver_success",
-                    _httpServer.ListeningUrl()
-                )
-            );
-            _logger.Success(
-                _serverLocalisationService.GetText(
-                    "websocket-started",
-                    _httpServer.ListeningUrl().Replace("https://", "wss://")
-                )
-            );
-        }
+        _logger.Success(
+            _serverLocalisationService.GetText(
+                "started_webserver_success",
+                _httpServer.ListeningUrl()
+            )
+        );
+        _logger.Success(
+            _serverLocalisationService.GetText(
+                "websocket-started",
+                _httpServer.ListeningUrl().Replace("https://", "wss://")
+            )
+        );
 
         _logger.Success(GetRandomisedStartMessage());
-
-        await _httpServer.StartAsync();
     }
 
     protected string GetRandomisedStartMessage()
@@ -117,7 +110,7 @@ public class App(
         while (!_appLifeTime.ApplicationStopping.IsCancellationRequested)
         {
             // If the server has failed to start, skip any update calls
-            if (!_httpServer.IsStarted() || !_databaseService.IsDatabaseValid())
+            if (!_databaseService.IsDatabaseValid())
             {
                 await Task.Delay(5000, _appLifeTime.ApplicationStopping);
 
