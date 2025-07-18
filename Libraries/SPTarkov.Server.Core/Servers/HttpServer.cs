@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Primitives;
 using SPTarkov.Common.Extensions;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers.Http;
@@ -29,8 +30,11 @@ public class HttpServer(
             return;
         }
 
-        context.Request.Cookies.TryGetValue("PHPSESSID", out var sessionId);
-        if (sessionId != null)
+        // Use default empty mongoId if not found in cookie
+        var sessionId = context.Request.Cookies.TryGetValue("PHPSESSID", out var sessionIdString)
+            ? new MongoId(sessionIdString)
+            : MongoId.Empty();
+        if (!string.IsNullOrEmpty(sessionIdString))
         {
             _profileActivityService.SetActivityTimestamp(sessionId);
         }

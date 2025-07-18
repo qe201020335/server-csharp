@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Http;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Servers;
 using SPTarkov.Server.Core.Servers.Http;
@@ -18,12 +19,12 @@ namespace SPTarkov.Server.Core.Status
     {
         protected readonly CoreConfig _coreConfig = configServer.GetConfig<CoreConfig>();
 
-        public bool CanHandle(string sessionId, HttpRequest req)
+        public bool CanHandle(MongoId sessionId, HttpRequest req)
         {
             return req.Method == "GET" && req.Path.Value.Contains("/status");
         }
 
-        public async Task Handle(string sessionId, HttpRequest req, HttpResponse resp)
+        public async Task Handle(MongoId sessionId, HttpRequest req, HttpResponse resp)
         {
             var sptVersion = $"SPT version: {ProgramStatics.SPT_VERSION()}";
             var debugEnabled = $"Debug enabled: {ProgramStatics.DEBUG()}";
