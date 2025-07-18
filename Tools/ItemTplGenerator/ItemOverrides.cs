@@ -117,10 +117,15 @@ public class ItemOverrides
             { "63a39e0f64283b5e9c56b282", "City key x" },
             { "67499d2c69a58fceba104a43", "Lightkeeper btr quest rpg ammo case" },
             { "67499d4deca8acb2d206163b", "BTR quest electronic jamming device" },
+            // Dogtags
             { "6764207f2fa5e32733055c4a", "Dogtag USEC Prestige 1" },
             { "675dc9d37ae1a8792107ca96", "Dogtag BEAR Prestige 1" },
             { "675dcb0545b1a2d108011b2b", "Dogtag BEAR Prestige 2" },
             { "6764202ae307804338014c1a", "Dogtag USEC Prestige 2" },
+            { "684180bc51bf8645f7067bc8", "Dogtag BEAR Prestige 3" },
+            { "68418091b5b0c9e4c60f0e7a", "Dogtag USEC Prestige 3" },
+            { "684181208d035f60230f63f9", "Dogtag BEAR Prestige 4" },
+            { "684180ee9b6d80d840042e8a", "Dogtag USEC Prestige 4" },
             // Face masks
             { "6176a40f0b8c0312ac75a3d3", "FACECOVER_GHOUL_MASK_2" },
             { "5bd06f5d86f77427101ad47c", "FACECOVER_SLENDER_MASK_2" },

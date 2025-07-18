@@ -2142,13 +2142,19 @@ public static class ItemTpl
     public static readonly MongoId BARTER_DISPOSABLE_SYRINGE = new MongoId(
         "5d1b3f2d86f774253763b735"
     );
-    public static readonly MongoId BARTER_DOGTAG_BEAR = new MongoId("684180bc51bf8645f7067bc8");
+    public static readonly MongoId BARTER_DOGTAG_BEAR = new MongoId("59f32bb586f774757e1e8442");
     public static readonly MongoId BARTER_DOGTAG_BEAR_EOD = new MongoId("6662e9aca7e0b43baa3d5f74");
     public static readonly MongoId BARTER_DOGTAG_BEAR_PRESTIGE_1 = new MongoId(
         "675dc9d37ae1a8792107ca96"
     );
     public static readonly MongoId BARTER_DOGTAG_BEAR_PRESTIGE_2 = new MongoId(
         "675dcb0545b1a2d108011b2b"
+    );
+    public static readonly MongoId BARTER_DOGTAG_BEAR_PRESTIGE_3 = new MongoId(
+        "684180bc51bf8645f7067bc8"
+    );
+    public static readonly MongoId BARTER_DOGTAG_BEAR_PRESTIGE_4 = new MongoId(
+        "684181208d035f60230f63f9"
     );
     public static readonly MongoId BARTER_DOGTAG_BEAR_TUE = new MongoId("6662e9cda7e0b43baa3d5f76");
     public static readonly MongoId BARTER_DOGTAG_USEC = new MongoId("59f32c3b86f77472a31742f0");
@@ -2158,6 +2164,12 @@ public static class ItemTpl
     );
     public static readonly MongoId BARTER_DOGTAG_USEC_PRESTIGE_2 = new MongoId(
         "6764202ae307804338014c1a"
+    );
+    public static readonly MongoId BARTER_DOGTAG_USEC_PRESTIGE_3 = new MongoId(
+        "68418091b5b0c9e4c60f0e7a"
+    );
+    public static readonly MongoId BARTER_DOGTAG_USEC_PRESTIGE_4 = new MongoId(
+        "684180ee9b6d80d840042e8a"
     );
     public static readonly MongoId BARTER_DOGTAG_USEC_TUE = new MongoId("6662ea05f6259762c56f3189");
     public static readonly MongoId BARTER_DOGTAGT = new MongoId("5b9b9020e7ef6f5716480215");
@@ -3947,14 +3959,14 @@ public static class ItemTpl
     public static readonly MongoId FACECOVER_LOWER_HALFMASK = new MongoId(
         "572b7fa524597762b747ce82"
     );
-    public static readonly MongoId FACECOVER_LOWER_HALFMASK_BALACLAVAS = new MongoId(
-        "67a5fa01fafb8efd440694ba"
-    );
     public static readonly MongoId FACECOVER_LOWER_HALFMASK_BALACLAVAS_GREEN = new MongoId(
         "67a5f9c8fafb8efd440694b8"
     );
     public static readonly MongoId FACECOVER_LOWER_HALFMASK_BALACLAVAS_RED = new MongoId(
         "67a5f9e7f7041a25760dda38"
+    );
+    public static readonly MongoId FACECOVER_LOWER_HALFMASK_BALACLAVAS_WHITE = new MongoId(
+        "67a5fa01fafb8efd440694ba"
     );
     public static readonly MongoId FACECOVER_LOWER_HALFMASK_EL_DA_DE_MUERTOS = new MongoId(
         "67a5f989f7041a25760dda36"
@@ -4109,7 +4121,7 @@ public static class ItemTpl
     public static readonly MongoId FLASHHIDER_AK12_545X39_MUZZLE_BRAKE = new MongoId(
         "649ec2af961514b22506b10f"
     );
-    public static readonly MongoId FLASHHIDER_AK50_BMG_MUZZLE_BRAKE = new MongoId(
+    public static readonly MongoId FLASHHIDER_AK50_50_BMG_MUZZLE_BRAKE = new MongoId(
         "67d41883f378a36c4706eeb7"
     );
     public static readonly MongoId FLASHHIDER_AK74_545X39_MUZZLE_BRAKECOMPENSATOR = new MongoId(
