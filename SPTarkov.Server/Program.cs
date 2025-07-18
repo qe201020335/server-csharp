@@ -77,7 +77,9 @@ public static class Program
         ConfigureWebApp(app);
 
         // In case of exceptions we snatch a Server logger
-        var serverExceptionLogger = app.Services.GetService<ILoggerFactory>()!.CreateLogger("Server");
+        var serverExceptionLogger = app
+            .Services.GetService<ILoggerFactory>()!
+            .CreateLogger("Server");
         // We need any logger instance to use as a finalizer when the app closes
         var loggerFinalizer = app.Services.GetService<ISptLogger<App>>()!;
         try
@@ -103,35 +105,41 @@ public static class Program
             new WebSocketOptions
             {
                 // Every minute a heartbeat is sent to keep the connection alive.
-                KeepAliveInterval = TimeSpan.FromSeconds(60)
+                KeepAliveInterval = TimeSpan.FromSeconds(60),
             }
         );
-        app.Use(async (HttpContext context, RequestDelegate _) =>
-        {
-            await context.RequestServices.GetService<HttpServer>()!.HandleRequest(context);
-        });
+        app.Use(
+            async (HttpContext context, RequestDelegate _) =>
+            {
+                await context.RequestServices.GetService<HttpServer>()!.HandleRequest(context);
+            }
+        );
     }
 
     private static void ConfigureKestrel(WebApplicationBuilder builder)
     {
-        builder.WebHost.ConfigureKestrel((_, options) =>
-        {
-            var httpConfig = options.ApplicationServices.GetService<ConfigServer>()?.GetConfig<HttpConfig>()!;
-            var certHelper = options.ApplicationServices.GetService<CertificateHelper>()!;
-            options.Listen(
-                IPAddress.Parse(httpConfig.Ip),
-                httpConfig.Port,
-                listenOptions =>
-                {
-                    listenOptions.UseHttps(opts =>
+        builder.WebHost.ConfigureKestrel(
+            (_, options) =>
+            {
+                var httpConfig = options
+                    .ApplicationServices.GetService<ConfigServer>()
+                    ?.GetConfig<HttpConfig>()!;
+                var certHelper = options.ApplicationServices.GetService<CertificateHelper>()!;
+                options.Listen(
+                    IPAddress.Parse(httpConfig.Ip),
+                    httpConfig.Port,
+                    listenOptions =>
                     {
-                        opts.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                        opts.ServerCertificate = certHelper.LoadOrGenerateCertificatePfx();
-                        opts.ClientCertificateMode = ClientCertificateMode.NoCertificate;
-                    });
-                }
-            );
-        });
+                        listenOptions.UseHttps(opts =>
+                        {
+                            opts.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+                            opts.ServerCertificate = certHelper.LoadOrGenerateCertificatePfx();
+                            opts.ClientCertificateMode = ClientCertificateMode.NoCertificate;
+                        });
+                    }
+                );
+            }
+        );
     }
 
     private static WebApplicationBuilder CreateNewHostBuilder(string[]? args = null)
