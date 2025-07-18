@@ -174,7 +174,10 @@ public class PlayerScavGenerator(
                 {
                     Id = new MongoId(),
                     Template = itemTemplate.Id,
-                    Upd = botGeneratorHelper.GenerateExtraPropertiesForItem(itemTemplate),
+                    Upd = botGeneratorHelper.GenerateExtraPropertiesForItem(
+                        itemTemplate,
+                        "assault"
+                    ),
                 },
             };
 
