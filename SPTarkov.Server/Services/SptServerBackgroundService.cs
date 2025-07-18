@@ -5,7 +5,11 @@ using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Services;
 
-public class SptServerBackgroundService(IReadOnlyList<SptMod> loadedMods, BundleLoader bundleLoader, App app) : BackgroundService
+public class SptServerBackgroundService(
+    IReadOnlyList<SptMod> loadedMods,
+    BundleLoader bundleLoader,
+    App app
+) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -16,7 +20,10 @@ public class SptServerBackgroundService(IReadOnlyList<SptMod> loadedMods, Bundle
                 if (mod.ModMetadata?.IsBundleMod == true)
                 {
                     // Convert to relative path
-                    var relativeModPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), mod.Directory)
+                    var relativeModPath = Path.GetRelativePath(
+                            Directory.GetCurrentDirectory(),
+                            mod.Directory
+                        )
                         .Replace('\\', '/');
 
                     bundleLoader.AddBundles(relativeModPath);
