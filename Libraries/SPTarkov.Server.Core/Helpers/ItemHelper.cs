@@ -718,11 +718,12 @@ public class ItemHelper(
     public List<Item> FindAndReturnChildrenByAssort(MongoId itemIdToFind, List<Item> assort)
     {
         List<Item> list = [];
+        var itemIdToFindString = itemIdToFind.ToString();
         foreach (var itemFromAssort in assort)
         {
             // Parent matches desired item + all items in list do not match
             if (
-                itemFromAssort.ParentId == itemIdToFind
+                itemFromAssort.ParentId == itemIdToFindString
                 && list.All(item => itemFromAssort.Id != item.Id)
             )
             {
