@@ -16,7 +16,7 @@ public record CustomisationStorage
     public string Source { get; set; }
 
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public string? Type { get; set; }
 }
 
 public record CustomisationType
@@ -37,6 +37,7 @@ public record CustomisationType
     public const string SHOOTING_RANGE_MARK = "shootingRangeMark";
     public const string CAT = "cat";
     public const string MANNEQUIN_POSE = "mannequinPose";
+    public static string UPPER = "Upper";
 }
 
 public record CustomisationTypeId

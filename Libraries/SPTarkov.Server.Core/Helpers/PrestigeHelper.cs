@@ -37,7 +37,7 @@ public class PrestigeHelper(
             foreach (var skillToCopy in commonSKillsToCopy)
             {
                 // Set progress 5% of what it was
-                skillToCopy.Progress = skillToCopy.Progress * 0.05;
+                skillToCopy.Progress *= 0.05;
                 var existingSkill = newProfile.CharacterData.PmcData.Skills.Common.FirstOrDefault(
                     skill => skill.Id == skillToCopy.Id
                 );
@@ -55,7 +55,7 @@ public class PrestigeHelper(
             foreach (var skillToCopy in masteringSkillsToCopy)
             {
                 // Set progress 5% of what it was
-                skillToCopy.Progress = skillToCopy.Progress * 0.05;
+                skillToCopy.Progress *= 0.05;
                 var existingSkill =
                     newProfile.CharacterData.PmcData.Skills.Mastering.FirstOrDefault(skill =>
                         skill.Id == skillToCopy.Id
@@ -71,18 +71,22 @@ public class PrestigeHelper(
             }
         }
 
-        var indexOfPrestigeObtained = Math.Min((prestige.PrestigeLevel ?? 1) - 1, 1); // Index starts at 0
+        // Index of desired prestige is (prestige level - 1)
+        var indexOfPrestigeObtained = Math.Clamp((prestige.PrestigeLevel ?? 1) - 1, 0, 4);
 
         // Add "Prestigious" achievement
-        if (!newProfile.CharacterData.PmcData.Achievements.ContainsKey("676091c0f457869a94017a23"))
+        var prestigiousAchievement = new MongoId("676091c0f457869a94017a23");
+        if (!newProfile.CharacterData.PmcData.Achievements.ContainsKey(prestigiousAchievement))
         {
-            rewardHelper.AddAchievementToProfile(newProfile, "676091c0f457869a94017a23");
+            rewardHelper.AddAchievementToProfile(newProfile, prestigiousAchievement);
         }
 
         // Assumes Prestige data is in descending order
         var currentPrestigeData = databaseService.GetTemplates().Prestige.Elements[
             indexOfPrestigeObtained
         ];
+
+        // Get all prestige rewards from prestige 1 up to desired prestige
         var prestigeRewards = databaseService
             .GetTemplates()
             .Prestige.Elements.Slice(0, indexOfPrestigeObtained + 1)
@@ -91,7 +95,10 @@ public class PrestigeHelper(
         AddPrestigeRewardsToProfile(sessionId.Value, newProfile, prestigeRewards);
 
         // Flag profile as having achieved this prestige level
-        newProfile.CharacterData.PmcData.Prestige[currentPrestigeData.Id] = timeUtil.GetTimeStamp();
+        newProfile.CharacterData.PmcData.Prestige.TryAdd(
+            currentPrestigeData.Id,
+            timeUtil.GetTimeStamp()
+        );
 
         var itemsToTransfer = new List<Item>();
 
@@ -118,7 +125,7 @@ public class PrestigeHelper(
                 sessionId.Value,
                 "",
                 itemsToTransfer,
-                31536000
+                timeUtil.GetHoursAsSeconds(8760) // Year
             );
         }
 
