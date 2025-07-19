@@ -121,9 +121,9 @@ public static class Program
         builder.WebHost.ConfigureKestrel(
             (_, options) =>
             {
-                var httpConfig = options
-                    .ApplicationServices.GetService<ConfigServer>()
-                    ?.GetConfig<HttpConfig>()!;
+                // This method is not expected to be async so we need to wait for the Task instead of using await keyword
+                options.ApplicationServices.GetService<OnWebAppBuildModLoader>()!.OnLoad().Wait();
+                var httpConfig = options.ApplicationServices.GetService<ConfigServer>()?.GetConfig<HttpConfig>()!;
                 var certHelper = options.ApplicationServices.GetService<CertificateHelper>()!;
                 options.Listen(
                     IPAddress.Parse(httpConfig.Ip),
