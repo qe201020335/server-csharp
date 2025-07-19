@@ -308,7 +308,7 @@ public class BotGenerator(
         // Generate new inventory ID
         GenerateInventoryId(bot);
 
-        // Set role back to originally requested now its been generated
+        // Set role back to originally requested now it has been generated
         if (botGenerationDetails.EventRole is not null)
         {
             bot.Info.Settings.Role = botGenerationDetails.EventRole;
@@ -861,29 +861,14 @@ public class BotGenerator(
     /// <param name="side">Usec/Bear</param>
     /// <param name="gameVersion">edge_of_darkness / standard</param>
     /// <returns>item tpl</returns>
-    public string GetDogtagTplByGameVersionAndSide(string side, string gameVersion)
+    public MongoId GetDogtagTplByGameVersionAndSide(string side, string gameVersion)
     {
-        if (string.Equals(side, Sides.Usec, StringComparison.OrdinalIgnoreCase))
+        _pmcConfig.DogtagSettings.TryGetValue(side.ToLower(), out var gameVersionWeights);
+        if (!gameVersionWeights.TryGetValue(gameVersion, out var possibleDogtags))
         {
-            switch (gameVersion)
-            {
-                case GameEditions.EDGE_OF_DARKNESS:
-                    return ItemTpl.BARTER_DOGTAG_USEC_EOD;
-                case GameEditions.UNHEARD:
-                    return ItemTpl.BARTER_DOGTAG_USEC_TUE;
-                default:
-                    return ItemTpl.BARTER_DOGTAG_USEC;
-            }
+            gameVersionWeights.TryGetValue("default", out possibleDogtags);
         }
 
-        switch (gameVersion)
-        {
-            case GameEditions.EDGE_OF_DARKNESS:
-                return ItemTpl.BARTER_DOGTAG_BEAR_EOD;
-            case GameEditions.UNHEARD:
-                return ItemTpl.BARTER_DOGTAG_BEAR_TUE;
-            default:
-                return ItemTpl.BARTER_DOGTAG_BEAR;
-        }
+        return weightedRandomHelper.GetWeightedValue(possibleDogtags);
     }
 }
