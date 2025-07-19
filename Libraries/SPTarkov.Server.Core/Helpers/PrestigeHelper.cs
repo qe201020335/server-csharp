@@ -172,7 +172,7 @@ public class PrestigeHelper(
                     break;
                 }
                 default:
-                    logger.Error($"Unhandled prestige reward type: {reward.Type}");
+                    logger.Error($"Unhandled prestige reward type: {reward.Type} Id: {reward.Id}");
                     break;
             }
         }

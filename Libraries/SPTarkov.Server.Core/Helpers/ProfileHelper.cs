@@ -682,7 +682,7 @@ public class ProfileHelper(
         {
             var rewardToStore = new CustomisationStorage
             {
-                Id = reward.Target,
+                Id = new MongoId(reward.Target),
                 Source = source,
                 Type = null,
             };
@@ -712,6 +712,12 @@ public class ProfileHelper(
                     break;
                 case CustomisationTypeId.SHOOTING_RANGE_MARK:
                     rewardToStore.Type = CustomisationType.SHOOTING_RANGE_MARK;
+                    break;
+                case CustomisationTypeId.VOICE:
+                    rewardToStore.Type = CustomisationType.VOICE;
+                    break;
+                case CustomisationTypeId.LIGHT:
+                    rewardToStore.Type = CustomisationType.LIGHT;
                     break;
                 default:
                     logger.Error(
