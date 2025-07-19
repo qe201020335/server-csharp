@@ -193,12 +193,9 @@ public class LauncherController(
 
         if (!sessionId.IsEmpty())
         {
-            var profile = saveServer.GetProfile(sessionId);
-            profile.ProfileInfo.Edition = info.Edition;
-            profile.ProfileInfo.IsWiped = true;
-
-            // Wipe out any prestiges
-            profile.CharacterData.PmcData.Prestige = [];
+            var profileInfo = saveServer.GetProfile(sessionId).ProfileInfo;
+            profileInfo!.Edition = info.Edition;
+            profileInfo.IsWiped = true;
         }
 
         return sessionId;
