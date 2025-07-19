@@ -589,22 +589,22 @@ public class BotWeaponGenerator(
         BotBaseInventory inventory
     )
     {
+        var container = new HashSet<EquipmentSlots> { EquipmentSlots.SecuredContainer };
         for (var i = 0; i < stackCount; i++)
         {
             var id = new MongoId();
             botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
-                [EquipmentSlots.SecuredContainer],
+                container,
                 id,
                 ammoTpl,
-                new List<Item>
-                {
-                    new()
+                [
+                    new Item
                     {
                         Id = id,
                         Template = ammoTpl,
                         Upd = new Upd { StackObjectsCount = stackSize },
                     },
-                },
+                ],
                 inventory
             );
         }
@@ -626,7 +626,7 @@ public class BotWeaponGenerator(
         var magazine = weaponMods.FirstOrDefault(m => m.SlotId == _modMagazineSlotId);
         if (magazine is null)
         {
-            // Edge case - magazineless chamber loaded weapons dont have magazines, e.g. mp18
+            // Edge case - magazineless chamber loaded weapons don't have magazines, e.g. mp18
             // return default mag tpl
             if (weaponTemplate.Properties.ReloadMode == ReloadMode.OnlyBarrel)
             {
