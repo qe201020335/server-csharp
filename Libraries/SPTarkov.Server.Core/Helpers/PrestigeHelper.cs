@@ -28,15 +28,26 @@ public class PrestigeHelper(
     {
         var prePrestigePmc = oldProfile.CharacterData.PmcData;
         var sessionId = newProfile.ProfileInfo.ProfileId;
-        var prestigeLevels = databaseService
-            .GetTemplates()
-            .Prestige.Elements;
-        var indexOfPrestigeObtained = Math.Clamp((prestige.PrestigeLevel ?? 1), 0, prestigeLevels.Count - 1); // Levels are 1 to 4, Index is 0 to 3
+        var prestigeLevels = databaseService.GetTemplates().Prestige.Elements;
+        var indexOfPrestigeObtained = Math.Clamp(
+            (prestige.PrestigeLevel ?? 1),
+            0,
+            prestigeLevels.Count - 1
+        ); // Levels are 1 to 4, Index is 0 to 3
 
         // Skill copy
 
-        var skillProgressCopyAmount = (float)(1 - prestigeLevels[indexOfPrestigeObtained].TransferConfigs.SkillConfig.TransferMultiplier);
-        var masteringProgressCopyAmount = (float)(1 - prestigeLevels[indexOfPrestigeObtained].TransferConfigs.MasteringConfig.TransferMultiplier);
+        var skillProgressCopyAmount = (float)(
+            1
+            - prestigeLevels[indexOfPrestigeObtained].TransferConfigs.SkillConfig.TransferMultiplier
+        );
+        var masteringProgressCopyAmount = (float)(
+            1
+            - prestigeLevels[indexOfPrestigeObtained]
+                .TransferConfigs
+                .MasteringConfig
+                .TransferMultiplier
+        );
 
         if (prePrestigePmc.Skills.Common is not null)
         {
@@ -91,7 +102,8 @@ public class PrestigeHelper(
         ];
 
         // Get all prestige rewards from prestige 1 up to desired prestige
-        var prestigeRewards = prestigeLevels.Slice(0, indexOfPrestigeObtained + 1) // Index back to PrestigeLevel
+        var prestigeRewards = prestigeLevels
+            .Slice(0, indexOfPrestigeObtained + 1) // Index back to PrestigeLevel
             .SelectMany(prestige => prestige.Rewards);
 
         AddPrestigeRewardsToProfile(sessionId.Value, newProfile, prestigeRewards);
