@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using SPTarkov.Common.Extensions;
+using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
@@ -441,6 +442,26 @@ namespace SPTarkov.Server.Core.Extensions
             }
 
             return newId.Value;
+        }
+
+        /// <summary>
+        /// Create hashsets for passed in items, keyed by the items ID and by the items parentId
+        /// </summary>
+        /// <param name="inventoryItems">Items to hash</param>
+        /// <returns>InventoryItemHash</returns>
+        public static InventoryItemHash GetInventoryItemHash(this List<Item> inventoryItems)
+        {
+            // Group by parentId + turn value into mongoId as we've filtered out non-mongoId values
+            var byParentId = inventoryItems
+                .Where(item => !string.IsNullOrEmpty(item.ParentId) && item.ParentId != "hideout")
+                .GroupBy(item => new MongoId(item.ParentId))
+                .ToDictionary(kvp => kvp.Key, group => group.ToHashSet());
+
+            return new InventoryItemHash
+            {
+                ByItemId = inventoryItems.ToDictionary(item => item.Id),
+                ByParentId = byParentId,
+            };
         }
     }
 }
