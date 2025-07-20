@@ -1,5 +1,6 @@
 ﻿using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Utils;
@@ -349,6 +350,111 @@ namespace UnitTests.Tests.Helpers
                 [EquipmentSlots.Backpack],
                 rootWeaponId,
                 ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
+                weaponWithChildren,
+                botInventory
+            );
+
+            Assert.AreEqual(ItemAddedResult.NO_SPACE, result);
+        }
+
+        /// <summary>
+        /// Fill all slots except for a 2x6 rectangle, with the top right corner filled, result should be no space
+        /// </summary>
+        [TestMethod]
+        public void AddItemWithChildrenToEquipmentSlot_custom_gun_no_space()
+        {
+            var botInventory = new BotBaseInventory { Items = [] };
+            var backpack = new Item
+            {
+                Id = new MongoId(),
+                // Has a 4hx5v grid first
+                Template = ItemTpl.BACKPACK_GRUPPA_99_T30_BACKPACK_BLACK,
+                SlotId = "Backpack",
+            };
+            botInventory.Items.Add(backpack);
+
+            var takenSlots = new List<XY>
+            {
+                new() { X = 1, Y = 0 },
+                new() { X = 2, Y = 0 },
+                new() { X = 3, Y = 0 },
+                new() { X = 4, Y = 0 },
+                new() { X = 2, Y = 1 },
+                new() { X = 3, Y = 1 },
+                new() { X = 4, Y = 1 },
+                new() { X = 2, Y = 2 },
+                new() { X = 3, Y = 2 },
+                new() { X = 4, Y = 2 },
+                new() { X = 2, Y = 3 },
+                new() { X = 3, Y = 3 },
+                new() { X = 4, Y = 3 },
+                new() { X = 2, Y = 4 },
+                new() { X = 3, Y = 4 },
+                new() { X = 4, Y = 4 },
+                new() { X = 2, Y = 5 },
+                new() { X = 3, Y = 5 },
+                new() { X = 4, Y = 5 },
+            };
+            foreach (var takenSlot in takenSlots)
+            {
+                botInventory.Items.Add(
+                    new Item
+                    {
+                        Id = new MongoId(),
+                        Template = ItemTpl.AMMO_762X25TT_AKBS,
+                        ParentId = backpack.Id,
+                        SlotId = "main",
+                        Location = new ItemLocation
+                        {
+                            X = (int)takenSlot.X.Value,
+                            Y = (int)takenSlot.Y.Value,
+                            R = ItemRotation.Horizontal,
+                        },
+                        Upd = new Upd { StackObjectsCount = 1 },
+                    }
+                );
+            }
+
+            var rootWeaponId = new MongoId();
+            var weaponWithChildren = new List<Item>();
+            var root = new Item
+            {
+                Id = rootWeaponId,
+                Template = ItemTpl.ASSAULTRIFLE_MOLOT_ARMS_VPO136_VEPRKM_762X39_CARBINE,
+            };
+            weaponWithChildren.Add(root);
+
+            var stock = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.STOCK_VPO136_VEPRKM_WOODEN,
+                ParentId = root.Id,
+                SlotId = "mod_stock",
+            };
+            weaponWithChildren.Add(stock);
+
+            var magazine = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.MAGAZINE_366TKM_AK_AL_10RND,
+                ParentId = root.Id,
+                SlotId = "mod_magazine",
+            };
+            weaponWithChildren.Add(magazine);
+
+            var muzzle = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.SILENCER_AKM_HEXAGON_762X39_SOUND_SUPPRESSOR,
+                ParentId = root.Id,
+                SlotId = "mod_muzzle",
+            };
+            weaponWithChildren.Add(muzzle);
+
+            var result = _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
+                [EquipmentSlots.Backpack],
+                rootWeaponId,
+                root.Template,
                 weaponWithChildren,
                 botInventory
             );
