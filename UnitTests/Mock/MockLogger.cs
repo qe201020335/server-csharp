@@ -16,7 +16,7 @@ public class MockLogger<T> : ISptLogger<T>
         Exception? ex = null
     )
     {
-        throw new NotImplementedException();
+        Console.WriteLine(data);
     }
 
     public void Success(string data, Exception? ex = null)
