@@ -191,7 +191,7 @@ namespace UnitTests.Tests.Helpers
         /// No space for gun
         /// </summary>
         [TestMethod]
-        public void AddItemWithChildrenToEquipmentSlot_no_space()
+        public void AddItemWithChildrenToEquipmentSlot_no_space_in_first_grid_choose_second_grid()
         {
             var botInventory = new BotBaseInventory { Items = [] };
             var backpack = new Item
@@ -241,6 +241,100 @@ namespace UnitTests.Tests.Helpers
                     Location = new ItemLocation
                     {
                         X = 2,
+                        Y = 0,
+                        R = ItemRotation.Horizontal,
+                    },
+                    Upd = new Upd { StackObjectsCount = 1 },
+                }
+            );
+
+            var rootWeaponId = new MongoId();
+            var weaponWithChildren = CreateMp18(rootWeaponId);
+
+            var result = _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
+                [EquipmentSlots.Backpack],
+                rootWeaponId,
+                ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
+                weaponWithChildren,
+                botInventory
+            );
+
+            Assert.AreEqual(ItemAddedResult.SUCCESS, result);
+            var weaponRoot = weaponWithChildren.FirstOrDefault(item => item.Id == rootWeaponId);
+            Assert.AreEqual("1", weaponRoot.SlotId);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).X, 0);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).Y, 0);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).R, ItemRotation.Vertical);
+        }
+
+        /// <summary>
+        /// No space for gun
+        /// </summary>
+        [TestMethod]
+        public void AddItemWithChildrenToEquipmentSlot_no_space()
+        {
+            var botInventory = new BotBaseInventory { Items = [] };
+            var backpack = new Item
+            {
+                Id = new MongoId(),
+                // Has a 4hx5v grid first
+                Template = ItemTpl.BACKPACK_WARTECH_BERKUT_BB102_BACKPACK_ATACS_FG,
+                SlotId = "Backpack",
+            };
+            botInventory.Items.Add(backpack);
+
+            botInventory.Items.AddRange(
+                new Item
+                {
+                    Id = new MongoId(),
+                    Template = ItemTpl.AMMO_762X25TT_AKBS,
+                    ParentId = backpack.Id,
+                    SlotId = "main",
+                    Location = new ItemLocation
+                    {
+                        X = 0,
+                        Y = 0,
+                        R = ItemRotation.Horizontal,
+                    },
+                    Upd = new Upd { StackObjectsCount = 1 },
+                },
+                new Item
+                {
+                    Id = new MongoId(),
+                    Template = ItemTpl.AMMO_762X25TT_AKBS,
+                    ParentId = backpack.Id,
+                    SlotId = "main",
+                    Location = new ItemLocation
+                    {
+                        X = 1,
+                        Y = 0,
+                        R = ItemRotation.Horizontal,
+                    },
+                    Upd = new Upd { StackObjectsCount = 1 },
+                },
+                new Item
+                {
+                    Id = new MongoId(),
+                    Template = ItemTpl.AMMO_762X25TT_AKBS,
+                    ParentId = backpack.Id,
+                    SlotId = "main",
+                    Location = new ItemLocation
+                    {
+                        X = 2,
+                        Y = 0,
+                        R = ItemRotation.Horizontal,
+                    },
+                    Upd = new Upd { StackObjectsCount = 1 },
+                },
+                new Item
+                {
+                    Id = new MongoId(),
+                    Template = ItemTpl.AMMO_762X25TT_AKBS,
+                    ParentId = backpack.Id,
+                    SlotId = "main",
+                    Location = new ItemLocation
+                    {
+                        X = 3,
                         Y = 0,
                         R = ItemRotation.Horizontal,
                     },
