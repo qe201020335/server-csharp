@@ -175,7 +175,11 @@ public class RandomUtil(ISptLogger<RandomUtil> _logger, ICloner _cloner)
     ///     If the generated number is less than 0, it will recursively attempt to generate a valid number up to 100 times.
     ///     If it fails to generate a valid number after 100 attempts, it will return a random float between 0.01 and twice the mean.
     /// </remarks>
-    public virtual double GetNormallyDistributedRandomNumber(double mean, double sigma, int attempt = 0)
+    public virtual double GetNormallyDistributedRandomNumber(
+        double mean,
+        double sigma,
+        int attempt = 0
+    )
     {
         double u,
             v;
@@ -233,7 +237,11 @@ public class RandomUtil(ISptLogger<RandomUtil> _logger, ICloner _cloner)
     ///     and MaxSignificantDigits(15), inclusive. If not provided, precision is determined by the input values.
     /// </param>
     /// <returns></returns>
-    public virtual double RandNum(double val1, double val2 = 0, int precision = DecimalPointRandomPrecision)
+    public virtual double RandNum(
+        double val1,
+        double val2 = 0,
+        int precision = DecimalPointRandomPrecision
+    )
     {
         if (!double.IsFinite(val1) || !double.IsFinite(val2))
         {

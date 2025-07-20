@@ -6,7 +6,8 @@ using SPTarkov.Server.Core.Utils.Cloners;
 namespace UnitTests.Mock;
 
 [Injectable(TypeOverride = typeof(RandomUtil))]
-public class MockRandomUtil(ISptLogger<RandomUtil> _logger, ICloner _cloner) : RandomUtil(_logger, _cloner)
+public class MockRandomUtil(ISptLogger<RandomUtil> _logger, ICloner _cloner)
+    : RandomUtil(_logger, _cloner)
 {
     public override int GetInt(int min, int max = Int32.MaxValue, bool exclusive = false)
     {
@@ -66,7 +67,11 @@ public class MockRandomUtil(ISptLogger<RandomUtil> _logger, ICloner _cloner) : R
         return GetCollectionValue(dictionary.Values);
     }
 
-    public override double GetNormallyDistributedRandomNumber(double mean, double sigma, int attempt = 0)
+    public override double GetNormallyDistributedRandomNumber(
+        double mean,
+        double sigma,
+        int attempt = 0
+    )
     {
         // TODO: No idea what to do with this
         return base.GetNormallyDistributedRandomNumber(mean, sigma, attempt);
@@ -82,12 +87,20 @@ public class MockRandomUtil(ISptLogger<RandomUtil> _logger, ICloner _cloner) : R
         return val1;
     }
 
-    public override List<T> DrawRandomFromList<T>(List<T> originalList, int count = 1, bool replacement = true)
+    public override List<T> DrawRandomFromList<T>(
+        List<T> originalList,
+        int count = 1,
+        bool replacement = true
+    )
     {
         return originalList.Slice(0, count);
     }
 
-    public override List<TKey> DrawRandomFromDict<TKey, TVal>(Dictionary<TKey, TVal> dict, int count = 1, bool replacement = true)
+    public override List<TKey> DrawRandomFromDict<TKey, TVal>(
+        Dictionary<TKey, TVal> dict,
+        int count = 1,
+        bool replacement = true
+    )
     {
         // TODO: derandomize
         return base.DrawRandomFromDict(dict, count, replacement);
@@ -109,7 +122,8 @@ public class MockRandomUtil(ISptLogger<RandomUtil> _logger, ICloner _cloner) : R
         return base.GetNumberPrecision(num);
     }
 
-    public override T? GetArrayValue<T>(IEnumerable<T> list) where T : default
+    public override T? GetArrayValue<T>(IEnumerable<T> list)
+        where T : default
     {
         return GetCollectionValue(list);
     }
