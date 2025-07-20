@@ -39,10 +39,7 @@ public class PrestigeHelper(
 
         var skillProgressCopyAmount = (float)(
             1
-            - prestigeLevels[indexOfPrestigeObtained]
-                .TransferConfigs
-                .SkillConfig
-                .TransferMultiplier
+            - prestigeLevels[indexOfPrestigeObtained].TransferConfigs.SkillConfig.TransferMultiplier
         );
         var masteringProgressCopyAmount = (float)(
             1
