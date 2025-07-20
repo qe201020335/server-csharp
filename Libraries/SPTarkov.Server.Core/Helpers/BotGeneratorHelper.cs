@@ -581,8 +581,8 @@ public class BotGeneratorHelper(
             }
 
             // Get container details from db
-            var (key, value) = itemHelper.GetItem(container.Template);
-            if (!key)
+            var (isValidItem, itemDbDetails) = itemHelper.GetItem(container.Template);
+            if (!isValidItem)
             {
                 logger.Warning(
                     serverLocalisationService.GetText(
@@ -595,7 +595,7 @@ public class BotGeneratorHelper(
                 continue;
             }
 
-            if (value?.Properties?.Grids?.Count == 0)
+            if (itemDbDetails?.Properties?.Grids?.Count == 0)
             // Container has no slots to hold items
             {
                 continue;
@@ -610,8 +610,8 @@ public class BotGeneratorHelper(
 
             // Iterate over each grid in the container and look for a big enough space for the item to be placed in
             var currentGridCount = 1;
-            var totalSlotGridCount = value?.Properties?.Grids?.Count;
-            foreach (var slotGrid in value?.Properties?.Grids ?? [])
+            var totalSlotGridCount = itemDbDetails?.Properties?.Grids?.Count;
+            foreach (var slotGrid in itemDbDetails?.Properties?.Grids ?? [])
             {
                 // Grid is empty, skip or item size is bigger than grid
                 if (
