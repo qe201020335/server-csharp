@@ -66,7 +66,7 @@ public class BotWeaponGenerator(
         MongoId sessionId,
         string equipmentSlot,
         BotTypeInventory botTemplateInventory,
-        string weaponParentId,
+        MongoId weaponParentId,
         Dictionary<string, double> modChances,
         string botRole,
         bool isPmc,
@@ -93,7 +93,7 @@ public class BotWeaponGenerator(
     /// <param name="equipmentSlot">Primary/secondary/holster</param>
     /// <param name="botTemplateInventory">e.g. assault.json</param>
     /// <returns>Weapon template</returns>
-    public string PickWeightedWeaponTemplateFromPool(
+    public MongoId PickWeightedWeaponTemplateFromPool(
         string equipmentSlot,
         BotTypeInventory botTemplateInventory
     )
@@ -125,7 +125,7 @@ public class BotWeaponGenerator(
         MongoId weaponTpl,
         string slotName,
         BotTypeInventory botTemplateInventory,
-        string weaponParentId,
+        MongoId weaponParentId,
         Dictionary<string, double> modChances,
         string botRole,
         bool isPmc,

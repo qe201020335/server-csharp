@@ -212,11 +212,8 @@ public class BotInventoryGenerator(
             )
             // Never let mod chance go outside 0 - 100
             {
-                randomistionDetails.EquipmentMods[equipment] = Math.Clamp(
-                    randomistionDetails.EquipmentMods[equipment] + weight,
-                    0,
-                    100
-                );
+                var newWeight = weight + randomistionDetails.EquipmentMods[equipment];
+                randomistionDetails.EquipmentMods[equipment] = Math.Clamp(newWeight, 0, 100);
             }
         }
 
@@ -794,7 +791,7 @@ public class BotInventoryGenerator(
             sessionId,
             weaponSlot.Slot.ToString(),
             templateInventory,
-            botInventory.Equipment,
+            botInventory.Equipment.Value,
             equipmentChances.WeaponModsChances,
             botRole,
             isPmc,
