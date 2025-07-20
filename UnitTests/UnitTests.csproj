@@ -12,6 +12,7 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Libraries\SPTarkov.Server.Assets\SPTarkov.Server.Assets.csproj" />
     <ProjectReference Include="..\Libraries\SPTarkov.Server.Core\SPTarkov.Server.Core.csproj" />
     <ProjectReference Include="..\Libraries\SPTarkov.DI\SPTarkov.DI.csproj" />
     <ProjectReference Include="..\Libraries\SPTarkov.Common\SPTarkov.Common.csproj" />
