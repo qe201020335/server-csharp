@@ -1,4 +1,6 @@
 ﻿using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Utils;
 
 namespace UnitTests.Tests.Helpers
@@ -68,6 +70,52 @@ namespace UnitTests.Tests.Helpers
 
             Assert.AreEqual(2, result.Item1);
             Assert.AreEqual(1, result.Item2);
+        }
+
+        [TestMethod]
+        public void GetItemSize_custom_vpo_136_6x2()
+        {
+            var rootWeaponId = new MongoId();
+
+            var weaponWithChildren = new List<Item>();
+            var root = new Item
+            {
+                Id = rootWeaponId,
+                Template = ItemTpl.ASSAULTRIFLE_MOLOT_ARMS_VPO136_VEPRKM_762X39_CARBINE,
+            };
+            weaponWithChildren.Add(root);
+
+            var stock = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.STOCK_VPO136_VEPRKM_WOODEN,
+                ParentId = root.Id,
+                SlotId = "mod_stock",
+            };
+            weaponWithChildren.Add(stock);
+
+            var magazine = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.MAGAZINE_366TKM_AK_AL_10RND,
+                ParentId = root.Id,
+                SlotId = "mod_magazine",
+            };
+            weaponWithChildren.Add(magazine);
+
+            var muzzle = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.SILENCER_AKM_HEXAGON_762X39_SOUND_SUPPRESSOR,
+                ParentId = root.Id,
+                SlotId = "mod_muzzle",
+            };
+            weaponWithChildren.Add(muzzle);
+
+            var result = _helper.GetItemSize(root.Template, rootWeaponId, weaponWithChildren);
+
+            Assert.AreEqual(6, result.Item1);
+            Assert.AreEqual(2, result.Item2);
         }
     }
 }
