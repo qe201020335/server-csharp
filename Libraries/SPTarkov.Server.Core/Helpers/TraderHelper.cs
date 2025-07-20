@@ -15,7 +15,7 @@ using LogLevel = SPTarkov.Server.Core.Models.Spt.Logging.LogLevel;
 
 namespace SPTarkov.Server.Core.Helpers;
 
-[Injectable]
+[Injectable(InjectionType.Singleton)]
 public class TraderHelper(
     ISptLogger<TraderHelper> logger,
     DatabaseService databaseService,
@@ -34,8 +34,10 @@ public class TraderHelper(
         GameEditions.EDGE_OF_DARKNESS,
         GameEditions.UNHEARD,
     ];
-    protected readonly Dictionary<string, double> _highestTraderPriceItems = new();
+    protected readonly Dictionary<MongoId, double> _highestTraderPriceItems = new();
     protected readonly TraderConfig _traderConfig = configServer.GetConfig<TraderConfig>();
+
+    protected Lock _highestPriceLock = new Lock();
 
     /// <summary>
     /// Get a traders base data from its nickname, case insensitive
@@ -529,99 +531,51 @@ public class TraderHelper(
     }
 
     /// <summary>
-    ///     Get the highest rouble price for an item from traders
-    ///     UNUSED
-    /// </summary>
-    /// <param name="tpl">Item to look up highest price for</param>
-    /// <returns>highest rouble cost for item</returns>
-    public double GetHighestTraderPriceRouble(MongoId tpl)
-    {
-        if (_highestTraderPriceItems is not null)
-        {
-            return _highestTraderPriceItems[tpl];
-        }
-
-        // Init dict and fill
-        foreach (var trader in traderStore.GetAllTraders())
-        {
-            // Skip some traders
-            if (trader.Id == Traders.FENCE)
-            {
-                continue;
-            }
-
-            // Get assorts for trader, skip trader if no assorts found
-            var traderAssorts = databaseService.GetTrader(trader.Id).Assort;
-            if (traderAssorts is null)
-            {
-                continue;
-            }
-
-            // Get all item assorts that have parentId of hideout (base item and not a mod of other item)
-            foreach (var item in traderAssorts.Items.Where(x => x.ParentId == "hideout"))
-            {
-                // Get barter scheme (contains cost of item)
-                var barterScheme = traderAssorts
-                    .BarterScheme[item.Id]
-                    .FirstOrDefault()
-                    .FirstOrDefault();
-
-                // Convert into roubles
-                var roubleAmount =
-                    barterScheme.Template == Money.ROUBLES
-                        ? barterScheme.Count
-                        : handbookHelper.InRUB(barterScheme.Count ?? 1, barterScheme.Template);
-
-                // Existing price smaller in dict than current iteration, overwrite
-                if (_highestTraderPriceItems[item.Template] < roubleAmount)
-                {
-                    _highestTraderPriceItems[item.Template] = roubleAmount.Value;
-                }
-            }
-        }
-
-        return _highestTraderPriceItems[tpl];
-    }
-
-    /// <summary>
     ///     Get the highest price item can be sold to trader for (roubles)
     /// </summary>
     /// <param name="tpl">Item to look up best trader sell-to price</param>
     /// <returns>Rouble price</returns>
     public double GetHighestSellToTraderPrice(MongoId tpl)
     {
-        var highestPrice = 1d; // Default price
-        var itemHandbookPrice = handbookHelper.GetTemplatePrice(tpl);
-        foreach (var trader in traderStore.GetAllTraders())
+        lock (_highestPriceLock)
         {
-            // Get trader and check buy category allows tpl
-            var traderBase = databaseService.GetTrader(trader.Id).Base;
-
-            if (traderBase is null)
+            if (!_highestTraderPriceItems.TryGetValue(tpl, out var highestPrice))
             {
-                continue;
+                highestPrice = 1d; // Default price
+                var itemHandbookPrice = handbookHelper.GetTemplatePrice(tpl);
+                foreach (var trader in traderStore.GetAllTraders())
+                {
+                    // Get trader and check buy category allows tpl
+                    var traderBase = databaseService.GetTrader(trader.Id).Base;
+
+                    if (traderBase is null)
+                    {
+                        continue;
+                    }
+
+                    // Get loyalty level details player has achieved with this trader
+                    // Uses lowest loyalty level as this function is used before a player has logged into server
+                    // We have no idea what player loyalty is with traders
+                    var traderBuyBackPricePercent =
+                        100 - traderBase.LoyaltyLevels.FirstOrDefault().BuyPriceCoefficient;
+
+                    var priceTraderBuysItemAt = randomUtil.GetPercentOfValue(
+                        traderBuyBackPricePercent ?? 0,
+                        itemHandbookPrice,
+                        0
+                    );
+
+                    // Price from this trader is higher than highest found, update
+                    if (priceTraderBuysItemAt > highestPrice)
+                    {
+                        highestPrice = priceTraderBuysItemAt;
+                        _highestTraderPriceItems[tpl] = highestPrice;
+                    }
+                }
             }
 
-            // Get loyalty level details player has achieved with this trader
-            // Uses lowest loyalty level as this function is used before a player has logged into server
-            // We have no idea what player loyalty is with traders
-            var traderBuyBackPricePercent =
-                100 - traderBase.LoyaltyLevels.FirstOrDefault().BuyPriceCoefficient;
-
-            var priceTraderBuysItemAt = randomUtil.GetPercentOfValue(
-                traderBuyBackPricePercent ?? 0,
-                itemHandbookPrice,
-                0
-            );
-
-            // Price from this trader is higher than highest found, update
-            if (priceTraderBuysItemAt > highestPrice)
-            {
-                highestPrice = priceTraderBuysItemAt;
-            }
+            return highestPrice;
         }
-
-        return highestPrice;
     }
 
     /// <summary>
