@@ -14,7 +14,6 @@ namespace SPTarkov.Server.Core.Utils;
 public class RagfairOfferHolder(
     ISptLogger<RagfairOfferHolder> _logger,
     RagfairServerHelper _ragfairServerHelper,
-    ProfileHelper _profileHelper,
     ServerLocalisationService _serverLocalisationService,
     ItemHelper _itemHelper
 )

@@ -16,7 +16,11 @@ namespace UnitTests.Tests.Helpers
         {
             _botGeneratorHelper = DI.GetService<BotGeneratorHelper>();
             var databaseImporter = DI.GetService<DatabaseImporter>();
-            _ = databaseImporter.OnLoad();
+            Task.Factory.StartNew(() =>
+            {
+                databaseImporter.OnLoad();
+            });
+            ;
         }
 
         [TestMethod]
@@ -42,26 +46,52 @@ namespace UnitTests.Tests.Helpers
             };
             botInventory.Items.Add(backpack);
 
-            var weaponWithChildren = new List<Item>();
-            var weaponRoot = new Item
-            {
-                Id = new MongoId(),
-                Template = ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
-            };
-            weaponWithChildren.Add(weaponRoot);
+            var rootWeaponId = new MongoId();
+            var weaponWithChildren = CreateMp18(rootWeaponId);
 
             var result = _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
                 [EquipmentSlots.Backpack],
-                weaponRoot.Id,
-                weaponRoot.Template,
+                rootWeaponId,
+                ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
                 weaponWithChildren,
                 botInventory
             );
 
-            Assert.Equals(result, ItemAddedResult.SUCCESS);
-            Assert.Equals((weaponRoot.Location as ItemLocation).X, 0);
-            Assert.Equals((weaponRoot.Location as ItemLocation).Y, 0);
-            Assert.Equals((weaponRoot.Location as ItemLocation).R, ItemRotation.Vertical);
+            Assert.AreEqual(ItemAddedResult.SUCCESS, result);
+
+            var weaponRoot = weaponWithChildren.FirstOrDefault(item => item.Id == rootWeaponId);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).X, 0);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).Y, 0);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).R, ItemRotation.Vertical);
+        }
+
+        private static List<Item> CreateMp18(MongoId rootWeaponId)
+        {
+            var weaponWithChildren = new List<Item>();
+            var weaponRoot = new Item
+            {
+                Id = rootWeaponId,
+                Template = ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
+            };
+            weaponWithChildren.Add(weaponRoot);
+            var weaponStock = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.STOCK_MP18_WOODEN,
+                ParentId = weaponRoot.Id,
+                SlotId = "mod_stock",
+            };
+            weaponWithChildren.Add(weaponStock);
+            var weaponBarrel = new Item
+            {
+                Id = new MongoId(),
+                Template = ItemTpl.BARREL_MP18_762X54R_600MM,
+                ParentId = weaponRoot.Id,
+                SlotId = "mod_barrel",
+            };
+            weaponWithChildren.Add(weaponBarrel);
+
+            return weaponWithChildren;
         }
 
         [TestMethod]
@@ -86,26 +116,23 @@ namespace UnitTests.Tests.Helpers
             };
             botInventory.Items.Add(backpack);
 
-            var weaponWithChildren = new List<Item>();
-            var weaponRoot = new Item
-            {
-                Id = new MongoId(),
-                Template = ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
-            };
-            weaponWithChildren.Add(weaponRoot);
+            var rootWeaponId = new MongoId();
+            var weaponWithChildren = CreateMp18(rootWeaponId);
 
             var result = _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
                 [EquipmentSlots.Backpack],
-                weaponRoot.Id,
-                weaponRoot.Template,
+                rootWeaponId,
+                ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
                 weaponWithChildren,
                 botInventory
             );
 
-            Assert.Equals(result, ItemAddedResult.SUCCESS);
-            Assert.Equals((weaponRoot.Location as ItemLocation).X, 0);
-            Assert.Equals((weaponRoot.Location as ItemLocation).Y, 0);
-            Assert.Equals((weaponRoot.Location as ItemLocation).R, ItemRotation.Horizontal);
+            Assert.AreEqual(ItemAddedResult.SUCCESS, result);
+
+            var weaponRoot = weaponWithChildren.FirstOrDefault(item => item.Id == rootWeaponId);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).X, 0);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).Y, 0);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).R, ItemRotation.Horizontal);
         }
 
         /// <summary>
@@ -133,7 +160,7 @@ namespace UnitTests.Tests.Helpers
                     SlotId = "main",
                     Location = new ItemLocation
                     {
-                        X = 1,
+                        X = 0,
                         Y = 0,
                         R = ItemRotation.Horizontal,
                     },
@@ -141,26 +168,98 @@ namespace UnitTests.Tests.Helpers
                 }
             );
 
-            var weaponWithChildren = new List<Item>();
-            var weaponRoot = new Item
-            {
-                Id = new MongoId(),
-                Template = ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
-            };
-            weaponWithChildren.Add(weaponRoot);
+            var rootWeaponId = new MongoId();
+            var weaponWithChildren = CreateMp18(rootWeaponId);
 
             var result = _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
                 [EquipmentSlots.Backpack],
-                weaponRoot.Id,
-                weaponRoot.Template,
+                rootWeaponId,
+                ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
                 weaponWithChildren,
                 botInventory
             );
 
-            Assert.Equals(result, ItemAddedResult.SUCCESS);
-            Assert.Equals((weaponRoot.Location as ItemLocation).X, 0);
-            Assert.Equals((weaponRoot.Location as ItemLocation).Y, 1);
-            Assert.Equals((weaponRoot.Location as ItemLocation).R, ItemRotation.Vertical);
+            Assert.AreEqual(ItemAddedResult.SUCCESS, result);
+
+            var weaponRoot = weaponWithChildren.FirstOrDefault(item => item.Id == rootWeaponId);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).X, 1);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).Y, 0);
+            Assert.AreEqual((weaponRoot.Location as ItemLocation).R, ItemRotation.Vertical);
+        }
+
+        /// <summary>
+        /// No space for gun
+        /// </summary>
+        [TestMethod]
+        public void AddItemWithChildrenToEquipmentSlot_no_space()
+        {
+            var botInventory = new BotBaseInventory { Items = [] };
+            var backpack = new Item
+            {
+                Id = new MongoId(),
+                // Has a 3hx5v grid first
+                Template = ItemTpl.BACKPACK_EBERLESTOCK_G2_GUNSLINGER_II_BACKPACK_DRY_EARTH,
+                SlotId = "Backpack",
+            };
+            botInventory.Items.Add(backpack);
+
+            botInventory.Items.AddRange(
+                new Item
+                {
+                    Id = new MongoId(),
+                    Template = ItemTpl.AMMO_762X25TT_AKBS,
+                    ParentId = backpack.Id,
+                    SlotId = "main",
+                    Location = new ItemLocation
+                    {
+                        X = 0,
+                        Y = 0,
+                        R = ItemRotation.Horizontal,
+                    },
+                    Upd = new Upd { StackObjectsCount = 1 },
+                },
+                new Item
+                {
+                    Id = new MongoId(),
+                    Template = ItemTpl.AMMO_762X25TT_AKBS,
+                    ParentId = backpack.Id,
+                    SlotId = "main",
+                    Location = new ItemLocation
+                    {
+                        X = 1,
+                        Y = 0,
+                        R = ItemRotation.Horizontal,
+                    },
+                    Upd = new Upd { StackObjectsCount = 1 },
+                },
+                new Item
+                {
+                    Id = new MongoId(),
+                    Template = ItemTpl.AMMO_762X25TT_AKBS,
+                    ParentId = backpack.Id,
+                    SlotId = "main",
+                    Location = new ItemLocation
+                    {
+                        X = 2,
+                        Y = 0,
+                        R = ItemRotation.Horizontal,
+                    },
+                    Upd = new Upd { StackObjectsCount = 1 },
+                }
+            );
+
+            var rootWeaponId = new MongoId();
+            var weaponWithChildren = CreateMp18(rootWeaponId);
+
+            var result = _botGeneratorHelper.AddItemWithChildrenToEquipmentSlot(
+                [EquipmentSlots.Backpack],
+                rootWeaponId,
+                ItemTpl.SHOTGUN_MP18_762X54R_SINGLESHOT_RIFLE,
+                weaponWithChildren,
+                botInventory
+            );
+
+            Assert.AreEqual(ItemAddedResult.NO_SPACE, result);
         }
     }
 }
