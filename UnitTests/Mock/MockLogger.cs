@@ -1,9 +1,12 @@
+using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Logging;
 using SPTarkov.Server.Core.Models.Spt.Logging;
 using SPTarkov.Server.Core.Models.Utils;
+using SPTarkov.Server.Core.Utils.Logger;
 
 namespace UnitTests.Mock;
 
+[Injectable(TypeOverride = typeof(SptLogger<>))]
 public class MockLogger<T> : ISptLogger<T>
 {
     public void LogWithColor(
