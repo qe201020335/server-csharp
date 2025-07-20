@@ -206,16 +206,15 @@ public class BotInventoryGenerator(
         )
         {
             foreach (
-                var equipmentSlotKvP in randomistionDetails.NighttimeChanges.EquipmentModsModifiers
+                var (equipment, weight) in randomistionDetails
+                    .NighttimeChanges
+                    .EquipmentModsModifiers
             )
             // Never let mod chance go outside 0 - 100
             {
-                randomistionDetails.EquipmentMods[equipmentSlotKvP.Key] = Math.Min(
-                    Math.Max(
-                        randomistionDetails.EquipmentMods[equipmentSlotKvP.Key]
-                            + equipmentSlotKvP.Value,
-                        0
-                    ),
+                randomistionDetails.EquipmentMods[equipment] = Math.Clamp(
+                    randomistionDetails.EquipmentMods[equipment] + weight,
+                    0,
                     100
                 );
             }
