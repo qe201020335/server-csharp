@@ -30,7 +30,7 @@ public class PrestigeHelper(
         var sessionId = newProfile.ProfileInfo.ProfileId;
         var prestigeLevels = databaseService.GetTemplates().Prestige.Elements;
         var indexOfPrestigeObtained = Math.Clamp(
-            (prestige.PrestigeLevel ?? 1),
+            (prestige.PrestigeLevel ?? 1) - 1,
             0,
             prestigeLevels.Count - 1
         ); // Levels are 1 to 4, Index is 0 to 3
@@ -39,7 +39,10 @@ public class PrestigeHelper(
 
         var skillProgressCopyAmount = (float)(
             1
-            - prestigeLevels[indexOfPrestigeObtained].TransferConfigs.SkillConfig.TransferMultiplier
+            - prestigeLevels[indexOfPrestigeObtained]
+                .TransferConfigs
+                .SkillConfig
+                .TransferMultiplier
         );
         var masteringProgressCopyAmount = (float)(
             1
