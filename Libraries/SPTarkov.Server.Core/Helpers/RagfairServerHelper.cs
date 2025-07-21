@@ -29,11 +29,11 @@ public class RagfairServerHelper(
     protected const string goodsReturnedTemplate = "5bdabfe486f7743e1665df6e 0"; // Your item was not sold
     protected readonly RagfairConfig ragfairConfig = configServer.GetConfig<RagfairConfig>();
 
-    /**
-     * Is item valid / on blacklist / quest item
-     * @param itemDetails
-     * @returns boolean
-     */
+    /// <summary>
+    /// Is item valid / not on blacklist / not a quest item
+    /// </summary>
+    /// <param name="itemDetails">Item to check</param>
+    /// <returns></returns>
     public bool IsItemValidRagfairItem(KeyValuePair<bool, TemplateItem?> itemDetails)
     {
         var blacklistConfig = ragfairConfig.Dynamic.Blacklist;
@@ -94,41 +94,41 @@ public class RagfairServerHelper(
         return true;
     }
 
-    /**
-     * Is supplied item tpl on the ragfair custom blacklist from configs/ragfair.json/dynamic
-     * @param itemTemplateId Item tpl to check is blacklisted
-     * @returns True if its blacklisted
-     */
+    /// <summary>
+    /// Is supplied item tpl on the ragfair custom blacklist from configs/ragfair.json/dynamic
+    /// </summary>
+    /// <param name="itemTemplateId">Item tpl to check is blacklisted</param>
+    /// <returns>True if its blacklisted</returns>
     protected bool IsItemOnCustomFleaBlacklist(MongoId itemTemplateId)
     {
         return ragfairConfig.Dynamic.Blacklist.Custom.Contains(itemTemplateId);
     }
 
-    /**
-     * Is supplied parent id on the ragfair custom item category blacklist
-     * @param parentId Parent Id to check is blacklisted
-     * @returns true if blacklisted
-     */
+    /// <summary>
+    /// Is supplied parent id on the ragfair custom item category blacklist
+    /// </summary>
+    /// <param name="itemParentId">Parent Id to check is blacklisted</param>
+    /// <returns>true if blacklisted</returns>
     protected bool IsItemCategoryOnCustomFleaBlacklist(MongoId itemParentId)
     {
         return ragfairConfig.Dynamic.Blacklist.CustomItemCategoryList.Contains(itemParentId);
     }
 
-    /**
-     * is supplied id a trader
-     * @param traderId
-     * @returns True if id was a trader
-     */
+    /// <summary>
+    /// Is supplied id a trader
+    /// </summary>
+    /// <param name="traderId">id to check</param>
+    /// <returns>True if id was a trader</returns>
     public bool IsTrader(MongoId traderId)
     {
         return databaseService.GetTraders().ContainsKey(traderId);
     }
 
-    /**
-     * Send items back to player
-     * @param sessionID Player to send items to
-     * @param returnedItems Items to send to player
-     */
+    /// <summary>
+    /// Send items back to player
+    /// </summary>
+    /// <param name="sessionID">Player to send items to</param>
+    /// <param name="returnedItems">Items to send to player</param>
     public void ReturnItems(MongoId sessionID, List<Item> returnedItems)
     {
         mailSendService.SendLocalisedNpcMessageToPlayer(
@@ -193,11 +193,11 @@ public class RagfairServerHelper(
         return Math.Max((int)randomUtil.GetPercentOfValue(stackPercent, maxStackSize, 0), 1);
     }
 
-    /**
-     * Choose a currency at random with bias
-     * @returns currency tpl
-     */
-    public string GetDynamicOfferCurrency()
+    /// <summary>
+    /// Choose a currency at random with bias
+    /// </summary>
+    /// <returns>Currency TPL</returns>
+    public MongoId GetDynamicOfferCurrency()
     {
         return weightedRandomHelper.GetWeightedValue(ragfairConfig.Dynamic.Currencies);
     }

@@ -629,11 +629,11 @@ public class RagfairOfferHelper(
         return loyaltyLockedOffers;
     }
 
-    /**
-     * Process all player-listed flea offers for a desired profile
-     * @param sessionId Session id to process offers for
-     * @returns true = complete
-     */
+    /// <summary>
+    /// Process all player-listed flea offers for a desired profile
+    /// </summary>
+    /// <param name="sessionId">Session id to process offers for</param>
+    /// <returns>true = complete</returns>
     public bool ProcessOffersOnProfile(MongoId sessionId)
     {
         var currentTimestamp = timeUtil.GetTimeStamp();
@@ -754,11 +754,11 @@ public class RagfairOfferHelper(
         return profile.RagfairInfo.Offers;
     }
 
-    /**
-     * Delete an offer from a desired profile and from ragfair offers
-     * @param sessionId Session id of profile to delete offer from
-     * @param offerId Id of offer to delete
-     */
+    /// <summary>
+    /// Delete an offer from a desired profile and from ragfair offers
+    /// </summary>
+    /// <param name="sessionId">Session id of profile to delete offer from</param>
+    /// <param name="offerId">Id of offer to delete</param>
     protected void DeleteOfferById(MongoId sessionId, MongoId offerId)
     {
         var profileRagfairInfo = profileHelper.GetPmcProfile(sessionId).RagfairInfo;
@@ -870,12 +870,12 @@ public class RagfairOfferHelper(
         return eventOutputHolder.GetOutput(offerOwnerSessionId);
     }
 
-    /**
-     * Get a localised message for when players offer has sold on flea
-     * @param itemTpl Item sold
-     * @param boughtAmount How many were purchased
-     * @returns Localised message text
-     */
+    /// <summary>
+    /// Get a localised message for when players offer has sold on flea
+    /// </summary>
+    /// <param name="itemTpl">Item sold</param>
+    /// <param name="boughtAmount"></param>
+    /// <returns>Localised string</returns>
     protected string GetLocalisedOfferSoldMessage(MongoId itemTpl, int boughtAmount)
     {
         // Generate a message to inform that item was sold
@@ -919,13 +919,13 @@ public class RagfairOfferHelper(
         return soldMessageLocaleGuid;
     }
 
-    /**
-     * Check an offer passes the various search criteria the player requested
-     * @param searchRequest Client search request
-     * @param offer Offer to check
-     * @param pmcData Player profile
-     * @returns True if offer passes criteria
-     */
+    /// <summary>
+    /// Check an offer passes the various search criteria the player requested
+    /// </summary>
+    /// <param name="searchRequest">Client search request</param>
+    /// <param name="offer">Offer to check</param>
+    /// <param name="pmcData">Player profile</param>
+    /// <returns>True if offer passes criteria</returns>
     protected bool PassesSearchFilterCriteria(
         SearchRequestData searchRequest,
         RagfairOffer offer,
@@ -1053,12 +1053,12 @@ public class RagfairOfferHelper(
         return true;
     }
 
-    /**
-     * Check that the passed in offer item is functional
-     * @param offerRootItem The root item of the offer
-     * @param offer Flea offer to check
-     * @returns True if the given item is functional
-     */
+    /// <summary>
+    /// Check that the passed in offer item is functional
+    /// </summary>
+    /// <param name="offerRootItem">The root item of the offer</param>
+    /// <param name="offer">Flea offer to check</param>
+    /// <returns>True if the given item is functional</returns>
     public bool IsItemFunctional(Item offerRootItem, RagfairOffer offer)
     {
         // Non-preset weapons/armor are always functional

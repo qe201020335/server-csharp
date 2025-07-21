@@ -290,13 +290,6 @@ public class QuestHelper(
         }
     }
 
-    /**
-     *
-     * @param pmcData
-     * @param newState
-     * @param acceptedQuest
-     */
-
     /// <summary>
     /// Look up quest in db by accepted quest id and construct a profile-ready object ready to store in profile
     /// </summary>
@@ -1494,14 +1487,13 @@ public class QuestHelper(
             .ToList();
     }
 
-    /**
-     * Fail the provided quests
-     * Update quest in profile, otherwise add fresh quest object with failed status
-     * @param sessionID session id
-     * @param pmcData player profile
-     * @param questsToFail quests to fail
-     * @param output Client output
-     */
+    /// <summary>
+    /// Fail the provided quests - Update quest in profile, otherwise add fresh quest object with failed status
+    /// </summary>
+    /// <param name="sessionID">session id</param>
+    /// <param name="pmcData">player profile</param>
+    /// <param name="questsToFail">quests to fail</param>
+    /// <param name="output">Client output</param>
     protected void FailQuests(
         MongoId sessionID,
         PmcData pmcData,
@@ -1560,13 +1552,13 @@ public class QuestHelper(
         }
     }
 
-    /**
-     * Send a popup to player on successful completion of a quest
-     * @param sessionID session id
-     * @param pmcData Player profile
-     * @param completedQuestId Completed quest id
-     * @param questRewards Rewards given to player
-     */
+    /// <summary>
+    /// Send a popup to player on successful completion of a quest
+    /// </summary>
+    /// <param name="sessionID">session id</param>
+    /// <param name="pmcData">Player profile</param>
+    /// <param name="completedQuestId">Completed quest id</param>
+    /// <param name="questRewards">Rewards given to player</param>
     protected void SendSuccessDialogMessageOnQuestComplete(
         MongoId sessionID,
         PmcData pmcData,
@@ -1645,11 +1637,11 @@ public class QuestHelper(
         }
     }
 
-    /**
-     * Remove a quest entirely from a profile
-     * @param sessionId Player id
-     * @param questIdToRemove Qid of quest to remove
-     */
+    /// <summary>
+    /// Remove a quest entirely from a profile
+    /// </summary>
+    /// <param name="sessionId">Player id</param>
+    /// <param name="questIdToRemove">Qid of quest to remove</param>
     protected void RemoveQuestFromScavProfile(MongoId sessionId, MongoId questIdToRemove)
     {
         var fullProfile = profileHelper.GetFullProfile(sessionId);

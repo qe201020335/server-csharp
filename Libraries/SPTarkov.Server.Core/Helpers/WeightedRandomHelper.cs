@@ -30,7 +30,7 @@ public class WeightedRandomHelper(
         var itemKeys = values.Keys.ToList();
         var weights = values.Values.ToList();
 
-        var chosenItem = WeightedRandom<T>(itemKeys, weights);
+        var chosenItem = WeightedRandom(itemKeys, weights);
 
         return chosenItem.Item;
     }
@@ -109,7 +109,7 @@ public class WeightedRandomHelper(
     }
 
     /// <summary>
-    ///     Find the greated common divisor of all weights and use it on the passed in dictionary
+    ///     Find the greatest common divisor of all weights and use it on the passed in dictionary
     /// </summary>
     /// <param name="weightedDict">Values to reduce</param>
     public void ReduceWeightValues(IDictionary<MongoId, double> weightedDict)
@@ -144,9 +144,11 @@ public class WeightedRandomHelper(
         }
     }
 
-    /**
-     * Get the common divisor between all values in the passed in list and returns it
-     */
+    /// <summary>
+    /// Get the common divisor between all values from provided list and return it
+    /// </summary>
+    /// <param name="numbers">Numbers to get common divisor of</param>
+    /// <returns>Common divisor</returns>
     protected double CommonDivisor(List<double> numbers)
     {
         var result = numbers[0];

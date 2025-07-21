@@ -8,13 +8,13 @@ namespace SPTarkov.Server.Core.Helpers;
 [Injectable]
 public class RagfairSortHelper(LocaleService localeService)
 {
-    /**
-     * Sort a list of ragfair offers by something (id/rating/offer name/price/expiry time)
-     * @param offers Offers to sort
-     * @param type How to sort it
-     * @param direction Ascending/descending
-     * @returns Sorted offers
-     */
+    /// <summary>
+    /// Sort a list of ragfair offers by something (id/rating/offer name/price/expiry time)
+    /// </summary>
+    /// <param name="offers">Offers to sort</param>
+    /// <param name="type">How to sort it</param>
+    /// <param name="direction">Ascending/descending</param>
+    /// <returns>Sorted offers</returns>
     public List<RagfairOffer> SortOffers(
         List<RagfairOffer> offers,
         RagfairSort type,
@@ -97,19 +97,25 @@ public class RagfairSortHelper(LocaleService localeService)
         return string.CompareOrdinal(nameA, nameB);
     }
 
-    /**
-     * Order two offers by rouble price value
-     * @param a Offer a
-     * @param b Offer b
-     * @returns
-     */
+    /// <summary>
+    /// Order two offers by rouble price value
+    /// </summary>
+    /// <param name="a">Offer a</param>
+    /// <param name="b">Offer b</param>
+    /// <returns>-1, 0, 1</returns>
     protected int SortOffersByPrice(RagfairOffer a, RagfairOffer b)
     {
         return (int)(a.RequirementsCost.Value - b.RequirementsCost.Value);
     }
 
+    /// <summary>
+    /// Order two offers by rouble price value
+    /// </summary>
+    /// <param name="a">Offer a</param>
+    /// <param name="b">Offer b</param>
+    /// <returns>-1, 0, 1</returns>
     protected int SortOffersByExpiry(RagfairOffer a, RagfairOffer b)
     {
-        return (int)(a.EndTime - b.EndTime);
+        return (int)((a.EndTime ?? 0) - (b.EndTime ?? 0));
     }
 }

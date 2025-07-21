@@ -117,15 +117,13 @@ public class ProbabilityObjectArray<K, V> : List<ProbabilityObject<K, V>>
         return element?.RelativeProbability;
     }
 
-    /**
-     * Get the maximum relative probability out of a ProbabilityObjectArray
-     *
-     * Example:
-     * po = new ProbabilityObjectArray(new ProbabilityObject("a", 5), new ProbabilityObject("b", 1))
-     * po.maxProbability() // returns 5
-     *
-     * @return      {number}                                                the maximum value of all relative probabilities in this ProbabilityObjectArray
-     */
+    /// <summary>
+    /// Get the maximum relative probability out of a ProbabilityObjectArray
+    /// Example:
+    /// po = new ProbabilityObjectArray(new ProbabilityObject("a", 5), new ProbabilityObject("b", 1))
+    /// po.maxProbability() // returns 5
+    /// </summary>
+    /// <returns>the maximum value of all relative probabilities in this ProbabilityObjectArray</returns>
     public double MaxProbability()
     {
         return this.Max(x => x.RelativeProbability).Value;
@@ -217,12 +215,12 @@ public class ProbabilityObject<K, V>
 {
     public ProbabilityObject() { }
 
-    /**
-     * constructor for the ProbabilityObject
-     * @param       {string}                        key                         The key of the element
-     * @param       {number}                        relativeProbability         The relative probability of this element
-     * @param       {any}                           data                        Optional data attached to the element
-     */
+    /// <summary>
+    /// constructor for the ProbabilityObject
+    /// </summary>
+    /// <param name="key">The key of the element</param>
+    /// <param name="relativeProbability">The relative probability of this element</param>
+    /// <param name="data">Optional data attached to the element</param>
     public ProbabilityObject(K key, double? relativeProbability, V? data)
     {
         Key = key;

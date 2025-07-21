@@ -151,10 +151,12 @@ public class RagfairHelper(
         return result;
     }
 
-    /**
-     * Iterate over array of identical items and merge stack count
-     * Ragfair allows abnormally large stacks.
-     */
+    /// <summary>
+    /// Iterate over array of identical items and merge stack count
+    /// Ragfair allows abnormally large stacks
+    /// </summary>
+    /// <param name="items">Items to merge</param>
+    /// <returns></returns>
     public List<Item> MergeStackable(List<Item> items)
     {
         var list = new List<Item>();
@@ -187,12 +189,12 @@ public class RagfairHelper(
         return [rootItem, .. list];
     }
 
-    /**
-     * Return the symbol for a currency
-     * e.g. 5449016a4bdc2d6f028b456f return ₽
-     * @param currencyTpl currency to get symbol for
-     * @returns symbol of currency
-     */
+    /// <summary>
+    /// Return the symbol for a currency
+    /// e.g. 5449016a4bdc2d6f028b456f return ₽
+    /// </summary>
+    /// <param name="currencyTpl">currency to get symbol for</param>
+    /// <returns>symbol of currency</returns>
     public string GetCurrencySymbol(string currencyTpl)
     {
         return currencyTpl == Money.EUROS ? "€"

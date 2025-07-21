@@ -111,10 +111,11 @@ public class DatabaseImporter(
         }
     }
 
-    /**
-     * Read all json files in database folder and map into a json object
-     * @param filepath path to database folder
-     */
+    /// <summary>
+    /// Read all json files in database folder and map into a json object
+    /// </summary>
+    /// <param name="filePath">path to database folder</param>
+    /// <returns></returns>
     protected async Task HydrateDatabase(string filePath)
     {
         logger.Info(_serverLocalisationService.GetText("importing_database"));

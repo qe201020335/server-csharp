@@ -109,12 +109,12 @@ public class PresetHelper(DatabaseService databaseService, ItemHelper itemHelper
         return databaseService.GetGlobals().ItemPresets.ContainsKey(id);
     }
 
-    /**
-     * Checks to see if the preset is of the given base class.
-     * @param id The id of the preset
-     * @param baseClass The BaseClasses enum to check against
-     * @returns True if the preset is of the given base class, false otherwise
-     */
+    /// <summary>
+    /// Checks to see if the preset is of the given base class
+    /// </summary>
+    /// <param name="id">id of the preset</param>
+    /// <param name="baseClass">BaseClasses enum to check against</param>
+    /// <returns>True if the preset is of the given base class, false otherwise</returns>
     public bool IsPresetBaseClass(MongoId id, MongoId baseClass)
     {
         return IsPreset(id)
