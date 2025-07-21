@@ -13,7 +13,7 @@ public record AddOfferRequestData : InventoryBaseActionRequestData
     public bool? SellInOnePiece { get; set; }
 
     [JsonPropertyName("items")]
-    public List<string>? Items { get; set; }
+    public List<MongoId>? Items { get; set; }
 
     [JsonPropertyName("requirements")]
     public List<Requirement>? Requirements { get; set; }

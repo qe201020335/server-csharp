@@ -940,8 +940,9 @@ public class RagfairController(
     )
     {
         // Get tax from cache hydrated earlier by client, if that's missing fall back to server calculation (inaccurate)
+        var requestRootItemId = offerRequest.Items.FirstOrDefault();
         var storedClientTaxValue = ragfairTaxService.GetStoredClientOfferTaxValueById(
-            offerRequest.Items[0]
+            requestRootItemId
         );
         var tax = storedClientTaxValue is not null
             ? storedClientTaxValue.Fee
@@ -960,8 +961,8 @@ public class RagfairController(
             );
         }
 
-        // cleanup of cache now we've used the tax value from it
-        ragfairTaxService.ClearStoredOfferTaxById(offerRequest.Items.First());
+        // Cleanup of cache now we've used the tax value from it
+        ragfairTaxService.ClearStoredOfferTaxById(requestRootItemId);
 
         var buyTradeRequest = CreateBuyTradeRequestObject(CurrencyType.RUB, tax.Value);
         paymentService.PayMoney(pmcData, buyTradeRequest, sessionId, output);
@@ -971,10 +972,10 @@ public class RagfairController(
                 output,
                 localisationService.GetText("ragfair-unable_to_pay_commission_fee", tax)
             );
-            return true;
+            return true; // Fee failed
         }
 
-        return false;
+        return false; // Fee charge didn't fail
     }
 
     /// <summary>
@@ -1062,7 +1063,7 @@ public class RagfairController(
     /// <returns>GetItemsToListOnFleaFromInventoryResult</returns>
     protected GetItemsToListOnFleaFromInventoryResult GetItemsToListOnFleaFromInventory(
         PmcData pmcData,
-        List<string> itemIdsFromFleaOfferRequest
+        List<MongoId> itemIdsFromFleaOfferRequest
     )
     {
         List<List<Item>> itemsToReturn = [];
@@ -1076,7 +1077,7 @@ public class RagfairController(
             {
                 errorMessage = localisationService.GetText(
                     "ragfair-unable_to_find_item_in_inventory",
-                    new { id = itemId }
+                    new { id = itemId.ToString() }
                 );
                 logger.Error(errorMessage);
 
@@ -1253,7 +1254,7 @@ public class RagfairController(
                 new IdWithCount { Id = currency.GetCurrencyTpl(), Count = Math.Round(value) },
             ],
             Type = "",
-            ItemId = "",
+            ItemId = MongoId.Empty(),
             Count = 0,
             SchemeId = 0,
         };

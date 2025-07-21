@@ -9,7 +9,7 @@ public record CustomizationItem
     public Dictionary<string, object>? ExtensionData { get; set; }
 
     [JsonPropertyName("_id")]
-    public string Id { get; set; }
+    public MongoId Id { get; set; }
 
     [JsonPropertyName("_name")]
     public string Name { get; set; }

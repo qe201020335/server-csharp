@@ -39,11 +39,11 @@ public class RagfairTaxService(
         _playerOfferTaxCache.Remove(offerIdToRemove);
     }
 
-    public StorePlayerOfferTaxAmountRequestData GetStoredClientOfferTaxValueById(
+    public StorePlayerOfferTaxAmountRequestData? GetStoredClientOfferTaxValueById(
         MongoId offerIdToGet
     )
     {
-        return _playerOfferTaxCache[offerIdToGet];
+        return _playerOfferTaxCache.GetValueOrDefault(offerIdToGet);
     }
 
     /// <summary>
