@@ -759,7 +759,7 @@ public class RagfairOfferHelper(
      * @param sessionId Session id of profile to delete offer from
      * @param offerId Id of offer to delete
      */
-    protected void DeleteOfferById(MongoId sessionId, string offerId)
+    protected void DeleteOfferById(MongoId sessionId, MongoId offerId)
     {
         var profileRagfairInfo = profileHelper.GetPmcProfile(sessionId).RagfairInfo;
         var offerIndex = profileRagfairInfo.Offers.FindIndex(o => o.Id == offerId);

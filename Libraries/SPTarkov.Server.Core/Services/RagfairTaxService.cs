@@ -22,7 +22,7 @@ public class RagfairTaxService(
 )
 {
     protected readonly Dictionary<
-        string,
+        MongoId,
         StorePlayerOfferTaxAmountRequestData
     > _playerOfferTaxCache = new();
 
@@ -31,16 +31,16 @@ public class RagfairTaxService(
         StorePlayerOfferTaxAmountRequestData offer
     )
     {
-        _playerOfferTaxCache[offer.Id] = offer;
+        _playerOfferTaxCache[offer.Id.Value] = offer;
     }
 
-    public void ClearStoredOfferTaxById(string offerIdToRemove)
+    public void ClearStoredOfferTaxById(MongoId offerIdToRemove)
     {
         _playerOfferTaxCache.Remove(offerIdToRemove);
     }
 
     public StorePlayerOfferTaxAmountRequestData GetStoredClientOfferTaxValueById(
-        string offerIdToGet
+        MongoId offerIdToGet
     )
     {
         return _playerOfferTaxCache[offerIdToGet];

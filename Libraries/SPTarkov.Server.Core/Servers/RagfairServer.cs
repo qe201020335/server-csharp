@@ -99,7 +99,7 @@ public class RagfairServer(
     ///     Disable/Hide an offer from flea
     /// </summary>
     /// <param name="offerId"> OfferID to hide </param>
-    public void HideOffer(string offerId)
+    public void HideOffer(MongoId offerId)
     {
         var offers = _ragfairOfferService.GetOffers();
         var offer = offers.FirstOrDefault(x => x.Id == offerId);
@@ -119,7 +119,7 @@ public class RagfairServer(
         offer.Locked = true;
     }
 
-    public RagfairOffer? GetOffer(string offerId)
+    public RagfairOffer? GetOffer(MongoId offerId)
     {
         return _ragfairOfferService.GetOfferByOfferId(offerId);
     }

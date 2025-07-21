@@ -1116,7 +1116,7 @@ public class RagfairController(
     /// <param name="offerId">Id of offer to remove</param>
     /// <param name="sessionId">Session id of requesting player</param>
     /// <returns>ItemEventRouterResponse</returns>
-    public ItemEventRouterResponse FlagOfferForRemoval(string offerId, MongoId sessionId)
+    public ItemEventRouterResponse FlagOfferForRemoval(MongoId offerId, MongoId sessionId)
     {
         var output = eventOutputHolder.GetOutput(sessionId);
 
