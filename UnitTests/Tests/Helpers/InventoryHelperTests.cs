@@ -117,5 +117,46 @@ namespace UnitTests.Tests.Helpers
             Assert.AreEqual(6, result.Item1);
             Assert.AreEqual(2, result.Item2);
         }
+
+        [TestMethod]
+        public void GetItemSize_uzi_unfolded()
+        {
+            var rootWeaponId = new MongoId();
+
+            var weaponWithChildren = new List<Item>();
+            var root = new Item
+            {
+                Id = rootWeaponId,
+                Template = ItemTpl.SMG_IWI_UZI_9X19_SUBMACHINE_GUN,
+            };
+            weaponWithChildren.Add(root);
+
+            var stock = new Item
+            {
+                Id = new MongoId(),
+                Template = "6699249f3c4fda6471005cba",
+                ParentId = root.Id,
+                SlotId = "mod_stock",
+            };
+            weaponWithChildren.Add(stock);
+
+            var magazine = new Item
+            {
+                Id = new MongoId(),
+                Template = "669927203c4fda6471005cbe",
+                ParentId = root.Id,
+                SlotId = "mod_magazine",
+            };
+            weaponWithChildren.Add(magazine);
+
+            var result = _helper.GetItemSize(
+                ItemTpl.SMG_IWI_UZI_9X19_SUBMACHINE_GUN,
+                rootWeaponId,
+                weaponWithChildren
+            );
+
+            Assert.AreEqual(3, result.Item1);
+            Assert.AreEqual(2, result.Item2);
+        }
     }
 }
