@@ -93,6 +93,7 @@ public record RagfairOffer
     /// <summary>
     /// SPT property - offer made by player
     /// </summary>
+    [JsonIgnore]
     public OfferCreator? CreatedBy { get; set; }
 }
 

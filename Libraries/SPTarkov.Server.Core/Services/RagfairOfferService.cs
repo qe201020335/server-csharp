@@ -5,6 +5,7 @@ using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.Ragfair;
+using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Servers;
@@ -144,6 +145,16 @@ public class RagfairOfferService(
             // Profile has been wiped, ignore
             {
                 continue;
+            }
+
+            if (!pmcData.RagfairInfo.Offers.Any())
+            {
+                continue;
+            }
+
+            foreach (var offer in pmcData.RagfairInfo.Offers)
+            {
+                offer.CreatedBy = OfferCreator.Player;
             }
 
             ragfairOfferHolder.AddOffers(pmcData.RagfairInfo.Offers);
