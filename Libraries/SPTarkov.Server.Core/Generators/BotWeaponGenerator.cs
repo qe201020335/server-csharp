@@ -495,7 +495,7 @@ public class BotWeaponGenerator(
         // get ammo template from db
         var ubglAmmoDbTemplate = itemHelper.GetItem(generatedWeaponResult.ChosenUbglAmmoTemplate.Value).Value;
 
-        // Add greandes to bot inventory
+        // Add grenades to bot inventory
         var ubglAmmoGenModel = new InventoryMagGen(ubglMinMax, ubglDbTemplate, ubglDbTemplate, ubglAmmoDbTemplate, inventory, botId);
         InventoryMagGenComponents.FirstOrDefault(v => v.CanHandleInventoryMagGen(ubglAmmoGenModel)).Process(ubglAmmoGenModel);
 
