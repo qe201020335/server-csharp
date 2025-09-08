@@ -70,6 +70,30 @@ public static class ProfileExtensions
     }
 
     /// <summary>
+    ///     Get a multiplier based on player's skill level and value per level
+    /// </summary>
+    /// <param name="pmcData">Player profile</param>
+    /// <param name="skill">Player skill from profile</param>
+    /// <param name="valuePerLevel">Value from globals.config.SkillsSettings - `PerLevel`</param>
+    /// <returns>Multiplier from 0 to 1</returns>
+    public static double GetSkillBonusMultipliedBySkillLevel(this PmcData pmcData, SkillTypes skill, double valuePerLevel)
+    {
+        var profileSkill = pmcData.GetSkillFromProfile(skill);
+        if (profileSkill is null || profileSkill.Progress == 0)
+        {
+            return 0;
+        }
+
+        // If the level is 51 we need to round it at 50 so on elite you dont get 25.5%
+        // at level 1 you already get 0.5%, so it goes up until level 50. For some reason the wiki
+        // says that it caps at level 51 with 25% but as per dump data that is incorrect apparently
+        var roundedLevel = Math.Floor(profileSkill.Progress / 100);
+        roundedLevel = roundedLevel.Approx(51d) ? roundedLevel - 1 : roundedLevel;
+
+        return roundedLevel * valuePerLevel / 100;
+    }
+
+    /// <summary>
     ///     Get the scav karma level for a profile
     ///     Is also the fence trader rep level
     /// </summary>

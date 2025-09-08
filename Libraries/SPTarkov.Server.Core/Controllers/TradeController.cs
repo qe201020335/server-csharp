@@ -138,7 +138,7 @@ public class TradeController(
     )
     {
         // Skip buying items when player doesn't have needed loyalty
-        if (!pmcData.PlayerMeetsTraderLoyaltyLevelToBuyOffer(fleaOffer))
+        if (!pmcData.ProfileMeetsTraderLoyaltyLevelToBuyOffer(fleaOffer))
         {
             var errorMessage =
                 $"Unable to buy item: {fleaOffer.Items[0].Template} from trader: {fleaOffer.User.Id} as loyalty level too low, skipping";
