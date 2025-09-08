@@ -171,8 +171,12 @@ public class BotGenerator(
     /// <returns>BotBase object</returns>
     protected BotBase GenerateBot(MongoId sessionId, BotBase bot, BotType botJsonTemplate, BotGenerationDetails botGenerationDetails)
     {
-        var botRoleLowercase = botGenerationDetails.Role.ToLowerInvariant();
-        var botLevel = botLevelGenerator.GenerateBotLevel(botJsonTemplate.BotExperience.Level, botGenerationDetails, bot);
+        botGenerationDetails.RoleLowercase = botGenerationDetails.Role.ToLowerInvariant();
+
+        var botLevelDetails = botLevelGenerator.GenerateBotLevel(botJsonTemplate.BotExperience.Level, botGenerationDetails, bot);
+
+        // Assign value for later use
+        botGenerationDetails.BotLevel = botLevelDetails.Level.GetValueOrDefault();
 
         // Generate Id/AId for bot
         AddIdsToBot(bot, botGenerationDetails);
@@ -180,13 +184,12 @@ public class BotGenerator(
         // Only filter bot equipment, never players
         if (!botGenerationDetails.IsPlayerScav)
         {
-            botEquipmentFilterService.FilterBotEquipment(sessionId, botJsonTemplate, botLevel.Level.Value, botGenerationDetails);
+            botEquipmentFilterService.FilterBotEquipment(sessionId, botJsonTemplate, botGenerationDetails);
         }
 
         bot.Info.Nickname = botNameService.GenerateUniqueBotNickname(
             botJsonTemplate,
             botGenerationDetails,
-            botRoleLowercase,
             BotConfig.BotRolesThatMustHaveUniqueName
         );
 
@@ -194,7 +197,7 @@ public class BotGenerator(
         bot.Info.LowerNickname = botGenerationDetails.IsPmc ? bot.Info.Nickname.ToLowerInvariant() : string.Empty;
 
         // Only run when generating a 'fake' playerscav, not actual player scav
-        if (!botGenerationDetails.IsPlayerScav && ShouldSimulatePlayerScav(botRoleLowercase))
+        if (!botGenerationDetails.IsPlayerScav && ShouldSimulatePlayerScav(botGenerationDetails.RoleLowercase))
         {
             botNameService.AddRandomPmcNameToBotMainProfileNicknameProperty(bot);
             SetRandomisedGameVersionAndCategory(bot.Info);
@@ -217,8 +220,8 @@ public class BotGenerator(
             bot.Hideout = null;
         }
 
-        bot.Info.Experience = botLevel.Exp;
-        bot.Info.Level = botLevel.Level;
+        bot.Info.Experience = botLevelDetails.Exp;
+        bot.Info.Level = botLevelDetails.Level;
         bot.Info.Settings.Experience = GetExperienceRewardForKillByDifficulty(
             botJsonTemplate.BotExperience.Reward,
             botGenerationDetails.BotDifficulty,
@@ -248,22 +251,16 @@ public class BotGenerator(
             {
                 AddAdditionalPocketLootWeightsForUnheardBot(botJsonTemplate);
             }
+
+            botGenerationDetails.GameVersion = bot.Info.GameVersion;
         }
 
         // Add drip
         SetBotAppearance(bot, botJsonTemplate.BotAppearance, botGenerationDetails);
 
-        bot.Inventory = botInventoryGenerator.GenerateInventory(
-            bot.Id.Value,
-            sessionId,
-            botJsonTemplate,
-            botRoleLowercase,
-            botGenerationDetails,
-            bot.Info.Level.Value,
-            bot.Info.GameVersion
-        );
+        bot.Inventory = botInventoryGenerator.GenerateInventory(bot.Id.Value, sessionId, botJsonTemplate, botGenerationDetails);
 
-        if (BotConfig.BotRolesWithDogTags.Contains(botRoleLowercase))
+        if (BotConfig.BotRolesWithDogTags.Contains(botGenerationDetails.RoleLowercase))
         {
             AddDogtagToBot(bot);
         }

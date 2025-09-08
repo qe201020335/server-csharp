@@ -28,22 +28,21 @@ public class BotEquipmentFilterService(
     /// </summary>
     /// <param name="sessionId">Players id</param>
     /// <param name="baseBotNode">bots json data to filter</param>
-    /// <param name="botLevel">Level of the bot</param>
     /// <param name="botGenerationDetails">details on how to generate a bot</param>
-    public void FilterBotEquipment(MongoId sessionId, BotType baseBotNode, int botLevel, BotGenerationDetails botGenerationDetails)
+    public void FilterBotEquipment(MongoId sessionId, BotType baseBotNode, BotGenerationDetails botGenerationDetails)
     {
         var pmcProfile = profileHelper.GetPmcProfile(sessionId);
 
         var botRole = botGenerationDetails.IsPmc ? "pmc" : botGenerationDetails.Role;
-        var botEquipmentBlacklist = GetBotEquipmentBlacklist(botRole, botLevel);
-        var botEquipmentWhitelist = GetBotEquipmentWhitelist(botRole, botLevel);
-        var botWeightingAdjustments = GetBotWeightingAdjustments(botRole, botLevel);
+        var botEquipmentBlacklist = GetBotEquipmentBlacklist(botRole, botGenerationDetails.BotLevel);
+        var botEquipmentWhitelist = GetBotEquipmentWhitelist(botRole, botGenerationDetails.BotLevel);
+        var botWeightingAdjustments = GetBotWeightingAdjustments(botRole, botGenerationDetails.BotLevel);
         var botWeightingAdjustmentsByPlayerLevel = GetBotWeightingAdjustmentsByPlayerLevel(botRole, pmcProfile?.Info?.Level ?? 1);
 
         RandomisationDetails? randomisationDetails = null;
         if (BotEquipmentConfig.TryGetValue(botRole.ToLowerInvariant(), out var botEquipmentConfig))
         {
-            randomisationDetails = botHelper.GetBotRandomizationDetails(botLevel, botEquipmentConfig);
+            randomisationDetails = botHelper.GetBotRandomizationDetails(botGenerationDetails.BotLevel, botEquipmentConfig);
         }
 
         if (botEquipmentBlacklist is not null || botEquipmentWhitelist is not null)
