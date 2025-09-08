@@ -511,24 +511,14 @@ public class HideoutHelper(
             // Check if craft is complete
             if (production.Progress >= production.ProductionTime)
             {
-                FlagCultistCircleCraftAsComplete(production);
+                production.FlagCultistCircleCraftAsComplete();
             }
 
             return;
         }
 
-        // Craft in complete
-        FlagCultistCircleCraftAsComplete(production);
-    }
-
-    protected static void FlagCultistCircleCraftAsComplete(Production production)
-    {
-        // Craft is complete, flag as such
-        production.AvailableForFinish = true;
-
-        // The client expects `Progress` to be 0, and `inProgress` to be false when a circle is complete
-        production.Progress = 0;
-        production.InProgress = false;
+        // Craft is complete
+        production.FlagCultistCircleCraftAsComplete();
     }
 
     /// <summary>

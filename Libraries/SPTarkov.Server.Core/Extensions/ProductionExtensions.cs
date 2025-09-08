@@ -41,4 +41,17 @@ public static class ProductionExtensions
                 return false;
         }
     }
+
+    /// <summary>
+    /// Craft has completed, update its properties to reflect its new state
+    /// </summary>
+    /// <param name="production">Craft to update</param>
+    public static void FlagCultistCircleCraftAsComplete(this Production production)
+    {
+        production.AvailableForFinish = true;
+
+        // The client expects `Progress` to be 0, and `inProgress` to be false when a circle is complete
+        production.Progress = 0;
+        production.InProgress = false;
+    }
 }
