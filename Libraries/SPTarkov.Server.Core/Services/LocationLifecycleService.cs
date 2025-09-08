@@ -159,7 +159,12 @@ public class LocationLifecycleService(
         {
             return;
         }
-        logger.Debug("Wiping player inventory on raid start to prevent alt-f4");
+
+        if (logger.IsLogEnabled(LogLevel.Debug))
+        {
+            logger.Debug("Wiping player inventory on raid start to prevent alt-f4");
+        }
+
         inRaidHelper.DeleteInventory(pmcData, sessionId);
     }
 
