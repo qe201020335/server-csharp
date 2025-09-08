@@ -167,12 +167,7 @@ public class DatabaseService(
     /// <returns> assets/database/traders/ </returns>
     public Trader? GetTrader(MongoId traderId)
     {
-        if (!databaseServer.GetTables().Traders.TryGetValue(traderId, out var desiredTrader))
-        {
-            return null;
-        }
-
-        return desiredTrader;
+        return databaseServer.GetTables().Traders.GetValueOrDefault(traderId);
     }
 
     /// <returns> assets/database/locationServices/ </returns>
