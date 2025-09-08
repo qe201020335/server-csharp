@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using SPTarkov.Server.Core.Models.Common;
+﻿using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Eft.ItemEvent;
+using SPTarkov.Server.Core.Models.Eft.Ragfair;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Services;
 
 namespace SPTarkov.Server.Core.Extensions;
 
@@ -288,5 +287,29 @@ public static class ProfileExtensions
                 insuredItems.RemoveAt(insuredItemIndex);
             }
         }
+    }
+
+    /// <summary>
+    ///     Does Player have necessary trader loyalty to purchase flea offer
+    /// </summary>
+    /// <param name="pmcData">Player profile</param>
+    /// <param name="fleaOffer">Flea offer being bought</param>
+    /// <returns>True if player can buy offer</returns>
+    public static bool ProfileMeetsTraderLoyaltyLevelToBuyOffer(this PmcData pmcData, RagfairOffer fleaOffer)
+    {
+        if (fleaOffer.LoyaltyLevel == 0)
+        {
+            // No requirement, always passes
+            return true;
+        }
+
+        if (pmcData.TradersInfo.TryGetValue(fleaOffer.User.Id, out var traderInfo))
+        {
+            // Trader exists in profile ,do loyalty level check
+            return traderInfo.LoyaltyLevel >= fleaOffer.LoyaltyLevel;
+        }
+
+        // No trader data on player profile, fail check
+        return false;
     }
 }
