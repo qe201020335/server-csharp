@@ -436,7 +436,6 @@ public class BotGeneratorHelper(
     /// <param name="rootItemTplId">Root items tpl id</param>
     /// <param name="itemWithChildren">Item to add</param>
     /// <param name="inventory">Inventory to add item+children into</param>
-    /// <param name="containersIdFull">Container Ids with no space for more items</param>
     /// <returns>ItemAddedResult result object</returns>
     public ItemAddedResult AddItemWithChildrenToEquipmentSlot(
         MongoId botId,
@@ -444,8 +443,7 @@ public class BotGeneratorHelper(
         MongoId rootItemId,
         MongoId rootItemTplId,
         IEnumerable<Item> itemWithChildren,
-        BotBaseInventory inventory,
-        HashSet<string>? containersIdFull = null
+        BotBaseInventory inventory
     )
     {
         var itemWithChildrenList = itemWithChildren.ToList();
@@ -454,12 +452,6 @@ public class BotGeneratorHelper(
         var missingContainerCount = 0;
         foreach (var equipmentSlotId in equipmentSlots)
         {
-            if (containersIdFull is not null && containersIdFull.Contains(equipmentSlotId.ToString()))
-            {
-                // Container has been flagged as full already, skip trying to add item into it
-                continue;
-            }
-
             // Get container from inventory to put item into
             var container = inventory.Items?.FirstOrDefault(item => item.SlotId == equipmentSlotId.ToString());
             if (container is null)

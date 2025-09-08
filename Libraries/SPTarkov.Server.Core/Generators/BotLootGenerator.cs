@@ -36,22 +36,22 @@ public class BotLootGenerator(
     protected readonly PmcConfig PMCConfig = configServer.GetConfig<PmcConfig>();
 
     /// <summary>
+    /// Get a dictionary of item tpls and the number of times they can be spawned on a single bot
+    /// Keyed by bot type
     /// </summary>
-    /// <param name="botRole"></param>
-    /// <returns></returns>
+    /// <param name="botRole">Role of bot to get limits for</param>
+    /// <returns>Item spawn limits</returns>
     protected ItemSpawnLimitSettings GetItemSpawnLimitsForBot(string botRole)
     {
-        var limits = GetItemSpawnLimitsForBotType(botRole);
-
         // Clone limits and set all values to 0 to use as a running total
-        var limitsForBotDict = cloner.Clone(limits);
+        var limitsForBotDictClone = cloner.Clone(GetItemSpawnLimitsForBotType(botRole));
         // Init current count of items we want to limit
-        foreach (var limit in limitsForBotDict)
+        foreach (var limit in limitsForBotDictClone)
         {
-            limitsForBotDict[limit.Key] = 0;
+            limitsForBotDictClone[limit.Key] = 0;
         }
 
-        return new ItemSpawnLimitSettings { CurrentLimits = limitsForBotDict, GlobalLimits = GetItemSpawnLimitsForBotType(botRole) };
+        return new ItemSpawnLimitSettings { CurrentLimits = limitsForBotDictClone, GlobalLimits = GetItemSpawnLimitsForBotType(botRole) };
     }
 
     /// <summary>
@@ -128,10 +128,6 @@ public class BotLootGenerator(
 
         var containersBotHasAvailable = GetAvailableContainersBotCanStoreItemsIn(botInventory);
 
-        // This set is passed as a reference to fill up the containers that are already full, this alleviates
-        // generation of the bots by avoiding checking the slots of containers we already know are full
-        HashSet<string> filledContainerIds = [];
-
         // Special items
         AddLootFromPool(
             botId,
@@ -140,8 +136,7 @@ public class BotLootGenerator(
             specialLootItemCount,
             botInventory,
             botRole,
-            botItemLimits,
-            containersIdFull: filledContainerIds
+            botItemLimits
         );
 
         // Healing items / Meds
@@ -154,8 +149,7 @@ public class BotLootGenerator(
             botRole,
             null,
             0,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         // Drugs
@@ -168,8 +162,7 @@ public class BotLootGenerator(
             botRole,
             null,
             0,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         // Food
@@ -182,8 +175,7 @@ public class BotLootGenerator(
             botRole,
             null,
             0,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         // Drink
@@ -196,8 +188,7 @@ public class BotLootGenerator(
             botRole,
             null,
             0,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         // Currency
@@ -210,8 +201,7 @@ public class BotLootGenerator(
             botRole,
             null,
             0,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         // Stims
@@ -224,8 +214,7 @@ public class BotLootGenerator(
             botRole,
             botItemLimits,
             0,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         // Grenades
@@ -238,8 +227,7 @@ public class BotLootGenerator(
             botRole,
             null,
             0,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         var itemPriceLimits = GetSingleItemLootPriceLimits(botLevel, isPmc);
@@ -259,8 +247,7 @@ public class BotLootGenerator(
                     botJsonTemplate.BotChances?.WeaponModsChances,
                     botRole,
                     isPmc,
-                    botLevel,
-                    filledContainerIds
+                    botLevel
                 );
             }
 
@@ -277,8 +264,7 @@ public class BotLootGenerator(
                 botRole,
                 botItemLimits,
                 backpackLootRoubleTotal,
-                isPmc,
-                filledContainerIds
+                isPmc
             );
         }
 
@@ -297,8 +283,7 @@ public class BotLootGenerator(
                 botRole,
                 botItemLimits,
                 vestLootRoubleTotal,
-                isPmc,
-                filledContainerIds
+                isPmc
             );
         }
 
@@ -314,8 +299,7 @@ public class BotLootGenerator(
             botRole,
             botItemLimits,
             pocketLootRoubleTotal,
-            isPmc,
-            filledContainerIds
+            isPmc
         );
 
         // Secure
@@ -332,8 +316,7 @@ public class BotLootGenerator(
                 botRole,
                 null,
                 -1,
-                isPmc,
-                filledContainerIds
+                isPmc
             );
         }
     }
@@ -411,7 +394,6 @@ public class BotLootGenerator(
     /// <param name="inventoryToAddItemsTo">Bot inventory loot will be added to</param>
     /// <param name="botRole">Role of the bot loot is being generated for (assault/pmcbot)</param>
     /// <param name="itemSpawnLimits">Item spawn limits the bot must adhere to</param>
-    /// <param name="containersIdFull"></param>
     /// <param name="totalValueLimitRub">Total value of loot allowed in roubles</param>
     /// <param name="isPmc">Is bot being generated for a pmc</param>
     protected internal void AddLootFromPool(
@@ -423,8 +405,7 @@ public class BotLootGenerator(
         string botRole,
         ItemSpawnLimitSettings? itemSpawnLimits,
         double totalValueLimitRub = 0,
-        bool isPmc = false,
-        HashSet<string>? containersIdFull = null
+        bool isPmc = false
     )
     {
         // Loot pool has items
@@ -514,8 +495,7 @@ public class BotLootGenerator(
                 newRootItemId,
                 itemToAddTemplate.Id,
                 itemWithChildrenToAdd,
-                inventoryToAddItemsTo,
-                containersIdFull
+                inventoryToAddItemsTo
             );
 
             // Handle when item cannot be added
@@ -639,8 +619,7 @@ public class BotLootGenerator(
     /// <param name="modChances">Chances for mods to spawn on weapon</param>
     /// <param name="botRole">bots role .e.g. pmcBot</param>
     /// <param name="isPmc">are we generating for a pmc</param>
-    /// <param name="botLevel"></param>
-    /// <param name="containersIdFull"></param>
+    /// <param name="botLevel">Level of bot having loose weapon generated</param>
     public void AddLooseWeaponsToInventorySlot(
         MongoId botId,
         MongoId sessionId,
@@ -650,8 +629,7 @@ public class BotLootGenerator(
         Dictionary<string, double> modChances,
         string botRole,
         bool isPmc,
-        int botLevel,
-        HashSet<string>? containersIdFull
+        int botLevel
     )
     {
         var chosenWeaponType = randomUtil.GetArrayValue<string>(
@@ -698,8 +676,7 @@ public class BotLootGenerator(
                 weaponRootItem.Id,
                 weaponRootItem.Template,
                 generatedWeapon.Weapon,
-                botInventory,
-                containersIdFull
+                botInventory
             );
 
             if (result != ItemAddedResult.SUCCESS)
