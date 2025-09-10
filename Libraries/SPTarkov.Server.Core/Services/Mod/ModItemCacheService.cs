@@ -38,14 +38,14 @@ public class ModItemCacheService(ISptLogger<ModItemCacheService> logger, IReadOn
     ///     Adds a mod item to the cache, internal use only.
     /// </summary>
     /// <param name="caller">Callers assembly</param>
-    /// <param name="modId">Item id added to database</param>
-    internal void AddModItem(Assembly caller, MongoId modId)
+    /// <param name="itemId">Item id added to database</param>
+    internal void AddModItem(Assembly caller, MongoId itemId)
     {
         var mod = GetModFromAssembly(caller);
         if (mod is null)
         {
             logger.Error(
-                $"Could not find mod reference for assembly: {caller.GetName()} when adding item tpl: {modId.ToString()} to cache"
+                $"Could not find mod reference for assembly: {caller.GetName()} when adding item tpl: {itemId.ToString()} to cache"
             );
             return;
         }
@@ -56,11 +56,11 @@ public class ModItemCacheService(ISptLogger<ModItemCacheService> logger, IReadOn
             _cachedItems.Add(guid, []);
         }
 
-        _cachedItems[guid].Add(modId);
+        _cachedItems[guid].Add(itemId);
 
         if (logger.IsLogEnabled(LogLevel.Debug))
         {
-            logger.Debug($"Mod: {guid} added item: {modId.ToString()} to database");
+            logger.Debug($"Mod: {guid} added item: {itemId.ToString()} to database");
         }
     }
 
