@@ -285,7 +285,6 @@
         "CanGrenade": true,
         "CanRun": true,
         "DamageCoeff": 1,
-        "GainSightCoef": 1.2,
         "HearingSense": 2.9,
         "PistolFireDistancePref": 35,
         "RifleFireDistancePref": 100,
@@ -472,7 +471,7 @@
       },
       "Mind": {
         "ACTIVE_FOLLOW_PLAYER_EVENTS": false,
-        "AGGRESSOR_LOYALTY_BONUS": 0,
+
         "AI_POWER_COEF": 120,
         "AMBUSH_WHEN_UNDER_FIRE": true,
         "AMBUSH_WHEN_UNDER_FIRE_TIME_RESIST": 60,
@@ -833,7 +832,6 @@
         "CanGrenade": true,
         "CanRun": true,
         "DamageCoeff": 1,
-        "GainSightCoef": 1.2,
         "HearingSense": 1.25,
         "PistolFireDistancePref": 35,
         "RifleFireDistancePref": 100,
@@ -1020,7 +1018,6 @@
         "WAIT_NEW__LOOK_SENSOR": 7.8
       },
       "Mind": {
-        "AGGRESSOR_LOYALTY_BONUS": 0,
         "AI_POWER_COEF": 120,
         "AMBUSH_WHEN_UNDER_FIRE": true,
         "AMBUSH_WHEN_UNDER_FIRE_TIME_RESIST": 60,
@@ -1381,7 +1378,6 @@
         "CanGrenade": true,
         "CanRun": true,
         "DamageCoeff": 1,
-        "GainSightCoef": 1.2,
         "HearingSense": 1.25,
         "PistolFireDistancePref": 35,
         "RifleFireDistancePref": 100,
@@ -1567,7 +1563,6 @@
         "WAIT_NEW__LOOK_SENSOR": 7.8
       },
       "Mind": {
-        "AGGRESSOR_LOYALTY_BONUS": 0,
         "AI_POWER_COEF": 120,
         "AMBUSH_WHEN_UNDER_FIRE": false,
         "AMBUSH_WHEN_UNDER_FIRE_TIME_RESIST": 60,
@@ -1926,7 +1921,6 @@
         "CanGrenade": true,
         "CanRun": true,
         "DamageCoeff": 1,
-        "GainSightCoef": 1.2,
         "HearingSense": 2.9,
         "PistolFireDistancePref": 35,
         "RifleFireDistancePref": 100,
@@ -2113,7 +2107,6 @@
       },
       "Mind": {
         "ACTIVE_FOLLOW_PLAYER_EVENTS": false,
-        "AGGRESSOR_LOYALTY_BONUS": 0,
         "AI_POWER_COEF": 120,
         "AMBUSH_WHEN_UNDER_FIRE": true,
         "AMBUSH_WHEN_UNDER_FIRE_TIME_RESIST": 60,
