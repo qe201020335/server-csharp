@@ -29,6 +29,10 @@ public record BotGlobalsMindSettings
     [JsonPropertyName("DAMAGE_REDUCTION_TIME_SEC")]
     public float? DamageReductionTimeSec { get; set; }
 
+    /// <summary>
+    /// Minimum damage a bot must take to get a danger point
+    /// default 20
+    /// </summary>
     [JsonPropertyName("MIN_DAMAGE_SCARE")]
     public float? MinDamageScare { get; set; }
 
@@ -233,12 +237,19 @@ public record BotGlobalsMindSettings
     [JsonPropertyName("DIST_TO_ENEMY_YO_CAN_HEAL")]
     public float? DistToEnemyYoCanHeal { get; set; }
 
+    /// <summary>
+    /// Chance that after the first 2 actions when warning the bot will stand and wait for the next 4 seconds
+    /// </summary>
     [JsonPropertyName("CHANCE_TO_STAY_WHEN_WARN_PLAYER_100")]
     public float? ChanceToStayWhenWarnPlayer100 { get; set; }
 
     [JsonPropertyName("DOG_FIGHT_OUT")]
     public float? DogFightOut { get; set; }
 
+    /// <summary>
+    /// Will enter dogfight
+    /// default 3
+    /// </summary>
     [JsonPropertyName("DOG_FIGHT_IN")]
     public float? DogFightIn { get; set; }
 
@@ -368,6 +379,9 @@ public record BotGlobalsMindSettings
     [JsonPropertyName("ACTIVE_FOLLOW_PLAYER_EVENTS")]
     public bool? ActiveFollowPlayerEvents { get; set; }
 
+    /// <summary>
+    /// The bot can be called to help by the boss (for example, Tagilla or Boar
+    /// </summary>
     [JsonPropertyName("MAY_BE_CALLED_FOR_HELP")]
     public bool? MayBeCalledForHelp { get; set; }
 

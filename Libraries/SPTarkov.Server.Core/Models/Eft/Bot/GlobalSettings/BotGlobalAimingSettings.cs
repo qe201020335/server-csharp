@@ -58,12 +58,18 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("DAMAGE_PANIC_TIME")]
     public float? DamagePanicTime { get; set; }
 
+    /// <summary>
+    /// danger point firing level
+    /// </summary>
     [JsonPropertyName("DANGER_UP_POINT")]
     public float? DangerUpPoint { get; set; }
 
     [JsonPropertyName("MAX_AIMING_UPGRADE_BY_TIME")]
     public float? MaxAimingUpgradeByTime { get; set; }
 
+    /// <summary>
+    /// this is the probability that the bot will mow down the shot when hit. The alternative is to worsen the aiming time
+    /// </summary>
     [JsonPropertyName("DAMAGE_TO_DISCARD_AIM_0_100")]
     public float? DamageToDiscardAim0100 { get; set; }
 
@@ -82,6 +88,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("XZ_COEF_STATIONARY_GRENADE")]
     public float? XzCoefStationaryGrenade { get; set; }
 
+    /// <summary>
+    /// How many shots on target are needed approximately to change the priority to shooting at legs
+    /// </summary>
     [JsonPropertyName("SHOOT_TO_CHANGE_PRIORITY")]
     public int? ShootToChangePriority { get; set; }
 
@@ -91,6 +100,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("FIRST_CONTACT_ADD_SEC")]
     public float? FirstContactAddSec { get; set; }
 
+    /// <summary>
+    /// Chance of triggering the delay specified in FIRST_CONTACT_ADD_SEC
+    /// </summary>
     [JsonPropertyName("FIRST_CONTACT_ADD_CHANCE_100")]
     public float? FirstContactAddChance100 { get; set; }
 
@@ -103,6 +115,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("BASE_HIT_AFFECTION_MAX_ANG")]
     public float? BaseHitAffectionMaxAng { get; set; }
 
+    /// <summary>
+    /// Base shift in meters for aiming (example: BASE_SHIEF=5 => means at a distance of 20 meters the aiming will be as at 20+5=25)
+    /// </summary>
     [JsonPropertyName("BASE_SHIEF")]
     public float? BaseShief { get; set; }
 
@@ -151,6 +166,10 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("ANYTIME_LIGHT_WHEN_AIM_100")]
     public float? AnytimeLightWhenAim100 { get; set; }
 
+    /// <summary>
+    /// How many seconds after first spotting an enemy will it be possible to shoot at any part of the body?
+    /// default 900
+    /// </summary>
     [JsonPropertyName("ANY_PART_SHOOT_TIME")]
     public float? AnyPartShootTime { get; set; }
 
