@@ -13,6 +13,9 @@ namespace SPTarkov.Server.Core.Models.Eft.Bot.GlobalSettings;
 /// </summary>
 public record BotGlobalLookData
 {
+    /// <summary>
+    /// The lifetime of the point up to which the bot will pay attention to it with the standard inspection algorithm
+    /// </summary>
     [JsonPropertyName("OLD_TIME_POINT")]
     public float? OldTimePoint { get; set; }
 

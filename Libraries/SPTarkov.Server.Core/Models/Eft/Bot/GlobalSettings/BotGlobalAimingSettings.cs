@@ -13,6 +13,9 @@ namespace SPTarkov.Server.Core.Models.Eft.Bot.GlobalSettings;
 /// </summary>
 public record BotGlobalAimingSettings
 {
+    /// <summary>
+    /// Time for Maximum shooting improvement depending on how long the bot aims
+    /// </summary>
     [JsonPropertyName("MAX_AIM_PRECICING")]
     public float? MaxAimPrecicing { get; set; }
 
@@ -28,6 +31,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("RECALC_SQR_DIST")]
     public float? RecalcSqrDist { get; set; }
 
+    /// <summary>
+    /// increased aiming when peeking out from behind cover
+    /// </summary>
     [JsonPropertyName("COEF_FROM_COVER")]
     public float? CoefFromCover { get; set; }
 
@@ -37,12 +43,21 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("PANIC_ACCURATY_COEF")]
     public float? PanicAccuratyCoef { get; set; }
 
+    /// <summary>
+    /// Improved Aiming Factor
+    /// </summary>
     [JsonPropertyName("HARD_AIM")]
     public float? HardAim { get; set; }
 
+    /// <summary>
+    /// aim chance while shooting [0;100]
+    /// </summary>
     [JsonPropertyName("HARD_AIM_CHANCE_100")]
     public int? HardAimChance100 { get; set; }
 
+    /// <summary>
+    /// Panic time is normal
+    /// </summary>
     [JsonPropertyName("PANIC_TIME")]
     public float? PanicTime { get; set; }
 
@@ -64,6 +79,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("DANGER_UP_POINT")]
     public float? DangerUpPoint { get; set; }
 
+    /// <summary>
+    /// how much better can shooting be from zeroing in - 0.15 == 85%. 0.5 == 50% . 1 == 0%
+    /// </summary>
     [JsonPropertyName("MAX_AIMING_UPGRADE_BY_TIME")]
     public float? MaxAimingUpgradeByTime { get; set; }
 
@@ -97,6 +115,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("BOTTOM_COEF")]
     public float? BottomCoef { get; set; }
 
+    /// <summary>
+    /// Added to the first time a bot aims at a player
+    /// </summary>
     [JsonPropertyName("FIRST_CONTACT_ADD_SEC")]
     public float? FirstContactAddSec { get; set; }
 
@@ -163,6 +184,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("NEXT_SHOT_MISS_Y_OFFSET")]
     public float? NextShotMissYOffset { get; set; }
 
+    /// <summary>
+    /// Chance that the bot will turn on the flashlight when aiming
+    /// </summary>
     [JsonPropertyName("ANYTIME_LIGHT_WHEN_AIM_100")]
     public float? AnytimeLightWhenAim100 { get; set; }
 
@@ -179,6 +203,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("MIN_DAMAGE_TO_GET_HIT_AFFETS")]
     public float? MinDamageToGetHitAffets { get; set; }
 
+    /// <summary>
+    /// Maximum aiming time
+    /// </summary>
     [JsonPropertyName("MAX_AIM_TIME")]
     public float? MaxAimTime { get; set; }
 
@@ -194,6 +221,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("STATIONARY_LEAVE_HALF_DEGREE")]
     public float? StationaryLeaveHalfDegree { get; set; }
 
+    /// <summary>
+    /// Base number of hits past MIN
+    /// </summary>
     [JsonPropertyName("BAD_SHOOTS_MIN")]
     public int? BadShootsMin { get; set; }
 
@@ -212,6 +242,9 @@ public record BotGlobalAimingSettings
     [JsonPropertyName("AIMING_ON_WAY")]
     public float? AimingOnWay { get; set; }
 
+    /// <summary>
+    /// The distance to the target, if exceeded, the bot misses on first contact if visibility is obstructed
+    /// </summary>
     [JsonPropertyName("FIRST_CONTACT_HARD_TO_SEE_MISS_SHOOTS_DISTANCE")]
     public float? FirstContactHardToSeeMissShootsDistance { get; set; }
 
@@ -266,9 +299,16 @@ public record BotUnderbarrelLauncherAimingSettings
     [JsonPropertyName("MAX_AIMING_UPGRADE_BY_TIME")]
     public float? MaxAimingUpgradeByTime { get; set; }
 
+    /// <summary>
+    /// The bot is considered to be moving if it has passed more than X frame
+    /// </summary>
     [JsonPropertyName("BOT_MOVE_IF_DELTA")]
     public float? BotMoveIfDelta { get; set; }
 
+    /// <summary>
+    /// Panic time is normal
+    /// default 6
+    /// </summary>
     [JsonPropertyName("PANIC_TIME")]
     public float? PanicTime { get; set; }
 
@@ -329,6 +369,9 @@ public record BotUnderbarrelLauncherAimingSettings
     [JsonPropertyName("BAD_SHOOTS_OFFSET")]
     public float? BadShootsOffset { get; set; }
 
+    /// <summary>
+    /// Base coefficient from the formula == Y*ln(x/5+1.2)
+    /// </summary>
     [JsonPropertyName("BAD_SHOOTS_MAIN_COEF")]
     public float? BadShootsMainCoef { get; set; }
 
