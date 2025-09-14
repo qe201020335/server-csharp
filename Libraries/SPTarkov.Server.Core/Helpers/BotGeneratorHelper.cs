@@ -101,7 +101,8 @@ public class BotGeneratorHelper(
             hasProperties = true;
         }
 
-        if (itemTemplate?.Properties?.MaxHpResource is not null)
+        // Must have value + not be 0 (e.g. Esmarch tourniquet) as they're single use
+        if (itemTemplate?.Properties?.MaxHpResource is not null && itemTemplate.Properties.MaxHpResource != 0)
         {
             itemUpd.MedKit = new UpdMedKit
             {
