@@ -557,7 +557,7 @@ public class BotLootGenerator(
                 inventoryToAddItemsTo
             );
 
-            // Handle when item cannot be added
+            // Handle when fitting item fails
             if (itemAddedResult != ItemAddedResult.SUCCESS)
             {
                 if (itemAddedResult == ItemAddedResult.NO_CONTAINERS)

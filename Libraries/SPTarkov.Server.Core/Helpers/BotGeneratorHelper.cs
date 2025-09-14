@@ -167,7 +167,7 @@ public class BotGeneratorHelper(
         }
 
         // Some items (weapon mods) may not have any props, and we don't want an empty Upd object
-        return hasProperties ? itemUpd : null;
+        return hasProperties || forceStackObjectsCount ? itemUpd : null;
     }
 
     /// <summary>
