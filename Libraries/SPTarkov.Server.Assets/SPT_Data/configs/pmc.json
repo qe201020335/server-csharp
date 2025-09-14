@@ -318,17 +318,17 @@
         {
           "min": 36,
           "max": 45,
-          "value": 450000
+          "value": 550000
         },
         {
           "min": 46,
           "max": 64,
-          "value": 750000
+          "value": 1000000
         },
         {
           "min": 65,
           "max": 100,
-          "value": 2500000
+          "value": 3000000
         }
       ],
       "locationMultiplier": {
