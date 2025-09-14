@@ -4,7 +4,6 @@ using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Utils;
 
 namespace SPTarkov.Server.Core.Services;
 
@@ -12,7 +11,6 @@ namespace SPTarkov.Server.Core.Services;
 public class BotEquipmentModPoolService(
     ISptLogger<BotEquipmentModPoolService> logger,
     ItemHelper itemHelper,
-    JsonUtil jsonUtil,
     DatabaseService databaseService,
     ServerLocalisationService localisationService
 )
