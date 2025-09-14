@@ -572,7 +572,7 @@ public class BotInventoryGenerator(
                 Template = pickedItemDb.Id,
                 ParentId = settings.Inventory.Equipment,
                 SlotId = settings.RootEquipmentSlot.ToString(),
-                Upd = botGeneratorHelper.GenerateExtraPropertiesForItem(pickedItemDb, settings.BotData.Role),
+                Upd = botGeneratorHelper.GenerateExtraPropertiesForItem(pickedItemDb, settings.BotData.Role, true),
             };
 
             var botEquipBlacklist = botEquipmentFilterService.GetBotEquipmentBlacklist(
