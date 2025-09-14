@@ -413,7 +413,7 @@
         "SOUND_DIR_DEEFREE": 30
       },
       "Lay": {
-        "ATTACK_LAY_CHANCE": 25,
+        "ATTACK_LAY_CHANCE": 15,
         "CHECK_SHOOT_WHEN_LAYING": false,
         "CLEAR_POINTS_OF_SCARE_SEC": 20,
         "DAMAGE_TIME_TO_GETUP": 3,
@@ -958,7 +958,7 @@
         "SOUND_DIR_DEEFREE": 30
       },
       "Lay": {
-        "ATTACK_LAY_CHANCE": 25,
+        "ATTACK_LAY_CHANCE": 15,
         "CHECK_SHOOT_WHEN_LAYING": false,
         "CLEAR_POINTS_OF_SCARE_SEC": 20,
         "DAMAGE_TIME_TO_GETUP": 3,
@@ -1505,7 +1505,7 @@
         "SOUND_DIR_DEEFREE": 30
       },
       "Lay": {
-        "ATTACK_LAY_CHANCE": 25,
+        "ATTACK_LAY_CHANCE": 15,
         "CHECK_SHOOT_WHEN_LAYING": false,
         "CLEAR_POINTS_OF_SCARE_SEC": 20,
         "DAMAGE_TIME_TO_GETUP": 3,
@@ -2047,7 +2047,7 @@
         "SOUND_DIR_DEEFREE": 30
       },
       "Lay": {
-        "ATTACK_LAY_CHANCE": 25,
+        "ATTACK_LAY_CHANCE": 15,
         "CHECK_SHOOT_WHEN_LAYING": false,
         "CLEAR_POINTS_OF_SCARE_SEC": 20,
         "DAMAGE_TIME_TO_GETUP": 3,
