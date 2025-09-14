@@ -47,100 +47,73 @@ public class BotEquipmentModPoolService(
     ///     Create a dictionary of mods for each item passed in
     /// </summary>
     /// <param name="inputItems"> Items to find related mods and store in modPool </param>
-    /// <param name="poolType"> Mod pool to choose from e.g. "weapon" for weaponModPool </param>
+    /// <param name="poolKey"> Mod pool to choose from e.g. "weapon" for weaponModPool </param>
     protected ConcurrentDictionary<MongoId, ConcurrentDictionary<string, HashSet<MongoId>>> GeneratePool(
         IEnumerable<TemplateItem>? inputItems,
-        string poolType
+        string poolKey
     )
     {
-        // Null guard bad input
         if (inputItems is null || !inputItems.Any())
         {
-            logger.Error(localisationService.GetText("bot-unable_to_generate_item_pool_no_items", poolType));
-
+            logger.Error(localisationService.GetText("bot-unable_to_generate_item_pool_no_items", poolKey));
             return [];
         }
 
+        // Create pool we want to return
         var pool = new ConcurrentDictionary<MongoId, ConcurrentDictionary<string, HashSet<MongoId>>>();
-        foreach (var dbItem in inputItems)
+
+        // Create queue to hold items we need to process/check for mods to add into the pool
+        // Add items passed in to method initially, add sub-mods later
+        var itemsToProcess = new Queue<TemplateItem>(inputItems);
+
+        // Keep track of processed items to reduce unnecessary work
+        var processedItems = new HashSet<MongoId>();
+
+        while (itemsToProcess.TryDequeue(out var currentItem))
         {
-            if (dbItem.Properties is null)
-            {
-                logger.Error(
-                    localisationService.GetText("bot-item_missing_props_property", new { itemTpl = dbItem.Id, name = dbItem.Name })
-                );
-
-                continue;
-            }
-
-            // No slots for mods
-            if (dbItem.Properties.Slots is null || !dbItem.Properties.Slots.Any())
+            // Null guard / we've already processed this item
+            if (currentItem is null || !processedItems.Add(currentItem.Id))
             {
                 continue;
             }
 
-            // Add base item (weapon/armor) to pool if it doesn't exist
-            var itemPool = pool.GetOrAdd(dbItem.Id, new ConcurrentDictionary<string, HashSet<MongoId>>());
-
-            // Look for slots on item that hold mods
-            foreach (var slot in dbItem.Properties.Slots)
+            // No slots = skip
+            if (currentItem.Properties?.Slots is null || !currentItem.Properties.Slots.Any())
             {
-                // Get whitelist of mods that fit into mod slot
-                var itemsThatFit = slot?.Properties?.Filters?.FirstOrDefault()?.Filter ?? [];
-                if (!itemsThatFit.Any())
+                continue;
+            }
+
+            // Get top-level pool, create if it doesn't exist
+            var itemPool = pool.GetOrAdd(currentItem.Id, new ConcurrentDictionary<string, HashSet<MongoId>>());
+
+            foreach (var slot in currentItem.Properties.Slots)
+            {
+                var compatibleMods = slot?.Properties?.Filters?.FirstOrDefault()?.Filter;
+                if (compatibleMods is null || !compatibleMods.Any())
                 {
+                    // No mod items in whitelist, skip
                     continue;
                 }
 
-                // Ensure Mod slot key + blank dict exist in pool
-                var modItemPool = GetSetModItemPool(itemPool, slot.Name);
-                foreach (var itemToAddTpl in itemsThatFit)
+                // Get or add set for this specific mod slot (e.g., "mod_scope").
+                var modItemPool = itemPool.GetOrAdd(slot.Name, []);
+
+                foreach (var modTpl in compatibleMods)
                 {
-                    // Does tpl exist inside mods' slots' hashset
-                    if (!SetContainsTpl(modItemPool, itemToAddTpl))
-                    // Keyed by mod slot
-                    {
-                        AddTplToSet(modItemPool, itemToAddTpl);
-                    }
+                    modItemPool.Add(modTpl);
 
-                    var subItemDetails = itemHelper.GetItem(itemToAddTpl).Value;
-                    var hasSubItemsToAdd = subItemDetails.Properties?.Slots is not null && subItemDetails.Properties.Slots.Any();
-
-                    // Item has Slots + pool doesn't have value
-                    if (hasSubItemsToAdd && !pool.ContainsKey(subItemDetails.Id))
+                    // Also heck if mod ALSO has its own sub slots to process
+                    var modItemDetails = itemHelper.GetItem(modTpl).Value;
+                    if (modItemDetails?.Properties?.Slots?.Any() == true)
                     {
-                        // Recursive call
-                        GeneratePool([subItemDetails], poolType);
+                        // Has slots we need to check, add to processing queue
+                        itemsToProcess.Enqueue(modItemDetails);
                     }
                 }
             }
         }
 
         return pool;
-    }
-
-    private HashSet<MongoId> GetSetModItemPool(ConcurrentDictionary<string, HashSet<MongoId>> dictionary, string slotName)
-    {
-        lock (_lockObject)
-        {
-            return dictionary.GetOrAdd(slotName, []);
-        }
-    }
-
-    private bool SetContainsTpl(HashSet<MongoId> itemSet, MongoId tpl)
-    {
-        lock (_lockObject)
-        {
-            return itemSet.Contains(tpl);
-        }
-    }
-
-    private bool AddTplToSet(HashSet<MongoId> itemSet, MongoId itemToAddTpl)
-    {
-        lock (_lockObject)
-        {
-            return itemSet.Add(itemToAddTpl);
-        }
     }
 
     /// <summary>
