@@ -1,4 +1,5 @@
 using SPTarkov.DI.Annotations;
+using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
@@ -24,6 +25,7 @@ public class RagfairPriceService(
     PresetHelper presetHelper,
     ItemHelper itemHelper,
     DatabaseService databaseService,
+    DatabaseServer databaseServer,
     ServerLocalisationService serverLocalisationService,
     ConfigServer configServer
 )
@@ -37,7 +39,10 @@ public class RagfairPriceService(
     public void Load()
     {
         RefreshStaticPrices();
-        RefreshDynamicPrices();
+        if (RagfairConfig.Dynamic.GenerateBaseFleaPrices.UseHandbookPrice)
+        {
+            ReplaceFleaBasePrices();
+        }
     }
 
     public string GetRoute()
@@ -62,11 +67,40 @@ public class RagfairPriceService(
     }
 
     /// <summary>
-    ///     Copy the prices.json data into our dynamic price dictionary
+    /// Replace base item price used for flea
+    /// Use handbook as a base price
     /// </summary>
-    public void RefreshDynamicPrices()
+    public void ReplaceFleaBasePrices()
     {
-        // TODO: remove as redundant?
+        var pricePool = databaseServer.GetTables().Templates.Prices;
+        foreach (var (itemTpl, handbookPrice) in StaticPrices)
+        {
+            // Get new price to use
+            var newBasePrice = handbookPrice * RagfairConfig.Dynamic.GenerateBaseFleaPrices.PriceMultiplier;
+            if (newBasePrice == 0)
+            {
+                continue;
+            }
+
+            // Specific item multiplier may exist, check for it
+            if (RagfairConfig.Dynamic.GenerateBaseFleaPrices.ItemTplMultiplierOverride.TryGetValue(itemTpl, out var specificItemMultiplier))
+            {
+                newBasePrice = handbookPrice * specificItemMultiplier;
+            }
+
+            if (RagfairConfig.Dynamic.GenerateBaseFleaPrices.PreventPriceBeingBelowTraderBuyPrice)
+            {
+                // Check if item can be sold to trader for a higher price than what we're going to set
+                var highestSellToTraderPrice = traderHelper.GetHighestSellToTraderPrice(itemTpl);
+                if (highestSellToTraderPrice > newBasePrice)
+                {
+                    // Trader has higher sell price, use that value
+                    newBasePrice = highestSellToTraderPrice;
+                }
+            }
+
+            pricePool.AddOrUpdate(itemTpl, newBasePrice);
+        }
     }
 
     /// <summary>
