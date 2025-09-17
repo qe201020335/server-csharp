@@ -12,7 +12,7 @@ public record Globals
     public required Config Configuration { get; init; }
 
     [JsonPropertyName("LocationInfection")]
-    public required LocationInfection LocationInfection { get; init; }
+    public required Dictionary<string, int> LocationInfection { get; init; }
 
     [JsonPropertyName("bot_presets")]
     public required IEnumerable<BotPreset> BotPresets { get; init; }

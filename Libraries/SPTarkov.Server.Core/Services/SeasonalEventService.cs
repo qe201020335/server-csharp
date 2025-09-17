@@ -738,7 +738,7 @@ public class SeasonalEventService(
         infectionHalloween.DisplayUIEnabled = true;
         infectionHalloween.Enabled = true;
 
-        var globalInfectionDict = globals.LocationInfection.GetAllPropertiesAsDictionary();
+        var globalInfectionDict = globals.LocationInfection;
         foreach (var (locationId, infectionPercentage) in zombieSettings.MapInfectionAmount)
         {
             // calculate a random value unless the rate is 100
@@ -758,7 +758,7 @@ public class SeasonalEventService(
             }
 
             // Globals data needs value updated too
-            globalInfectionDict[locationId] = randomInfectionPercentage;
+            globalInfectionDict[locationId] = Convert.ToInt32(randomInfectionPercentage);
         }
 
         foreach (var locationId in zombieSettings.DisableBosses)
