@@ -42,15 +42,6 @@ public class PostDbLoadService(
         // add items gets left out,causing warnings
         itemBaseClassService.HydrateItemBaseClassCache();
 
-        // Validate that only mongoIds exist in items, quests, and traders
-        // Kill the startup if not.
-        // TODO: We can probably remove this in a couple versions
-        databaseService.ValidateDatabase();
-        if (!databaseService.IsDatabaseValid())
-        {
-            throw new Exception("Server start failure, database invalid");
-        }
-
         AddCustomLooseLootPositions();
 
         MergeCustomAchievements();
