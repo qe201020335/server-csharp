@@ -350,9 +350,9 @@
       "itemTplMultiplierOverride": {
         "5780cf7f2459777de4559322": 1.8
       },
-	  "itemTypeMultiplierOverride": {
-		  "5c164d2286f774194c5e69fa": 2.5
-	  },
+      "itemTypeMultiplierOverride": {
+        "5c164d2286f774194c5e69fa": 2.5
+      },
       "preventPriceBeingBelowTraderBuyPrice": true
     }
   },
