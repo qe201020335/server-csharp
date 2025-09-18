@@ -1,7 +1,6 @@
 ﻿using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Controllers;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Exceptions.Profile;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Request;
@@ -45,7 +44,13 @@ public class GameCallbacks(
     {
         if (saveServer.IsProfileInvalidOrUnloadable(sessionID))
         {
-            throw new ProfileIncompatibleException("This profile cannot be loaded due to it being invalid or unloadable!");
+            return new ValueTask<string>(
+                httpResponseUtil.GetBody(
+                    new GameStartResponse { UtcTime = 0 },
+                    Models.Enums.BackendErrorCodes.PlayerProfileNotFound,
+                    "This profile cannot be loaded due to it being invalid or unloadable!"
+                )
+            );
         }
 
         var startTimestampSec = timeUtil.GetTimeStamp();
