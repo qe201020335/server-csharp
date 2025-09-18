@@ -76,7 +76,7 @@ public class RagfairPriceService(
         foreach (var (itemTpl, handbookPrice) in StaticPrices)
         {
             // Get new price to use
-            var newBasePrice = handbookPrice * GetFleaBasePriceMultiplier(itemTpl);
+            var newBasePrice = handbookPrice * (GetFleaBasePriceMultiplier(itemTpl) + GetItemRarityMultiplier(itemTpl));
             if (newBasePrice == 0)
             {
                 continue;
@@ -120,6 +120,24 @@ public class RagfairPriceService(
         }
 
         return RagfairConfig.Dynamic.GenerateBaseFleaPrices.PriceMultiplier;
+    }
+
+    protected double GetItemRarityMultiplier(MongoId itemTpl)
+    {
+        var itemDetails = itemHelper.GetItem(itemTpl);
+        switch (itemDetails.Value?.Properties?.RarityPvE ?? string.Empty)
+        {
+            case "Common":
+                return 0;
+            case "Rare":
+                return 0.2;
+            case "Superrare":
+                return 0.5;
+            case "Not_exist":
+                return 1;
+            default:
+                return 0;
+        }
     }
 
     /// <summary>
