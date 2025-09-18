@@ -68,6 +68,7 @@ public class ProfileController(
                 MaxLevel = maxLvl,
                 Edition = profile.ProfileInfo?.Edition ?? string.Empty,
                 ProfileId = profile.ProfileInfo?.ProfileId ?? string.Empty,
+                InvalidOrUnloadableProfile = profile.ProfileInfo?.InvalidOrUnloadableProfile,
                 SptData = profileHelper.GetDefaultSptDataObject(),
             };
         }
@@ -85,6 +86,7 @@ public class ProfileController(
             MaxLevel = maxLvl,
             Edition = profile.ProfileInfo?.Edition ?? string.Empty,
             ProfileId = profile.ProfileInfo?.ProfileId ?? string.Empty,
+            InvalidOrUnloadableProfile = profile.ProfileInfo?.InvalidOrUnloadableProfile,
             SptData = profile.SptData,
         };
     }
