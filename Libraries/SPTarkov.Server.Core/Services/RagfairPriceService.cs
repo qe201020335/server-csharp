@@ -76,16 +76,10 @@ public class RagfairPriceService(
         foreach (var (itemTpl, handbookPrice) in StaticPrices)
         {
             // Get new price to use
-            var newBasePrice = handbookPrice * RagfairConfig.Dynamic.GenerateBaseFleaPrices.PriceMultiplier;
+            var newBasePrice = handbookPrice * GetFleaBasePriceMultiplier(itemTpl);
             if (newBasePrice == 0)
             {
                 continue;
-            }
-
-            // Specific item multiplier may exist, check for it
-            if (RagfairConfig.Dynamic.GenerateBaseFleaPrices.ItemTplMultiplierOverride.TryGetValue(itemTpl, out var specificItemMultiplier))
-            {
-                newBasePrice = handbookPrice * specificItemMultiplier;
             }
 
             if (RagfairConfig.Dynamic.GenerateBaseFleaPrices.PreventPriceBeingBelowTraderBuyPrice)
@@ -101,6 +95,31 @@ public class RagfairPriceService(
 
             pricePool.AddOrUpdate(itemTpl, newBasePrice);
         }
+    }
+
+    /// <summary>
+    /// Get the multiplier to apply to a handbook price to create the base flea price of an item
+    /// </summary>
+    /// <param name="itemTpl">Item to look up multiplier of</param>
+    /// <returns>Multiplier value</returns>
+    protected double GetFleaBasePriceMultiplier(MongoId itemTpl)
+    {
+        // Specific item multiplier may exist, check for it
+        if (RagfairConfig.Dynamic.GenerateBaseFleaPrices.ItemTplMultiplierOverride.TryGetValue(itemTpl, out var specificItemMultiplier))
+        {
+            return specificItemMultiplier;
+        }
+
+        // Check if tpl is of each time, if it is, use that multi
+        foreach (var (itemType, multiplier) in RagfairConfig.Dynamic.GenerateBaseFleaPrices.ItemTypeMultiplierOverride)
+        {
+            if (itemHelper.IsOfBaseclass(itemTpl, itemType))
+            {
+                return multiplier;
+            }
+        }
+
+        return RagfairConfig.Dynamic.GenerateBaseFleaPrices.PriceMultiplier;
     }
 
     /// <summary>

@@ -254,6 +254,9 @@ public record GenerateFleaPrices
 
     [JsonPropertyName("itemTplMultiplierOverride")]
     public Dictionary<MongoId, double> ItemTplMultiplierOverride { get; set; }
+
+    [JsonPropertyName("itemTypeMultiplierOverride")]
+    public Dictionary<MongoId, double> ItemTypeMultiplierOverride { get; set; }
 }
 
 public record PriceRanges
