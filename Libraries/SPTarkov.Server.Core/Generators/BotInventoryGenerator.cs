@@ -502,7 +502,7 @@ public class BotInventoryGenerator(
 
         // Roll dice on equipment item
         var shouldSpawn = randomUtil.GetChance100(spawnChance.Value);
-        if (shouldSpawn && settings.RootEquipmentPool.Any())
+        if (shouldSpawn && settings.RootEquipmentPool?.Count != 0)
         {
             TemplateItem? pickedItemDb = null;
             var found = false;
@@ -512,7 +512,7 @@ public class BotInventoryGenerator(
             var attempts = 0;
             while (!found)
             {
-                if (!settings.RootEquipmentPool.Any())
+                if (settings.RootEquipmentPool.Count == 0)
                 {
                     return false;
                 }
@@ -649,7 +649,7 @@ public class BotInventoryGenerator(
                 }
 
                 var filteredMods = modsForSlot.Where(mod => !blacklistedMods.Contains(mod)).ToHashSet();
-                if (filteredMods.Any())
+                if (filteredMods.Count != 0)
                 {
                     // There's at least one tpl remaining, send it
                     return filteredMods;
