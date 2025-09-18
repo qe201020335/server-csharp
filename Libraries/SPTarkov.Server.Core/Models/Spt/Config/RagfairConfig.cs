@@ -257,6 +257,12 @@ public record GenerateFleaPrices
 
     [JsonPropertyName("itemTypeMultiplierOverride")]
     public Dictionary<MongoId, double> ItemTypeMultiplierOverride { get; set; }
+
+    [JsonPropertyName("useHideoutCraftMultiplier")]
+    public bool UseHideoutCraftMultiplier { get; set; }
+
+    [JsonPropertyName("hideoutCraftMultiplier")]
+    public double HideoutCraftMultiplier { get; set; }
 }
 
 public record PriceRanges

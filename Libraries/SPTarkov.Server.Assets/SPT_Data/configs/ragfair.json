@@ -353,7 +353,9 @@
       "itemTypeMultiplierOverride": {
         "5c164d2286f774194c5e69fa": 2.5
       },
-      "preventPriceBeingBelowTraderBuyPrice": true
+      "preventPriceBeingBelowTraderBuyPrice": true,
+	  "useHideoutCraftMultiplier": true,
+	  "hideoutCraftMultiplier": 0.5
     }
   },
   "runIntervalSeconds": 8,
