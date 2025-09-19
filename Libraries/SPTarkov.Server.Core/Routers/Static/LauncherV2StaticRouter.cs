@@ -44,6 +44,4 @@ public class LauncherV2StaticRouter(LauncherV2Callbacks launcherV2Callbacks, Jso
                 async (url, info, sessionID, _) => await launcherV2Callbacks.Profile(info)
             ),
         ]
-    )
-{
-}
+    ) { }
