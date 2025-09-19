@@ -19,7 +19,8 @@ public class LauncherV2Controller(
     DatabaseService databaseService,
     ServerLocalisationService serverLocalisationService,
     ConfigServer configServer,
-    Watermark watermark
+    Watermark watermark,
+    ProfileController profileController
 )
 {
     protected readonly CoreConfig CoreConfig = configServer.GetConfig<CoreConfig>();
@@ -191,5 +192,10 @@ public class LauncherV2Controller(
     public SptProfile GetProfile(MongoId sessionId)
     {
         return saveServer.GetProfile(sessionId);
+    }
+
+    public MiniProfile? GetMiniProfileFromUsername(LoginRequestData info)
+    {
+        return profileController.GetMiniProfile(GetSessionId(info));
     }
 }

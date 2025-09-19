@@ -92,10 +92,10 @@ public class LauncherV2Callbacks(
         );
     }
 
-    public ValueTask<string> Profile(MongoId sessionId)
+    public ValueTask<string> Profile(LoginRequestData sessionId)
     {
         return new ValueTask<string>(
-            httpResponseUtil.NoBody(new LauncherV2ProfileResponse { Response = launcherV2Controller.GetProfile(sessionId) })
+            httpResponseUtil.NoBody(new LauncherV2ProfileResponse { Response = launcherV2Controller.GetMiniProfileFromUsername(sessionId) })
         );
     }
 }

@@ -39,9 +39,11 @@ public class LauncherV2StaticRouter(LauncherV2Callbacks launcherV2Callbacks, Jso
                 "/launcher/v2/profiles",
                 async (url, _, sessionID, _) => await launcherV2Callbacks.Profiles()
             ),
-            new RouteAction<EmptyRequestData>(
+            new RouteAction<LoginRequestData>(
                 "/launcher/v2/profile",
-                async (url, _, sessionID, _) => await launcherV2Callbacks.Profile(sessionID)
+                async (url, info, sessionID, _) => await launcherV2Callbacks.Profile(info)
             ),
         ]
-    ) { }
+    )
+{
+}
